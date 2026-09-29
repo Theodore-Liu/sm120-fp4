@@ -48,14 +48,52 @@ Bytes read are the touched experts' weights and scales once plus the small inter
 costs nothing extra in bandwidth. The risk is FC2 load balance at 1 token (8 experts x a column tile per CTA) and the
 barrier's cost at small sizes; both are measurable before the full kernel exists.
 
-## Before writing the kernel
+## Before writing the kernel: the measured floor and the price of two phases
 
-1. Measure the achievable floor, not the datasheet one: a pure weight-streaming kernel that reads exactly the touched
-   experts' FP4 bytes (8 to 81 chunks of 2.65 MB, cold L2) and does nothing else. The gap between that and the existing
-   paths is the real room.
-2. Measure the barrier: an empty two-phase kernel with the chosen grid-wide dependency.
-3. Only then the kernel, validated against the reference in this repository with bitwise determinism across 1000 calls
-   as a test, and the stage 1 CUDA-graph replay check.
+`scripts/micro_floor.py`, JSON `reports/micro-floor-rtx5090-2026-09-29.json`. Every timing is one CUDA-graph replay
+with L2 flushed first; the flush also keeps the GPU busy while the host enqueues the graph, so host submission latency
+does not land between the timing events (timed on an idle GPU an empty kernel reads 7.2 us, which is that latency).
+
+Fixed costs, graph replay with events around it:
+
+| what | 1 block/SM | 2 | 4 | 8 |
+|---|---|---|---|---|
+| empty kernel | 2.82 us | 2.82 | 2.82 | 2.82 |
+| empty kernel with a cooperative grid barrier | 4.19 | 4.61 | 4.86 | (exceeds co-residency) |
+| empty pair chained with PDL | 2.82 | 2.85 | 4.86 | 4.86 |
+
+The 2.82 us of an empty kernel is inside every number in this document and in `stage2-baselines.md`, so comparisons
+between them are like for like. A grid barrier costs 1.4 to 2 us; a PDL pair costs nothing over one kernel at up to 2
+blocks per SM and 2 us at 4.
+
+Weight streaming: a kernel that only reads the touched experts' FP4 weights and scales (16-byte streaming loads, grid-
+stride over the chunks, 256 threads per block), best over 1 to 16 blocks per SM, same routing as the baselines:
+
+| tokens | experts | MiB read | datasheet floor | read once | GB/s | read in two phases, grid barrier | two phases, PDL | best existing path | existing / two-phase PDL |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 8 | 20.2 | 11.8 us | 18.2 us | 1168 | 21.2 us | 20.2 us | 37.6 us | 1.86 |
+| 2 | 15 | 38.0 | 22.2 | 29.4 | 1352 | 31.5 | 31.5 | 49.9 | 1.58 |
+| 4 | 30 | 75.9 | 44.4 | 55.3 | 1441 | 58.0 | 57.1 | 78.8 | 1.38 |
+| 8 | 48 | 121.5 | 71.1 | 84.7 | 1504 | 88.8 | 87.8 | 113.9 | 1.30 |
+| 16 | 81 | 205.0 | 120.0 | 140.0 | 1535 | 143.6 | 142.1 | 166.5 | 1.17 |
+
+What this says:
+
+- The reachable floor is well above the datasheet one at small sizes: 20 MiB cannot be read at 1792 GB/s once ramp-up,
+  the tail and the 2.8 us replay overhead are counted. This simple streamer reaches 1168 GB/s at 1 token and 1535 at
+  16; a better one may do somewhat better, so these are estimates of the floor, not bounds on it.
+- One block per SM streams 1.2 to 1.6 times slower than two or more (29.4 against 18.2 us at 1 token), which matches
+  flashinfer#4990's diagnosis of the CUTLASS grouped path (one CTA per SM, latency-bound). The kernel needs at least two
+  resident blocks per SM, which with about 99 KB of shared memory bounds each block's staging at about 48 KB.
+- The two-phase structure costs 2 to 4 us over a single read; PDL is the cheaper barrier here and does not need
+  cooperative co-residency.
+- The room is largest where decode lives: a kernel that ran at the two-phase floor would be 1.86x the best existing path
+  at 1 token, 1.38x at 4 and 1.17x at 16. Past 16 tokens the existing paths are already close to the floor and there is
+  little to win, which is where SGLang #36787 also hands over to CUTLASS.
+
+Next: the FC1 phase as a real kernel (W4A16: FP4 to bf16 in registers, bf16 `mma.m16n8k16`, weights as the 16-row side,
+tokens as the 8-column side), checked against the reference in this repository, and timed against the FC1 share of
+the two-phase floor above.
 
 ## Open questions
 
