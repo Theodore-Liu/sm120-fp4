@@ -78,6 +78,46 @@ def from_128x4(sf_swizzled: torch.Tensor, rows: int, sf_cols: int) -> torch.Tens
     return flat[idx.reshape(-1)].view(rows, sf_cols)
 
 
+# ----------------------------------------------------------------------------- the 8x4 layout
+# FlashInfer's fp4_quantize(..., is_sf_swizzled_layout=True, is_sf_8x4_layout=True) and mm_fp4(..., use_8x4_sf_layout=True):
+# a tile of 8 rows x 4 scale columns (32 bytes), in-tile offset (row % 8) * 4 + (col % 4), tiles row-major over
+# [ceil(rows/8), ceil(cols/4)], rows padded to a multiple of 8 and columns to a multiple of 4. Derived by one-hot probing of
+# fp4_quantize on an RTX 5090 (tests/test_layouts.py::test_8x4_matches_flashinfer_one_hot). With is_sf_swizzled_layout=False
+# the 8x4 flag is ignored and the output is row-major.
+SF8_BLOCK_ROWS = 8
+_TILE8 = SF8_BLOCK_ROWS * SF_BLOCK_COLS  # 32
+
+
+def padded_sf_shape_8x4(rows: int, sf_cols: int) -> tuple[int, int]:
+    pr = -(-rows // SF8_BLOCK_ROWS) * SF8_BLOCK_ROWS
+    pc = -(-sf_cols // SF_BLOCK_COLS) * SF_BLOCK_COLS
+    return pr, pc
+
+
+def linear_to_8x4_index(rows: int, sf_cols: int, device=None) -> torch.Tensor:
+    pr, pc = padded_sf_shape_8x4(rows, sf_cols)
+    num_k_tiles = pc // SF_BLOCK_COLS
+    r = torch.arange(rows, device=device, dtype=torch.int64)[:, None]
+    c = torch.arange(sf_cols, device=device, dtype=torch.int64)[None, :]
+    return ((r // SF8_BLOCK_ROWS) * num_k_tiles + c // SF_BLOCK_COLS) * _TILE8 + (r % SF8_BLOCK_ROWS) * SF_BLOCK_COLS + (c % SF_BLOCK_COLS)
+
+
+def to_8x4(sf_linear: torch.Tensor) -> torch.Tensor:
+    rows, cols = sf_linear.shape
+    pr, pc = padded_sf_shape_8x4(rows, cols)
+    out = torch.zeros(pr * pc, dtype=sf_linear.dtype, device=sf_linear.device)
+    out[linear_to_8x4_index(rows, cols, device=sf_linear.device).reshape(-1)] = sf_linear.reshape(-1)
+    return out.view(pr, pc)
+
+
+def from_8x4(sf_8x4: torch.Tensor, rows: int, sf_cols: int) -> torch.Tensor:
+    pr, pc = padded_sf_shape_8x4(rows, sf_cols)
+    flat = sf_8x4.reshape(-1)
+    if flat.numel() != pr * pc:
+        raise ValueError(f"8x4 buffer has {flat.numel()} elements; expected {pr}*{pc}={pr * pc}")
+    return flat[linear_to_8x4_index(rows, sf_cols, device=sf_8x4.device).reshape(-1)].view(rows, sf_cols)
+
+
 def describe() -> dict:
     """The layout constants, for reports."""
     return {"name": "128x4", "tile_rows": SF_BLOCK_ROWS, "tile_cols": SF_BLOCK_COLS, "tile_bytes_e4m3": _TILE,

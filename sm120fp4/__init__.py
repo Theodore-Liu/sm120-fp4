@@ -4,9 +4,13 @@ from .layouts import (  # noqa: F401
     SF_BLOCK_ROWS,
     SF_BLOCK_COLS,
     from_128x4,
+    from_8x4,
     linear_to_128x4_index,
+    linear_to_8x4_index,
     padded_sf_shape,
+    padded_sf_shape_8x4,
     to_128x4,
+    to_8x4,
 )
 from .reference import (  # noqa: F401
     E2M1_GRID,

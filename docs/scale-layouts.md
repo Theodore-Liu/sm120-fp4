@@ -83,8 +83,12 @@ expected scale tensor is the next item.
 
 * **Row-major ("linear")**: `sf[row, col]` at `row * cols + col`, no padding. What most checkpoints store and what
   FlashInfer emits with `is_sf_swizzled_layout=False`. `to_128x4` / `from_128x4` convert.
-* **8x4** (`fp4_quantize(..., is_sf_8x4_layout=True)`, `mm_fp4(..., use_8x4_sf_layout=True)`): a smaller tile FlashInfer
-  offers for some paths. Formula not yet extracted; not yet tested.
+* **8x4** (`fp4_quantize(..., is_sf_swizzled_layout=True, is_sf_8x4_layout=True)`, `mm_fp4(..., use_8x4_sf_layout=True)`): a
+  tile of 8 rows x 4 scale columns (32 bytes), in-tile offset `(row % 8) * 4 + (col % 4)`, tiles row-major over
+  `[ceil(rows/8), ceil(cols/4)]`, rows padded to a multiple of 8 and columns to a multiple of 4. **Derived**, not read from
+  source: every scale position of a 16x8 and a 9x5 scale tensor was probed alone through `fp4_quantize` on an RTX 5090
+  and landed where the formula says (`tests/test_layouts_8x4.py`); bulk outputs at 128x512 and 200x1024 match `to_8x4`
+  byte for byte. With `is_sf_swizzled_layout=False` the 8x4 flag is ignored and the output is row-major (tested).
 * **trtllm-gen weight shuffles** (`shuffle_matrix_a`, `shuffle_matrix_sf_a` with an epilogue tile M): a permutation of
   the weight and its scales for the TensorRT-LLM generated kernels; SM100-only kernels today, so out of scope for
   SM120 until they are not.
