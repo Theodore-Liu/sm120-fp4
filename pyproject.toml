@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sm120fp4"
+version = "0.0.1"
+description = "FP4 (NVFP4/MXFP4) scale-factor layouts, reference kernels and a conformance suite for consumer Blackwell (SM120/SM121)"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = ["torch>=2.6", "numpy"]
+
+[project.optional-dependencies]
+conformance = ["flashinfer-python"]
+dev = ["pytest"]
+
+[project.scripts]
+sm120fp4 = "sm120fp4.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["sm120fp4*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
