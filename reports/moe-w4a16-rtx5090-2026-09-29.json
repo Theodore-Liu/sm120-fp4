@@ -8,10 +8,12 @@
    "router_matches_torch": true,
    "rel_err": 0.0024753124453127384,
    "bit_stable_50": true,
-   "layer_us": 29.311999678611755,
+   "layer_us": 29.184000566601753,
+   "layer_pdl_us": 27.39199995994568,
+   "pdl_output_identical": true,
    "best_existing": "b12x-w4a16",
    "best_existing_us": 37.63199970126152,
-   "speedup": 1.2838427986447019
+   "speedup": 1.2894736489392644
   },
   {
    "tokens": 2,
@@ -20,6 +22,8 @@
    "rel_err": 0.0022507973480969667,
    "bit_stable_50": true,
    "layer_us": 41.728001087903976,
+   "layer_pdl_us": 41.439998894929886,
+   "pdl_output_identical": true,
    "best_existing": "marlin-w4a16",
    "best_existing_us": 49.92000013589859,
    "speedup": 1.1963189904720668
@@ -31,6 +35,8 @@
    "rel_err": 0.0023417328484356403,
    "bit_stable_50": true,
    "layer_us": 74.49600100517273,
+   "layer_pdl_us": 73.7600028514862,
+   "pdl_output_identical": true,
    "best_existing": "marlin-w4a16",
    "best_existing_us": 78.8159966468811,
    "speedup": 1.0579896314354968
@@ -41,10 +47,12 @@
    "router_matches_torch": true,
    "rel_err": 0.0023645316250622272,
    "bit_stable_50": true,
-   "layer_us": 113.18399757146835,
+   "layer_us": 111.39199882745743,
+   "layer_pdl_us": 111.39199882745743,
+   "pdl_output_identical": true,
    "best_existing": "marlin-w4a16",
    "best_existing_us": 113.88800293207169,
-   "speedup": 1.0062200079137407
+   "speedup": 1.0224073912928027
   },
   {
    "tokens": 16,
@@ -52,10 +60,12 @@
    "router_matches_torch": true,
    "rel_err": 0.0023665388580411673,
    "bit_stable_50": true,
-   "layer_us": 244.47999894618988,
+   "layer_us": 250.43201446533203,
+   "layer_pdl_us": 248.60799312591553,
+   "pdl_output_identical": true,
    "best_existing": "marlin-w4a16",
    "best_existing_us": 166.49599373340607,
-   "speedup": 0.6810209197115216
+   "speedup": 0.6648351014101456
   }
  ]
 }

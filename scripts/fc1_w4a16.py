@@ -38,6 +38,7 @@ void fc1_w4a16(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tenso
                torch::Tensor pairs, torch::Tensor alpha, torch::Tensor act, int64_t inter, int64_t top_k);
 void fc1_w4a16_cols(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tensor experts, torch::Tensor offsets,
                     torch::Tensor pairs, torch::Tensor alpha, torch::Tensor act, int64_t inter, int64_t top_k, int64_t cols);
+void fc1_set_pdl(bool on);
 """
 
 CUDA = r"""
@@ -98,6 +99,10 @@ k_fc1(const unsigned char* __restrict__ q1, const unsigned char* __restrict__ s1
   const int u = blockIdx.x / tiles;
   const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
   const int c0 = ((blockIdx.x % tiles) * WARPS + warp) * COLS;
+  // Programmatic dependent launch: wait for the router's output, then let FC2 start launching; FC2 waits for this grid's
+  // completion before it reads the activations. Both are no-ops when the kernel is launched without the PDL attribute.
+  cudaGridDependencySynchronize();
+  cudaTriggerProgrammaticLaunchCompletion();
   const int e = experts[u];
   if (e < 0) return;                       // padding slot from the GPU router: fewer experts touched than the grid allows
   const int p0 = offsets[u];
@@ -185,6 +190,9 @@ k_fc1(const unsigned char* __restrict__ q1, const unsigned char* __restrict__ s1
     }
 }
 
+static bool g_pdl = false;   // launch with programmatic stream serialization (set by fc1_set_pdl)
+void fc1_set_pdl(bool on) { g_pdl = on; }
+
 template <int MAXT, int COLS>
 static void launch(const torch::Tensor& q1, const torch::Tensor& s1, const torch::Tensor& x, const torch::Tensor& experts,
                    const torch::Tensor& offsets, const torch::Tensor& pairs, const torch::Tensor& alpha, torch::Tensor& act,
@@ -192,10 +200,19 @@ static void launch(const torch::Tensor& q1, const torch::Tensor& s1, const torch
   TORCH_CHECK(I % (WARPS * COLS) == 0, "intermediate size must be a multiple of WARPS * COLS");
   const int U = (int)experts.numel();
   auto st = at::cuda::getCurrentCUDAStream();
-  k_fc1<MAXT, COLS><<<U * (I / (WARPS * COLS)), WARPS * 32, 0, st>>>(
-      q1.data_ptr<uint8_t>(), s1.data_ptr<uint8_t>(), reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()),
-      experts.data_ptr<int>(), offsets.data_ptr<int>(), pairs.data_ptr<int>(), alpha.data_ptr<float>(),
-      reinterpret_cast<__nv_bfloat16*>(act.data_ptr()), H, I, top_k);
+  cudaLaunchConfig_t cfg = {};
+  cfg.gridDim = dim3(U * (I / (WARPS * COLS)));
+  cfg.blockDim = dim3(WARPS * 32);
+  cfg.stream = st;
+  cudaLaunchAttribute attr[1];
+  attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+  attr[0].val.programmaticStreamSerializationAllowed = 1;
+  cfg.attrs = attr;
+  cfg.numAttrs = g_pdl ? 1 : 0;
+  TORCH_CHECK(cudaLaunchKernelEx(&cfg, k_fc1<MAXT, COLS>, q1.data_ptr<uint8_t>(), s1.data_ptr<uint8_t>(),
+                                 reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()), experts.data_ptr<int>(),
+                                 offsets.data_ptr<int>(), pairs.data_ptr<int>(), alpha.data_ptr<float>(),
+                                 reinterpret_cast<__nv_bfloat16*>(act.data_ptr()), H, I, top_k) == cudaSuccess, "launch");
   TORCH_CHECK(cudaGetLastError() == cudaSuccess, "launch");
 }
 
@@ -225,7 +242,7 @@ void fc1_w4a16(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tenso
 
 
 def build(verbose=False):
-    return load_inline(name="sm120fp4_fc1_w4a16", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc1_w4a16", "fc1_w4a16_cols"],
+    return load_inline(name="sm120fp4_fc1_w4a16", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc1_w4a16", "fc1_w4a16_cols", "fc1_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a", "-Xptxas=-v"],
                        verbose=verbose)
 

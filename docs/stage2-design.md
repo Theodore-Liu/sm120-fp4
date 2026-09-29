@@ -184,3 +184,57 @@ What this does and does not show:
   lands, it is the W4A4 baseline to beat.
 - Real checkpoints: per-expert global scales and non-unit alphas (FlashInfer 0.6.16 couples the b12x input scale to the
   first alpha); the design takes per-expert alphas from the start.
+
+## Where the layer's time goes, and why 16 tokens is slow (`scripts/moe_breakdown.py`)
+
+JSON `reports/moe-breakdown-rtx5090-2026-09-29.json`. Every number is one CUDA-graph replay with L2 flushed first, so
+each carries the same 2.8 us replay overhead; the "read" columns are streaming reads of exactly the FP4 codes and
+scales that kernel consumes for the touched experts, as two kernels (codes, scales), so they carry it twice.
+
+| tokens | experts | router | FC1 | read of FC1's bytes | FC2 | read of FC2's bytes |
+|---|---|---|---|---|---|---|
+| 1 | 8 | 4.9 us | 15.1 | 17.2 | 15.1 | 13.1 |
+| 2 | 15 | 4.9 | 23.8 | 25.3 | 21.2 | 17.2 |
+| 4 | 30 | 4.9 | 43.8 | 42.8 | 35.6 | 25.9 |
+| 8 | 48 | 4.9 | 62.2 | 62.2 | 60.2 | 36.6 |
+| 16 | 81 | 6.2 | 160.5 | 99.1 | 99.1 | 58.1 |
+
+- FC1 runs at the speed of reading its own bytes from 1 to 8 tokens (the two-kernel read is no faster), and 1.6x slower
+  at 16.
+- FC2 is 1.15x to 1.7x slower than reading its bytes at every batch size: that is the larger remaining gap from 2 to 16
+  tokens.
+- The router costs 4.9 us as a graph replay on its own, of which 2.8 us is the replay overhead every kernel pays.
+
+Why FC1 is slow at 16 tokens. With the expert set fixed at 8 and every token routed to all 8, the bytes FC1 reads do not
+change with the batch and only the arithmetic does:
+
+| tokens per expert | 1 | 2 | 4 | 8 | 16 |
+|---|---|---|---|---|---|
+| FC1 | 15.1 us | 17.2 | 28.4 | 41.7 | 105.2 |
+
+So FC1 becomes bound by instructions, not memory, as tokens per expert grow. At 16 tokens with 8 experts that is 128
+(token, expert) pairs, the same arithmetic as the random 16-token batch (also 128 pairs), which takes 160.5 us while
+reading ten times more experts: roughly 100 us of it is CUDA-core arithmetic (per pair, per weight: a bf16-to-fp32
+conversion of the activation and two fused multiply-adds, repeated for every intermediate column). With random routing
+at 1 to 8 tokens most experts receive one or two tokens, which is why FC1 is memory-bound there. The fix for 16 tokens
+is to move FC1's (and FC2's) arithmetic onto tensor cores (`mma.m16n8k16` in bf16 after the in-register FP4 decode,
+tokens as the 8-column side), not to tune the CUDA-core loop further.
+
+## Chaining the kernels with programmatic dependent launch
+
+FC1 waits for the router's output and immediately allows the next kernel to launch; FC2 issues its first round of
+weight loads and only then waits for FC1 to complete before it reads the activations. The calls are no-ops without the
+launch attribute, so the same kernels run either way. JSON `reports/moe-w4a16-rtx5090-2026-09-29.json` (same run as the
+rows below; the plain column moved by up to 6 us from the earlier table at 16 tokens):
+
+| tokens | route + FC1 + FC2 | with PDL | best existing path | speedup with PDL | output identical to plain launch |
+|---|---|---|---|---|---|
+| 1 | 29.2 us | 27.4 us | 37.6 us | 1.37x | yes |
+| 2 | 41.7 | 41.4 | 49.9 | 1.20x | yes |
+| 4 | 74.5 | 73.8 | 78.8 | 1.07x | yes |
+| 8 | 111.4 | 111.4 | 113.9 | 1.02x | yes |
+| 16 | 250.4 | 248.6 | 166.5 | 0.67x | yes |
+
+PDL pays where the kernels are short (1.8 us at 1 token) and is noise elsewhere. Next, in order of what the numbers say
+is left: FC2 at the speed of its bytes (2 to 16 tokens), tensor-core arithmetic for FC1 and FC2 (16 tokens), and a
+cheaper router (1 token).

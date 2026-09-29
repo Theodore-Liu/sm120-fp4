@@ -41,6 +41,7 @@ void fc2_w4a16_v1(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::
                   int64_t cols);
 void fc2_w4a16_v0(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor experts, torch::Tensor offsets,
                   torch::Tensor pairs, torch::Tensor weights, torch::Tensor alpha, torch::Tensor out, int64_t top_k);
+void fc2_set_pdl(bool on);
 """
 
 CUDA = r"""
@@ -167,6 +168,7 @@ k_fc2_v1(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
   for (int z = threadIdx.x; z < WARPS_B * MAXM * COLS; z += blockDim.x) (&part[0][0][0])[z] = 0.f;
   __syncthreads();
 
+  bool waited = false;
   for (int u0 = warp; u0 < U; u0 += 2 * WARPS_B) {          // two experts per warp in flight
     uint4 wq[2][COLS];
     unsigned short ws[2][COLS];
@@ -184,6 +186,10 @@ k_fc2_v1(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
           ws[d][c] = 0;
         }
       }
+    }
+    if (!waited) {          // PDL: the first weight loads are in flight; now wait for FC1's activations
+      cudaGridDependencySynchronize();
+      waited = true;
     }
 #pragma unroll
     for (int d = 0; d < 2; ++d) {
@@ -228,6 +234,9 @@ k_fc2_v1(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
   }
 }
 
+static bool g_pdl2 = false;   // launch with programmatic stream serialization (set by fc2_set_pdl)
+void fc2_set_pdl(bool on) { g_pdl2 = on; }
+
 void fc2_w4a16_v1(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor experts, torch::Tensor offsets,
                   torch::Tensor pairs, torch::Tensor weights, torch::Tensor alpha, torch::Tensor out, int64_t top_k,
                   int64_t cols) {
@@ -237,9 +246,20 @@ void fc2_w4a16_v1(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::
 #define FC2_ARGS q2.data_ptr<uint8_t>(), s2.data_ptr<uint8_t>(), reinterpret_cast<const __nv_bfloat16*>(act.data_ptr()), \
     experts.data_ptr<int>(), offsets.data_ptr<int>(), pairs.data_ptr<int>(), weights.data_ptr<float>(),                 \
     alpha.data_ptr<float>(), reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), U, M, H, I, (int)top_k
-  if (cols == 1) k_fc2_v1<1><<<H, WARPS_B * 32, 0, st>>>(FC2_ARGS);
-  else if (cols == 2) k_fc2_v1<2><<<H / 2, WARPS_B * 32, 0, st>>>(FC2_ARGS);
-  else k_fc2_v1<4><<<H / 4, WARPS_B * 32, 0, st>>>(FC2_ARGS);
+  cudaLaunchConfig_t cfg = {};
+  cfg.gridDim = dim3(H / (int)cols);
+  cfg.blockDim = dim3(WARPS_B * 32);
+  cfg.stream = st;
+  cudaLaunchAttribute attr[1];
+  attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+  attr[0].val.programmaticStreamSerializationAllowed = 1;
+  cfg.attrs = attr;
+  cfg.numAttrs = g_pdl2 ? 1 : 0;
+  cudaError_t err;
+  if (cols == 1) err = cudaLaunchKernelEx(&cfg, k_fc2_v1<1>, FC2_ARGS);
+  else if (cols == 2) err = cudaLaunchKernelEx(&cfg, k_fc2_v1<2>, FC2_ARGS);
+  else err = cudaLaunchKernelEx(&cfg, k_fc2_v1<4>, FC2_ARGS);
+  TORCH_CHECK(err == cudaSuccess, "launch");
   TORCH_CHECK(cudaGetLastError() == cudaSuccess, "launch");
 }
 
@@ -265,7 +285,7 @@ void fc2_w4a16_v0(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::
 
 
 def build():
-    return load_inline(name="sm120fp4_fc2_w4a16", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_w4a16", "fc2_w4a16_v1", "fc2_w4a16_v0"],
+    return load_inline(name="sm120fp4_fc2_w4a16", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_w4a16", "fc2_w4a16_v1", "fc2_w4a16_v0", "fc2_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=False)
 
 

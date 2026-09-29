@@ -151,11 +151,20 @@ def main(argv=None) -> int:
             layer()
             stable = stable and bool(torch.equal(out, first))
         t = floor.graph_time(layer)
+        m1.fc1_set_pdl(True)
+        m2.fc2_set_pdl(True)
+        layer()
+        torch.cuda.synchronize()
+        pdl_same = bool(torch.equal(out, first))
+        t_pdl = floor.graph_time(layer)
+        m1.fc1_set_pdl(False)
+        m2.fc2_set_pdl(False)
         bname, bus = best[m]
         row = {"tokens": m, "experts_touched": u, "router_matches_torch": same_route, "rel_err": rel, "bit_stable_50": stable,
-               "layer_us": t, "best_existing": bname, "best_existing_us": bus, "speedup": bus / t}
+               "layer_us": t, "layer_pdl_us": t_pdl, "pdl_output_identical": pdl_same, "best_existing": bname, "best_existing_us": bus, "speedup": bus / t}
         report["rows"].append(row)
-        print(f"{m:6d} | {str(same_route):21s} | {rel:16.5f} | {str(stable):17s} | {t:37.1f} | {bname} {bus:.1f} | {bus / t:.2f}x")
+        print(f"{m:6d} | {str(same_route):21s} | {rel:16.5f} | {str(stable):17s} | {t:37.1f} | {bname} {bus:.1f} | {bus / t:.2f}x"
+              f" || with PDL {t_pdl:.1f} us ({bus / t_pdl:.2f}x), output identical {pdl_same}")
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"written {a.out}")
