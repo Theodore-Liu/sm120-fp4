@@ -1,0 +1,61 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "baseline": "reports/moe-baseline-rtx5090-2026-09-29.json",
+ "rows": [
+  {
+   "tokens": 1,
+   "experts_touched": 8,
+   "router_matches_torch": true,
+   "rel_err": 0.0024753124453127384,
+   "bit_stable_50": true,
+   "layer_us": 29.311999678611755,
+   "best_existing": "b12x-w4a16",
+   "best_existing_us": 37.63199970126152,
+   "speedup": 1.2838427986447019
+  },
+  {
+   "tokens": 2,
+   "experts_touched": 15,
+   "router_matches_torch": true,
+   "rel_err": 0.0022507973480969667,
+   "bit_stable_50": true,
+   "layer_us": 41.728001087903976,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 49.92000013589859,
+   "speedup": 1.1963189904720668
+  },
+  {
+   "tokens": 4,
+   "experts_touched": 30,
+   "router_matches_torch": true,
+   "rel_err": 0.0023417328484356403,
+   "bit_stable_50": true,
+   "layer_us": 74.49600100517273,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 78.8159966468811,
+   "speedup": 1.0579896314354968
+  },
+  {
+   "tokens": 8,
+   "experts_touched": 48,
+   "router_matches_torch": true,
+   "rel_err": 0.0023645316250622272,
+   "bit_stable_50": true,
+   "layer_us": 113.18399757146835,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 113.88800293207169,
+   "speedup": 1.0062200079137407
+  },
+  {
+   "tokens": 16,
+   "experts_touched": 81,
+   "router_matches_torch": true,
+   "rel_err": 0.0023665388580411673,
+   "bit_stable_50": true,
+   "layer_us": 244.47999894618988,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 166.49599373340607,
+   "speedup": 0.6810209197115216
+  }
+ ]
+}

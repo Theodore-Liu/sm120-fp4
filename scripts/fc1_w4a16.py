@@ -99,6 +99,7 @@ k_fc1(const unsigned char* __restrict__ q1, const unsigned char* __restrict__ s1
   const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
   const int c0 = ((blockIdx.x % tiles) * WARPS + warp) * COLS;
   const int e = experts[u];
+  if (e < 0) return;                       // padding slot from the GPU router: fewer experts touched than the grid allows
   const int p0 = offsets[u];
   const int n = min(offsets[u + 1] - p0, MAXT);
   const long long base = (long long)e * 2 * I;

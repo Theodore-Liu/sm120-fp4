@@ -126,8 +126,57 @@ What got it there, each step measured:
 4. Sweeping columns per warp (1, 2, 4) at each batch size: 2 at 1 token, 1 elsewhere; 4 is worst everywhere.
 
 Open: 16 tokens, at 1.87x its read floor and slower than the first version (138.0 us). Not yet explained; the next
-step there is a profile rather than another guess. Next overall: the FC2 phase (one writer per output column tile,
-experts in a fixed order, fp32 accumulation), then both phases together against the existing paths.
+step there is a profile rather than another guess.
+
+## FC2 phase (`scripts/fc2_w4a16.py`)
+
+Same decode and loads as FC1. The output side is where determinism is decided: each output (hidden) column belongs to
+one block, and nothing is added atomically.
+
+- v0: one warp per output column walks every touched expert in ascending id order, reads that expert's row for its
+  column, dots it with each routed pair's activation, and adds routing weight x alpha x the value into the token's
+  accumulator in shared memory. 20.2 us at 1 token for weights that take about 6 us to read: each warp has only one
+  row of 384 bytes per expert in flight (24 of 32 lanes busy at intermediate 768), and there are only 2048 warps.
+- v1: one block per 1 or 2 output columns; its 8 warps split the touched experts round-robin with two experts' rows in
+  flight each, keep their own partial sums in shared memory, and the block adds the 8 partials in warp order at the end.
+  Every sum still has one order fixed by the routing. FC2 alone: 15.1 us at 1 token (from 20.2), 21.8 at 2 (33.5), 36.6
+  at 4 (60.1), 60.2 at 8 (97.0), 101.1 at 16 (174.8). Two columns per block win at 1 token, one elsewhere.
+
+## The whole layer on the GPU, like for like (`scripts/moe_w4a16.py`)
+
+The first FC1 and FC2 timings left routing out: the pairs were grouped by expert with torch's `argsort` and
+`unique_consecutive`, which synchronises with the host to size its output, outside the timed graph. The baselines'
+calls include their own routing. So routing is now a kernel too: one block counts pairs per expert in shared memory,
+scans the counts, and places each pair at its expert's base plus its rank among the earlier pairs of that expert.
+Experts come out ascending and pairs in index order, identical to the torch router at every batch size tested (checked
+element by element), with no atomics deciding a position. Buffers have a fixed size of min(experts, pairs) slots; unused
+slots carry expert -1, which FC1 and FC2 skip. Nothing returns to the host, and routing, FC1 and FC2 are timed as one
+CUDA graph with L2 flushed first, the method of `stage2-baselines.md`.
+
+Qwen3-30B-A3B-shaped layer, RTX 5090, JSON `reports/moe-w4a16-rtx5090-2026-09-29.json`:
+
+| tokens | normwise error vs fp32 | bit-identical over 50 calls | route + FC1 + FC2 | best existing path (same method) | speedup |
+|---|---|---|---|---|---|
+| 1 | 0.25% | yes | 29.3 us | 37.6 us, b12x W4A16 | 1.28x |
+| 2 | 0.23% | yes | 41.7 | 49.9, Marlin W4A16 | 1.20x |
+| 4 | 0.23% | yes | 74.5 | 78.8, Marlin W4A16 | 1.06x |
+| 8 | 0.24% | yes | 113.2 | 113.9, Marlin W4A16 | 1.01x |
+| 16 | 0.24% | yes | 244.5 | 166.5, Marlin W4A16 | 0.68x |
+
+For scale: the existing W4A16 paths are 0.44% to 0.48% from the same reference, and b12x W4A4 is not bit-stable.
+
+What this does and does not show:
+
+- At 1 and 2 tokens the layer is 1.28x and 1.20x faster than any existing SM120 path measured, deterministic, and
+  about twice as close to the fp32 result. Routing costs 2 to 4 us of that (the same kernels with host-side routing
+  outside the graph measured 25.3 us at 1 token).
+- At 4 and 8 tokens it is level with Marlin; at 16 it is slower, because FC1 at 16 tokens runs at 1.87x its read floor
+  (open, above).
+- The two-phase floor measured earlier is 20.2 us at 1 token, so there are still about 9 us to find at 1 token: routing
+  (2 to 4 us), three kernel boundaries with no PDL yet, and FC2 (15.1 us alone at 1 token for about 7 MB of weights
+  and scales) not yet timed against a read of exactly its own bytes.
+- One layer shape, one card, synthetic weights with unit global scales, and the baselines measured earlier the same day
+  by the same method (their run-to-run spread was up to 2 us).
 
 ## Open questions
 
