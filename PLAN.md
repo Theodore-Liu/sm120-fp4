@@ -51,6 +51,12 @@ Gate, measured on the RTX 5090 and reproduced on an RTX PRO 6000: correct output
 CUDA-graph replays; at batch 1 not slower than the best weight-only (Marlin W4A16) path the engines ship; at batch 8
 to 16 faster than the FlashInfer `compute_120f` grouped path by a margin the report states.
 
+Status (2026-09-29): baselines measured before any kernel is written (`docs/stage2-baselines.md`). FlashInfer 0.6.16
+already ships three SM120 MoE paths (b12x W4A4 and W4A16, CUTLASS W4A4) that produce correct output, so the target
+narrows to what they leave open on the RTX 5090: decode at 1 to 4 tokens, where the best path reaches 31 to 55% of the
+DRAM weight-read floor under CUDA graphs with a cold L2, and determinism, which the fastest W4A4 path does not have.
+Marlin W4A16 is still to be added to the comparison set.
+
 ## Stage 3: the FP4 kernels DeepGEMM does not ship for SM120
 
 Deliverables: SM120 implementations of the three FP4 sites DeepGEMM routes to `tcgen05` today (the FP8xFP4 GEMM, the FP4
