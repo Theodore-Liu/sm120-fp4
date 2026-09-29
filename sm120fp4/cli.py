@@ -8,6 +8,7 @@ fails.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import platform
 import subprocess
@@ -55,9 +56,9 @@ def check_layout(fi, device) -> dict:
 
 def check_quantize(fi, device) -> dict:
     res = {"name": "fp4_quantize vs reference quantizer", "cases": []}
-    torch.manual_seed(1)
+    g = torch.Generator().manual_seed(1)  # CPU generator: identical operands on every machine
     for m, k in [(128, 512), (256, 2048), (64, 4096)]:
-        x = (torch.randn(m, k, device=device) * 2).to(torch.bfloat16)
+        x = (torch.randn(m, k, generator=g) * 2).to(device=device, dtype=torch.bfloat16)
         gs = (448.0 * 6.0 / x.abs().max().float()).reshape(1)
         q_fi, sf_fi = fi.fp4_quantize(x, gs, 16, False, False)
         sf_fi = sf_fi.view(-1)[: m * (k // 16)].view(m, k // 16)
@@ -70,9 +71,11 @@ def check_quantize(fi, device) -> dict:
 
 
 def _operands(m, n, k, device):
-    torch.manual_seed(3)
-    a = torch.randn(m, k, device=device).to(torch.bfloat16)
-    b = torch.randn(n, k, device=device).to(torch.bfloat16)
+    # Generated on the CPU and copied: PyTorch's CUDA generator gives different numbers on GPUs with different SM counts,
+    # which made two machines' reports compare different matrices. CPU generation is the same everywhere.
+    g = torch.Generator().manual_seed(3)
+    a = torch.randn(m, k, generator=g).to(device=device, dtype=torch.bfloat16)
+    b = torch.randn(n, k, generator=g).to(device=device, dtype=torch.bfloat16)
     a_q, a_sf, a_gs = quantize_nvfp4(a.float())
     b_q, b_sf, b_gs = quantize_nvfp4(b.float())
     ref = reference_gemm_nvfp4(a_q, a_sf, a_gs, b_q, b_sf, b_gs)
@@ -89,11 +92,12 @@ def check_mm_fp4(fi, device, backends=("auto", "b12x", "cutlass", "cute-dsl", "c
                 t0 = time.time()
                 o = fi.mm_fp4(a_q, b_q.t(), a_sf, b_sf, alpha, torch.bfloat16, None, 16, False, backend)
                 torch.cuda.synchronize()
+                digest = hashlib.sha256(o.contiguous().view(torch.uint8).cpu().numpy().tobytes()).hexdigest()[:16]
                 o = o.float()
                 err = (o - ref).abs().max().item()
                 scale = ref.abs().max().item() + 1e-6
                 r["shapes"].append({"m": m, "n": n, "k": k, "ran": True, "all_zero": bool((o == 0).all()), "max_abs_err": err,
-                                    "ref_max": scale, "rel_err": err / scale, "first_call_s": round(time.time() - t0, 2)})
+                                    "ref_max": scale, "rel_err": err / scale, "out_sha256_16": digest, "first_call_s": round(time.time() - t0, 2)})
             except Exception as e:  # noqa: BLE001
                 r["shapes"].append({"m": m, "n": n, "k": k, "ran": False, "error": f"{type(e).__name__}: {str(e)[:200]}"})
         ran = [s for s in r["shapes"] if s["ran"]]

@@ -1,0 +1,5 @@
+  /workspace/venv/lib/python3.12/site-packages/nvidia_cutlass_dsl/dsl_packages/cutlass/utils/static_persistent_tile_scheduler.py:292: DeprecationWarning: Migrated to examples/CuTeDSL/helpers/static_persistent_tile_scheduler.py (BSD-3). The wheel copy will be removed in a future release.
+    new_params = PersistentTileSchedulerParams(*(tuple(obj_list)), loc=self._loc)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+36 passed, 15 skipped, 131 warnings in 3.34s

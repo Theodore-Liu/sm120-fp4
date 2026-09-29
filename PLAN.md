@@ -32,6 +32,10 @@ Gate: the suite runs green on an RTX 5090 with the installed FlashInfer and PyTo
 specification is backed by a passing test, and one external SM12x machine (RTX PRO 6000 or DGX Spark) has reproduced
 the report.
 
+Status (2026-09-29): met. The suite is green on the RTX 5090; the RTX PRO 6000 Blackwell Workstation Edition
+reproduced every verdict (`docs/conformance-report-rtxpro6000.md`). A byte-level comparison of the two machines' GEMM
+outputs is still to be run, now that operands are generated on the CPU.
+
 ## Stage 2: grouped block-scaled GEMM and fused MoE for SM120
 
 Deliverables

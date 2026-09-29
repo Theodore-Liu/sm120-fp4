@@ -1,21 +1,21 @@
 {
- "generated_utc": "2026-09-29T15:33:12Z",
+ "generated_utc": "2026-09-29T15:25:53Z",
  "versions": {
   "sm120fp4": "0.0.1",
-  "python": "3.12.14",
+  "python": "3.12.3",
   "torch": "2.13.0+cu130",
   "torch_cuda": "13.0",
-  "platform": "Linux-6.18.33.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "platform": "Linux-6.8.0-139-generic-x86_64-with-glibc2.39",
   "flashinfer": "0.6.16.post3",
-  "nvidia_smi": "NVIDIA GeForce RTX 5090, 610.47, 32607 MiB",
+  "nvidia_smi": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 610.57.04, 97887 MiB",
   "device": {
-   "name": "NVIDIA GeForce RTX 5090",
+   "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
    "capability": [
     12,
     0
    ],
-   "sms": 170,
-   "total_memory_gb": 31.8
+   "sms": 188,
+   "total_memory_gb": 95.0
   }
  },
  "layout": {
@@ -66,9 +66,9 @@
      "m": 128,
      "k": 512,
      "scales_equal": true,
-     "codes_differ": 0,
+     "codes_differ": 39,
      "codes_total": 65536,
-     "codes_differ_fraction": 0.0
+     "codes_differ_fraction": 0.0005950927734375
     },
     {
      "m": 256,
@@ -82,9 +82,9 @@
      "m": 64,
      "k": 4096,
      "scales_equal": true,
-     "codes_differ": 225,
+     "codes_differ": 0,
      "codes_total": 262144,
-     "codes_differ_fraction": 0.000858306884765625
+     "codes_differ_fraction": 0.0
     }
    ],
    "pass": true
@@ -100,11 +100,10 @@
       "k": 512,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.2460174560546875,
-      "ref_max": 101.32634835107422,
-      "rel_err": 0.002427971204511283,
-      "out_sha256_16": "8150bd8a721d4b2a",
-      "first_call_s": 0.51
+      "max_abs_err": 0.248504638671875,
+      "ref_max": 95.46829323632812,
+      "rel_err": 0.002603007032467955,
+      "first_call_s": 175.1
      },
      {
       "m": 16,
@@ -112,11 +111,10 @@
       "k": 4096,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.990814208984375,
-      "ref_max": 277.87127785546875,
-      "rel_err": 0.0035657309263166614,
-      "out_sha256_16": "cee01a8fc869d478",
-      "first_call_s": 0.39
+      "max_abs_err": 0.968170166015625,
+      "ref_max": 309.06012062890625,
+      "rel_err": 0.003132627283149622,
+      "first_call_s": 0.5
      },
      {
       "m": 1,
@@ -124,10 +122,9 @@
       "k": 2048,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.4744415283203125,
-      "ref_max": 162.52555947167968,
-      "rel_err": 0.002919181019050635,
-      "out_sha256_16": "996fc53fff5097db",
+      "max_abs_err": 0.489471435546875,
+      "ref_max": 142.20950417382812,
+      "rel_err": 0.003441903819231205,
       "first_call_s": 0.0
      },
      {
@@ -136,11 +133,10 @@
       "k": 1024,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.468536376953125,
-      "ref_max": 180.56573586328125,
-      "rel_err": 0.0025948243985109455,
-      "out_sha256_16": "be8987a4c1ac38ed",
-      "first_call_s": 0.44
+      "max_abs_err": 0.497650146484375,
+      "ref_max": 163.03118996484375,
+      "rel_err": 0.0030524842920651497,
+      "first_call_s": 0.71
      }
     ],
     "graph_replay": {
@@ -161,10 +157,9 @@
       "k": 512,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.2460174560546875,
-      "ref_max": 101.32634835107422,
-      "rel_err": 0.002427971204511283,
-      "out_sha256_16": "8150bd8a721d4b2a",
+      "max_abs_err": 0.248504638671875,
+      "ref_max": 95.46829323632812,
+      "rel_err": 0.002603007032467955,
       "first_call_s": 0.0
      },
      {
@@ -173,10 +168,9 @@
       "k": 4096,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.990814208984375,
-      "ref_max": 277.87127785546875,
-      "rel_err": 0.0035657309263166614,
-      "out_sha256_16": "cee01a8fc869d478",
+      "max_abs_err": 0.968170166015625,
+      "ref_max": 309.06012062890625,
+      "rel_err": 0.003132627283149622,
       "first_call_s": 0.0
      },
      {
@@ -185,10 +179,9 @@
       "k": 2048,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.4744415283203125,
-      "ref_max": 162.52555947167968,
-      "rel_err": 0.002919181019050635,
-      "out_sha256_16": "996fc53fff5097db",
+      "max_abs_err": 0.489471435546875,
+      "ref_max": 142.20950417382812,
+      "rel_err": 0.003441903819231205,
       "first_call_s": 0.0
      },
      {
@@ -197,10 +190,9 @@
       "k": 1024,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.468536376953125,
-      "ref_max": 180.56573586328125,
-      "rel_err": 0.0025948243985109455,
-      "out_sha256_16": "be8987a4c1ac38ed",
+      "max_abs_err": 0.497650146484375,
+      "ref_max": 163.03118996484375,
+      "rel_err": 0.0030524842920651497,
       "first_call_s": 0.0
      }
     ],
@@ -222,10 +214,9 @@
       "k": 512,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.2460174560546875,
-      "ref_max": 101.32634835107422,
-      "rel_err": 0.002427971204511283,
-      "out_sha256_16": "8150bd8a721d4b2a",
+      "max_abs_err": 0.248504638671875,
+      "ref_max": 95.46829323632812,
+      "rel_err": 0.002603007032467955,
       "first_call_s": 0.0
      },
      {
@@ -234,10 +225,9 @@
       "k": 4096,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.990814208984375,
-      "ref_max": 277.87127785546875,
-      "rel_err": 0.0035657309263166614,
-      "out_sha256_16": "cee01a8fc869d478",
+      "max_abs_err": 0.968170166015625,
+      "ref_max": 309.06012062890625,
+      "rel_err": 0.003132627283149622,
       "first_call_s": 0.0
      },
      {
@@ -246,10 +236,9 @@
       "k": 2048,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.4744415283203125,
-      "ref_max": 162.52555947167968,
-      "rel_err": 0.002919181019050635,
-      "out_sha256_16": "996fc53fff5097db",
+      "max_abs_err": 0.489471435546875,
+      "ref_max": 142.20950417382812,
+      "rel_err": 0.003441903819231205,
       "first_call_s": 0.0
      },
      {
@@ -258,10 +247,9 @@
       "k": 1024,
       "ran": true,
       "all_zero": false,
-      "max_abs_err": 0.468536376953125,
-      "ref_max": 180.56573586328125,
-      "rel_err": 0.0025948243985109455,
-      "out_sha256_16": "be8987a4c1ac38ed",
+      "max_abs_err": 0.497650146484375,
+      "ref_max": 163.03118996484375,
+      "rel_err": 0.0030524842920651497,
       "first_call_s": 0.0
      }
     ],

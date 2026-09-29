@@ -1,0 +1,132 @@
+START 2026-09-29T15:18:21Z
+NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 610.57.04, 97887 MiB, 12.0
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+torch 2.13.0+cu130 cuda 13.0
+flashinfer 0.6.16.post3
+device NVIDIA RTX PRO 6000 Blackwell Workstation Edition (12, 0)
+== conformance
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/sm120-fp4/sm120fp4/cli.py", line 168, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspace/sm120-fp4/sm120fp4/cli.py", line 151, in main
+    report["checks"] = {"layout": check_layout(fi, dev), "quantize": check_quantize(fi, dev),
+                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/sm120-fp4/sm120fp4/cli.py", line 49, in check_layout
+    theirs = fi.nvfp4_block_scale_interleave(sf).reshape(-1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py", line 1191, in block_scale_interleave
+    return get_fp4_quantization_module(device_arch).block_scale_interleave_sm100(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py", line 261, in get_fp4_quantization_module
+    module = backend_modules[backend]().build_and_load()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py", line 197, in gen_fp4_quantization_sm120f_module
+    return gen_fp4_quantization_module(sm120f_nvcc_flags, "120f")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py", line 205, in gen_fp4_quantization_module
+    return gen_jit_spec(
+           ^^^^^^^^^^^^^
+  File "/workspace/venv/lib/python3.12/site-packages/flashinfer/jit/core.py", line 524, in gen_jit_spec
+    check_cuda_arch()
+  File "/workspace/venv/lib/python3.12/site-packages/flashinfer/jit/core.py", line 109, in check_cuda_arch
+    raise RuntimeError("FlashInfer requires GPUs with sm75 or higher")
+RuntimeError: FlashInfer requires GPUs with sm75 or higher
+CONFORMANCE_RC=1
+== tactics
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+2026-09-29 15:20:07,639 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c1x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:07,665 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c1x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:07,713 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c1x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:07,760 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c1x4_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:07,767 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c2x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:07,773 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c2x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:07,819 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c2x4_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac22
+2026-09-29 15:20:07,827 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c4x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:07,833 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c4x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac22
+2026-09-29 15:20:07,884 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c4x4_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac10
+2026-09-29 15:20:07,892 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:07,898 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x2_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:07,904 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x4_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac22
+2026-09-29 15:20:07,911 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:07,917 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c4x2_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac22
+2026-09-29 15:20:07,924 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c4x4_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac10
+2026-09-29 15:20:07,930 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:07,945 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x16_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:07,952 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x16_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:07,959 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x16_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:07,967 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x16_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:07,974 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x32_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:07,980 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x32_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:07,987 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x32_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:07,998 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x8_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:08,005 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x8_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:08,012 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x8_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,019 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x8_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,026 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x16_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:08,033 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x16_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,041 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x16_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,050 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x32_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:08,057 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x32_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,064 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x32_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,076 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,083 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,089 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c4x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,095 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c1x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:08,101 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c2x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,108 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,115 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,122 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c4x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,128 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,135 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c4x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac22
+2026-09-29 15:20:08,143 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:08,150 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c1x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,157 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,164 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c2x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,170 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x4_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac22
+2026-09-29 15:20:08,177 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x64_c2x2_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,183 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x64_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,199 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c2x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,206 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c2x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,213 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c4x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,222 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x256_c1x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:08,228 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x256_c2x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,235 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,241 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c2x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,248 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x256_c4x1_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,254 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,261 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c4x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac22
+2026-09-29 15:20:08,268 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x256_c1x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac188
+2026-09-29 15:20:08,274 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x256_c1x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,281 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x256_c2x2_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,287 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x256_c2x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac94
+2026-09-29 15:20:08,294 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c2x4_swap0_pf0_sm100_tmax_pdl1_bfloat16_b1_mac22
+2026-09-29 15:20:08,300 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t256x256_c2x2_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+2026-09-29 15:20:08,307 - INFO - cute_dsl_core.py:177 - flashinfer.jit: Compiling CuTe-DSL kernel mm_fp4_sm120a_cute_dsl/sf16_t128x256_c4x1_swap1_pf0_sm100_tmax_pdl1_bfloat16_b1_mac46
+cutlass: RuntimeError: No supported CUDA architectures found for major versions [12].
+b12x 128x256x512: presented 8, ran 8, correct 8, default 0.019648000597953796 ms, fastest ((64, 128), (1, 1), False, False, 'sm120', None) at 0.01692800037562847 ms, 6 distinct timings
+b12x 16x4096x4096: presented 8, ran 8, correct 8, default 0.019807999953627586 ms, fastest ((64, 128), (1, 1), False, True, 'sm120', None) at 0.018144000321626663 ms, 8 distinct timings
+b12x 1x1024x2048: presented 8, ran 8, correct 8, default 0.018144000321626663 ms, fastest ((64, 64), (1, 1), False, True, 'sm120', None) at 0.016736000776290894 ms, 7 distinct timings
+b12x 512x512x1024: presented 8, ran 8, correct 8, default 0.018624000251293182 ms, fastest ((128, 64), (1, 1), False, True, 'sm120', None) at 0.016672000288963318 ms, 6 distinct timings
+b12x 4096x4096x4096: presented 8, ran 8, correct 8, default 0.11609599739313126 ms, fastest ((128, 128), (1, 1), False, True, 'sm120', None) at 0.11327999830245972 ms, 7 distinct timings
+cute-dsl 128x256x512: presented 16, ran 0, correct 0, default None ms, fastest None at None ms, 0 distinct timings
+cute-dsl 16x4096x4096: presented 6, ran 0, correct 0, default None ms, fastest None at None ms, 0 distinct timings
+cute-dsl 1x1024x2048: presented 9, ran 0, correct 0, default None ms, fastest None at None ms, 0 distinct timings
+cute-dsl 512x512x1024: presented 16, ran 0, correct 0, default None ms, fastest None at None ms, 0 distinct timings
+cute-dsl 4096x4096x4096: presented 16, ran 0, correct 0, default None ms, fastest None at None ms, 0 distinct timings
+written /workspace/out/tactics-2026-09-29.json
+TACTICS_RC=0
+== pytest
+FAILED tests/test_layouts_8x4.py::test_8x4_bulk_matches_flashinfer - RuntimeE...
+FAILED tests/test_mxfp4.py::test_matches_flashinfer_scales_and_codes - Runtim...
+FAILED tests/test_quantize.py::test_matches_flashinfer_values - RuntimeError:...
+FAILED tests/test_quantize.py::test_flashinfer_dequant_agrees_with_reference
+8 failed, 13 passed, 30 skipped, 5 warnings in 2.73s
+PYTEST_RC=1
+DONE 2026-09-29T15:20:15Z

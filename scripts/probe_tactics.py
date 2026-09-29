@@ -22,9 +22,11 @@ from sm120fp4 import quantize_nvfp4, reference_gemm_nvfp4, to_128x4
 
 
 def operands(m, n, k, device):
-    torch.manual_seed(3)
-    a = torch.randn(m, k, device=device).to(torch.bfloat16)
-    b = torch.randn(n, k, device=device).to(torch.bfloat16)
+    # Generated on the CPU and copied: PyTorch's CUDA generator gives different numbers on GPUs with different SM counts,
+    # which made two machines' reports compare different matrices. CPU generation is the same everywhere.
+    g = torch.Generator().manual_seed(3)
+    a = torch.randn(m, k, generator=g).to(device=device, dtype=torch.bfloat16)
+    b = torch.randn(n, k, generator=g).to(device=device, dtype=torch.bfloat16)
     a_q, a_sf, a_gs = quantize_nvfp4(a.float())
     b_q, b_sf, b_gs = quantize_nvfp4(b.float())
     ref = reference_gemm_nvfp4(a_q, a_sf, a_gs, b_q, b_sf, b_gs)

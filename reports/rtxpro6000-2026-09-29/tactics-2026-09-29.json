@@ -1,0 +1,2442 @@
+{
+ "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+ "capability": [
+  12,
+  0
+ ],
+ "flashinfer": "0.6.16.post3",
+ "torch": "2.13.0+cu130",
+ "enable_pdl": true,
+ "timing": {
+  "warmup": 5,
+  "iters": 30,
+  "statistic": "median ms"
+ },
+ "backends": {
+  "cutlass": {
+   "runner": "CutlassFp4GemmRunner",
+   "shapes": {
+    "128x256x512": {
+     "presented": 32,
+     "ran": 32,
+     "correct": 32,
+     "default_ms": 0.018559999763965607,
+     "fastest": "13",
+     "fastest_ms": 0.01744000054895878,
+     "distinct_median_ms": 20,
+     "pinnable": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018559999763965607
+      },
+      {
+       "tactic": "0",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017696000635623932
+      },
+      {
+       "tactic": "1",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018079999834299088
+      },
+      {
+       "tactic": "2",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019487999379634857
+      },
+      {
+       "tactic": "3",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018624000251293182
+      },
+      {
+       "tactic": "4",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017952000722289085
+      },
+      {
+       "tactic": "5",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01775999926030636
+      },
+      {
+       "tactic": "6",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01852799952030182
+      },
+      {
+       "tactic": "7",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018751999363303185
+      },
+      {
+       "tactic": "8",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017664000391960144
+      },
+      {
+       "tactic": "9",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017632000148296356
+      },
+      {
+       "tactic": "10",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01865600049495697
+      },
+      {
+       "tactic": "11",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01849599927663803
+      },
+      {
+       "tactic": "12",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017983999103307724
+      },
+      {
+       "tactic": "13",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01744000054895878
+      },
+      {
+       "tactic": "14",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01836800016462803
+      },
+      {
+       "tactic": "15",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018464000895619392
+      },
+      {
+       "tactic": "16",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01788800023496151
+      },
+      {
+       "tactic": "17",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01788800023496151
+      },
+      {
+       "tactic": "18",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01958400011062622
+      },
+      {
+       "tactic": "19",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018783999606966972
+      },
+      {
+       "tactic": "20",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017664000391960144
+      },
+      {
+       "tactic": "21",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01788800023496151
+      },
+      {
+       "tactic": "22",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018688000738620758
+      },
+      {
+       "tactic": "23",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018912000581622124
+      },
+      {
+       "tactic": "24",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017823999747633934
+      },
+      {
+       "tactic": "25",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01772800087928772
+      },
+      {
+       "tactic": "26",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019360000267624855
+      },
+      {
+       "tactic": "27",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019519999623298645
+      },
+      {
+       "tactic": "28",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.026464000344276428
+      },
+      {
+       "tactic": "29",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.026367999613285065
+      },
+      {
+       "tactic": "30",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.027712000533938408
+      },
+      {
+       "tactic": "31",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.027904000133275986
+      }
+     ]
+    },
+    "16x4096x4096": {
+     "presented": 32,
+     "ran": 32,
+     "correct": 32,
+     "default_ms": 0.03171199932694435,
+     "fastest": "8",
+     "fastest_ms": 0.01990400068461895,
+     "distinct_median_ms": 32,
+     "pinnable": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03171199932694435
+      },
+      {
+       "tactic": "0",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019967999309301376
+      },
+      {
+       "tactic": "1",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.047200001776218414
+      },
+      {
+       "tactic": "2",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03215999901294708
+      },
+      {
+       "tactic": "3",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.04886399954557419
+      },
+      {
+       "tactic": "4",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.026367999613285065
+      },
+      {
+       "tactic": "5",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.043168000876903534
+      },
+      {
+       "tactic": "6",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.022112000733613968
+      },
+      {
+       "tactic": "7",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03830400109291077
+      },
+      {
+       "tactic": "8",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01990400068461895
+      },
+      {
+       "tactic": "9",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.028192000463604927
+      },
+      {
+       "tactic": "10",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.025280000641942024
+      },
+      {
+       "tactic": "11",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03324799984693527
+      },
+      {
+       "tactic": "12",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.020927999168634415
+      },
+      {
+       "tactic": "13",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02691200003027916
+      },
+      {
+       "tactic": "14",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.023104000836610794
+      },
+      {
+       "tactic": "15",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03014400042593479
+      },
+      {
+       "tactic": "16",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.025536000728607178
+      },
+      {
+       "tactic": "17",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.0272000003606081
+      },
+      {
+       "tactic": "18",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.04297599941492081
+      },
+      {
+       "tactic": "19",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.04182400181889534
+      },
+      {
+       "tactic": "20",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03417599946260452
+      },
+      {
+       "tactic": "21",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.034015998244285583
+      },
+      {
+       "tactic": "22",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02908799983561039
+      },
+      {
+       "tactic": "23",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.027936000376939774
+      },
+      {
+       "tactic": "24",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03948799893260002
+      },
+      {
+       "tactic": "25",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.04012800008058548
+      },
+      {
+       "tactic": "26",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.039583999663591385
+      },
+      {
+       "tactic": "27",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.044319998472929
+      },
+      {
+       "tactic": "28",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.04233599826693535
+      },
+      {
+       "tactic": "29",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.04224000126123428
+      },
+      {
+       "tactic": "30",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.046560000628232956
+      },
+      {
+       "tactic": "31",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.04150399938225746
+      }
+     ]
+    },
+    "1x1024x2048": {
+     "presented": 32,
+     "ran": 32,
+     "correct": 32,
+     "default_ms": 0.02038400061428547,
+     "fastest": "1",
+     "fastest_ms": 0.017823999747633934,
+     "distinct_median_ms": 27,
+     "pinnable": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02038400061428547
+      },
+      {
+       "tactic": "0",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018144000321626663
+      },
+      {
+       "tactic": "1",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017823999747633934
+      },
+      {
+       "tactic": "2",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.022304000332951546
+      },
+      {
+       "tactic": "3",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.022655999287962914
+      },
+      {
+       "tactic": "4",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01820800080895424
+      },
+      {
+       "tactic": "5",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017983999103307724
+      },
+      {
+       "tactic": "6",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.0191040001809597
+      },
+      {
+       "tactic": "7",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018880000337958336
+      },
+      {
+       "tactic": "8",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018144000321626663
+      },
+      {
+       "tactic": "9",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017920000478625298
+      },
+      {
+       "tactic": "10",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.022143999114632607
+      },
+      {
+       "tactic": "11",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.022207999601960182
+      },
+      {
+       "tactic": "12",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018015999346971512
+      },
+      {
+       "tactic": "13",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018015999346971512
+      },
+      {
+       "tactic": "14",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018783999606966972
+      },
+      {
+       "tactic": "15",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018624000251293182
+      },
+      {
+       "tactic": "16",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019840000197291374
+      },
+      {
+       "tactic": "17",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01990400068461895
+      },
+      {
+       "tactic": "18",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.024000000208616257
+      },
+      {
+       "tactic": "19",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.024224000051617622
+      },
+      {
+       "tactic": "20",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019840000197291374
+      },
+      {
+       "tactic": "21",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.0208320003002882
+      },
+      {
+       "tactic": "22",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.020927999168634415
+      },
+      {
+       "tactic": "23",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02099199965596199
+      },
+      {
+       "tactic": "24",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02800000086426735
+      },
+      {
+       "tactic": "25",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.028063999488949776
+      },
+      {
+       "tactic": "26",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03219199925661087
+      },
+      {
+       "tactic": "27",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03215999901294708
+      },
+      {
+       "tactic": "28",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.030112000182271004
+      },
+      {
+       "tactic": "29",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.029983999207615852
+      },
+      {
+       "tactic": "30",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.034015998244285583
+      },
+      {
+       "tactic": "31",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03302399814128876
+      }
+     ]
+    },
+    "512x512x1024": {
+     "presented": 32,
+     "ran": 32,
+     "correct": 32,
+     "default_ms": 0.01820800080895424,
+     "fastest": "4",
+     "fastest_ms": 0.017632000148296356,
+     "distinct_median_ms": 20,
+     "pinnable": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01820800080895424
+      },
+      {
+       "tactic": "0",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01788800023496151
+      },
+      {
+       "tactic": "1",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017664000391960144
+      },
+      {
+       "tactic": "2",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01865600049495697
+      },
+      {
+       "tactic": "3",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018592000007629395
+      },
+      {
+       "tactic": "4",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017632000148296356
+      },
+      {
+       "tactic": "5",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017983999103307724
+      },
+      {
+       "tactic": "6",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018624000251293182
+      },
+      {
+       "tactic": "7",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018751999363303185
+      },
+      {
+       "tactic": "8",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01852799952030182
+      },
+      {
+       "tactic": "9",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.0180479995906353
+      },
+      {
+       "tactic": "10",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018559999763965607
+      },
+      {
+       "tactic": "11",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.022112000733613968
+      },
+      {
+       "tactic": "12",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.026559999212622643
+      },
+      {
+       "tactic": "13",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01775999926030636
+      },
+      {
+       "tactic": "14",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018751999363303185
+      },
+      {
+       "tactic": "15",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018751999363303185
+      },
+      {
+       "tactic": "16",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017855999991297722
+      },
+      {
+       "tactic": "17",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017952000722289085
+      },
+      {
+       "tactic": "18",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.0191040001809597
+      },
+      {
+       "tactic": "19",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018880000337958336
+      },
+      {
+       "tactic": "20",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01775999926030636
+      },
+      {
+       "tactic": "21",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017823999747633934
+      },
+      {
+       "tactic": "22",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018783999606966972
+      },
+      {
+       "tactic": "23",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018719999119639397
+      },
+      {
+       "tactic": "24",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02191999927163124
+      },
+      {
+       "tactic": "25",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.021888000890612602
+      },
+      {
+       "tactic": "26",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02300800010561943
+      },
+      {
+       "tactic": "27",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.0226879995316267
+      },
+      {
+       "tactic": "28",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02409599907696247
+      },
+      {
+       "tactic": "29",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02396799996495247
+      },
+      {
+       "tactic": "30",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02595200017094612
+      },
+      {
+       "tactic": "31",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.024960000067949295
+      }
+     ]
+    },
+    "4096x4096x4096": {
+     "presented": 32,
+     "ran": 32,
+     "correct": 32,
+     "default_ms": 0.12303999811410904,
+     "fastest": "24",
+     "fastest_ms": 0.11180800199508667,
+     "distinct_median_ms": 31,
+     "pinnable": [
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14",
+      "15",
+      "16",
+      "17",
+      "18",
+      "19",
+      "20",
+      "21",
+      "22",
+      "23",
+      "24",
+      "25",
+      "26",
+      "27",
+      "28",
+      "29",
+      "30",
+      "31"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.12303999811410904
+      },
+      {
+       "tactic": "0",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.2144320011138916
+      },
+      {
+       "tactic": "1",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.21571199595928192
+      },
+      {
+       "tactic": "2",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.20537599921226501
+      },
+      {
+       "tactic": "3",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.2059520035982132
+      },
+      {
+       "tactic": "4",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.2094080001115799
+      },
+      {
+       "tactic": "5",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.20908799767494202
+      },
+      {
+       "tactic": "6",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.20499199628829956
+      },
+      {
+       "tactic": "7",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.2051520049571991
+      },
+      {
+       "tactic": "8",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.13808000087738037
+      },
+      {
+       "tactic": "9",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.14057600498199463
+      },
+      {
+       "tactic": "10",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.13529600203037262
+      },
+      {
+       "tactic": "11",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.13548800349235535
+      },
+      {
+       "tactic": "12",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.135903999209404
+      },
+      {
+       "tactic": "13",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.13545599579811096
+      },
+      {
+       "tactic": "14",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.13417600095272064
+      },
+      {
+       "tactic": "15",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.13488000631332397
+      },
+      {
+       "tactic": "16",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.11779200285673141
+      },
+      {
+       "tactic": "17",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.11919999867677689
+      },
+      {
+       "tactic": "18",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.12092799693346024
+      },
+      {
+       "tactic": "19",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1215360015630722
+      },
+      {
+       "tactic": "20",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1233920007944107
+      },
+      {
+       "tactic": "21",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.12380799651145935
+      },
+      {
+       "tactic": "22",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1279039978981018
+      },
+      {
+       "tactic": "23",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.12758399546146393
+      },
+      {
+       "tactic": "24",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.11180800199508667
+      },
+      {
+       "tactic": "25",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.11219199746847153
+      },
+      {
+       "tactic": "26",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.11267200112342834
+      },
+      {
+       "tactic": "27",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.11369600147008896
+      },
+      {
+       "tactic": "28",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.12809599936008453
+      },
+      {
+       "tactic": "29",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.12771199643611908
+      },
+      {
+       "tactic": "30",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1409280002117157
+      },
+      {
+       "tactic": "31",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1337279975414276
+      }
+     ]
+    }
+   }
+  },
+  "b12x": {
+   "runner": "B12xFp4GemmRunner",
+   "shapes": {
+    "128x256x512": {
+     "presented": 8,
+     "ran": 8,
+     "correct": 8,
+     "default_ms": 0.020640000700950623,
+     "fastest": "((128, 128), (1, 1), False, True, 'sm120', None)",
+     "fastest_ms": 0.01772800087928772,
+     "distinct_median_ms": 7,
+     "pinnable": [
+      "((64, 64), (1, 1), False, False, 'sm120', None)",
+      "((64, 64), (1, 1), False, True, 'sm120', None)",
+      "((64, 128), (1, 1), False, False, 'sm120', None)",
+      "((64, 128), (1, 1), False, True, 'sm120', None)",
+      "((128, 64), (1, 1), False, False, 'sm120', None)",
+      "((128, 64), (1, 1), False, True, 'sm120', None)",
+      "((128, 128), (1, 1), False, False, 'sm120', None)",
+      "((128, 128), (1, 1), False, True, 'sm120', None)"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.020640000700950623
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018271999433636665
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018112000077962875
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.03743999823927879
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.04057599976658821
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017791999503970146
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01788800023496151
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018144000321626663
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.002603007032467955,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01772800087928772
+      }
+     ]
+    },
+    "16x4096x4096": {
+     "presented": 8,
+     "ran": 8,
+     "correct": 8,
+     "default_ms": 0.019519999623298645,
+     "fastest": "((64, 128), (1, 1), False, True, 'sm120', None)",
+     "fastest_ms": 0.017983999103307724,
+     "distinct_median_ms": 7,
+     "pinnable": [
+      "((64, 64), (1, 1), False, False, 'sm120', None)",
+      "((64, 64), (1, 1), False, True, 'sm120', None)",
+      "((64, 128), (1, 1), False, False, 'sm120', None)",
+      "((64, 128), (1, 1), False, True, 'sm120', None)",
+      "((128, 64), (1, 1), False, False, 'sm120', None)",
+      "((128, 64), (1, 1), False, True, 'sm120', None)",
+      "((128, 128), (1, 1), False, False, 'sm120', None)",
+      "((128, 128), (1, 1), False, True, 'sm120', None)"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019519999623298645
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019936000928282738
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.019872000440955162
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018239999189972878
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017983999103307724
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.027807999402284622
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.02828799933195114
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.025280000641942024
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003132627283149622,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.025151999667286873
+      }
+     ]
+    },
+    "1x1024x2048": {
+     "presented": 8,
+     "ran": 8,
+     "correct": 8,
+     "default_ms": 0.01945599913597107,
+     "fastest": "((128, 64), (1, 1), False, False, 'sm120', None)",
+     "fastest_ms": 0.017855999991297722,
+     "distinct_median_ms": 6,
+     "pinnable": [
+      "((64, 64), (1, 1), False, False, 'sm120', None)",
+      "((64, 64), (1, 1), False, True, 'sm120', None)",
+      "((64, 128), (1, 1), False, False, 'sm120', None)",
+      "((64, 128), (1, 1), False, True, 'sm120', None)",
+      "((128, 64), (1, 1), False, False, 'sm120', None)",
+      "((128, 64), (1, 1), False, True, 'sm120', None)",
+      "((128, 128), (1, 1), False, False, 'sm120', None)",
+      "((128, 128), (1, 1), False, True, 'sm120', None)"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01945599913597107
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018912000581622124
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.021856000646948814
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018719999119639397
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.0180479995906353
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017855999991297722
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.018144000321626663
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017983999103307724
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.003441903819231205,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017855999991297722
+      }
+     ]
+    },
+    "512x512x1024": {
+     "presented": 8,
+     "ran": 8,
+     "correct": 8,
+     "default_ms": 0.01961600035429001,
+     "fastest": "((64, 128), (1, 1), False, True, 'sm120', None)",
+     "fastest_ms": 0.017184000462293625,
+     "distinct_median_ms": 6,
+     "pinnable": [
+      "((64, 64), (1, 1), False, False, 'sm120', None)",
+      "((64, 64), (1, 1), False, True, 'sm120', None)",
+      "((64, 128), (1, 1), False, False, 'sm120', None)",
+      "((64, 128), (1, 1), False, True, 'sm120', None)",
+      "((128, 64), (1, 1), False, False, 'sm120', None)",
+      "((128, 64), (1, 1), False, True, 'sm120', None)",
+      "((128, 128), (1, 1), False, False, 'sm120', None)",
+      "((128, 128), (1, 1), False, True, 'sm120', None)"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.01961600035429001
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017535999417304993
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017376000061631203
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017503999173641205
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017184000462293625
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017472000792622566
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017311999574303627
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017855999991297722
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.0030524842920651497,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.017696000635623932
+      }
+     ]
+    },
+    "4096x4096x4096": {
+     "presented": 8,
+     "ran": 8,
+     "correct": 8,
+     "default_ms": 0.11673600226640701,
+     "fastest": "((128, 128), (1, 1), False, True, 'sm120', None)",
+     "fastest_ms": 0.11392000317573547,
+     "distinct_median_ms": 7,
+     "pinnable": [
+      "((64, 64), (1, 1), False, False, 'sm120', None)",
+      "((64, 64), (1, 1), False, True, 'sm120', None)",
+      "((64, 128), (1, 1), False, False, 'sm120', None)",
+      "((64, 128), (1, 1), False, True, 'sm120', None)",
+      "((128, 64), (1, 1), False, False, 'sm120', None)",
+      "((128, 64), (1, 1), False, True, 'sm120', None)",
+      "((128, 128), (1, 1), False, False, 'sm120', None)",
+      "((128, 128), (1, 1), False, True, 'sm120', None)"
+     ],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.11673600226640701
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.17907199263572693
+      },
+      {
+       "tactic": "((64, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.17980800569057465
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1345279961824417
+      },
+      {
+       "tactic": "((64, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1345279961824417
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1321599930524826
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1319359987974167
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, False, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.1141119971871376
+      },
+      {
+       "tactic": "((128, 128), (1, 1), False, True, 'sm120', None)",
+       "ran": true,
+       "rel_err": 0.00267138018502737,
+       "all_zero": false,
+       "correct": true,
+       "median_ms": 0.11392000317573547
+      }
+     ]
+    }
+   }
+  },
+  "cute-dsl": {
+   "runner": "CuteDSLFp4GemmRunner",
+   "shapes": {
+    "128x256x512": {
+     "presented": 16,
+     "ran": 0,
+     "correct": 0,
+     "default_ms": null,
+     "fastest": null,
+     "fastest_ms": null,
+     "distinct_median_ms": 0,
+     "pinnable": [],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (1, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (1, 4), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (2, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (2, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (2, 4), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (4, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (4, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (4, 4), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (2, 2), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (2, 4), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (4, 2), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (4, 4), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (1, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      }
+     ]
+    },
+    "16x4096x4096": {
+     "presented": 6,
+     "ran": 0,
+     "correct": 0,
+     "default_ms": null,
+     "fastest": null,
+     "fastest_ms": null,
+     "distinct_median_ms": 0,
+     "pinnable": [],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 16), (1, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 16), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 16), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 32), (1, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 32), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 32), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      }
+     ]
+    },
+    "1x1024x2048": {
+     "presented": 9,
+     "ran": 0,
+     "correct": 0,
+     "default_ms": null,
+     "fastest": null,
+     "fastest_ms": null,
+     "distinct_median_ms": 0,
+     "pinnable": [],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 8), (1, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 8), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 8), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 16), (1, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 16), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 16), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 32), (1, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 32), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 32), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      }
+     ]
+    },
+    "512x512x1024": {
+     "presented": 16,
+     "ran": 0,
+     "correct": 0,
+     "default_ms": null,
+     "fastest": null,
+     "fastest_ms": null,
+     "distinct_median_ms": 0,
+     "pinnable": [],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (2, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (4, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (1, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (2, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (2, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (4, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (4, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (1, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (1, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (2, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (2, 4), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 64), (2, 2), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 64), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      }
+     ]
+    },
+    "4096x4096x4096": {
+     "presented": 16,
+     "ran": 0,
+     "correct": 0,
+     "default_ms": null,
+     "fastest": null,
+     "fastest_ms": null,
+     "distinct_median_ms": 0,
+     "pinnable": [],
+     "rows": [
+      {
+       "tactic": "default",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 256), (2, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 256), (4, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 256), (1, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 256), (2, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 256), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 256), (2, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 256), (4, 1), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 256), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 256), (4, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 256), (1, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 256), (1, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 256), (2, 2), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 256), (2, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 256), (2, 4), False, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((256, 256), (2, 2), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      },
+      {
+       "tactic": "((128, 256), (4, 1), True, False, 'sm100', None)",
+       "ran": false,
+       "error": "OpError: \n\u001b[91m\u001b[1merror:\u001b[0m expects arch to be one of [Arch.sm_100a, Arch.sm_100f, Arch.sm_103a, Arch.sm_110a], but got sm_120a\n  \u001b[94m= note:\u001b[0m error code MmaMXF4NV"
+      }
+     ]
+    }
+   }
+  }
+ }
+}

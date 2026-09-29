@@ -40,7 +40,10 @@ suite is meant to be run by engine developers against their own builds.
 - `sm120fp4/reference.py`: the NVFP4 reference quantizer, dequantizer and reference GEMM (fp32 accumulate).
 - `tests/`: conformance tests; each test states which failure class it exists to catch and cites the public report.
 
-## What works on SM120 today (measured here, RTX 5090, FlashInfer 0.6.16.post3, PyTorch 2.13 cu130, driver 610)
+## What works on SM120 today (RTX 5090 and RTX PRO 6000, FlashInfer 0.6.16.post3, PyTorch 2.13 cu130, driver 610)
+
+Every row was measured on an RTX 5090 and reproduced on an RTX PRO 6000 Blackwell Workstation Edition
+(`docs/conformance-report-rtxpro6000.md`).
 
 | item | result | where |
 |---|---|---|
@@ -54,6 +57,10 @@ suite is meant to be run by engine developers against their own builds.
 | autotuner tactics | CUTLASS presents 32, b12x 8, on every shape; all run and are correct, so the tuner can pick a slow one (2.05x at 4096-cube) but not a broken one; per-shape pinnable lists in `reports/tactics-*.json` | `scripts/probe_tactics.py`, `docs/conformance-report-rtx5090.md` |
 | `mm_fp4`, cuDNN backend | unavailable: cuDNN declines every engine on this architecture (reasons name the scale layout and Hopper-only engines) | `docs/conformance-report-rtx5090.md` |
 | `mm_fp4`, TensorRT-LLM backend | unavailable by design: `does not support backend 'trtllm' with capability 120` | same |
+
+To run the whole set on a fresh Linux box or cloud instance with an SM12x GPU, `scripts/pod_conformance.sh` installs
+the pinned stack and a matching CUDA toolkit and writes every report; its comments list the three environment traps it
+avoids.
 
 Regenerate the table's evidence with `python -m sm120fp4.cli conformance` and `PYTHONPATH=. python scripts/probe_tactics.py`;
 the JSON lands in `reports/`.

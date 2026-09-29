@@ -10,11 +10,12 @@ FlashInfer 0.6.16.post3, CUDA 13.0 toolkit for FlashInfer's JIT. JSON: `reports/
 | 128x4 layout: `to_128x4` vs `flashinfer.nvfp4_block_scale_interleave`, 5 shapes incl. multi-tile and padded | identical bytes |
 | `fp4_quantize` swizzled output vs `to_128x4` of its linear output, 3 shapes | identical |
 | `fp4_quantize` block scales vs reference | identical, 3 shapes |
-| `fp4_quantize` codes vs reference | identical except ulp-level midpoint ties: 39 of 65,536 on one tensor, 0 of 524,288 and 0 of 262,144 on the others |
+| `fp4_quantize` codes vs reference | identical except ulp-level midpoint ties: 225 of 262,144 on one tensor, 0 of 65,536 and 0 of 524,288 on the others (39 of 65,536 on the first in the earlier run, whose inputs came from the GPU generator) |
 | `e2m1_and_ufp8sf_scale_to_float` vs reference dequantiser | identical when given the reciprocal per-tensor scale; off by `global_scale**2` when given the quantizer's |
-| `mm_fp4` backend `cutlass`, shapes 128x256x512, 16x4096x4096, 1x1024x2048, 512x512x1024 | runs; max relative error 0.26% to 0.35% of the output's max against the fp32 reference GEMM; no all-zero output |
+| `mm_fp4` backend `cutlass`, shapes 128x256x512, 16x4096x4096, 1x1024x2048, 512x512x1024 | runs; max relative error 0.24% to 0.36% of the output's max against the fp32 reference GEMM; no all-zero output |
 | `mm_fp4` `cutlass` under CUDA graph, 64x2048x2048, 200 replays | every replay equals eager |
 | `mm_fp4` backend `b12x` (FlashInfer's SM12x-specific NVFP4 GEMM, CuTe-DSL based), same 4 shapes | runs; correct against the reference; 200 CUDA-graph replays equal eager |
+| `mm_fp4` `cutlass` vs `b12x` outputs, 4 shapes | byte-identical on every shape (`out_sha256_16` in the JSON) |
 | `mm_fp4` backend `auto` on this device | runs and is correct (the docstring says SM12x `auto` prefers `b12x`, then `cutlass`, then `cudnn`) |
 | `mm_fp4` backend `cute-dsl` | refused up front: `does not support backend 'cute-dsl' with capability 120`; the refusal is correct, not conservative (see the tactics section: the kernels it would build do not compile for `sm_120a`) |
 | `mm_fp4` backend `cudnn` | unavailable: cuDNN declines every engine (`FORT_NATIVE_9X engine is only supported since Hopper` for 900 <= arch < 1000; `a_scale_layout != "RowMajor" \|\| b_scale_layout != "ColumnMajor"`; `port_scale.tensor->getReordering() != CUDNN_TENSOR_REORDERING_NONE`) |
@@ -65,5 +66,9 @@ What this says about SM120 today, on this stack:
    its kernels are `sm100`-only at the MMA level. Nothing is lost by the refusal.
 5. Two conventions in the same library point in opposite directions for the per-tensor scale; see
    `docs/scale-layouts.md`, section 1.
+
+A second SM120 machine, an RTX PRO 6000 Blackwell Workstation Edition, reproduces every verdict here: see
+`docs/conformance-report-rtxpro6000.md`. Operands are generated on the CPU since that run, because PyTorch's CUDA
+generator gives different numbers on GPUs with different SM counts.
 
 Not measured here: grouped (MoE) GEMM paths, which are stage 2.
