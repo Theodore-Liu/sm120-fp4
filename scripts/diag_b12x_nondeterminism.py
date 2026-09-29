@@ -37,19 +37,22 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path, default=Path("reports") / f"b12x-nondeterminism-{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}.json")
     ap.add_argument("--tokens", default="1,4,16")
     ap.add_argument("--runs", type=int, default=20)
+    ap.add_argument("--topk", type=int, default=8)
+    ap.add_argument("--inter", type=int, default=768)
     a = ap.parse_args(argv)
     import flashinfer
     from flashinfer import fused_moe as fm
     from flashinfer.cute_dsl.utils import convert_sf_to_mma_layout
 
     dev = torch.device("cuda")
-    e, k, h, i = 128, 8, 2048, 768
+    e, k, h, i = 128, a.topk, 2048, a.inter
     w = bench.build(e, h, i, dev)
     s1 = convert_sf_to_mma_layout(to_128x4(w["s1"]), m=2 * i, k=h, num_groups=e, sf_vec_size=16)
     s2 = convert_sf_to_mma_layout(to_128x4(w["s2"]), m=h, k=i, num_groups=e, sf_vec_size=16)
     ones = torch.ones(e, device=dev)
     one = torch.ones(1, device=dev)
-    report = {"flashinfer": flashinfer.__version__, "device": torch.cuda.get_device_name(0), "runs": a.runs, "cases": []}
+    report = {"flashinfer": flashinfer.__version__, "device": torch.cuda.get_device_name(0), "runs": a.runs,
+              "shape": {"experts": e, "top_k": k, "hidden": h, "inter": i}, "cases": []}
     for m in [int(t) for t in a.tokens.split(",")]:
         g = torch.Generator().manual_seed(1000 + m)
         x = torch.randn(m, h, generator=g).to(device=dev, dtype=torch.bfloat16)
@@ -74,7 +77,7 @@ def main(argv=None) -> int:
                 "per_token_max_change": [max(float((o[t] - outs[0][t]).norm() / outs[0][t].norm()) for o in outs[1:]) for t in range(m)]}
         report["cases"].append(case)
         ev, eb = case["err_vs_ref_bf16_swiglu"], case["diff_vs_first_run"]
-        print(f"M={m:2d}: {case['distinct_outputs']}/{a.runs} distinct; err vs bf16-SwiGLU reference min {min(ev):.4f} "
+        print(f"top_k={k} inter={i} M={m:2d}: {case['distinct_outputs']}/{a.runs} distinct; err vs bf16-SwiGLU reference min {min(ev):.4f} "
               f"median {sorted(ev)[len(ev)//2]:.4f} max {max(ev):.4f}; run-to-run max {max(eb):.4f}; "
               f"per-token max change {[round(v, 3) for v in case['per_token_max_change']]}")
     a.out.parent.mkdir(parents=True, exist_ok=True)

@@ -13,7 +13,10 @@ the same bytes to every backend in the layout that backend expects, and reports
   describes decode: inside a forward pass the other layers' weights evict this layer's from L2 (96 MB on the RTX 5090,
   which holds the experts a batch of 1 to 4 tokens touches, so warm timings of small batches measure L2, not DRAM).
 
-Backends: FlashInfer `b12x_fused_moe` with quant_mode "nvfp4" (W4A4) and "w4a16", and `cutlass_fused_moe` (W4A4).
+Backends: FlashInfer `b12x_fused_moe` with quant_mode "nvfp4" (W4A4) and "w4a16", `cutlass_fused_moe` (W4A4), and,
+when vLLM is importable, vLLM's `fused_marlin_moe` (W4A16, the path vLLM uses for NVFP4 MoE on GPUs without a native FP4
+MoE kernel), prepared with vLLM's own `prepare_nvfp4_moe_layer_for_marlin` from the same FP4 bytes. vLLM orders the
+first weight matrix [gate ; up] and FlashInfer [up ; gate]; the Marlin copy has its halves swapped, codes and scales.
 
 Scale convention: FlashInfer 0.6.16.post3's b12x path uses its first alpha both as the FC1 weight scale and as the input
 quantization scale (later FlashInfer adds `input_global_scale` to separate them). The script therefore uses global scale
@@ -101,6 +104,35 @@ def timed(fn, warmup, iters, cold=False):
     return ts[len(ts) // 2] * 1000.0  # us
 
 
+def marlin_setup(w, e, h, i, dev):
+    """vLLM Marlin W4A16 MoE from the same FP4 codes and E4M3 block scales, or (None, reason) without vLLM."""
+    try:
+        from types import SimpleNamespace
+
+        from vllm.model_executor.layers.fused_moe.experts.marlin_moe import fused_marlin_moe
+        from vllm.model_executor.layers.quantization.utils.marlin_utils_fp4 import prepare_nvfp4_moe_layer_for_marlin
+        from vllm.scalar_type import scalar_types
+    except Exception as ex:  # noqa: BLE001
+        return None, f"vLLM unavailable: {type(ex).__name__}: {str(ex)[:120]}"
+
+    def gate_first(t):  # [E, 2i, ...] as [up ; gate] -> [gate ; up]
+        return torch.cat([t[:, i:], t[:, :i]], dim=1).contiguous()
+
+    layer = SimpleNamespace(num_experts=e, hidden_size=h, intermediate_size_per_partition=i, params_dtype=torch.bfloat16)
+    w13 = gate_first(w["q1"])
+    w13_s = gate_first(w["s1"].view(e, 2 * i, h // 16)).view(torch.float8_e4m3fn)
+    w2_s = w["s2"].view(e, h, i // 16).view(torch.float8_e4m3fn)
+    ones = torch.ones(e, device=dev)
+    mw13, ms13, mg13, mw2, ms2, mg2 = prepare_nvfp4_moe_layer_for_marlin(layer, w13, w13_s, ones, w["q2"].contiguous(), w2_s,
+                                                                         ones, is_act_and_mul=True)
+    qid = scalar_types.float4_e2m1f.id
+
+    def call(x, ids, wts, out):
+        return fused_marlin_moe(x, mw13, mw2, None, None, ms13, ms2, wts, ids, qid, global_num_experts=e,
+                                global_scale1=mg13, global_scale2=mg2, workspace=layer.workspace, output=out)
+    return call, None
+
+
 def graph_timed(fn, out_buf, warmup, iters):
     """Capture one call into a CUDA graph and time replays: the GPU's time without Python or launch overhead."""
     side = torch.cuda.Stream()
@@ -151,6 +183,10 @@ def main(argv=None) -> int:
     scalar = torch.tensor(1.0, device=dev)  # cutlass_fused_moe wants the activation global scales 0-dimensional
     cut_scales = [scalar, cut_s1, ones_e, scalar, cut_s2, ones_e]
 
+    marlin_call, marlin_why = marlin_setup(w, e, h, i, dev)
+    if marlin_call is None:
+        print(f"marlin-w4a16 skipped: {marlin_why}")
+
     # bytes of one expert's weights and scales: FC1 2i*h/2 + FC2 h*i/2 codes, and one E4M3 byte per 16 values
     expert_bytes = 3 * i * h // 2 + 3 * i * h // 16
 
@@ -181,6 +217,8 @@ def main(argv=None) -> int:
                                                           w["q2"].contiguous().view(torch.long), torch.bfloat16,
                                                           quant_scales=cut_scales, output=outb),
         }
+        if marlin_call is not None:
+            calls["marlin-w4a16"] = lambda: marlin_call(x, ids, wts, outb)
         for name, fn in calls.items():
             row = {"backend": name, "tokens": m, "experts_touched": touched, "weight_read_floor_us": floor_us}
             try:
