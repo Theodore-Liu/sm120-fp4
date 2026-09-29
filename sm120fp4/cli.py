@@ -79,7 +79,7 @@ def _operands(m, n, k, device):
     return a_q, to_128x4(a_sf).view(torch.float8_e4m3fn), b_q, to_128x4(b_sf).view(torch.float8_e4m3fn), (1.0 / (a_gs * b_gs)).reshape(1), ref
 
 
-def check_mm_fp4(fi, device, backends=("cutlass", "cudnn", "trtllm"), replays=200) -> list[dict]:
+def check_mm_fp4(fi, device, backends=("auto", "b12x", "cutlass", "cute-dsl", "cudnn", "trtllm"), replays=200) -> list[dict]:
     out = []
     for backend in backends:
         r = {"name": f"mm_fp4[{backend}]", "backend": backend, "shapes": [], "graph_replay": None}
@@ -131,7 +131,7 @@ def main(argv=None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("conformance", help="run the checks against the installed libraries and write a JSON report")
     c.add_argument("--out", type=Path, default=Path("reports") / f"conformance-{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}.json")
-    c.add_argument("--backends", default="cutlass,cudnn,trtllm")
+    c.add_argument("--backends", default="auto,b12x,cutlass,cute-dsl,cudnn,trtllm")
     c.add_argument("--replays", type=int, default=200)
     a = ap.parse_args(argv)
     if a.cmd == "conformance":

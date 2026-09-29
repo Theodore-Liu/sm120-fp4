@@ -9,7 +9,7 @@ import torch
 
 from sm120fp4 import quantize_nvfp4, reference_gemm_nvfp4, to_128x4
 
-BACKENDS = ("cutlass", "cudnn", "trtllm")
+BACKENDS = ("cutlass", "cudnn", "trtllm", "b12x", "cute-dsl", "auto")
 
 
 def _operands(m, n, k, device):

@@ -1,0 +1,377 @@
+{
+ "generated_utc": "2026-09-29T10:41:03Z",
+ "versions": {
+  "sm120fp4": "0.0.1",
+  "python": "3.12.14",
+  "torch": "2.13.0+cu130",
+  "torch_cuda": "13.0",
+  "platform": "Linux-6.18.33.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "flashinfer": "0.6.16.post3",
+  "nvidia_smi": "NVIDIA GeForce RTX 5090, 610.47, 32607 MiB",
+  "device": {
+   "name": "NVIDIA GeForce RTX 5090",
+   "capability": [
+    12,
+    0
+   ],
+   "sms": 170,
+   "total_memory_gb": 31.8
+  }
+ },
+ "layout": {
+  "name": "128x4",
+  "tile_rows": 128,
+  "tile_cols": 4,
+  "tile_bytes_e4m3": 512,
+  "offset_in_tile": "(row % 32) * 16 + ((row % 128) // 32) * 4 + (col % 4)",
+  "tile_order": "row-major over [ceil(rows/128), ceil(cols/4)]"
+ },
+ "sm12x": true,
+ "checks": {
+  "layout": {
+   "name": "128x4 layout vs flashinfer.nvfp4_block_scale_interleave",
+   "cases": [
+    {
+     "rows": 128,
+     "sf_cols": 4,
+     "equal": true
+    },
+    {
+     "rows": 256,
+     "sf_cols": 32,
+     "equal": true
+    },
+    {
+     "rows": 384,
+     "sf_cols": 8,
+     "equal": true
+    },
+    {
+     "rows": 130,
+     "sf_cols": 6,
+     "equal": true
+    },
+    {
+     "rows": 1000,
+     "sf_cols": 40,
+     "equal": true
+    }
+   ],
+   "pass": true
+  },
+  "quantize": {
+   "name": "fp4_quantize vs reference quantizer",
+   "cases": [
+    {
+     "m": 128,
+     "k": 512,
+     "scales_equal": true,
+     "codes_differ": 39,
+     "codes_total": 65536,
+     "codes_differ_fraction": 0.0005950927734375
+    },
+    {
+     "m": 256,
+     "k": 2048,
+     "scales_equal": true,
+     "codes_differ": 0,
+     "codes_total": 524288,
+     "codes_differ_fraction": 0.0
+    },
+    {
+     "m": 64,
+     "k": 4096,
+     "scales_equal": true,
+     "codes_differ": 0,
+     "codes_total": 262144,
+     "codes_differ_fraction": 0.0
+    }
+   ],
+   "pass": true
+  },
+  "mm_fp4": [
+   {
+    "name": "mm_fp4[auto]",
+    "backend": "auto",
+    "shapes": [
+     {
+      "m": 128,
+      "n": 256,
+      "k": 512,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.248504638671875,
+      "ref_max": 95.46829323632812,
+      "rel_err": 0.002603007032467955,
+      "first_call_s": 0.57
+     },
+     {
+      "m": 16,
+      "n": 4096,
+      "k": 4096,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.968231201171875,
+      "ref_max": 280.2880869375,
+      "rel_err": 0.0034544143911038783,
+      "first_call_s": 0.36
+     },
+     {
+      "m": 1,
+      "n": 1024,
+      "k": 2048,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.4454345703125,
+      "ref_max": 143.76779274804687,
+      "rel_err": 0.003098291778695694,
+      "first_call_s": 0.0
+     },
+     {
+      "m": 512,
+      "n": 512,
+      "k": 1024,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.49761962890625,
+      "ref_max": 154.550049828125,
+      "rel_err": 0.003219795978452627,
+      "first_call_s": 0.41
+     }
+    ],
+    "graph_replay": {
+     "replays": 200,
+     "differ_from_eager": 0,
+     "pass": true
+    },
+    "available": true,
+    "correct": true
+   },
+   {
+    "name": "mm_fp4[b12x]",
+    "backend": "b12x",
+    "shapes": [
+     {
+      "m": 128,
+      "n": 256,
+      "k": 512,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.248504638671875,
+      "ref_max": 95.46829323632812,
+      "rel_err": 0.002603007032467955,
+      "first_call_s": 0.0
+     },
+     {
+      "m": 16,
+      "n": 4096,
+      "k": 4096,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.968231201171875,
+      "ref_max": 280.2880869375,
+      "rel_err": 0.0034544143911038783,
+      "first_call_s": 0.0
+     },
+     {
+      "m": 1,
+      "n": 1024,
+      "k": 2048,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.4454345703125,
+      "ref_max": 143.76779274804687,
+      "rel_err": 0.003098291778695694,
+      "first_call_s": 0.0
+     },
+     {
+      "m": 512,
+      "n": 512,
+      "k": 1024,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.49761962890625,
+      "ref_max": 154.550049828125,
+      "rel_err": 0.003219795978452627,
+      "first_call_s": 0.0
+     }
+    ],
+    "graph_replay": {
+     "replays": 200,
+     "differ_from_eager": 0,
+     "pass": true
+    },
+    "available": true,
+    "correct": true
+   },
+   {
+    "name": "mm_fp4[cutlass]",
+    "backend": "cutlass",
+    "shapes": [
+     {
+      "m": 128,
+      "n": 256,
+      "k": 512,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.248504638671875,
+      "ref_max": 95.46829323632812,
+      "rel_err": 0.002603007032467955,
+      "first_call_s": 0.0
+     },
+     {
+      "m": 16,
+      "n": 4096,
+      "k": 4096,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.968231201171875,
+      "ref_max": 280.2880869375,
+      "rel_err": 0.0034544143911038783,
+      "first_call_s": 0.0
+     },
+     {
+      "m": 1,
+      "n": 1024,
+      "k": 2048,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.4454345703125,
+      "ref_max": 143.76779274804687,
+      "rel_err": 0.003098291778695694,
+      "first_call_s": 0.0
+     },
+     {
+      "m": 512,
+      "n": 512,
+      "k": 1024,
+      "ran": true,
+      "all_zero": false,
+      "max_abs_err": 0.49761962890625,
+      "ref_max": 154.550049828125,
+      "rel_err": 0.003219795978452627,
+      "first_call_s": 0.0
+     }
+    ],
+    "graph_replay": {
+     "replays": 200,
+     "differ_from_eager": 0,
+     "pass": true
+    },
+    "available": true,
+    "correct": true
+   },
+   {
+    "name": "mm_fp4[cute-dsl]",
+    "backend": "cute-dsl",
+    "shapes": [
+     {
+      "m": 128,
+      "n": 256,
+      "k": 512,
+      "ran": false,
+      "error": "BackendSupportedError: mm_fp4 does not support backend 'cute-dsl' with capability 120"
+     },
+     {
+      "m": 16,
+      "n": 4096,
+      "k": 4096,
+      "ran": false,
+      "error": "BackendSupportedError: mm_fp4 does not support backend 'cute-dsl' with capability 120"
+     },
+     {
+      "m": 1,
+      "n": 1024,
+      "k": 2048,
+      "ran": false,
+      "error": "BackendSupportedError: mm_fp4 does not support backend 'cute-dsl' with capability 120"
+     },
+     {
+      "m": 512,
+      "n": 512,
+      "k": 1024,
+      "ran": false,
+      "error": "BackendSupportedError: mm_fp4 does not support backend 'cute-dsl' with capability 120"
+     }
+    ],
+    "graph_replay": null,
+    "available": false,
+    "correct": false
+   },
+   {
+    "name": "mm_fp4[cudnn]",
+    "backend": "cudnn",
+    "shapes": [
+     {
+      "m": 128,
+      "n": 256,
+      "k": 512,
+      "ran": false,
+      "error": "cudnnGraphNotSupportedError: no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices\":{\"CUDNN_KNOB_TYPE_KERNEL_CFG\":-1}}\nWar"
+     },
+     {
+      "m": 16,
+      "n": 4096,
+      "k": 4096,
+      "ran": false,
+      "error": "cudnnGraphNotSupportedError: no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices\":{\"CUDNN_KNOB_TYPE_KERNEL_CFG\":-1}}\nWar"
+     },
+     {
+      "m": 1,
+      "n": 1024,
+      "k": 2048,
+      "ran": false,
+      "error": "cudnnGraphNotSupportedError: no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices\":{\"CUDNN_KNOB_TYPE_KERNEL_CFG\":-1}}\nWar"
+     },
+     {
+      "m": 512,
+      "n": 512,
+      "k": 1024,
+      "ran": false,
+      "error": "cudnnGraphNotSupportedError: no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices\":{\"CUDNN_KNOB_TYPE_KERNEL_CFG\":-1}}\nWar"
+     }
+    ],
+    "graph_replay": null,
+    "available": false,
+    "correct": false
+   },
+   {
+    "name": "mm_fp4[trtllm]",
+    "backend": "trtllm",
+    "shapes": [
+     {
+      "m": 128,
+      "n": 256,
+      "k": 512,
+      "ran": false,
+      "error": "BackendSupportedError: mm_fp4 does not support backend 'trtllm' with capability 120"
+     },
+     {
+      "m": 16,
+      "n": 4096,
+      "k": 4096,
+      "ran": false,
+      "error": "BackendSupportedError: mm_fp4 does not support backend 'trtllm' with capability 120"
+     },
+     {
+      "m": 1,
+      "n": 1024,
+      "k": 2048,
+      "ran": false,
+      "error": "BackendSupportedError: mm_fp4 does not support backend 'trtllm' with capability 120"
+     },
+     {
+      "m": 512,
+      "n": 512,
+      "k": 1024,
+      "ran": false,
+      "error": "BackendSupportedError: mm_fp4 does not support backend 'trtllm' with capability 120"
+     }
+    ],
+    "graph_replay": null,
+    "available": false,
+    "correct": false
+   }
+  ]
+ }
+}

@@ -49,10 +49,14 @@ suite is meant to be run by engine developers against their own builds.
 | NVFP4 quantizer | reference agrees with `fp4_quantize` on every block scale and every code except ulp-level midpoint ties; the sign bit is kept on zero | `tests/test_quantize.py` |
 | per-tensor scale direction | FlashInfer's quantizer and dequantizer take it in opposite directions; the wrong one scales outputs by `global_scale**2` silently | `docs/scale-layouts.md` s.1 |
 | `mm_fp4`, CUTLASS backend | correct on 4 shapes (max relative error 0.35%), 200 CUDA-graph replays identical to eager | `tests/test_mm_fp4.py` |
+| `mm_fp4`, `b12x` backend (FlashInfer's SM12x-specific path) and `auto` | correct on 4 shapes; 200 CUDA-graph replays identical to eager; `auto` on SM12x resolves to this path first | `tests/test_mm_fp4.py` |
+| `mm_fp4`, `cute-dsl` backend | refused for capability 120, and rightly: built directly, its kernels fail to compile for `sm_120a` (`sm100`-only MMA) | `docs/conformance-report-rtx5090.md` |
+| autotuner tactics | CUTLASS presents 32, b12x 8, on every shape; all run and are correct, so the tuner can pick a slow one (2.05x at 4096-cube) but not a broken one; per-shape pinnable lists in `reports/tactics-*.json` | `scripts/probe_tactics.py`, `docs/conformance-report-rtx5090.md` |
 | `mm_fp4`, cuDNN backend | unavailable: cuDNN declines every engine on this architecture (reasons name the scale layout and Hopper-only engines) | `docs/conformance-report-rtx5090.md` |
 | `mm_fp4`, TensorRT-LLM backend | unavailable by design: `does not support backend 'trtllm' with capability 120` | same |
 
-Regenerate the table's evidence with `python -m sm120fp4.cli conformance`; the JSON lands in `reports/`.
+Regenerate the table's evidence with `python -m sm120fp4.cli conformance` and `PYTHONPATH=. python scripts/probe_tactics.py`;
+the JSON lands in `reports/`.
 
 ## Status
 
