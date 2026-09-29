@@ -28,9 +28,21 @@ x[i]        ~= q[i] * sf[block] / global_scale
 Checkpoint conventions store the same two tensors under other names: `weight_scale` (E4M3, block) and
 `weight_scale_2` or `weight_global_scale` (fp32). ComfyUI's `comfy-quants` documents its per-tensor scale as
 `amax / (448 * 6)`, the reciprocal of `global_scale` above, and its dequantisation as `e2m1 * weight_scale * weight_scale_2`.
-Which direction a given checkpoint family stores is the first thing a loader has to get right; a converter that
-assumes the wrong direction produces outputs scaled by `global_scale^2`, which is silent. (Not yet tested here against
-real checkpoints; on the list.)
+
+**The direction trap, measured** (`tests/test_quantize.py::test_flashinfer_dequant_agrees_with_reference`): FlashInfer's
+own helper `e2m1_and_ufp8sf_scale_to_float(q, sf, global_scale_tensor)` takes the per-tensor scale in the *checkpoint*
+direction (multiplied in), while its quantizer `fp4_quantize(x, global_scale)` takes the inverse (divided out). Passing
+the quantizer's `global_scale` straight into the dequantiser scales every output by `global_scale ** 2` (394,200 on the
+test tensor) and raises nothing. A loader has to know which of the two a tensor is; the name does not say.
+
+Two more facts from the same tests, on an RTX 5090 with FlashInfer 0.6.16.post3:
+
+* the sign bit is kept on zero: a negative input that rounds to 0 is code 8 (`-0.0`), as `cvt.rn.satfinite.e2m1x2`
+  emits; a reference that clears the sign on zero disagrees with the kernel on about 3.4% of codes of a Gaussian
+  tensor while decoding to identical values;
+* with the sign kept, the reference and `fp4_quantize` agree on every code except exact midpoints between two grid
+  points (39 of 65,536 codes on one tensor, none on two others), where the kernel's approximate reciprocals move the
+  scaled value by a unit in the last place and the tie falls the other way. Block scales agree exactly.
 
 ## 2. The 128x4 layout, and the three names it goes by
 

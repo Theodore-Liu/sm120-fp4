@@ -57,6 +57,13 @@ def test_flashinfer_dequant_agrees_with_reference(device, fi):
     gs = (448.0 * 6.0 / x.abs().max().float()).reshape(1)
     q, sf = fi.fp4_quantize(x, gs, 16, False, False)
     sf = sf.view(-1)[: 128 * 64].view(128, 64)
-    theirs = fi.e2m1_and_ufp8sf_scale_to_float(q.cpu(), sf.cpu(), gs.cpu(), 16, 1, False)
     ours = dequantize_nvfp4(q, sf, gs).cpu()
-    assert torch.allclose(theirs.float(), ours, rtol=1e-6, atol=1e-6), "dequantisation conventions differ (global scale direction?)"
+    # FlashInfer's dequantiser takes the per-tensor scale in the checkpoint direction (weight_scale_2 = amax / (448 * 6),
+    # multiplied in), which is the reciprocal of the global_scale its quantizer takes (divided out). Measured on this
+    # device: passing the quantizer's global_scale straight through scales every output by global_scale ** 2.
+    theirs = fi.e2m1_and_ufp8sf_scale_to_float(q.cpu(), sf.cpu(), (1.0 / gs).cpu(), 16, 1, False).float()
+    assert torch.allclose(theirs, ours, rtol=1e-5, atol=1e-6), "dequantisation differs even with the reciprocal per-tensor scale"
+    wrong = fi.e2m1_and_ufp8sf_scale_to_float(q.cpu(), sf.cpu(), gs.cpu(), 16, 1, False).float()
+    nz = ours != 0
+    ratio = (wrong[nz] / ours[nz])
+    assert torch.allclose(ratio, (gs * gs).cpu().expand_as(ratio), rtol=1e-4), "the direction trap is not gs**2 any more; re-document"

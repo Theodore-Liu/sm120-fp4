@@ -38,7 +38,9 @@ def e2m1_encode(x: torch.Tensor) -> torch.Tensor:
     tie = dhi == dlo
     even_hi = (hi % 2) == 0
     code = torch.where(pick_hi | (tie & even_hi), hi, lo)
-    sign = (x < 0) & (code != 0)
+    # the sign bit is kept on zero too (-0.0 is code 8): that is what cvt.rn.satfinite.e2m1x2 emits and what
+    # FlashInfer's quantizer produces, and the two decode to the same value
+    sign = torch.signbit(x) | (x < 0)
     return (code | (sign.to(code.dtype) << 3)).to(torch.uint8)
 
 
