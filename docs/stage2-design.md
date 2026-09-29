@@ -91,9 +91,43 @@ What this says:
   at 1 token, 1.38x at 4 and 1.17x at 16. Past 16 tokens the existing paths are already close to the floor and there is
   little to win, which is where SGLang #36787 also hands over to CUTLASS.
 
-Next: the FC1 phase as a real kernel (W4A16: FP4 to bf16 in registers, bf16 `mma.m16n8k16`, weights as the 16-row side,
-tokens as the 8-column side), checked against the reference in this repository, and timed against the FC1 share of
-the two-phase floor above.
+## FC1 phase, first kernel (`scripts/fc1_w4a16.py`)
+
+W4A16 on CUDA cores, not tensor cores: at 1 to 16 tokens the FC1 arithmetic is about 0.4 G multiply-adds at most, small
+next to the weight reads. Each warp owns one or two intermediate columns of one touched expert, issues all its weight
+loads (16-byte streaming loads of the up and gate rows) before decoding any, decodes FP4 with SM120's hardware
+`cvt.rn.f16x2.e2m1x2` and the E4M3 block scales in registers, dots them with the expert's tokens, reduces across the
+warp with a fixed butterfly, and writes SiLU(gate) * up for each (token, expert) pair. The batch size is a template
+parameter bounding tokens per expert, so accumulators stay in registers (no spills in any instantiation, `-Xptxas -v`).
+
+Correctness against the fp32 reference on dequantized weights with bf16 activations: 0.16% to 0.17% normwise at every
+batch size (bf16 output rounding), and bit-identical over 50 calls at each.
+
+| tokens | FC1 kernel | read-only time for the same FP4 codes | ratio |
+|---|---|---|---|
+| 1 | 15.1 us | 13.1 us | 1.15 |
+| 2 | 23.3 | 19.2 | 1.21 |
+| 4 | 43.5 | 34.6 | 1.26 |
+| 8 | 62.2 | 52.0 | 1.20 |
+| 16 | 158.7 | 84.7 | 1.87 |
+
+The read-only column counts the codes only; the kernel also reads the block scales, one byte per 16 values, 12.5% more.
+At 1 token the kernel is therefore within about 2.5% of the time to read what it must (13.1 x 1.125 = 14.7 us).
+
+What got it there, each step measured:
+
+1. Decoding with a `__constant__` lookup table: 58.1 us at 1 token. Lanes index it with different codes, and constant
+   memory serialises divergent indices. The hardware conversion instead: 21.5 us.
+2. Batch size as a template parameter, all of a warp's weight loads issued before decoding, 1 to 4 columns per warp:
+   17.2 us at 1 token, but 160.5 at 16 against 138.0 before.
+3. Moving the decode out of the per-token loop, on the guess that repeated decoding cost the 16-token case, made every
+   size slower (66.3 us at 4 tokens against 47.9): the reloads of the token vector it forced cost more than the decodes
+   it saved. Reverted.
+4. Sweeping columns per warp (1, 2, 4) at each batch size: 2 at 1 token, 1 elsewhere; 4 is worst everywhere.
+
+Open: 16 tokens, at 1.87x its read floor and slower than the first version (138.0 us). Not yet explained; the next
+step there is a profile rather than another guess. Next overall: the FC2 phase (one writer per output column tile,
+experts in a fixed order, fp32 accumulation), then both phases together against the existing paths.
 
 ## Open questions
 
