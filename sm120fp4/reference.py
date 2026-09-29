@@ -100,6 +100,36 @@ def dequantize_nvfp4(packed: torch.Tensor, sf_e4m3_bits: torch.Tensor, global_sc
     return (vals * sf / gs).view(m, k)
 
 
+MX_BLOCK = 32
+E8M0_BIAS = 127
+
+
+def quantize_mxfp4(x: torch.Tensor, block: int = MX_BLOCK):
+    """MXFP4 as FlashInfer's fp4_quantize(sf_vec_size=32, sf_use_ue8m0=True) produces it: one E8M0 scale per 32 elements,
+    exponent = ceil(log2(block_amax / 6)) so that the block's largest magnitude lands at or below the grid's top value 6;
+    elements quantised as e2m1(x * 2**-exponent); no per-tensor scale. Returns (packed uint8 [M, K/2], sf uint8 [M, K/32] as
+    E8M0 bytes (exponent + 127))."""
+    if x.dim() != 2 or x.shape[1] % block:
+        raise ValueError(f"expected [M, K] with K a multiple of {block}, got {tuple(x.shape)}")
+    xf = x.float()
+    m, k = xf.shape
+    blocks = xf.view(m, k // block, block)
+    amax = blocks.abs().amax(dim=-1)
+    e = torch.where(amax > 0, torch.ceil(torch.log2(amax / E2M1_MAX)), torch.full_like(amax, -E8M0_BIAS))
+    e = e.clamp(min=-E8M0_BIAS, max=255 - E8M0_BIAS - 1)
+    scale = torch.exp2(-e)
+    q = e2m1_encode(blocks * scale[..., None]).view(m, k)
+    return pack_e2m1(q), (e + E8M0_BIAS).to(torch.uint8)
+
+
+def dequantize_mxfp4(packed: torch.Tensor, sf_e8m0_bytes: torch.Tensor, block: int = MX_BLOCK) -> torch.Tensor:
+    codes = unpack_e2m1(packed)
+    m, k = codes.shape
+    vals = e2m1_decode(codes).view(m, k // block, block)
+    scale = torch.exp2(sf_e8m0_bytes.float() - E8M0_BIAS).view(m, k // block, 1)
+    return (vals * scale).view(m, k)
+
+
 def reference_gemm_nvfp4(a_packed, a_sf, a_gs, b_packed, b_sf, b_gs, out_dtype=torch.float32) -> torch.Tensor:
     """C[M, N] = dequant(A)[M, K] @ dequant(B)[N, K]^T in fp32, the reference every FP4 GEMM is compared with."""
     a = dequantize_nvfp4(a_packed, a_sf, a_gs)

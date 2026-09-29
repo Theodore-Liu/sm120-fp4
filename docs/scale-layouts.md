@@ -44,6 +44,14 @@ Two more facts from the same tests, on an RTX 5090 with FlashInfer 0.6.16.post3:
   points (39 of 65,536 codes on one tensor, none on two others), where the kernel's approximate reciprocals move the
   scaled value by a unit in the last place and the tie falls the other way. Block scales agree exactly.
 
+**MXFP4, measured** (`tests/test_mxfp4.py`, RTX 5090, FlashInfer 0.6.16.post3): `fp4_quantize(x, None, 32, sf_use_ue8m0=True)`
+sets each block's E8M0 exponent to `ceil(log2(block_amax / 6))`, so the block's largest magnitude lands at or below the
+grid's top value 6, and quantises the element as `e2m1(x * 2**-exponent)`; the per-tensor scale argument is ignored.
+Against the reference this rule reproduces every exponent and every code (0 of 294,912 codes differ on two tensors): a
+power-of-two scale has no reciprocal to approximate, so the ulp-level ties of the NVFP4 path do not arise. The
+alternatives one might guess (`floor(log2(amax)) - 2`, `ceil(log2(amax)) - 2`, `round(log2(amax / 6))`) match 44%, 57% and
+37% of blocks respectively and are wrong.
+
 ## 2. The 128x4 layout, and the three names it goes by
 
 The tensor cores' block-scaled MMA wants the scale factors of 128 consecutive rows and 4 consecutive scale columns

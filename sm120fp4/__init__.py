@@ -14,7 +14,9 @@ from .layouts import (  # noqa: F401
 )
 from .reference import (  # noqa: F401
     E2M1_GRID,
+    dequantize_mxfp4,
     dequantize_nvfp4,
+    quantize_mxfp4,
     quantize_nvfp4,
     reference_gemm_nvfp4,
 )
