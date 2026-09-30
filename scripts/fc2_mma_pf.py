@@ -133,8 +133,12 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
 #pragma unroll
         for (int s = 0; s < 8; ++s)
 #pragma unroll
-          for (int t = 0; t < NT; ++t)
+          for (int t = 0; t < NT; ++t) {
+#ifdef PF_SKIP_EMPTY
+            if (t * 8 >= cnt) continue;              // warp-uniform: a tile with no pair of this expert adds nothing
+#endif
             mma(c[t], a[0][2 * s], a[1][2 * s], a[0][2 * s + 1], a[1][2 * s + 1], xb[t][2 * s], xb[t][2 * s + 1]);
+          }
       }
       const float al = alpha[e];
 #pragma unroll
@@ -233,10 +237,13 @@ void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor
 """
 
 
-def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fc2_pf", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_pf", "fc2_pf_set_pdl"],
+def build(verbose: bool = False, skip_empty: bool = False):
+    """skip_empty: skip the tensor-core work of a pair tile an expert does not fill (M > 8, fewer than 9 pairs)."""
+    return load_inline(name="sm120fp4_fc2_pf" + ("_skip" if skip_empty else ""), cpp_sources=CPP, cuda_sources=CUDA,
+                       functions=["fc2_pf", "fc2_pf_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
-                       + (["-Xptxas=-v"] if verbose else []), verbose=verbose)
+                       + (["-DPF_SKIP_EMPTY"] if skip_empty else []) + (["-Xptxas=-v"] if verbose else []),
+                       verbose=verbose)
 
 
 def main(argv=None) -> int:

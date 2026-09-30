@@ -422,3 +422,29 @@ the all-CUDA-core layer, not over the existing path. At 16 random tokens FC2 is 
 closer (102.1 against 84.7, 1.21x); timed as
 separate graphs the parts sum to 195.1 us and the layer in one graph takes
 171.2. FC2 at 16 tokens is the next target.
+
+## FC2 at 16 tokens: groups per tile, and skipping empty pair tiles (`scripts/fc2_groups.py`)
+
+Two explanations for FC2's distance from its read at 16 random tokens, each measured in one session against the
+plain kernel (`reports/fc2-groups-rtx5090-2026-09-30.json`, microseconds):
+
+- **Too little parallelism over experts.** The prefetch kernel takes G = 1 to 4 groups per column tile (128 to 512
+  blocks); each group's warps walk 1/G of the touched experts.
+- **Wasted tensor-core work.** At 9 to 16 tokens the kernel runs two 8-pair tiles per expert, and 128 pairs over 81
+  touched experts leave the second tile nearly always empty. Built with `PF_SKIP_EMPTY`, a warp skips the MMAs of a tile
+  its expert does not fill (the activation loads of empty slots were already skipped per lane).
+
+| routing | tokens | v1 | G1 | G2 | G3 | G4 | G1 skip | G2 skip | read of FC2 codes |
+|---|---|---|---|---|---|---|---|---|---|
+| random | 8 | 54.0 | 52.0 | 49.9 | 53.8 | 54.0 | 52.5 | 50.0 | 31.5 |
+| random | 16 | 105.2 | 88.8 | 87.6 | 86.8 | 86.8 | 88.8 | 87.7 | 49.9 |
+| 8 experts, every token to all 8 | 16 | 21.2 | 20.5 | 21.2 | 21.2 | 21.2 | 21.0 | 21.2 | 9.0 |
+
+Normwise error against the fp32 MoE reference 0.23% to 0.24% for every variant,
+bit-identical over 50 calls, and the skip variants equal the plain kernel bit for bit. Neither explanation holds: at
+16 random tokens the four group counts span 86.8 to 88.8 us and skipping the empty tile changes nothing
+(87.7 against 87.6 us with two groups). What remains is occupancy: the 16-token
+kernel holds 169 registers per thread (ptxas, the prefetch section), so a block of 256 threads needs 43,264 of an SM's
+65,536 registers and one block, eight warps, fits per SM; a warp's prefetch of its next expert is all the latency hiding
+there is. Smaller blocks with more groups per tile test that next.
+`PF_SKIP_EMPTY` stays a build option, off by default, since it neither helps nor changes a bit.
