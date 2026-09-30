@@ -23,8 +23,9 @@ This project is built in three stages, each usable on its own:
 3. **The FP4 kernels DeepGEMM does not ship for SM120**: the FP8xFP4 GEMM, FP4 attention and FP4 einsum paths that
    DeepSeek-V4-class models need.
 
-Stage 1 is what this repository holds today. Nothing here depends on any particular serving engine; the conformance
-suite is meant to be run by engine developers against their own builds.
+Stage 1 is complete; stage 2 has a working W4A16 MoE layer, validated on a real NVFP4 checkpoint (below). Nothing
+here depends on any particular serving engine; the conformance suite is meant to be run by engine developers against
+their own builds.
 
 ## Requirements
 
@@ -65,9 +66,36 @@ avoids.
 Regenerate the table's evidence with `python -m sm120fp4.cli conformance` and `PYTHONPATH=. python scripts/probe_tactics.py`;
 the JSON lands in `reports/`.
 
+## Stage 2: the MoE layer on real weights (RTX 5090)
+
+A W4A16 MoE layer for SM120 (router, FC1 with the SwiGLU, FC2 with the weighted sum over experts; FP4 codes decoded with
+SM120's `cvt.rn.f16x2.e2m1x2`, kernels chained with programmatic dependent launch), each GEMM chosen by batch size
+(`scripts/moe_layer.py`). Validated on the 128 experts of layer 0 of `nvidia/Qwen3-30B-A3B-NVFP4` (ModelOpt NVFP4),
+against vLLM's Marlin W4A16 MoE on the same codes, scales and global scales, timed in one session by CUDA-graph replay
+with L2 flushed (`scripts/real_ckpt_layer.py`, `reports/real-ckpt-layer0-rtx5090-2026-09-30.json`):
+
+| tokens | FC1 | FC2 | this layer (us) | Marlin (us) | Marlin / this | error | Marlin error |
+|---|---|---|---|---|---|---|---|
+| 1 | CUDA cores | CUDA cores | 27.4 | 37.5 | 1.37x | 0.17% | 0.30% |
+| 2 | CUDA cores | tensor cores, prefetch | 39.7 | 49.9 | 1.26x | 0.21% | 0.38% |
+| 4 | CUDA cores | tensor cores, prefetch | 70.4 | 78.8 | 1.12x | 0.22% | 0.37% |
+| 8 | CUDA cores | tensor cores, prefetch, 2 blocks per tile | 107.3 | 113.4 | 1.06x | 0.21% | 0.37% |
+| 16 | tensor cores | tensor cores, prefetch, 2 blocks per tile | 170.8 | 166.7 | 0.98x | 0.20% | 0.36% |
+
+- Error is normwise against an fp32 MoE on the dequantized weights; the layer's output is bit-identical over 50 calls
+  at every size.
+- The checkpoint layout is checked against an independent source first: every projection dequantized with this
+  library's convention matches the bf16 original (`Qwen/Qwen3-30B-A3B`) to 0.094 to 0.095 relative error, the size
+  of FP4 rounding; with the nibbles swapped it is 1.414.
+
+Limits, measured: at 16 randomly routed tokens the layer is 2.4%
+slower than Marlin, and when 16 tokens concentrate on 8 experts it is slower too (43.7 against 42.0 us, measured on
+synthetic weights of the same shape, `docs/stage2-design.md`). Measured on one RTX 5090 only; not yet integrated into a serving engine. The design, every
+experiment and the hypotheses ruled out are in `docs/stage2-design.md`.
+
 ## Status
 
-Stage 1 in progress. See `PLAN.md` for the stage gates.
+Stage 1 complete; stage 2 in progress. See `PLAN.md` for the stage gates.
 
 ## License
 
