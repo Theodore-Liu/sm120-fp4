@@ -540,3 +540,33 @@ reading activations is about 12 us of it. Each block covers 16 output
 columns, so the 128 column tiles each read every pair's activation rows; covering 32 columns per block halves those
 reads and is the next change. The 35.6 us left with neither weights nor activations read (decode,
 MMAs, the shared-memory accumulation) is not yet broken down.
+
+## Real weights: layer 0 of Qwen3-30B-A3B in NVFP4 (`scripts/real_ckpt_layer.py`)
+
+The 128 experts of layer 0 from `nvidia/Qwen3-30B-A3B-NVFP4` (ModelOpt NVFP4: E2M1 codes, E4M3 scales per 16 values,
+a per-tensor `weight_scale_2`), the same shape as every measurement above (hidden 2048, expert 768, top 8). Two checks
+before any timing (`reports/real-ckpt-layer0-rtx5090-2026-09-30.json`):
+
+- **Layout, against an independent source.** Each expert's gate, up and down projection dequantized with this
+  library's convention (even element in the low nibble, row-major scales, value = code x scale x `weight_scale_2`)
+  against the same weights of the bf16 checkpoint `Qwen/Qwen3-30B-A3B`: relative error 0.094 to 0.095 for every
+  projection, the size of FP4 rounding. With the nibbles swapped it is 1.414, about the square root of two that two
+  unrelated matrices of equal norm give, so the check can fail and did not.
+- **Global scales.** FC1 applies one `weight_scale_2` to both halves; gate and up carry the same value in
+  128 of 128 experts, so that is exact for this checkpoint.
+
+The layer as chosen by batch size, and vLLM's Marlin W4A16 MoE on the same codes, scales and global scales, both timed
+in one session by graph replay with L2 flushed; error against an fp32 MoE on the dequantized weights; the layer is
+bit-identical over 50 calls in every row:
+
+| tokens | FC1 / FC2 | layer error | Marlin error | layer (us) | Marlin (us) | Marlin / layer |
+|---|---|---|---|---|---|---|
+| 1 | cuda core / cuda core | 0.17% | 0.30% | 27.4 | 37.5 | 1.37x |
+| 2 | cuda core / prefetch | 0.21% | 0.38% | 39.7 | 49.9 | 1.26x |
+| 4 | cuda core / prefetch | 0.22% | 0.37% | 70.4 | 78.8 | 1.12x |
+| 8 | cuda core / prefetch split2 | 0.21% | 0.37% | 107.3 | 113.4 | 1.06x |
+| 16 | tensor core / prefetch split2 | 0.20% | 0.36% | 170.8 | 166.7 | 0.98x |
+
+On real weights the layer is faster than Marlin from 1 to 8 randomly routed tokens, closer to the fp32 reference at
+every size, and 2.4% slower at 16 tokens, as with the synthetic weights
+above.
