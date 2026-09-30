@@ -1,0 +1,300 @@
+"""Stage 2, FC2 on tensor cores with the next expert's weights prefetched, optionally split over G blocks per tile.
+
+scripts/fc2_mma.py (v1) loads an expert's FC2 weights and only then computes on them, and each warp walks its experts
+one after another, so at 16 random tokens (about ten experts per warp) the kernel sat at 2.1x a read of its bytes.
+Two changes, measured separately against v1:
+
+- prefetch: while a warp computes expert u it has already issued the loads for its next expert (register double
+  buffer). The k loop is specialised on the chunk count (I / 128) so both buffers fit in registers.
+- split (G > 1): the grid is (H / 16) x G; group g's warps take experts g*8 + warp, g*8 + warp + 8G, ... With H = 2048
+  there are only 128 column tiles for the RTX 5090's 170 SMs; G = 2 gives 256 blocks. Each group reduces its warps in
+  warp order and writes an fp32 partial; the last group to finish a tile (an atomic counter) adds the G partials in
+  group order 0..G-1 and writes the output, so the summation order is fixed and the result deterministic.
+
+Same layout, decode, fragment mapping and per-token accumulation as v1.
+
+    PYTHONPATH=. python scripts/fc2_mma_pf.py --out reports/fc2-mma-pf-<device>-<date>.json
+    PYTHONPATH=. python scripts/fc2_mma_pf.py --check-only      # correctness and determinism, no timing
+"""
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+import torch
+import torch.nn.functional as F
+from torch.utils.cpp_extension import load_inline
+
+_here = Path(__file__).resolve().parent
+for _name in ("bench_moe_baseline", "micro_floor", "fc1_w4a16", "fc2_w4a16", "fc1_mma", "fc2_mma"):
+    _spec = importlib.util.spec_from_file_location(_name, _here / f"{_name}.py")
+    _mod = importlib.util.module_from_spec(_spec)
+    sys.modules[_name] = _mod
+    _spec.loader.exec_module(_mod)
+bench = sys.modules["bench_moe_baseline"]
+floor = sys.modules["micro_floor"]
+fc1 = sys.modules["fc1_w4a16"]
+fc2m = sys.modules["fc2_mma"]
+
+CPP = r"""
+#include <torch/extension.h>
+void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor experts, torch::Tensor offsets,
+            torch::Tensor pairs, torch::Tensor weights, torch::Tensor alpha, torch::Tensor out, torch::Tensor scratch,
+            torch::Tensor counters, int64_t top_k, int64_t groups);
+"""
+
+# The helpers (e4m3, fp4x2, pack_bf16, decode_pairs, mma) are v1's, reused verbatim.
+_V1 = fc2m.CUDA
+_HELPERS = _V1[: _V1.index("template <int NT>")]
+
+CUDA = _HELPERS + r"""
+template <int CH>
+__device__ __forceinline__ void load_expert(const unsigned char* __restrict__ q2, const unsigned char* __restrict__ s2,
+                                            long long r0, int I, int tig, uint4 (&wq)[CH][2], unsigned (&ws)[CH][2]) {
+  const long long r1 = r0 + 8;
+#pragma unroll
+  for (int ch = 0; ch < CH; ++ch) {
+    const int k = ch * 128 + tig * 32;
+    wq[ch][0] = __ldcs(reinterpret_cast<const uint4*>(q2 + r0 * (I / 2) + k / 2));
+    wq[ch][1] = __ldcs(reinterpret_cast<const uint4*>(q2 + r1 * (I / 2) + k / 2));
+    ws[ch][0] = *reinterpret_cast<const unsigned short*>(s2 + r0 * (I / 16) + k / 16);
+    ws[ch][1] = *reinterpret_cast<const unsigned short*>(s2 + r1 * (I / 16) + k / 16);
+  }
+}
+
+template <int NT, int CH>
+__global__ void __launch_bounds__(WARPS * 32)
+k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__ s2, const __nv_bfloat16* __restrict__ act,
+         const int* __restrict__ experts, const int* __restrict__ offsets, const int* __restrict__ pairs,
+         const float* __restrict__ weights, const float* __restrict__ alpha, __nv_bfloat16* __restrict__ out,
+         float* __restrict__ scratch, int* __restrict__ counters, int U, int M, int H, int I, int top_k) {
+  __shared__ float part[WARPS][COLS][MAXM];
+  __shared__ int last;
+  cudaGridDependencySynchronize();
+  const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31, gid = lane >> 2, tig = lane & 3;
+  const int n0 = blockIdx.x * COLS, g = blockIdx.y, G = gridDim.y;
+  for (int z = threadIdx.x; z < WARPS * COLS * MAXM; z += blockDim.x) (&part[0][0][0])[z] = 0.f;
+  __syncthreads();
+
+  const int stride = WARPS * G;
+  int u = g * WARPS + warp;
+  int e = u < U ? experts[u] : -1;
+  uint4 wq[CH][2];
+  unsigned ws[CH][2];
+  if (e >= 0) load_expert<CH>(q2, s2, (long long)e * H + n0 + gid, I, tig, wq, ws);
+  for (; u < U; u += stride) {
+    // issue the next expert's loads before this expert's arithmetic
+    const int un = u + stride;
+    const int en = un < U ? experts[un] : -1;
+    uint4 nq[CH][2];
+    unsigned ns[CH][2];
+    if (en >= 0) {
+      load_expert<CH>(q2, s2, (long long)en * H + n0 + gid, I, tig, nq, ns);
+    } else {
+#pragma unroll
+      for (int ch = 0; ch < CH; ++ch) { nq[ch][0] = nq[ch][1] = make_uint4(0, 0, 0, 0); ns[ch][0] = ns[ch][1] = 0u; }
+    }
+    if (e >= 0) {                                   // a negative id is a padding slot from the GPU router
+      const int p0 = offsets[u];
+      const int cnt = min(offsets[u + 1] - p0, 8 * NT);
+      int pr[NT];
+      bool valid[NT];
+#pragma unroll
+      for (int t = 0; t < NT; ++t) {
+        const int slot = t * 8 + gid;
+        valid[t] = slot < cnt;
+        pr[t] = valid[t] ? pairs[p0 + slot] : 0;
+      }
+      float c[NT][4];
+#pragma unroll
+      for (int t = 0; t < NT; ++t)
+#pragma unroll
+        for (int i = 0; i < 4; ++i) c[t][i] = 0.f;
+#pragma unroll
+      for (int ch = 0; ch < CH; ++ch) {
+        const int k = ch * 128 + tig * 32;
+        unsigned xb[NT][16];
+#pragma unroll
+        for (int t = 0; t < NT; ++t) {
+          const uint4* av = reinterpret_cast<const uint4*>(act + (long long)pr[t] * I + k);
+#pragma unroll
+          for (int v = 0; v < 4; ++v) {
+            const uint4 q = valid[t] ? __ldg(av + v) : make_uint4(0, 0, 0, 0);
+            xb[t][4 * v] = q.x; xb[t][4 * v + 1] = q.y; xb[t][4 * v + 2] = q.z; xb[t][4 * v + 3] = q.w;
+          }
+        }
+        unsigned a[2][16];
+        decode_pairs(wq[ch][0], ws[ch][0], a[0]);
+        decode_pairs(wq[ch][1], ws[ch][1], a[1]);
+#pragma unroll
+        for (int s = 0; s < 8; ++s)
+#pragma unroll
+          for (int t = 0; t < NT; ++t)
+            mma(c[t], a[0][2 * s], a[1][2 * s], a[0][2 * s + 1], a[1][2 * s + 1], xb[t][2 * s], xb[t][2 * s + 1]);
+      }
+      const float al = alpha[e];
+#pragma unroll
+      for (int t = 0; t < NT; ++t)
+#pragma unroll
+        for (int h = 0; h < 2; ++h) {
+          const int slot = t * 8 + 2 * tig + h;
+          if (slot < cnt) {
+            const int p = pairs[p0 + slot];
+            const float wt = weights[p] * al;
+            const int tok = p / top_k;
+            part[warp][gid][tok] += wt * c[t][h];
+            part[warp][gid + 8][tok] += wt * c[t][2 + h];
+          }
+        }
+    }
+    __syncwarp();                                   // the next expert may put a token in another lane
+#pragma unroll
+    for (int ch = 0; ch < CH; ++ch) { wq[ch][0] = nq[ch][0]; wq[ch][1] = nq[ch][1]; ws[ch][0] = ns[ch][0]; ws[ch][1] = ns[ch][1]; }
+    e = en;
+  }
+  __syncthreads();
+  if (G == 1) {
+    for (int idx = threadIdx.x; idx < COLS * M; idx += blockDim.x) {
+      const int r = idx / M, t = idx % M;
+      float v = 0.f;
+#pragma unroll
+      for (int w = 0; w < WARPS; ++w) v += part[w][r][t];   // fixed warp order
+      out[(long long)t * H + n0 + r] = __float2bfloat16(v);
+    }
+    return;
+  }
+  // G > 1: this group's partial, then the last group to finish the tile adds all partials in group order.
+  for (int idx = threadIdx.x; idx < COLS * M; idx += blockDim.x) {
+    const int r = idx / M, t = idx % M;
+    float v = 0.f;
+#pragma unroll
+    for (int w = 0; w < WARPS; ++w) v += part[w][r][t];
+    scratch[((long long)g * MAXM + t) * H + n0 + r] = v;
+  }
+  __threadfence();
+  __syncthreads();
+  if (threadIdx.x == 0) last = (atomicAdd(&counters[blockIdx.x], 1) == G - 1);
+  __syncthreads();
+  if (!last) return;
+  __threadfence();
+  for (int idx = threadIdx.x; idx < COLS * M; idx += blockDim.x) {
+    const int r = idx / M, t = idx % M;
+    float v = 0.f;
+    for (int gg = 0; gg < G; ++gg) v += __ldcg(&scratch[((long long)gg * MAXM + t) * H + n0 + r]);   // fixed group order
+    out[(long long)t * H + n0 + r] = __float2bfloat16(v);
+  }
+  if (threadIdx.x == 0) counters[blockIdx.x] = 0;   // ready for the next launch
+}
+
+template <int NT, int CH>
+static void launch(dim3 grid, cudaStream_t st, const unsigned char* q2, const unsigned char* s2, const __nv_bfloat16* act,
+                   const int* experts, const int* offsets, const int* pairs, const float* weights, const float* alpha,
+                   __nv_bfloat16* out, float* scratch, int* counters, int U, int M, int H, int I, int top_k) {
+  k_fc2_pf<NT, CH><<<grid, WARPS * 32, 0, st>>>(q2, s2, act, experts, offsets, pairs, weights, alpha, out, scratch,
+                                                counters, U, M, H, I, top_k);
+}
+
+void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor experts, torch::Tensor offsets,
+            torch::Tensor pairs, torch::Tensor weights, torch::Tensor alpha, torch::Tensor out, torch::Tensor scratch,
+            torch::Tensor counters, int64_t top_k, int64_t groups) {
+  const int M = (int)out.size(0), H = (int)out.size(1), I = (int)act.size(1), U = (int)experts.numel();
+  TORCH_CHECK(M <= MAXM && H % COLS == 0 && (I == 768 || I == 1024), "shape");
+  TORCH_CHECK(groups >= 1 && groups <= 4 && scratch.numel() >= groups * MAXM * H && counters.numel() >= H / COLS, "scratch");
+  auto st = at::cuda::getCurrentCUDAStream();
+  dim3 grid(H / COLS, (unsigned)groups);
+#define PF_ARGS grid, st, q2.data_ptr<uint8_t>(), s2.data_ptr<uint8_t>(), reinterpret_cast<const __nv_bfloat16*>(act.data_ptr()), \
+    experts.data_ptr<int>(), offsets.data_ptr<int>(), pairs.data_ptr<int>(), weights.data_ptr<float>(), alpha.data_ptr<float>(), \
+    reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), scratch.data_ptr<float>(), counters.data_ptr<int>(), U, M, H, I, (int)top_k
+  if (I == 768) { if (M <= 8) launch<1, 6>(PF_ARGS); else launch<2, 6>(PF_ARGS); }
+  else          { if (M <= 8) launch<1, 8>(PF_ARGS); else launch<2, 8>(PF_ARGS); }
+  TORCH_CHECK(cudaGetLastError() == cudaSuccess, "launch");
+}
+"""
+
+
+def build(verbose: bool = False):
+    return load_inline(name="sm120fp4_fc2_pf", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_pf"],
+                       extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
+                       + (["-Xptxas=-v"] if verbose else []), verbose=verbose)
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", type=Path, help="JSON report, written into the repository")
+    ap.add_argument("--check-only", action="store_true", help="correctness and determinism only, no timing")
+    ap.add_argument("--ptxas", action="store_true", help="print register use and spills")
+    a = ap.parse_args(argv)
+    if not a.check_only and a.out is None:
+        ap.error("--out is required unless --check-only")
+    pf, v1, m1, fl = build(a.ptxas), fc2m.build(), fc1.build(), floor.build()
+    dev = torch.device("cuda")
+    e, k, h, i = 128, 8, 2048, 768
+    w = bench.build(e, h, i, dev)
+    q1, s1, q2, s2 = (w[n].contiguous() for n in ("q1", "s1", "q2", "s2"))
+    alpha = torch.ones(e, device=dev)
+    sink = torch.zeros(4, dtype=torch.int32, device=dev)
+    sms = torch.cuda.get_device_properties(0).multi_processor_count
+    scratch = torch.zeros(4 * 16 * h, device=dev)
+    counters = torch.zeros(h // 16, dtype=torch.int32, device=dev)
+    rows = []
+    print("routing | tokens | variant | normwise vs fp32 MoE | bit-identical x50 | equals v1 | us")
+
+    def case(label, m, ids, wts, x):
+        experts, offsets, pairs = fc1.route(ids)
+        act = torch.empty(ids.numel(), i, device=dev, dtype=torch.bfloat16)
+        m1.fc1_w4a16(q1, s1, x, experts, offsets, pairs, alpha, act, i, k)
+        wf = wts.reshape(-1).contiguous()
+        ref = bench.reference(x, w, ids, wts, i, act_quant=False)
+        row = {"routing": label, "tokens": m}
+        o1 = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
+        variants = {"v1": lambda o: v1.fc2_mma(q2, s2, act, experts, offsets, pairs, wf, alpha, o, k),
+                    "prefetch": lambda o: pf.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 1),
+                    "prefetch_split2": lambda o: pf.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 2)}
+        variants["v1"](o1)
+        torch.cuda.synchronize()
+        for name, fn in variants.items():
+            out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
+            go = lambda: fn(out)  # noqa: E731
+            go()
+            torch.cuda.synchronize()
+            rel = float((out.float() - ref).norm() / ref.norm())
+            first = out.clone()
+            stable = True
+            for _ in range(50):
+                go()
+                stable = stable and bool(torch.equal(out, first))
+            same_v1 = bool(torch.equal(first, o1))
+            t = None if a.check_only else floor.graph_time(go)
+            row[name] = {"rel_err_vs_fp32_moe": rel, "bit_identical_50": stable, "equals_v1": same_v1, "us": t}
+            print(f"{label:7s} | {m:6d} | {name:15s} | {rel:20.5f} | {str(stable):17s} | {str(same_v1):9s} | "
+                  + ("-" if t is None else f"{t:.1f}"))
+        if not a.check_only:
+            ptrs = torch.tensor([q2.data_ptr() + int(x_) * h * i // 2 for x_ in experts.tolist()], dtype=torch.int64, device=dev)
+            row["read_fc2_codes_us"] = floor.graph_time(lambda: fl.stream_read(ptrs, h * i // 2, 0, h * i // 2, sms * 4, 256, sink))
+            print(f"{'':7s} | {'':6s} | {'read floor':15s} | {'':20s} | {'':17s} | {'':9s} | {row['read_fc2_codes_us']:.1f}")
+        rows.append(row)
+
+    for m in (1, 2, 4, 8, 16):
+        g = torch.Generator().manual_seed(1000 + m)
+        x = torch.randn(m, h, generator=g).to(device=dev, dtype=torch.bfloat16)
+        wts, ids = torch.topk(F.softmax(torch.randn(m, e, generator=g), dim=-1), k, dim=-1)
+        wts = (wts / wts.sum(-1, keepdim=True)).float().to(dev).contiguous()
+        case("random", m, ids.to(torch.int32).to(dev).contiguous(), wts, x)
+    fixed = torch.arange(8, dtype=torch.int32, device=dev) * 16
+    for m in (1, 4, 8, 16):
+        x = torch.randn(m, h, generator=torch.Generator().manual_seed(7)).to(device=dev, dtype=torch.bfloat16)
+        wts = torch.full((m, k), 1.0 / k, device=dev)
+        case("fixed8", m, fixed.repeat(m, 1).contiguous(), wts, x)
+    if a.out is not None:
+        a.out.parent.mkdir(parents=True, exist_ok=True)
+        a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "check_only": a.check_only, "rows": rows},
+                                    indent=1) + "\n", encoding="utf-8")
+        print(f"written {a.out}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

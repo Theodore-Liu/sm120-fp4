@@ -329,3 +329,41 @@ CUDA-core one or within 2% of it at every size, up to 3.4x when tokens concentra
 16 tokens per expert). At 16 random tokens it is level (105.2 against 103.2 us) and still 2.1x a read of its bytes: each
 warp walks about ten experts one after another, and the next expert's weights are loaded only after the current
 expert's arithmetic. Prefetching the next expert's weights while the current one computes is the next change.
+
+## FC2: prefetching the next expert, and two blocks per column tile (`scripts/fc2_mma_pf.py`)
+
+The tensor-core FC2 loaded an expert's weights only after the previous expert's arithmetic, and at 16 random tokens
+each warp walks about ten experts. Two changes, each measured against it:
+
+- **prefetch**: while a warp computes one expert, the loads for its next expert are already issued (a register double
+  buffer; the k loop is specialised on I / 128 so both buffers fit, 163 to 238 registers, no spills).
+- **prefetch + split**: the grid becomes (H / 16) x 2. With H = 2048 the single-group grid has 128 blocks for the
+  RTX 5090's 170 SMs; two groups give 256. Each group reduces its warps in warp order and writes an fp32 partial; the
+  last group to finish a tile (an atomic counter) adds the two partials in group order and writes the output, so the
+  summation order is fixed.
+
+One run, graph replay, L2 flushed (`reports/fc2-mma-pf-rtx5090-2026-09-29.json`):
+
+| routing | tokens | v1 | prefetch | prefetch + split | read of FC2 codes |
+|---|---|---|---|---|---|
+| random | 1 | 14.6 us | 15.1 | 15.1 | 9.0 |
+| random | 2 | 22.8 | 21.2 | 23.3 | 13.3 |
+| random | 4 | 37.6 | 35.6 | 35.6 | 21.3 |
+| random | 8 | 53.6 | 52.0 | 49.9 | 31.5 |
+| random | 16 | 105.1 | 89.3 | 86.8 | 50.2 |
+| 8 experts, every token to all 8 | 1 | 13.1 | 15.1 | 15.1 | 9.0 |
+| same | 4 | 15.1 | 17.2 | 17.2 | 9.0 |
+| same | 8 | 17.2 | 17.2 | 18.5 | 8.9 |
+| same | 16 | 21.2 | 21.2 | 21.2 | 9.0 |
+
+Normwise error against the fp32 MoE reference 0.23% to 0.25% for all three, bit-identical
+over 50 calls in every row. Prefetch alone performs v1's additions in v1's order and equals v1 bit for bit in every
+row; the split adds the same terms in another fixed order and is not bit-identical to v1 at random 8 and random 16 (the same error
+against the fp32 reference), and is stable across calls.
+
+At 16 random tokens the two changes together take FC2 from 105.1 to 86.8 us
+(17% less), from 2.1x to 1.7x a read of its bytes; at 8 random tokens from
+53.6 to 49.9 us. At one token and when tokens concentrate on few experts they
+do not help: 14.6 against 15.1 us at one random token, 15.1 against
+17.2 us at 4 tokens on 8 experts. The layer therefore picks its FC2 by batch shape: v1 at one token,
+prefetch + split once the batch spreads over many experts.
