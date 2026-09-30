@@ -87,6 +87,41 @@ __device__ __forceinline__ void load_expert(const unsigned char* __restrict__ q2
   }
 }
 
+// PF_CHAIN: everything an expert's routing needs, loaded one expert ahead with its weights (offsets, the pair
+// indices of this lane's tile rows, and for its accumulator slots the pair, the token and weight x alpha)
+template <int NT>
+struct Meta {
+  int cnt;
+  int pr[NT];
+  bool valid[NT];
+  bool ok[NT][2];
+  int tok[NT][2];
+  float wt[NT][2];
+};
+
+template <int NT>
+__device__ __forceinline__ void load_meta(const int* __restrict__ offsets, const int* __restrict__ pairs,
+                                          const float* __restrict__ weights, const float* __restrict__ alpha, int u,
+                                          int e, int gid, int tig, int top_k, Meta<NT>& m) {
+  const int p0 = offsets[u];
+  m.cnt = min(offsets[u + 1] - p0, 8 * NT);
+  const float al = alpha[e];
+#pragma unroll
+  for (int t = 0; t < NT; ++t) {
+    const int slot = t * 8 + gid;
+    m.valid[t] = slot < m.cnt;
+    m.pr[t] = m.valid[t] ? pairs[p0 + slot] : 0;
+#pragma unroll
+    for (int h = 0; h < 2; ++h) {
+      const int s2 = t * 8 + 2 * tig + h;
+      m.ok[t][h] = s2 < m.cnt;
+      const int pp = m.ok[t][h] ? pairs[p0 + s2] : 0;
+      m.wt[t][h] = m.ok[t][h] ? weights[pp] * al : 0.f;
+      m.tok[t][h] = pp / top_k;
+    }
+  }
+}
+
 template <int NT, int CH>
 __global__ void __launch_bounds__(WARPS * 32)
 k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__ s2, const __nv_bfloat16* __restrict__ act,
@@ -107,6 +142,10 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
   uint4 wq[CH][2];
   unsigned ws[CH][2];
   if (e >= 0) load_expert<CH>(q2, s2, (long long)e * H + n0 + gid, I, tig, wq, ws);
+#ifdef PF_CHAIN
+  Meta<NT> cur, nxt;
+  if (e >= 0) load_meta<NT>(offsets, pairs, weights, alpha, u, e, gid, tig, top_k, cur);
+#endif
   for (; u < U; u += stride) {
     // issue the next expert's loads before this expert's arithmetic
     const int un = u + stride;
@@ -119,7 +158,17 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
 #pragma unroll
       for (int ch = 0; ch < CH; ++ch) { nq[ch][0] = nq[ch][1] = make_uint4(0, 0, 0, 0); ns[ch][0] = ns[ch][1] = 0u; }
     }
+#ifdef PF_CHAIN
+    if (en >= 0) load_meta<NT>(offsets, pairs, weights, alpha, un, en, gid, tig, top_k, nxt);
+#endif
     if (e >= 0) {                                   // a negative id is a padding slot from the GPU router
+#ifdef PF_CHAIN
+      const int cnt = cur.cnt;
+      int pr[NT];
+      bool valid[NT];
+#pragma unroll
+      for (int t = 0; t < NT; ++t) { pr[t] = cur.pr[t]; valid[t] = cur.valid[t]; }
+#else
       const int p0 = offsets[u];
       const int cnt = min(offsets[u + 1] - p0, 8 * NT);
       int pr[NT];
@@ -130,6 +179,7 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
         valid[t] = slot < cnt;
         pr[t] = valid[t] ? pairs[p0 + slot] : 0;
       }
+#endif
       float c[NT][4];
 #pragma unroll
       for (int t = 0; t < NT; ++t)
@@ -144,7 +194,17 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
           const uint4* av = reinterpret_cast<const uint4*>(act + (long long)pr[t] * I + k);
 #pragma unroll
           for (int v = 0; v < 4; ++v) {
+#ifdef PF_NO_ACT
+            // timing variant: activations made from the pair index, never read; finite bf16 in [1, 2) (random bits
+            // would include NaN, which no bit-identity check can pass)
+            const unsigned hh = ((unsigned)pr[t] * 2654435761u + (unsigned)(k + v)) & 0x007f007fu;
+            const uint4 q = valid[t] ? make_uint4(hh | 0x3f803f80u, (hh ^ 0x00550055u) | 0x3f803f80u,
+                                                  ((hh + 0x00030003u) & 0x007f007fu) | 0x3f803f80u, 0x3f803f80u)
+                                     : make_uint4(0, 0, 0, 0);
+            (void)av;
+#else
             const uint4 q = valid[t] ? __ldg(av + v) : make_uint4(0, 0, 0, 0);
+#endif
             xb[t][4 * v] = q.x; xb[t][4 * v + 1] = q.y; xb[t][4 * v + 2] = q.z; xb[t][4 * v + 3] = q.w;
           }
         }
@@ -172,6 +232,19 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
           }
 #endif
       }
+#ifdef PF_CHAIN
+#pragma unroll
+      for (int t = 0; t < NT; ++t)
+#pragma unroll
+        for (int h = 0; h < 2; ++h) {
+          if (cur.ok[t][h]) {
+            const float wt = cur.wt[t][h];
+            const int tok = cur.tok[t][h];
+            part[warp][gid][tok] += wt * c[t][h];
+            part[warp][gid + 8][tok] += wt * c[t][2 + h];
+          }
+        }
+#else
       const float al = alpha[e];
 #pragma unroll
       for (int t = 0; t < NT; ++t)
@@ -186,11 +259,15 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
             part[warp][gid + 8][tok] += wt * c[t][2 + h];
           }
         }
+#endif
     }
     __syncwarp();                                   // the next expert may put a token in another lane
 #pragma unroll
     for (int ch = 0; ch < CH; ++ch) { wq[ch][0] = nq[ch][0]; wq[ch][1] = nq[ch][1]; ws[ch][0] = ns[ch][0]; ws[ch][1] = ns[ch][1]; }
     e = en;
+#ifdef PF_CHAIN
+    cur = nxt;
+#endif
   }
   __syncthreads();
   if (G == 1) {
@@ -269,9 +346,12 @@ void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor
 """
 
 
-def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_blocks: int = 0, mode: str = "full"):
+def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_blocks: int = 0, mode: str = "full",
+          chain: bool = False, no_act: bool = False):
     """skip_empty: skip the tensor-core work of a pair tile an expert does not fill (M > 8, fewer than 9 pairs).
     warps: warps per block (8 by default); min_blocks: __launch_bounds__'s minimum resident blocks per SM (0: unset).
+    no_act: timing only, activations made from the pair index instead of read.
+    chain: load the next expert's routing (offsets, pair indices, weight x alpha, token) with its weights.
     mode: "full", or a timing variant that gives wrong answers by design: "loads" (every load, no decode or MMA) or
     "math" (decode and MMA on codes made from the row index, no weight load)."""
     assert mode in ("full", "loads", "math", "loads_contig")
@@ -282,11 +362,11 @@ def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_b
     if min_blocks:
         assert src.count("__launch_bounds__(WARPS * 32)") == 1
         src = src.replace("__launch_bounds__(WARPS * 32)", f"__launch_bounds__(WARPS * 32, {min_blocks})")
-    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "") + ("" if mode == "full" else f"_{mode}")
+    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "") + ("" if mode == "full" else f"_{mode}") + ("_chain" if chain else "") + ("_noact" if no_act else "")
     return load_inline(name=name, cpp_sources=CPP, cuda_sources=src,
                        functions=["fc2_pf", "fc2_pf_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
-                       + (["-DPF_SKIP_EMPTY"] if skip_empty else [])
+                       + (["-DPF_SKIP_EMPTY"] if skip_empty else []) + (["-DPF_CHAIN"] if chain else []) + (["-DPF_NO_ACT"] if no_act else [])
                        + ({"full": [], "loads": ["-DPF_LOADS_ONLY"], "math": ["-DPF_MATH_ONLY"],
                            "loads_contig": ["-DPF_LOADS_ONLY", "-DPF_LOADS_CONTIG"]}[mode])
                        + (["-Xptxas=-v"] if verbose else []),

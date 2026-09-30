@@ -511,3 +511,32 @@ FC2 decodes each of about 81 experts' 1.57 million values once. The lookup is no
 benchmark the read nearly bounds). What the math-only variant keeps besides decode and MMAs is the chain of dependent
 loads per expert (its id, its offsets, its pair list, then its activation rows), which the prefetch does not cover;
 prefetching that chain with the weights is the next change.
+
+## FC2 at 16 tokens: what the arithmetic side spends (`scripts/fc2_chain.py`)
+
+Three more build options of `scripts/fc2_mma_pf.py`, each tested in one session (eight warps, two groups;
+`reports/fc2-chain-rtx5090-2026-09-30.json`, microseconds):
+
+- **chain**: the next expert's routing (offsets, the pair indices of the lane's tile rows, and for each accumulator slot
+  its token and routing weight x alpha) loaded with its weights, since each expert's arithmetic waited on that chain.
+  It changes only when loads are issued, and the output equals the plain kernel's bit for bit in every row.
+- **math, skip**: math-only with the MMAs of unfilled pair tiles skipped, to see whether padded tensor-core work (16
+  columns computed for about 1.6 pairs per expert at 16 random tokens) is what math-only spends.
+- **math, no activations**: math-only with the activations made from the pair index instead of read.
+
+| routing | tokens | full | full, chain | math | math, chain | math, skip | math, no activations | read of FC2 codes |
+|---|---|---|---|---|---|---|---|---|
+| random | 8 | 49.9 | 52.0 | 19.0 | 25.2 | 28.3 | 17.2 | 31.5 |
+| random | 16 | 87.8 | 84.2 | 47.9 | 56.0 | 47.9 | 35.6 | 49.9 |
+| 8 experts, every token to all 8 | 16 | 21.2 | 19.2 | 13.1 | 15.1 | 13.1 | 10.0 | 9.0 |
+
+Full kernels: normwise error against the fp32 reference 0.23% to 0.24%, every variant
+bit-identical over 50 calls. The chain is small and mixed (87.8 to 84.2 us at 16
+random tokens, 21.2 to 19.2 on 8 experts, 49.9 to
+52.0 at 8 random) and slows math-only, so it stays an option, off. Skipping padded tiles leaves
+math-only where it was (47.9 against 47.9): padded MMAs are not its cost. Making
+the activations instead of reading them takes math-only from 47.9 to 35.6 us:
+reading activations is about 12 us of it. Each block covers 16 output
+columns, so the 128 column tiles each read every pair's activation rows; covering 32 columns per block halves those
+reads and is the next change. The 35.6 us left with neither weights nor activations read (decode,
+MMAs, the shared-memory accumulation) is not yet broken down.
