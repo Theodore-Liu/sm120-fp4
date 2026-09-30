@@ -298,3 +298,34 @@ over 50 calls in every row. The tensor-core FC1 matches the CUDA-core one at 1 t
 randomly routed tokens (25.3 against 23.3 us at 2), and is 1.6x faster at 16 random tokens and up to 4.0x faster when
 tokens concentrate on few experts. Next: FC2 on tensor cores (the same shape with the intermediate as k), then the
 layer's FC1 and FC2 chosen per batch size, timed against the existing paths as before.
+
+## FC2 on tensor cores (`scripts/fc2_mma.py`)
+
+The same machinery as FC1 on tensor cores, arranged for FC2: a block owns 16 output columns (the MMA's M), the N side is
+one expert's (token, expert) pairs, and k is the intermediate dimension. The block's eight warps take the touched experts
+round-robin; after each expert a warp adds weight x alpha x its result into per-token accumulators in shared memory and
+synchronises before the next expert (a token can sit in a different lane for the next expert, and the synchronisation
+fixes the order of the two adds); the warps' partials are then added in warp order and each output is written once, so
+the result is deterministic without atomics. Each activation row is now read once per 16 output columns rather than
+once per column.
+
+One run, graph replay, L2 flushed, activations from the CUDA-core FC1 (`reports/fc2-mma-rtx5090-2026-09-29.json`):
+
+| routing | tokens | tensor-core FC2 | CUDA-core FC2 | read of FC2 codes |
+|---|---|---|---|---|
+| random | 1 | 14.1 us | 15.1 | 9.0 |
+| random | 2 | 22.3 | 22.6 | 13.1 |
+| random | 4 | 37.6 | 37.6 | 21.2 |
+| random | 8 | 52.2 | 62.2 | 31.4 |
+| random | 16 | 105.2 | 103.2 | 49.9 |
+| 8 experts, every token to all 8 | 1 | 15.1 | 15.1 | 9.0 |
+| same | 4 | 15.1 | 23.2 | 9.0 |
+| same | 8 | 17.2 | 39.7 | 9.0 |
+| same | 16 | 21.2 | 71.8 | 9.0 |
+
+Normwise error of the layer against the fp32 MoE reference 0.23% to 0.25% in every row,
+the same as with the CUDA-core FC2, and bit-identical over 50 calls in every row. The tensor-core FC2 is faster than the
+CUDA-core one or within 2% of it at every size, up to 3.4x when tokens concentrate on few experts (21.2 against 71.8 us at
+16 tokens per expert). At 16 random tokens it is level (105.2 against 103.2 us) and still 2.1x a read of its bytes: each
+warp walks about ten experts one after another, and the next expert's weights are loaded only after the current
+expert's arithmetic. Prefetching the next expert's weights while the current one computes is the next change.
