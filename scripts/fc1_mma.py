@@ -23,7 +23,9 @@ Same layout and output as scripts/fc1_w4a16.py (codes [E, 2I, H/2], rows [up ; g
 """
 from __future__ import annotations
 
+import argparse
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -223,7 +225,11 @@ def build():
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a", "-Xptxas=-v"], verbose=False)
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", type=Path, default=None, help="write every row to this JSON report")
+    a = ap.parse_args(argv)
+    rows = []
     mm, mc, fl = build(), fc1.build(), floor.build()
     dev = torch.device("cuda")
     e, k, h, i = 128, 8, 2048, 768
@@ -257,6 +263,8 @@ def main() -> int:
         t_cc = floor.graph_time(lambda: mc.fc1_w4a16(q1, s1, x, experts, offsets, pairs, alpha, act2, i, k))
         ptrs = torch.tensor([q1.data_ptr() + int(x_) * 2 * i * h // 2 for x_ in experts.tolist()], dtype=torch.int64, device=dev)
         t_read = floor.graph_time(lambda: fl.stream_read(ptrs, 2 * i * h // 2, 0, 2 * i * h // 2, sms * 4, 256, sink))
+        rows.append({"routing": label, "tokens": m, "rel_err": rel, "bit_identical_50": stable, "fc1_mma_us": t_mma,
+                     "fc1_cuda_core_us": t_cc, "read_fc1_codes_us": t_read})
         print(f"{label:6s} | {m:6d} | {rel:16.5f} | {str(stable):17s} | {t_mma:10.1f} | {t_cc:16.1f} | {t_read:8.1f}")
 
     for m in (1, 2, 4, 8, 16):
@@ -268,6 +276,10 @@ def main() -> int:
     for m in (1, 4, 8, 16):
         x = torch.randn(m, h, generator=torch.Generator().manual_seed(7)).to(device=dev, dtype=torch.bfloat16)
         run_case("fixed8", m, fixed.repeat(m, 1).contiguous(), x)
+    if a.out:
+        a.out.parent.mkdir(parents=True, exist_ok=True)
+        a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "rows": rows}, indent=1) + "\n", encoding="utf-8")
+        print(f"written {a.out}")
     return 0
 
 

@@ -260,3 +260,41 @@ at 4. From 8 tokens up, FC2 without activation loads is still 1.27x to 1.36x its
 arithmetic and the per-pair warp reductions, the same instruction-bound pattern FC1 shows. Both halves point at the
 same change for 4 to 16 tokens: tensor-core arithmetic with the tokens as the MMA's 8-column side, where each activation
 tile is loaded once per block and reused across the weight rows the block streams, rather than re-read per column.
+
+## FC1 on tensor cores (`scripts/fc1_mma.py`)
+
+The CUDA-core FC1 is at its read floor while experts receive one or two tokens and instruction-bound beyond (fixed 8
+experts: 15.1 us at 1 token per expert, 102.4 at 16). The tensor-core version keeps the in-register FP4 decode and puts
+the arithmetic on `mma.sync.m16n8k16` (bf16 in, fp32 accumulate), weights as the 16-row side and tokens as the 8-column
+side (a second tile for 9 to 16). Three details make it work:
+
+- The decoded weight is exact in bf16: an E2M1 value times an E4M3 scale has at most 6 significant bits.
+- k is permuted identically for weights and activations (a dot product does not depend on the order of k) so that each
+  lane reads 16-byte vectors, and the four lanes of an MMA quad read 64 contiguous bytes of a row per load. With the
+  first permutation (a lane's 128 k contiguous) the quad's lanes read 16 bytes at a 64-byte stride and every 32-byte
+  sector was fetched by two instructions: 19.2 us at 1 token instead of 15.1.
+- Every weight load of a lane is issued before any is decoded; loading and computing one chunk at a time gave 25.3 us at
+  1 token.
+
+Each block owns 16 channels of one expert; its four warps split the hidden dimension into quarters and their partial
+tiles are added in shared memory in warp order, so the result stays deterministic. One run, graph replay, L2 flushed
+(`reports/fc1-mma-rtx5090-2026-09-29.json`; the 19.2 and 25.3 us of the two earlier versions come from runs whose logs
+were not kept):
+
+| routing | tokens | tensor-core FC1 | CUDA-core FC1 | read of FC1 codes |
+|---|---|---|---|---|
+| random | 1 | 15.1 us | 15.1 | 13.1 |
+| random | 2 | 25.3 | 23.3 | 19.2 |
+| random | 4 | 43.8 | 43.6 | 34.4 |
+| random | 8 | 66.3 | 62.2 | 52.0 |
+| random | 16 | 101.1 | 162.6 | 84.7 |
+| 8 experts, every token to all 8 | 1 | 15.1 | 15.1 | 13.1 |
+| same | 4 | 15.1 | 28.4 | 13.1 |
+| same | 8 | 16.1 | 43.8 | 13.1 |
+| same | 16 | 25.3 | 102.4 | 13.1 |
+
+Normwise error against the fp32 reference 0.16% to 0.17% in every row, as for the CUDA-core version, and bit-identical
+over 50 calls in every row. The tensor-core FC1 matches the CUDA-core one at 1 token, is up to 9% slower at 2 to 8
+randomly routed tokens (25.3 against 23.3 us at 2), and is 1.6x faster at 16 random tokens and up to 4.0x faster when
+tokens concentrate on few experts. Next: FC2 on tensor cores (the same shape with the intermediate as k), then the
+layer's FC1 and FC2 chosen per batch size, timed against the existing paths as before.

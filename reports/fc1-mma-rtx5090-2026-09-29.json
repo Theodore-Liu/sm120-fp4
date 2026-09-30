@@ -1,0 +1,86 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 1,
+   "rel_err": 0.0017315744189545512,
+   "bit_identical_50": true,
+   "fc1_mma_us": 15.104000456631184,
+   "fc1_cuda_core_us": 15.104000456631184,
+   "read_fc1_codes_us": 13.055999763309956
+  },
+  {
+   "routing": "random",
+   "tokens": 2,
+   "rel_err": 0.001690083765424788,
+   "bit_identical_50": true,
+   "fc1_mma_us": 25.34399926662445,
+   "fc1_cuda_core_us": 23.296000435948372,
+   "read_fc1_codes_us": 19.200000911951065
+  },
+  {
+   "routing": "random",
+   "tokens": 4,
+   "rel_err": 0.0016380471643060446,
+   "bit_identical_50": true,
+   "fc1_mma_us": 43.83999854326248,
+   "fc1_cuda_core_us": 43.55200007557869,
+   "read_fc1_codes_us": 34.36800092458725
+  },
+  {
+   "routing": "random",
+   "tokens": 8,
+   "rel_err": 0.0016718613915145397,
+   "bit_identical_50": true,
+   "fc1_mma_us": 66.30399823188782,
+   "fc1_cuda_core_us": 62.20800057053566,
+   "read_fc1_codes_us": 52.000001072883606
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "rel_err": 0.0016721109859645367,
+   "bit_identical_50": true,
+   "fc1_mma_us": 101.1200025677681,
+   "fc1_cuda_core_us": 162.56000101566315,
+   "read_fc1_codes_us": 84.73599702119827
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 1,
+   "rel_err": 0.001577502815052867,
+   "bit_identical_50": true,
+   "fc1_mma_us": 15.104000456631184,
+   "fc1_cuda_core_us": 15.104000456631184,
+   "read_fc1_codes_us": 13.055999763309956
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 4,
+   "rel_err": 0.0016500441124662757,
+   "bit_identical_50": true,
+   "fc1_mma_us": 15.104000456631184,
+   "fc1_cuda_core_us": 28.416000306606293,
+   "read_fc1_codes_us": 13.055999763309956
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 8,
+   "rel_err": 0.001646431745029986,
+   "bit_identical_50": true,
+   "fc1_mma_us": 16.095999628305435,
+   "fc1_cuda_core_us": 43.776001781225204,
+   "read_fc1_codes_us": 13.055999763309956
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "rel_err": 0.0016398729057982564,
+   "bit_identical_50": true,
+   "fc1_mma_us": 25.34399926662445,
+   "fc1_cuda_core_us": 102.39999741315842,
+   "read_fc1_codes_us": 13.055999763309956
+  }
+ ]
+}
