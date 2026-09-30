@@ -47,6 +47,7 @@ CPP = r"""
 #include <torch/extension.h>
 void fc1_mma(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tensor experts, torch::Tensor offsets,
              torch::Tensor pairs, torch::Tensor alpha, torch::Tensor act, int64_t inter, int64_t top_k);
+void fc1_mma_set_pdl(bool on);
 """
 
 CUDA = r"""
@@ -204,6 +205,23 @@ k_fc1_mma(const unsigned char* __restrict__ q1, const unsigned char* __restrict_
   }
 }
 
+
+static bool g_pdl = false;   // launch with programmatic stream serialization (set by the module's set_pdl)
+template <typename... KArgs, typename... Args>
+static void pdl_launch(void (*kernel)(KArgs...), dim3 grid, dim3 block, cudaStream_t st, Args... args) {
+  cudaLaunchConfig_t cfg = {};
+  cfg.gridDim = grid;
+  cfg.blockDim = block;
+  cfg.stream = st;
+  cudaLaunchAttribute attr[1];
+  attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+  attr[0].val.programmaticStreamSerializationAllowed = 1;
+  cfg.attrs = attr;
+  cfg.numAttrs = g_pdl ? 1 : 0;
+  TORCH_CHECK(cudaLaunchKernelEx(&cfg, kernel, args...) == cudaSuccess, "launch");
+}
+void fc1_mma_set_pdl(bool on) { g_pdl = on; }
+
 void fc1_mma(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tensor experts, torch::Tensor offsets,
              torch::Tensor pairs, torch::Tensor alpha, torch::Tensor act, int64_t inter, int64_t top_k) {
   const int H = (int)x.size(1), I = (int)inter, M = (int)x.size(0), U = (int)experts.numel();
@@ -213,15 +231,15 @@ void fc1_mma(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tensor 
 #define FC1M_ARGS q1.data_ptr<uint8_t>(), s1.data_ptr<uint8_t>(), reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()), \
     experts.data_ptr<int>(), offsets.data_ptr<int>(), pairs.data_ptr<int>(), alpha.data_ptr<float>(),                   \
     reinterpret_cast<__nv_bfloat16*>(act.data_ptr()), H, I, (int)top_k
-  if (M <= 8) k_fc1_mma<1><<<grid, block, 0, st>>>(FC1M_ARGS);
-  else k_fc1_mma<2><<<grid, block, 0, st>>>(FC1M_ARGS);
+  if (M <= 8) pdl_launch(k_fc1_mma<1>, grid, block, st, FC1M_ARGS);
+  else pdl_launch(k_fc1_mma<2>, grid, block, st, FC1M_ARGS);
   TORCH_CHECK(cudaGetLastError() == cudaSuccess, "launch");
 }
 """
 
 
 def build():
-    return load_inline(name="sm120fp4_fc1_mma", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc1_mma"],
+    return load_inline(name="sm120fp4_fc1_mma", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc1_mma", "fc1_mma_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a", "-Xptxas=-v"], verbose=False)
 
 

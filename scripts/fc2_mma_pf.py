@@ -44,6 +44,7 @@ CPP = r"""
 void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor experts, torch::Tensor offsets,
             torch::Tensor pairs, torch::Tensor weights, torch::Tensor alpha, torch::Tensor out, torch::Tensor scratch,
             torch::Tensor counters, int64_t top_k, int64_t groups);
+void fc2_pf_set_pdl(bool on);
 """
 
 # The helpers (e4m3, fp4x2, pack_bf16, decode_pairs, mma) are v1's, reused verbatim.
@@ -189,12 +190,29 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
   if (threadIdx.x == 0) counters[blockIdx.x] = 0;   // ready for the next launch
 }
 
+
+static bool g_pdl = false;   // launch with programmatic stream serialization (set by the module's set_pdl)
+template <typename... KArgs, typename... Args>
+static void pdl_launch(void (*kernel)(KArgs...), dim3 grid, dim3 block, cudaStream_t st, Args... args) {
+  cudaLaunchConfig_t cfg = {};
+  cfg.gridDim = grid;
+  cfg.blockDim = block;
+  cfg.stream = st;
+  cudaLaunchAttribute attr[1];
+  attr[0].id = cudaLaunchAttributeProgrammaticStreamSerialization;
+  attr[0].val.programmaticStreamSerializationAllowed = 1;
+  cfg.attrs = attr;
+  cfg.numAttrs = g_pdl ? 1 : 0;
+  TORCH_CHECK(cudaLaunchKernelEx(&cfg, kernel, args...) == cudaSuccess, "launch");
+}
+void fc2_pf_set_pdl(bool on) { g_pdl = on; }
+
 template <int NT, int CH>
 static void launch(dim3 grid, cudaStream_t st, const unsigned char* q2, const unsigned char* s2, const __nv_bfloat16* act,
                    const int* experts, const int* offsets, const int* pairs, const float* weights, const float* alpha,
                    __nv_bfloat16* out, float* scratch, int* counters, int U, int M, int H, int I, int top_k) {
-  k_fc2_pf<NT, CH><<<grid, WARPS * 32, 0, st>>>(q2, s2, act, experts, offsets, pairs, weights, alpha, out, scratch,
-                                                counters, U, M, H, I, top_k);
+  pdl_launch(k_fc2_pf<NT, CH>, grid, dim3(WARPS * 32), st, q2, s2, act, experts, offsets, pairs, weights, alpha, out,
+             scratch, counters, U, M, H, I, top_k);
 }
 
 void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor experts, torch::Tensor offsets,
@@ -216,7 +234,7 @@ void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fc2_pf", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_pf"],
+    return load_inline(name="sm120fp4_fc2_pf", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_pf", "fc2_pf_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
                        + (["-Xptxas=-v"] if verbose else []), verbose=verbose)
 

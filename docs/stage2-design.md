@@ -367,3 +367,34 @@ At 16 random tokens the two changes together take FC2 from 105.1 to 86.8 us
 do not help: 14.6 against 15.1 us at one random token, 15.1 against
 17.2 us at 4 tokens on 8 experts. The layer therefore picks its FC2 by batch shape: v1 at one token,
 prefetch + split once the batch spreads over many experts.
+
+## The layer with each GEMM chosen by batch size (`scripts/moe_layer.py`)
+
+GPU router, FC1 and FC2 in one graph, every launch after the router with programmatic dependent launch (the
+tensor-core kernels gained the same launch switch as the CUDA-core ones; off, it is the plain launch). The kernel for
+each GEMM is fixed by the batch size from the separate kernel measurements above, not picked per row from this run:
+FC1 on CUDA cores up to 8 tokens and on tensor cores at 9 to 16; FC2 on CUDA cores at 1 token, the prefetch kernel at
+2 to 4, prefetch + split at 5 to 16. The all-CUDA-core layer is timed in the same session beside it.
+
+One run, graph replay, L2 flushed (`reports/moe-layer-rtx5090-2026-09-30.json`). The existing-path column is the best
+of b12x, cutlass and Marlin from `reports/moe-baseline-rtx5090-2026-09-29.json` (the same timing method, an earlier session; random routing only):
+
+| routing | tokens | FC1 | FC2 | layer | all-CUDA-core layer | best existing | ratio |
+|---|---|---|---|---|---|---|---|
+| random | 1 | CUDA core | CUDA core | 27.4 us | 27.4 | b12x-w4a16 37.6 | 1.37x |
+| random | 2 | CUDA core | prefetch | 39.7 | 41.7 | marlin-w4a16 49.9 | 1.26x |
+| random | 4 | CUDA core | prefetch | 70.4 | 74.5 | marlin-w4a16 78.8 | 1.12x |
+| random | 8 | CUDA core | prefetch + split | 109.0 | 115.5 | marlin-w4a16 113.9 | 1.04x |
+| random | 16 | tensor core | prefetch + split | 170.8 | 254.7 | marlin-w4a16 166.5 | 0.98x |
+| 8 experts, every token to all 8 | 1 | CUDA core | CUDA core | 27.4 | 27.4 | - | - |
+| same | 4 | CUDA core | prefetch | 39.7 | 47.9 | - | - |
+| same | 8 | CUDA core | prefetch + split | 60.2 | 80.6 | - | - |
+| same | 16 | tensor core | prefetch + split | 41.8 | 178.6 | - | - |
+
+Normwise error against the fp32 MoE reference 0.23% to 0.25% and bit-identical over 50
+calls in every row. With randomly routed tokens the layer is faster than the best existing path from 1 to 8 tokens
+(1.37x at 1, 1.04x at 8) and
+2.6% slower at 16 (170.8 against
+marlin-w4a16 166.5 us), where the tensor-core kernels took the layer from
+254.7 us. When tokens concentrate on few experts the tensor-core kernels matter most:
+41.8 against 178.6 us at 16 tokens on 8 experts.
