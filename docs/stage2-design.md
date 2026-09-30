@@ -238,3 +238,25 @@ rows below; the plain column moved by up to 6 us from the earlier table at 16 to
 PDL pays where the kernels are short (1.8 us at 1 token) and is noise elsewhere. Next, in order of what the numbers say
 is left: FC2 at the speed of its bytes (2 to 16 tokens), tensor-core arithmetic for FC1 and FC2 (16 tokens), and a
 cheaper router (1 token).
+
+## FC2: what the activation re-reads cost
+
+FC2 v1 reads, for every output column, the FC1 activation row of every (token, expert) pair the column's experts
+receive: at 16 tokens that is 2048 columns x 128 pairs x 1.5 KB of activation traffic against 58 MB of weights. To
+measure its share (JSON `reports/moe-breakdown-fc2-activation-rtx5090-2026-09-29.json`), FC2 has a diagnostic switch (`fc2_set_skip_act`, never set in normal use) that replaces each
+activation load with the constant 1.0 and keeps every multiply-add, so only the traffic disappears. Same method as the
+breakdown above (graph replay, L2 flushed), one run:
+
+| tokens | FC2 | FC2 without activation loads | read of FC2's bytes |
+|---|---|---|---|
+| 1 | 15.1 us | 13.1 | 13.0 |
+| 2 | 22.0 | 19.2 | 17.2 |
+| 4 | 36.9 | 29.4 | 27.3 |
+| 8 | 63.2 | 47.8 | 37.6 |
+| 16 | 105.2 | 78.5 | 57.9 |
+
+The activation traffic costs 2 us at 1 token and 27 us at 16; without it FC2 is at its read floor at 1 token and 1.08x
+at 4. From 8 tokens up, FC2 without activation loads is still 1.27x to 1.36x its read floor: the rest is the per-pair
+arithmetic and the per-pair warp reductions, the same instruction-bound pattern FC1 shows. Both halves point at the
+same change for 4 to 16 tokens: tensor-core arithmetic with the tokens as the MMA's 8-column side, where each activation
+tile is loaded once per block and reused across the weight rows the block streams, rather than re-read per column.

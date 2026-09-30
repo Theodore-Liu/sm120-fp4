@@ -42,6 +42,7 @@ void fc2_w4a16_v1(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::
 void fc2_w4a16_v0(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor experts, torch::Tensor offsets,
                   torch::Tensor pairs, torch::Tensor weights, torch::Tensor alpha, torch::Tensor out, int64_t top_k);
 void fc2_set_pdl(bool on);
+void fc2_set_skip_act(bool on);
 """
 
 CUDA = r"""
@@ -153,6 +154,9 @@ k_fc2(const unsigned char* __restrict__ q2, const unsigned char* __restrict__ s2
 // its partial sums in shared memory, and the block adds the warps' partials in warp order at the end. The order of every
 // sum is fixed by the routing, so the result is still deterministic; more warps and more rows are in flight per SM.
 constexpr int WARPS_B = 8;
+// Diagnostic only (scripts/moe_breakdown.py): when set, FC2 v1 replaces every activation load with the constant 1.0 and
+// keeps every multiply-add, so the difference in time is the activation traffic alone. Never set in normal use.
+__constant__ int g_skip_act = 0;
 
 template <int COLS>
 __global__ void __launch_bounds__(WARPS_B * 32)
@@ -207,7 +211,7 @@ k_fc2_v1(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
               const uint4* av = reinterpret_cast<const uint4*>(act + (long long)p * I + lane * 32);
 #pragma unroll
               for (int v4 = 0; v4 < 4; ++v4) {
-                const uint4 v = __ldg(av + v4);
+                const uint4 v = g_skip_act ? make_uint4(0x3f803f80u, 0x3f803f80u, 0x3f803f80u, 0x3f803f80u) : __ldg(av + v4);
                 const __nv_bfloat162* bb = reinterpret_cast<const __nv_bfloat162*>(&v);
 #pragma unroll
                 for (int h2 = 0; h2 < 4; ++h2) {
@@ -232,6 +236,11 @@ k_fc2_v1(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
     for (int wq_ = 0; wq_ < WARPS_B; ++wq_) v += part[wq_][t][c];      // fixed warp order
     out[(long long)t * H + n0 + c] = __float2bfloat16(v);
   }
+}
+
+void fc2_set_skip_act(bool on) {
+  const int v = on ? 1 : 0;
+  TORCH_CHECK(cudaMemcpyToSymbol(g_skip_act, &v, sizeof(int)) == cudaSuccess, "set skip_act");
 }
 
 static bool g_pdl2 = false;   // launch with programmatic stream serialization (set by fc2_set_pdl)
@@ -285,7 +294,7 @@ void fc2_w4a16_v0(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::
 
 
 def build():
-    return load_inline(name="sm120fp4_fc2_w4a16", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_w4a16", "fc2_w4a16_v1", "fc2_w4a16_v0", "fc2_set_pdl"],
+    return load_inline(name="sm120fp4_fc2_w4a16", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_w4a16", "fc2_w4a16_v1", "fc2_w4a16_v0", "fc2_set_pdl", "fc2_set_skip_act"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=False)
 
 

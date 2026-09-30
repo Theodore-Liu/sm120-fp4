@@ -74,14 +74,17 @@ def main(argv=None) -> int:
         t_route = floor.graph_time(lambda: mr.route(ids, e, experts, offsets, pairs))
         t_fc1 = floor.graph_time(lambda: m1.fc1_w4a16(q1, s1, x, experts, offsets, pairs, alpha, act, i, k))
         t_fc2 = floor.graph_time(lambda: m2.fc2_w4a16(q2, s2, act, experts, offsets, pairs, wts.view(-1), alpha, out, k))
+        m2.fc2_set_skip_act(True)       # same kernel, activation loads replaced by a constant: the traffic's share
+        t_fc2_noact = floor.graph_time(lambda: m2.fc2_w4a16(q2, s2, act, experts, offsets, pairs, wts.view(-1), alpha, out, k))
+        m2.fc2_set_skip_act(False)
         r1c, r1s = read(q1, fc1_codes, touched), read(s1, fc1_scales, touched)
         r2c, r2s = read(q2, fc2_codes, touched), read(s2, fc2_scales, touched)
         t_r1 = floor.graph_time(lambda: (r1c(), r1s()))
         t_r2 = floor.graph_time(lambda: (r2c(), r2s()))
         row = {"tokens": m, "experts": len(touched), "router_us": t_route, "fc1_us": t_fc1, "fc1_read_us": t_r1,
-               "fc2_us": t_fc2, "fc2_read_us": t_r2}
+               "fc2_us": t_fc2, "fc2_no_act_loads_us": t_fc2_noact, "fc2_read_us": t_r2}
         report["per_batch"].append(row)
-        print(f"{m:6d} | {len(touched):7d} | {t_route:6.1f} | {t_fc1:5.1f} | {t_r1:23.1f} | {t_fc2:5.1f} | {t_r2:23.1f} | "
+        print(f"{m:6d} | {len(touched):7d} | {t_route:6.1f} | {t_fc1:5.1f} | {t_r1:23.1f} | {t_fc2:5.1f} (no act loads {t_fc2_noact:5.1f}) | {t_r2:23.1f} | "
               f"{t_r1 / t_fc1:7.2f} | {t_r2 / t_fc2:7.2f}")
 
     print("\nFC1 with 8 experts fixed, every token routed to all 8 (bytes constant, tokens per expert = batch):")
