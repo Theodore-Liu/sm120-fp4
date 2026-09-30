@@ -444,7 +444,29 @@ Normwise error against the fp32 MoE reference 0.23% to 0.24% for every variant,
 bit-identical over 50 calls, and the skip variants equal the plain kernel bit for bit. Neither explanation holds: at
 16 random tokens the four group counts span 86.8 to 88.8 us and skipping the empty tile changes nothing
 (87.7 against 87.6 us with two groups). What remains is occupancy: the 16-token
-kernel holds 169 registers per thread (ptxas, the prefetch section), so a block of 256 threads needs 43,264 of an SM's
+kernel holds 169 registers per thread (cuobjdump of the built extension, `reports/fc2-occupancy-rtx5090-2026-09-30.json`), so a block of 256 threads needs 43,264 of an SM's
 65,536 registers and one block, eight warps, fits per SM; a warp's prefetch of its next expert is all the latency hiding
 there is. Smaller blocks with more groups per tile test that next.
 `PF_SKIP_EMPTY` stays a build option, off by default, since it neither helps nor changes a bit.
+
+## FC2 at 16 tokens: occupancy (`scripts/fc2_occupancy.py`)
+
+The registers of the 16-token instantiation, read from each built extension (`cuobjdump --dump-resource-usage`):
+169 per thread with eight warps per block, 168 with four, and 128 with
+`__launch_bounds__(256, 2)`, which fits two blocks per SM and spills 136 bytes of stack to do it (the other
+builds spill none). Same session, microseconds (`reports/fc2-occupancy-rtx5090-2026-09-30.json`):
+
+| routing | tokens | 8 warps, G2 | 4 warps, G2 | 4 warps, G4 | 8 warps, 2 blocks/SM, G2 | read of FC2 codes |
+|---|---|---|---|---|---|---|
+| random | 8 | 49.9 | 52.0 | 49.9 | 56.1 | 31.5 |
+| random | 16 | 87.9 | 88.8 | 86.8 | 84.7 | 49.9 |
+| 8 experts, every token to all 8 | 16 | 21.2 | 21.2 | 23.2 | 27.4 | 8.9 |
+
+Normwise error against the fp32 MoE reference 0.23% to 0.24% for every build,
+bit-identical over 50 calls. Twice the resident warps take 16 random tokens from 87.9 to
+84.7 us and cost elsewhere (49.9 to 56.1 at 8 tokens,
+21.2 to 27.4 at 16 tokens on 8 experts); smaller blocks change little. With
+parallelism over experts, empty pair tiles and occupancy each moving FC2 at 16 random tokens by a few percent at most,
+it stays at 1.76x a read of its codes. Performance counters are not
+available on this machine, so the next step separates the two sides by construction: the kernel with its arithmetic
+removed (loads only) and with its loads replaced by registers (arithmetic only), timed beside it.

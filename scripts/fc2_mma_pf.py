@@ -237,9 +237,18 @@ void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor
 """
 
 
-def build(verbose: bool = False, skip_empty: bool = False):
-    """skip_empty: skip the tensor-core work of a pair tile an expert does not fill (M > 8, fewer than 9 pairs)."""
-    return load_inline(name="sm120fp4_fc2_pf" + ("_skip" if skip_empty else ""), cpp_sources=CPP, cuda_sources=CUDA,
+def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_blocks: int = 0):
+    """skip_empty: skip the tensor-core work of a pair tile an expert does not fill (M > 8, fewer than 9 pairs).
+    warps: warps per block (8 by default); min_blocks: __launch_bounds__'s minimum resident blocks per SM (0: unset)."""
+    src = CUDA
+    if warps != 8:
+        assert src.count("constexpr int WARPS = 8;") == 1
+        src = src.replace("constexpr int WARPS = 8;", f"constexpr int WARPS = {warps};")
+    if min_blocks:
+        assert src.count("__launch_bounds__(WARPS * 32)") == 1
+        src = src.replace("__launch_bounds__(WARPS * 32)", f"__launch_bounds__(WARPS * 32, {min_blocks})")
+    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "")
+    return load_inline(name=name, cpp_sources=CPP, cuda_sources=src,
                        functions=["fc2_pf", "fc2_pf_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
                        + (["-DPF_SKIP_EMPTY"] if skip_empty else []) + (["-Xptxas=-v"] if verbose else []),
