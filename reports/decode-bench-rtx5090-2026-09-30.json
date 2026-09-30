@@ -1,0 +1,10 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "exhaustive_pairs": 65024,
+ "exhaustive_differ": 0,
+ "timed_code_bytes": 67108864,
+ "decodes_per_value": 8,
+ "decode_a_us": 59.167999774217606,
+ "decode_c_us": 56.09599873423576,
+ "read_codes_us": 47.807998955249786
+}

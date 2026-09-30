@@ -495,4 +495,19 @@ shared memory for coalescing would not pay. The decode and MMAs alone take 47.9 
 87.8 us lies between the two sides overlapped (69.6) and serialised (117.5). With
 tokens on 8 experts the loads are further from a read (19.1 against 9.0 us
 for the codes alone), where each warp has one expert and the loads cannot be hidden behind another. The larger lever at
-16 random tokens is the arithmetic: a decode that costs as much as reading the weights.
+16 random tokens is the arithmetic: decode and MMAs that together cost about as much as reading the weights.
+
+## The decode is cheap (`scripts/decode_bench.py`)
+
+Two FP4 x E4M3 to bf16 decodes: **A**, the kernels' own (`cvt.rn.f16x2.e2m1x2`, to floats, times the scale, packed to
+bf16x2), and **C**, a lookup (the bf16 bits of the eight E2M1 magnitudes in two byte tables selected with `prmt` by
+each nibble, the sign by bit operations, one bf16x2 multiply by the scale). The product is exact in bf16, and C equals
+A on every input: 65,024 code-byte and scale pairs (the E4M3 NaN scales excluded), 0
+different. Timed on 64 MiB of codes, each value decoded 8 times under
+different scales (1.07 billion decodes; `reports/decode-bench-rtx5090-2026-09-30.json`): A
+59.2 us, C 56.1 us, a plain read of the codes 47.8 us. Eight
+decodes per value barely lengthen a read, so decoding is not what FC2's arithmetic side spends: at 16 random tokens
+FC2 decodes each of about 81 experts' 1.57 million values once. The lookup is not adopted (a few percent on a
+benchmark the read nearly bounds). What the math-only variant keeps besides decode and MMAs is the chain of dependent
+loads per expert (its id, its offsets, its pair list, then its activation rows), which the prefetch does not cover;
+prefetching that chain with the weights is the next change.
