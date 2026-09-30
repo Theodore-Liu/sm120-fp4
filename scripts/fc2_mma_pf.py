@@ -59,10 +59,19 @@ __device__ __forceinline__ void load_expert(const unsigned char* __restrict__ q2
 #pragma unroll
   for (int ch = 0; ch < CH; ++ch) {
     const int k = ch * 128 + tig * 32;
+#ifdef PF_MATH_ONLY
+    // timing variant: the codes come from the row index, so the decode and MMA run on data no load delivered
+    const unsigned h0 = (unsigned)(r0 * 2654435761u) ^ (unsigned)(ch * 40503u + tig), h1 = h0 * 747796405u + 1u;
+    wq[ch][0] = make_uint4(h0, h0 ^ 0x5bd1e995u, h0 + 0x27d4eb2fu, ~h0);
+    wq[ch][1] = make_uint4(h1, h1 ^ 0x5bd1e995u, h1 + 0x27d4eb2fu, ~h1);
+    ws[ch][0] = 0x3838u; ws[ch][1] = 0x3838u;
+    (void)q2; (void)s2; (void)r1;
+#else
     wq[ch][0] = __ldcs(reinterpret_cast<const uint4*>(q2 + r0 * (I / 2) + k / 2));
     wq[ch][1] = __ldcs(reinterpret_cast<const uint4*>(q2 + r1 * (I / 2) + k / 2));
     ws[ch][0] = *reinterpret_cast<const unsigned short*>(s2 + r0 * (I / 16) + k / 16);
     ws[ch][1] = *reinterpret_cast<const unsigned short*>(s2 + r1 * (I / 16) + k / 16);
+#endif
   }
 }
 
@@ -127,6 +136,16 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
             xb[t][4 * v] = q.x; xb[t][4 * v + 1] = q.y; xb[t][4 * v + 2] = q.z; xb[t][4 * v + 3] = q.w;
           }
         }
+#ifdef PF_LOADS_ONLY
+        // timing variant: every weight, scale and activation load stays; the arithmetic is one fold of them
+        unsigned acc = wq[ch][0].x ^ wq[ch][0].y ^ wq[ch][0].z ^ wq[ch][0].w ^ wq[ch][1].x ^ wq[ch][1].y ^
+                       wq[ch][1].z ^ wq[ch][1].w ^ ws[ch][0] ^ ws[ch][1];
+#pragma unroll
+        for (int t = 0; t < NT; ++t)
+#pragma unroll
+          for (int j = 0; j < 16; ++j) acc ^= xb[t][j];
+        c[0][0] += (acc == 0x9e3779b9u) ? 1.f : 0.f;
+#else
         unsigned a[2][16];
         decode_pairs(wq[ch][0], ws[ch][0], a[0]);
         decode_pairs(wq[ch][1], ws[ch][1], a[1]);
@@ -139,6 +158,7 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
 #endif
             mma(c[t], a[0][2 * s], a[1][2 * s], a[0][2 * s + 1], a[1][2 * s + 1], xb[t][2 * s], xb[t][2 * s + 1]);
           }
+#endif
       }
       const float al = alpha[e];
 #pragma unroll
@@ -237,9 +257,12 @@ void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor
 """
 
 
-def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_blocks: int = 0):
+def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_blocks: int = 0, mode: str = "full"):
     """skip_empty: skip the tensor-core work of a pair tile an expert does not fill (M > 8, fewer than 9 pairs).
-    warps: warps per block (8 by default); min_blocks: __launch_bounds__'s minimum resident blocks per SM (0: unset)."""
+    warps: warps per block (8 by default); min_blocks: __launch_bounds__'s minimum resident blocks per SM (0: unset).
+    mode: "full", or a timing variant that gives wrong answers by design: "loads" (every load, no decode or MMA) or
+    "math" (decode and MMA on codes made from the row index, no weight load)."""
+    assert mode in ("full", "loads", "math")
     src = CUDA
     if warps != 8:
         assert src.count("constexpr int WARPS = 8;") == 1
@@ -247,11 +270,13 @@ def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_b
     if min_blocks:
         assert src.count("__launch_bounds__(WARPS * 32)") == 1
         src = src.replace("__launch_bounds__(WARPS * 32)", f"__launch_bounds__(WARPS * 32, {min_blocks})")
-    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "")
+    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "") + ("" if mode == "full" else f"_{mode}")
     return load_inline(name=name, cpp_sources=CPP, cuda_sources=src,
                        functions=["fc2_pf", "fc2_pf_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
-                       + (["-DPF_SKIP_EMPTY"] if skip_empty else []) + (["-Xptxas=-v"] if verbose else []),
+                       + (["-DPF_SKIP_EMPTY"] if skip_empty else [])
+                       + ({"full": [], "loads": ["-DPF_LOADS_ONLY"], "math": ["-DPF_MATH_ONLY"]}[mode])
+                       + (["-Xptxas=-v"] if verbose else []),
                        verbose=verbose)
 
 
