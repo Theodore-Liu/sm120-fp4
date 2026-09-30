@@ -398,3 +398,27 @@ calls in every row. With randomly routed tokens the layer is faster than the bes
 marlin-w4a16 166.5 us), where the tensor-core kernels took the layer from
 254.7 us. When tokens concentrate on few experts the tensor-core kernels matter most:
 41.8 against 178.6 us at 16 tokens on 8 experts.
+
+## The chosen layer against Marlin, piece by piece in one session (`scripts/moe_layer_breakdown.py`)
+
+The layer section above compared against Marlin from an earlier session's report, timed there by another helper. Here
+every piece and vLLM's Marlin W4A16 MoE are timed by one method (graph replay, L2 flushed) in one session, on the same
+weights and routing (`reports/moe-layer-breakdown-rtx5090-2026-09-30.json`, microseconds; in brackets, a stream read of
+the codes that GEMM touches):
+
+| routing | tokens | router | FC1 (read) | FC2 (read) | layer | Marlin |
+|---|---|---|---|---|---|---|
+| random | 8 | 4.9 | 62.7 (52.0) | 50.3 (31.5) | 107.2 | 114.1 |
+| random | 16 | 5.0 | 102.1 (84.7) | 87.9 (49.9) | 171.2 | 168.3 |
+| 8 experts, every token to all 8 | 16 | 5.4 | 25.3 (13.0) | 25.3 (9.0) | 43.7 | 42.0 |
+
+Normwise error against the fp32 MoE reference at most 0.46% for both. Measured this way the layer is
+faster than Marlin at 8 random tokens (107.2 against 114.1 us) and
+1.8% slower at 16 (171.2 against 168.3).
+When the 16 tokens concentrate on 8 experts, Marlin gains as much as the tensor-core kernels do:
+43.7 against 42.0 us, so the concentrated case in the layer section's table is a gain over
+the all-CUDA-core layer, not over the existing path. At 16 random tokens FC2 is the furthest from its read
+(87.9 against 49.9 us, 1.76x) and FC1
+closer (102.1 against 84.7, 1.21x); timed as
+separate graphs the parts sum to 195.1 us and the layer in one graph takes
+171.2. FC2 at 16 tokens is the next target.
