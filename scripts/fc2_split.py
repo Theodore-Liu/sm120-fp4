@@ -3,7 +3,8 @@
 No performance counters on this machine, so the two sides are separated by construction (scripts/fc2_mma_pf.py modes):
 "loads" keeps every weight, scale and activation load and replaces the decode and MMAs with a fold of the loaded
 values; "math" keeps the decode and MMAs and makes the codes from the row index, reading no weights. Both give wrong
-answers by design and are timing instruments only. Each is timed beside the full kernel (G = 2, eight warps) and a
+answers by design and are timing instruments only. "loads_contig" reads the same bytes as "loads" at lane stride
+(512 contiguous bytes of codes per warp instruction), to see whether the load pattern or the load count costs. Each is timed beside the full kernel (G = 2, eight warps) and a
 stream read of the FC2 codes; the full kernel is also checked against the fp32 reference.
 
     PYTHONPATH=. python scripts/fc2_split.py --out reports/fc2-split-<device>-<date>.json
@@ -35,7 +36,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args(argv)
-    builds = {mode: fc2p.build(mode=mode) for mode in ("full", "loads", "math")}
+    builds = {mode: fc2p.build(mode=mode) for mode in ("full", "loads", "math", "loads_contig")}
     m1, fl = fc1.build(), floor.build()
     dev = torch.device("cuda")
     e, k, h, i = 128, 8, 2048, 768

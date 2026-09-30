@@ -66,6 +66,18 @@ __device__ __forceinline__ void load_expert(const unsigned char* __restrict__ q2
     wq[ch][1] = make_uint4(h1, h1 ^ 0x5bd1e995u, h1 + 0x27d4eb2fu, ~h1);
     ws[ch][0] = 0x3838u; ws[ch][1] = 0x3838u;
     (void)q2; (void)s2; (void)r1;
+#elif defined(PF_LOADS_CONTIG)
+    // timing variant: the same bytes (the tile's 16 rows, contiguous in memory) read at lane stride, 512 bytes of
+    // codes per warp instruction; used only with PF_LOADS_ONLY, since the fragments no longer match the MMA layout
+    const int lane = threadIdx.x & 31;
+    const long long base = r0 - (lane >> 2);
+    const uint4* qb = reinterpret_cast<const uint4*>(q2 + base * (I / 2));
+    const unsigned short* sb = reinterpret_cast<const unsigned short*>(s2 + base * (I / 16));
+    wq[ch][0] = __ldcs(qb + lane + 32 * (2 * ch));
+    wq[ch][1] = __ldcs(qb + lane + 32 * (2 * ch + 1));
+    ws[ch][0] = sb[lane + 32 * (2 * ch)];
+    ws[ch][1] = sb[lane + 32 * (2 * ch + 1)];
+    (void)k; (void)r1;
 #else
     wq[ch][0] = __ldcs(reinterpret_cast<const uint4*>(q2 + r0 * (I / 2) + k / 2));
     wq[ch][1] = __ldcs(reinterpret_cast<const uint4*>(q2 + r1 * (I / 2) + k / 2));
@@ -262,7 +274,7 @@ def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_b
     warps: warps per block (8 by default); min_blocks: __launch_bounds__'s minimum resident blocks per SM (0: unset).
     mode: "full", or a timing variant that gives wrong answers by design: "loads" (every load, no decode or MMA) or
     "math" (decode and MMA on codes made from the row index, no weight load)."""
-    assert mode in ("full", "loads", "math")
+    assert mode in ("full", "loads", "math", "loads_contig")
     src = CUDA
     if warps != 8:
         assert src.count("constexpr int WARPS = 8;") == 1
@@ -275,7 +287,8 @@ def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_b
                        functions=["fc2_pf", "fc2_pf_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
                        + (["-DPF_SKIP_EMPTY"] if skip_empty else [])
-                       + ({"full": [], "loads": ["-DPF_LOADS_ONLY"], "math": ["-DPF_MATH_ONLY"]}[mode])
+                       + ({"full": [], "loads": ["-DPF_LOADS_ONLY"], "math": ["-DPF_MATH_ONLY"],
+                           "loads_contig": ["-DPF_LOADS_ONLY", "-DPF_LOADS_CONTIG"]}[mode])
                        + (["-Xptxas=-v"] if verbose else []),
                        verbose=verbose)
 

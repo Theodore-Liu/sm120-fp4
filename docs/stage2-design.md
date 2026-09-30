@@ -475,20 +475,24 @@ removed (loads only) and with its loads replaced by registers (arithmetic only),
 
 This machine has no performance counters, so the two sides are separated by construction: `fc2_mma_pf.build(mode=...)`
 compiles the same kernel (eight warps, two groups) as **loads** (every weight, scale and activation load kept, the
-decode and MMAs replaced by one fold of the loaded values) and as **math** (decode and MMAs kept, the codes made from
-the row index, no weight read). Both give wrong answers by design and are timing instruments only; the full kernel's
-error against the fp32 reference is 0.23% to 0.24% in the same run. Same session,
-microseconds (`reports/fc2-split-rtx5090-2026-09-30.json`):
+decode and MMAs replaced by one fold of the loaded values), as **loads, contiguous** (the same bytes, the tile's 16
+rows read at lane stride so each warp instruction covers 512 contiguous bytes of codes), and as **math** (decode and
+MMAs kept, the codes made from the row index, no weight read). The variants give wrong answers by design and are timing
+instruments only; the full kernel's error against the fp32 reference is 0.23% to 0.24%
+in the same run. Same session, microseconds (`reports/fc2-split-rtx5090-2026-09-30.json`):
 
-| routing | tokens | full | loads only | math only | stream read of the codes |
-|---|---|---|---|---|---|
-| random | 8 | 49.9 | 41.7 | 19.2 | 31.5 |
-| random | 16 | 87.8 | 68.9 | 47.9 | 50.9 |
-| 8 experts, every token to all 8 | 16 | 21.2 | 19.2 | 13.1 | 8.9 |
+| routing | tokens | full | loads only | loads only, contiguous | math only | stream read of the codes |
+|---|---|---|---|---|---|---|
+| random | 8 | 49.9 | 41.7 | 41.7 | 19.1 | 31.5 |
+| random | 16 | 87.8 | 69.6 | 70.4 | 47.9 | 51.9 |
+| 8 experts, every token to all 8 | 16 | 21.2 | 19.1 | 19.1 | 13.1 | 9.0 |
 
-Both sides cost. At 16 random tokens the kernel's own loads take 68.9 us against 50.9 for a stream read of the
-same codes (1.35x), and its decode and MMAs 47.9 us with no weight read at all; the full kernel's
-87.8 us lies between the two sides overlapped (68.9) and serialised (116.7). With
-tokens on 8 experts the load pattern is further from a stream read (19.2 against
-8.9 us). So the next change is the load pattern (each lane reads 16 bytes, a quad 64
-contiguous bytes of one row, one expert ahead), then the decode's share.
+Both sides cost. At 16 random tokens the kernel's loads take 69.6 us; the stream read reads only the codes, and
+the kernel also reads one scale byte per eight code bytes, so the comparable read is about 58.4 us
+(51.9 x 9/8) and the loads sit at about 1.19x of it. Reading the same bytes contiguously
+changes nothing (70.4 us), so the access pattern within a tile is not the cost, and moving the tile through
+shared memory for coalescing would not pay. The decode and MMAs alone take 47.9 us, and the full kernel's
+87.8 us lies between the two sides overlapped (69.6) and serialised (117.5). With
+tokens on 8 experts the loads are further from a read (19.1 against 9.0 us
+for the codes alone), where each warp has one expert and the loads cannot be hidden behind another. The larger lever at
+16 random tokens is the arithmetic: a decode that costs as much as reading the weights.
