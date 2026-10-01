@@ -756,7 +756,7 @@ issued instruction (`reports/ncu-fc2-stall-reasons-*-rtx5090-2026-10-01.csv`; ap
 At 16 random tokens the one-block build runs at the prefetch kernel's occupancy and still issues more per cycle: it
 executes 15% fewer instructions (one activation load and the token bookkeeping serve two tiles) and its
 warps wait less on memory results per instruction issued (two tiles of weight loads in flight per warp). The two-block
-build's extra warps add no issue rate and meet the load queue instead (the load-queue stall rises from near zero to about
-3 per issue), which is consistent with the layer time being the same with one block or two (above). At 4 tokens the
-instruction saving is smaller and the two-block build meets the same load-queue stall, consistent with the one-block build
+build's extra warps add no issue rate and meet the load queue instead (the load-queue stall is about 3 per issue, against 0.01 for the one-block build and 0.26 for the prefetch kernel), which is consistent with the layer time being the same with one block or two (above). At 4 tokens the
+instruction saving is smaller and the two-block build meets the same load-queue stall (3.35, against 0.01 and
+0.53), consistent with the one-block build
 being the faster of the two in the layer there; that link is not tested here.
