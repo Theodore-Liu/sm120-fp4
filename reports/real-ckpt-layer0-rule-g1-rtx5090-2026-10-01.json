@@ -1,0 +1,87 @@
+{
+ "pdl": true,
+ "device": "NVIDIA GeForce RTX 5090",
+ "checkpoint": "nvidia/Qwen3-30B-A3B-NVFP4",
+ "file": "model-00001-of-00004.safetensors",
+ "reference": "Qwen/Qwen3-30B-A3B",
+ "layer": 0,
+ "layout_rel_err_vs_bf16": {
+  "gate": {
+   "median": 0.09434603154659271,
+   "max": 0.0949292927980423
+  },
+  "up": {
+   "median": 0.09469562023878098,
+   "max": 0.09497878700494766
+  },
+  "down": {
+   "median": 0.0946572944521904,
+   "max": 0.09505613148212433
+  }
+ },
+ "layout_rel_err_nibbles_swapped": {
+  "gate": {
+   "median": 1.4144036769866943
+  },
+  "up": {
+   "median": 1.4144974946975708
+  },
+  "down": {
+   "median": 1.414341688156128
+  }
+ },
+ "gate_up_weight_scale_2_equal": 128,
+ "experts": 128,
+ "rows": [
+  {
+   "tokens": 1,
+   "fc1": "cuda_core",
+   "fc2": "cuda_core",
+   "rel_err": 0.001652153441682458,
+   "marlin_rel_err": 0.0030387002043426037,
+   "bit_identical_50": true,
+   "layer_us": 27.424000203609467,
+   "marlin_us": 35.64799949526787
+  },
+  {
+   "tokens": 2,
+   "fc1": "cuda_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0020553888753056526,
+   "marlin_rel_err": 0.003831123933196068,
+   "bit_identical_50": true,
+   "layer_us": 39.712000638246536,
+   "marlin_us": 49.95200037956238
+  },
+  {
+   "tokens": 4,
+   "fc1": "cuda_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0021873507648706436,
+   "marlin_rel_err": 0.0036614849232137203,
+   "bit_identical_50": true,
+   "layer_us": 68.83200258016586,
+   "marlin_us": 78.62400263547897
+  },
+  {
+   "tokens": 8,
+   "fc1": "cuda_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0021231218706816435,
+   "marlin_rel_err": 0.0036745979450643063,
+   "bit_identical_50": true,
+   "layer_us": 101.15200281143188,
+   "marlin_us": 113.43999952077866
+  },
+  {
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0019953956361860037,
+   "marlin_rel_err": 0.003594659734517336,
+   "bit_identical_50": true,
+   "layer_us": 163.07200491428375,
+   "marlin_us": 164.63999450206757
+  }
+ ]
+}

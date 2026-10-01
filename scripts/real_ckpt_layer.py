@@ -63,6 +63,10 @@ def main(argv=None) -> int:
                     help="also time the layer with FC2 at 32 columns per block (scripts/fc2_cols32.py, 4 groups) from 4 "
                          "tokens up, beside the current choice and Marlin in the same session, on random and on "
                          "concentrated routing (16 tokens all to 8 experts)")
+    ap.add_argument("--fc2-groups-sweep", action="store_true",
+                    help="where the layer uses the prefetch FC2, also time it with 8 warps x 1 group, 8 warps x 2 groups "
+                         "and 4 warps x 2 groups in the same session (the single-kernel benches with activations warm "
+                         "put one group ahead), on random and concentrated routing")
     a = ap.parse_args(argv)
     from safetensors import safe_open
     dev = torch.device("cuda")
@@ -155,7 +159,11 @@ def main(argv=None) -> int:
         # the same kernel padded to one block per SM, the prefetch kernel's occupancy (a timing control)
         c32one = c32mod.build(one_block=True)
         c32one.fc2_c32_set_pdl(not a.no_pdl)
-    cases = [("random", m) for m in (1, 2, 4, 8, 16)] + ([("fixed8", m) for m in (4, 16)] if a.with_cols32 else [])
+    m2p4 = fc2p.build(warps=4) if a.fc2_groups_sweep else None
+    if m2p4 is not None and hasattr(m2p4, "fc2_pf_set_pdl"):
+        m2p4.fc2_pf_set_pdl(not a.no_pdl)
+    cases = [("random", m) for m in (1, 2, 4, 8, 16)] + ([("fixed8", m) for m in (4, 16)]
+                                                         if a.with_cols32 or a.fc2_groups_sweep else [])
     for routing, m in cases:
         g = torch.Generator().manual_seed(1000 + m)
         x = torch.randn(m, h, generator=g).to(device=dev, dtype=torch.bfloat16)
@@ -176,7 +184,7 @@ def main(argv=None) -> int:
         wflat = wts.reshape(-1).contiguous()
         f1, f2 = layer_mod.choice(m)
 
-        def layer(fc2_cols32: bool = False, skip_fc2: bool = False, one_block: bool = False):
+        def layer(fc2_cols32: bool = False, skip_fc2: bool = False, one_block: bool = False, pf=None, groups=None):
             mr.route(ids, e_n, experts, offsets, pairs)
             if f1 == "cuda_core":
                 m1.fc1_w4a16(w["q1"], w["s1"], x, experts, offsets, pairs, alpha1, act, i, k)
@@ -189,8 +197,8 @@ def main(argv=None) -> int:
             elif f2 == "cuda_core":
                 m2.fc2_w4a16(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, k)
             else:
-                m2p.fc2_pf(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters, k,
-                           1 if f2 == "prefetch" else 2)
+                (pf or m2p).fc2_pf(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters,
+                                   k, groups or (1 if f2 == "prefetch" else 2))
 
         def marlin():
             fused_marlin_moe(x, mw13, mw2, None, None, ms13, ms2, wts, ids, qid, global_num_experts=e_n,
@@ -209,6 +217,20 @@ def main(argv=None) -> int:
             stable = stable and bool(torch.equal(out, first))
         row = {"tokens": m, "fc1": f1, "fc2": f2, "rel_err": rel, "marlin_rel_err": rel_m, "bit_identical_50": stable,
                "layer_us": floor.graph_time(layer), "marlin_us": floor.graph_time(marlin)}
+        if a.fc2_groups_sweep and f2.startswith("prefetch"):
+            row["routing"] = routing
+            row["route_fc1_us"] = floor.graph_time(lambda: layer(skip_fc2=True))
+            for name, pf, g in (("w8_g1", m2p, 1), ("w8_g2", m2p, 2), ("w4_g2", m2p4, 2)):
+                layer(pf=pf, groups=g)
+                torch.cuda.synchronize()
+                o = out.clone()
+                ok = True
+                for _ in range(50):
+                    layer(pf=pf, groups=g)
+                    ok = ok and bool(torch.equal(out, o))
+                row[f"layer_{name}_us"] = floor.graph_time(lambda: layer(pf=pf, groups=g))
+                row[f"{name}_rel_err"] = float((o.float() - ref).norm() / ref.norm())
+                row[f"{name}_bit_identical_50"] = ok
         if a.with_cols32:
             row["routing"] = routing
             if m >= 4:

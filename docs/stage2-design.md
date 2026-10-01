@@ -816,3 +816,31 @@ The layer picks one group up to 4 tokens and two above (`moe_layer.choice`), so 
 2-group prefetch build (69.4 to 70.2 warm here, and 69.4 as its share of the layer, above); the benches behind that rule
 were timed cold. The one-group build and the 4-warp, 2-group build are 7 to 8 us faster alone with warm activations; whether
 that holds inside the layer is the next measurement, with `scripts/real_ckpt_layer.py`.
+
+## One group per tile in the layer (`scripts/real_ckpt_layer.py --fc2-groups-sweep`)
+
+The layer on real weights (layer 0 of Qwen3-30B-A3B in NVFP4) with its FC2 run three ways in one session: 8 warps and
+one group, 8 warps and two groups (the choice above 4 tokens until now), and 4 warps and two groups. Run twice
+(`reports/real-ckpt-layer0-fc2groups-rtx5090-2026-10-01.json`, and with the 32-column kernels beside them in
+`reports/real-ckpt-layer0-fc2groups-cols32-rtx5090-2026-10-01.json`); microseconds, second run, the first within 0.5 us
+of it on every row:
+
+| routing | tokens | 1 group | 2 groups | 4 warps, 2 groups | 32-col | 32-col, one block per SM | Marlin |
+|---|---|---:|---:|---:|---:|---:|---:|
+| random | 2 | 39.7 | 42.2 | 41.8 | n/a | n/a | 50.0 |
+| random | 4 | 69.6 | 74.4 | 72.5 | 76.6 | 72.4 | 78.6 |
+| random | 8 | 101.6 | 107.2 | 103.2 | 111.3 | 104.2 | 113.0 |
+| random | 16 | 164.0 | 170.2 | 175.8 | 164.9 | 164.6 | 165.2 |
+| fixed8 | 4 | 39.7 | 41.6 | 41.5 | 43.8 | 42.4 | 37.7 |
+| fixed8 | 16 | 43.8 | 43.8 | 46.1 | 47.2 | 45.9 | 41.6 |
+
+Within a session, the same build timed twice agrees to about 1 us (the layer as chosen against the same build in the
+sweep: 107.3 and 107.2 at 8 random tokens, 170.3 and 170.2 at 16). One group is 5.6 and 6.2 us faster than two at 8 and
+16 random tokens, equal on 8 experts, and at least as fast as every other FC2 at every row; the 32-column kernel's
+advantage in the layer was over the two-group build only. Every variant's error against the fp32 reference is 0.20% to
+0.22% and every one is bit-identical over 50 calls.
+
+`moe_layer.choice` now runs one group up to 16 tokens (two above 16, where one group has not been measured). The layer
+under the new rule (`reports/real-ckpt-layer0-rule-g1-rtx5090-2026-10-01.json`): 101.2 us at 8 random tokens and 163.1
+at 16, against Marlin's 113.4 and 164.6 in the same run; at 16 random tokens the two are within the session's spread.
+Marlin stays ahead on 8 concentrated experts (37.7 against 39.7 at 4 tokens, 41.6 against 43.8 at 16).

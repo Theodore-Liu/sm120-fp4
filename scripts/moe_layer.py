@@ -39,9 +39,14 @@ moe = sys.modules["moe_w4a16"]
 
 
 def choice(m: int) -> tuple[str, str]:
-    """(FC1 kernel, FC2 kernel) for a batch of m tokens."""
+    """(FC1 kernel, FC2 kernel) for a batch of m tokens.
+
+    FC2 runs the prefetch kernel with one group per column tile up to 16 tokens: in the layer on real weights, with the
+    activations FC1 leaves in L2, one group is 6 us faster than two at 8 and 16 random tokens and equal on 8 experts
+    (reports/real-ckpt-layer0-fc2groups*-rtx5090-2026-10-01.json). Two groups above 16 tokens, where one group has not
+    been measured."""
     f1 = "cuda_core" if m <= 8 else "tensor_core"
-    f2 = "cuda_core" if m == 1 else ("prefetch" if m <= 4 else "prefetch_split2")
+    f2 = "cuda_core" if m == 1 else ("prefetch" if m <= 16 else "prefetch_split2")
     return f1, f2
 
 
