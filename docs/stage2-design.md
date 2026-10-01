@@ -623,3 +623,23 @@ In the layer the kernel gains 6.0 us at 16 random tokens, against
 measured here. The layer chooses by batch size alone, and at 16 tokens the 32-column kernel helps random routing and hurts
 concentrated routing, so the choice is left unchanged until the layer can tell the two apart (the number of experts a
 batch touches is known only on the GPU, after routing).
+
+## Where the 32-column kernel's gain goes in the layer
+
+The same run timed, in one session, the layer up to FC1 (routing and FC1, the same launches), and each FC2 alone on the
+activations that layer had just produced. FC2's share of the layer is the layer minus that prefix; where it is smaller
+than FC2 alone, the difference is FC2 time hidden behind the kernels before it
+(`reports/real-ckpt-layer0-cols32-split-rtx5090-2026-10-01.json`, microseconds):
+
+| routing | tokens | routing + FC1 | 16-col FC2 alone | its share of the layer | hidden | 32-col FC2 alone | its share of the layer | hidden |
+|---|---|---|---|---|---|---|---|---|
+| random | 4 | 45.8 | 37.6 | 24.6 | 13.0 | 31.5 | 28.6 | 2.9 |
+| random | 8 | 66.3 | 51.7 | 41.0 | 10.8 | 46.0 | 41.0 | 5.1 |
+| random | 16 | 105.2 | 90.7 | 67.6 | 23.1 | 72.4 | 61.4 | 11.0 |
+| fixed8 | 4 | 29.4 | 17.0 | 8.2 | 8.8 | 19.2 | 14.3 | 4.9 |
+| fixed8 | 16 | 27.4 | 25.3 | 14.3 | 10.9 | 25.3 | 18.4 | 6.9 |
+
+At 16 random tokens the 32-column kernel is 18.2 us faster alone and 6.1 us faster in the
+layer, because the kernel it replaces hides 23.1 us of its time behind routing and FC1 and the 32-column kernel
+hides 11.0. Both launch with programmatic dependent launch; which part of either kernel runs under its predecessor,
+and why the two hide different amounts, is not measured here.

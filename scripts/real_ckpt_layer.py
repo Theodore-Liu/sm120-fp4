@@ -171,12 +171,14 @@ def main(argv=None) -> int:
         wflat = wts.reshape(-1).contiguous()
         f1, f2 = layer_mod.choice(m)
 
-        def layer(fc2_cols32: bool = False):
+        def layer(fc2_cols32: bool = False, skip_fc2: bool = False):
             mr.route(ids, e_n, experts, offsets, pairs)
             if f1 == "cuda_core":
                 m1.fc1_w4a16(w["q1"], w["s1"], x, experts, offsets, pairs, alpha1, act, i, k)
             else:
                 m1m.fc1_mma(w["q1"], w["s1"], x, experts, offsets, pairs, alpha1, act, i, k)
+            if skip_fc2:
+                return
             if fc2_cols32:
                 c32.fc2_c32(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters, k, 4)
             elif f2 == "cuda_core":
@@ -215,6 +217,21 @@ def main(argv=None) -> int:
                     ok32 = ok32 and bool(torch.equal(out, first32))
                 row["c32_bit_identical_50"] = ok32
                 row["layer_c32_us"] = floor.graph_time(lambda: layer(True))
+                # the layer up to FC1 (routing and FC1, the same launches), so FC2's share inside the layer is the
+                # difference; and each FC2 alone on the activations this layer just produced
+                row["route_fc1_us"] = floor.graph_time(lambda: layer(skip_fc2=True))
+                layer(skip_fc2=True)
+                torch.cuda.synchronize()
+                if f2 == "cuda_core":
+                    row["fc2_alone_us"] = floor.graph_time(lambda: m2.fc2_w4a16(w["q2"], w["s2"], act, experts, offsets,
+                                                                              pairs, wflat, alpha2, out, k))
+                else:
+                    row["fc2_alone_us"] = floor.graph_time(lambda: m2p.fc2_pf(w["q2"], w["s2"], act, experts, offsets,
+                                                                            pairs, wflat, alpha2, out, scratch, counters, k,
+                                                                            1 if f2 == "prefetch" else 2))
+                row["fc2_c32_alone_us"] = floor.graph_time(lambda: c32.fc2_c32(w["q2"], w["s2"], act, experts, offsets,
+                                                                             pairs, wflat, alpha2, out, scratch, counters,
+                                                                             k, 4))
         report["rows"].append(row)
         print(json.dumps({kk: (round(v, 5) if isinstance(v, float) else v) for kk, v in row.items()}), flush=True)
     args_out(a.out, report)
