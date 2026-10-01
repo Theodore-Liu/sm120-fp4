@@ -189,6 +189,12 @@ def main(argv=None) -> int:
         outm = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
         wflat = wts.reshape(-1).contiguous()
         f1, f2 = layer_mod.choice(m)
+        # dependent launch per batch size, the layer's rule (moe_layer.use_pdl); --no-pdl turns it off everywhere
+        pdl_on = (not a.no_pdl) and layer_mod.use_pdl(m)
+        for fn in (m1.fc1_set_pdl, m2.fc2_set_pdl, m1m.fc1_mma_set_pdl, m2p.fc2_pf_set_pdl):
+            fn(pdl_on)
+        if m2p4 is not None:
+            m2p4.fc2_pf_set_pdl(pdl_on)
 
         def layer(fc2_cols32: bool = False, skip_fc2: bool = False, one_block: bool = False, pf=None, groups=None,
                   fc1=None):

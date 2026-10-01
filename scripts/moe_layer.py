@@ -55,6 +55,14 @@ def choice(m: int) -> tuple[str, str]:
     return f1, f2
 
 
+
+def use_pdl(m: int) -> bool:
+    """Whether the layer's kernels launch with programmatic dependent launch for a batch of m tokens: on below 16 tokens,
+    where it saves 0.9 to 2.1 us at 1 and 2 tokens and changes nothing at 4 and 8, off at 16, where it costs 1.8 to 2.0 us
+    on both routings in two sessions (reports/real-ckpt-layer0-fc1sweep-{rule,pdl-rep2,nopdl,nopdl-rep2}-...json)."""
+    return m < 16
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True, help="JSON report, written into the repository")

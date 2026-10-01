@@ -905,3 +905,31 @@ digits and bit-identical over 50 calls. `moe_layer.choice` now runs the tensor-c
 the CUDA-core pair stays. Under the new rule the layer is ahead of Marlin on every row but one: 27.4 against 37.7 and
 29.5 against 37.7 on 8 experts at 4 and 8 tokens, 163.0 against 165.6 at 16 random tokens; on 8 experts at 16 tokens
 Marlin keeps 2 us (41.8 against 43.8), which the ncu run above places in launch gaps rather than in any kernel.
+
+## Dependent launch costs the layer 2 us at 16 tokens (`scripts/real_ckpt_layer.py --no-pdl`)
+
+The layer on real weights with programmatic dependent launch on and off, each twice in separate sessions
+(`reports/real-ckpt-layer0-fc1sweep-{rule,pdl-rep2}-...json` on; `...-fc1sweep-{nopdl,nopdl-rep2}-...json` off); the
+FC1 and FC2 choices are the current rule's. Microseconds, both runs:
+
+| routing | tokens | PDL on | PDL off | Marlin (same runs) |
+|---|---|---:|---:|---:|
+| random | 1 | 28.7, 28.8 | 30.1, 29.6 | 35.6 to 36.6 |
+| random | 2 | 39.7, 39.9 | 41.8, 41.8 | 49.9 to 50.0 |
+| random | 4 | 69.4, 70.2 | 70.4, 70.4 | 78.6 to 79.1 |
+| random | 8 | 101.2, 101.3 | 101.9, 102.0 | 112.4 to 113.2 |
+| random | 16 | 163.0, 163.6 | 161.2, 161.7 | 164.0 to 165.6 |
+| fixed8 | 4 | 27.4, 27.4 | 27.4, 27.4 | 37.7 |
+| fixed8 | 8 | 29.5, 29.5 | 29.6, 29.5 | 37.7 to 37.9 |
+| fixed8 | 16 | 43.8, 43.7 | 42.0, 41.8 | 41.6 to 41.8 |
+
+Dependent launch is worth 0.9 to 2.1 us at 1 and 2 tokens, nothing at 4 and 8, and costs 1.8 to 2.0 us at 16 tokens on
+both routings, in both runs. The 2 us Marlin kept on 8 experts at 16 tokens is this: with dependent launch off the layer
+takes 41.8 to 42.0 there against Marlin's 41.6 to 41.8, level within the spread. Why the early trigger helps short batches
+and costs the long ones is not measured here; the FC2 kernel at 16 tokens runs longest, and a successor started early
+holds its blocks while it waits. `moe_layer.use_pdl` now switches dependent launch off at 16 tokens and keeps it on below, and
+`real_ckpt_layer.py` sets it per batch; under that rule (`reports/real-ckpt-layer0-fc1sweep-pdlrule-rtx5090-2026-10-01.json`)
+the layer takes 161.5 us at 16 random tokens against Marlin's 163.5 in the same run, and 41.8 against 41.5 on 8 experts at
+16 tokens; the other rows are unchanged (28.8, 39.9, 68.6, 101.4, 27.4, 29.5 against Marlin's 35.8, 49.9, 78.8, 112.7,
+37.7, 37.7). Every row is now level with or ahead of Marlin; on 8 experts at 16 tokens the two are within 0.3 us, inside
+the session's spread.

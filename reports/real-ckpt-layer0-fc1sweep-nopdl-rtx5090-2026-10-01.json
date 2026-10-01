@@ -1,0 +1,173 @@
+{
+ "pdl": false,
+ "device": "NVIDIA GeForce RTX 5090",
+ "checkpoint": "nvidia/Qwen3-30B-A3B-NVFP4",
+ "file": "model-00001-of-00004.safetensors",
+ "reference": "Qwen/Qwen3-30B-A3B",
+ "layer": 0,
+ "layout_rel_err_vs_bf16": {
+  "gate": {
+   "median": 0.09434603154659271,
+   "max": 0.0949292927980423
+  },
+  "up": {
+   "median": 0.09469562023878098,
+   "max": 0.09497878700494766
+  },
+  "down": {
+   "median": 0.0946572944521904,
+   "max": 0.09505613148212433
+  }
+ },
+ "layout_rel_err_nibbles_swapped": {
+  "gate": {
+   "median": 1.4144036769866943
+  },
+  "up": {
+   "median": 1.4144974946975708
+  },
+  "down": {
+   "median": 1.414341688156128
+  }
+ },
+ "gate_up_weight_scale_2_equal": 128,
+ "experts": 128,
+ "rows": [
+  {
+   "tokens": 1,
+   "fc1": "cuda_core",
+   "fc2": "cuda_core",
+   "rel_err": 0.001652153441682458,
+   "marlin_rel_err": 0.0030387002043426037,
+   "bit_identical_50": true,
+   "layer_us": 30.112000182271004,
+   "marlin_us": 36.57599911093712,
+   "routing": "random",
+   "layer_fc1_cuda_core_us": 29.664000496268272,
+   "fc1_cuda_core_rel_err": 0.001652153441682458,
+   "fc1_cuda_core_bit_identical_50": true,
+   "layer_fc1_tensor_core_us": 29.472000896930695,
+   "fc1_tensor_core_rel_err": 0.001652153441682458,
+   "fc1_tensor_core_bit_identical_50": true
+  },
+  {
+   "tokens": 2,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0020554608199745417,
+   "marlin_rel_err": 0.003831123933196068,
+   "bit_identical_50": true,
+   "layer_us": 41.760001331567764,
+   "marlin_us": 49.92000013589859,
+   "routing": "random",
+   "layer_fc1_cuda_core_us": 39.712000638246536,
+   "fc1_cuda_core_rel_err": 0.0020553888753056526,
+   "fc1_cuda_core_bit_identical_50": true,
+   "layer_fc1_tensor_core_us": 41.760001331567764,
+   "fc1_tensor_core_rel_err": 0.0020554608199745417,
+   "fc1_tensor_core_bit_identical_50": true
+  },
+  {
+   "tokens": 4,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err": 0.002187249716371298,
+   "marlin_rel_err": 0.0036614849232137203,
+   "bit_identical_50": true,
+   "layer_us": 70.43199986219406,
+   "marlin_us": 78.8159966468811,
+   "routing": "random",
+   "layer_fc1_cuda_core_us": 70.43199986219406,
+   "fc1_cuda_core_rel_err": 0.0021873507648706436,
+   "fc1_cuda_core_bit_identical_50": true,
+   "layer_fc1_tensor_core_us": 70.43199986219406,
+   "fc1_tensor_core_rel_err": 0.002187249716371298,
+   "fc1_tensor_core_bit_identical_50": true
+  },
+  {
+   "tokens": 8,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0021232226863503456,
+   "marlin_rel_err": 0.0036745979450643063,
+   "bit_identical_50": true,
+   "layer_us": 101.88800096511841,
+   "marlin_us": 113.24799805879593,
+   "routing": "random",
+   "layer_fc1_cuda_core_us": 101.6319990158081,
+   "fc1_cuda_core_rel_err": 0.0021231218706816435,
+   "fc1_cuda_core_bit_identical_50": true,
+   "layer_fc1_tensor_core_us": 102.7199998497963,
+   "fc1_tensor_core_rel_err": 0.0021232226863503456,
+   "fc1_tensor_core_bit_identical_50": true
+  },
+  {
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0019953956361860037,
+   "marlin_rel_err": 0.003594659734517336,
+   "bit_identical_50": true,
+   "layer_us": 161.24799847602844,
+   "marlin_us": 163.96799683570862,
+   "routing": "random",
+   "layer_fc1_cuda_core_us": 228.12800109386444,
+   "fc1_cuda_core_rel_err": 0.0019953937735408545,
+   "fc1_cuda_core_bit_identical_50": true,
+   "layer_fc1_tensor_core_us": 160.73599457740784,
+   "fc1_tensor_core_rel_err": 0.0019953956361860037,
+   "fc1_tensor_core_bit_identical_50": true
+  },
+  {
+   "tokens": 4,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err": 0.002122433390468359,
+   "marlin_rel_err": 0.003557386575266719,
+   "bit_identical_50": true,
+   "layer_us": 27.39199995994568,
+   "marlin_us": 37.696000188589096,
+   "routing": "fixed8",
+   "layer_fc1_cuda_core_us": 39.872001856565475,
+   "fc1_cuda_core_rel_err": 0.002122433390468359,
+   "fc1_cuda_core_bit_identical_50": true,
+   "layer_fc1_tensor_core_us": 27.39199995994568,
+   "fc1_tensor_core_rel_err": 0.002122433390468359,
+   "fc1_tensor_core_bit_identical_50": true
+  },
+  {
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0019510247511789203,
+   "marlin_rel_err": 0.0036288851406425238,
+   "bit_identical_50": true,
+   "layer_us": 41.98399931192398,
+   "marlin_us": 41.6640006005764,
+   "routing": "fixed8",
+   "layer_fc1_cuda_core_us": 122.78400361537933,
+   "fc1_cuda_core_rel_err": 0.0019509122939780354,
+   "fc1_cuda_core_bit_identical_50": true,
+   "layer_fc1_tensor_core_us": 41.760001331567764,
+   "fc1_tensor_core_rel_err": 0.0019510247511789203,
+   "fc1_tensor_core_bit_identical_50": true
+  },
+  {
+   "tokens": 8,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0020525753498077393,
+   "marlin_rel_err": 0.003589823842048645,
+   "bit_identical_50": true,
+   "layer_us": 29.632000252604485,
+   "marlin_us": 37.66399994492531,
+   "routing": "fixed8",
+   "layer_fc1_cuda_core_us": 58.78400057554245,
+   "fc1_cuda_core_rel_err": 0.002051873132586479,
+   "fc1_cuda_core_bit_identical_50": true,
+   "layer_fc1_tensor_core_us": 29.472000896930695,
+   "fc1_tensor_core_rel_err": 0.0020525753498077393,
+   "fc1_tensor_core_bit_identical_50": true
+  }
+ ]
+}
