@@ -1,0 +1,139 @@
+{
+ "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+ "resources": {
+  "W8": {
+   "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 238,
+    "stack": 0
+   },
+   "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 223,
+    "stack": 0
+   },
+   "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 169,
+    "stack": 0
+   },
+   "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 163,
+    "stack": 0
+   }
+  },
+  "W4": {
+   "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 238,
+    "stack": 0
+   },
+   "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 223,
+    "stack": 0
+   },
+   "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 168,
+    "stack": 0
+   },
+   "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 163,
+    "stack": 0
+   }
+  },
+  "W8min2": {
+   "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 128,
+    "stack": 296
+   },
+   "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 128,
+    "stack": 248
+   },
+   "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 128,
+    "stack": 136
+   },
+   "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 128,
+    "stack": 88
+   }
+  }
+ },
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 8,
+   "act_warm": true,
+   "W8_G2": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 42.97599941492081
+   },
+   "W4_G2": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 38.88000175356865
+   },
+   "W4_G4": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 36.86400130391121
+   },
+   "W8min2_G2": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 55.296000093221664
+   },
+   "read_fc2_codes_us": 34.81600061058998
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "act_warm": true,
+   "W8_G2": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 69.63200122117996
+   },
+   "W4_G2": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 61.43999844789505
+   },
+   "W4_G4": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 59.39200147986412
+   },
+   "W8min2_G2": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 81.91999793052673
+   },
+   "read_fc2_codes_us": 55.26399984955788
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "act_warm": true,
+   "W8_G2": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 16.383999958634377
+   },
+   "W4_G2": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 16.383999958634377
+   },
+   "W4_G4": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 16.416000202298164
+   },
+   "W8min2_G2": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 24.57600086927414
+   },
+   "read_fc2_codes_us": 10.208000428974628
+  }
+ ]
+}

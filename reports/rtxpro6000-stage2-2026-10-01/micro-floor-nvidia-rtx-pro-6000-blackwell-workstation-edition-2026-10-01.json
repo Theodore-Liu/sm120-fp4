@@ -1,0 +1,118 @@
+{
+ "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+ "sms": 188,
+ "chunk_bytes": 2654208,
+ "split_bytes": 1769472,
+ "threads": 256,
+ "coop_max_blocks_per_sm": 4,
+ "rows": [
+  {
+   "tokens": 1,
+   "experts": 8,
+   "bytes": 21233664,
+   "datasheet_floor_us": 11.849142857142857,
+   "stream_us_by_blocks_per_sm": {
+    "1": 30.688000842928886,
+    "2": 20.447999238967896,
+    "4": 20.447999238967896,
+    "8": 20.447999238967896,
+    "16": 20.447999238967896
+   },
+   "best_blocks_per_sm": 2,
+   "stream_us": 20.447999238967896,
+   "stream_gbps": 1038.4225738591997,
+   "two_phase_coop_us": 22.495999932289124,
+   "coop_blocks_per_sm": 2,
+   "two_phase_pdl_us": 22.52800017595291
+  },
+  {
+   "tokens": 2,
+   "experts": 15,
+   "bytes": 39813120,
+   "datasheet_floor_us": 22.217142857142857,
+   "stream_us_by_blocks_per_sm": {
+    "1": 49.12000149488449,
+    "2": 32.76799991726875,
+    "4": 30.751999467611313,
+    "8": 30.688000842928886,
+    "16": 32.735999673604965
+   },
+   "best_blocks_per_sm": 8,
+   "stream_us": 30.688000842928886,
+   "stream_gbps": 1297.3513720811084,
+   "two_phase_coop_us": 34.78400036692619,
+   "coop_blocks_per_sm": 4,
+   "two_phase_pdl_us": 34.143999218940735
+  },
+  {
+   "tokens": 4,
+   "experts": 30,
+   "bytes": 79626240,
+   "datasheet_floor_us": 44.434285714285714,
+   "stream_us_by_blocks_per_sm": {
+    "1": 83.96799862384796,
+    "2": 59.39200147986412,
+    "4": 57.34400078654289,
+    "8": 57.34400078654289,
+    "16": 59.39200147986412
+   },
+   "best_blocks_per_sm": 4,
+   "stream_us": 57.34400078654289,
+   "stream_gbps": 1388.5714095254782,
+   "two_phase_coop_us": 61.43999844789505,
+   "coop_blocks_per_sm": 4,
+   "two_phase_pdl_us": 61.43999844789505
+  },
+  {
+   "tokens": 8,
+   "experts": 48,
+   "bytes": 127401984,
+   "datasheet_floor_us": 71.09485714285714,
+   "stream_us_by_blocks_per_sm": {
+    "1": 116.7680025100708,
+    "2": 92.16000139713287,
+    "4": 88.06400001049042,
+    "8": 88.0960002541542,
+    "16": 88.06400001049042
+   },
+   "best_blocks_per_sm": 4,
+   "stream_us": 88.06400001049042,
+   "stream_gbps": 1446.6976742462703,
+   "two_phase_coop_us": 92.16000139713287,
+   "coop_blocks_per_sm": 4,
+   "two_phase_pdl_us": 90.11200070381165
+  },
+  {
+   "tokens": 16,
+   "experts": 81,
+   "bytes": 214990848,
+   "datasheet_floor_us": 119.97257142857143,
+   "stream_us_by_blocks_per_sm": {
+    "1": 176.12800002098083,
+    "2": 149.50400590896606,
+    "4": 143.36000382900238,
+    "8": 143.36000382900238,
+    "16": 147.45600521564484
+   },
+   "best_blocks_per_sm": 4,
+   "stream_us": 143.36000382900238,
+   "stream_gbps": 1499.6571028027997,
+   "two_phase_coop_us": 147.45600521564484,
+   "coop_blocks_per_sm": 4,
+   "two_phase_pdl_us": 147.45600521564484
+  }
+ ],
+ "fixed_costs_us": {
+  "empty kernel, 1/SM": 2.1440000273287296,
+  "empty cooperative grid sync, 1/SM": 4.064000211656094,
+  "empty PDL pair, 1/SM": 6.111999973654747,
+  "empty kernel, 2/SM": 4.064000211656094,
+  "empty cooperative grid sync, 2/SM": 4.064000211656094,
+  "empty PDL pair, 2/SM": 6.111999973654747,
+  "empty kernel, 4/SM": 4.064000211656094,
+  "empty cooperative grid sync, 4/SM": 6.111999973654747,
+  "empty PDL pair, 4/SM": 6.111999973654747,
+  "empty kernel, 8/SM": 4.064000211656094,
+  "empty PDL pair, 8/SM": 6.111999973654747
+ }
+}

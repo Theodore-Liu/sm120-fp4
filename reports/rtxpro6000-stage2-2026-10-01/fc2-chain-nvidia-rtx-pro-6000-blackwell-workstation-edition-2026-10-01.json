@@ -1,0 +1,104 @@
+{
+ "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 8,
+   "act_warm": false,
+   "full": {
+    "us": 69.08799707889557,
+    "bit_identical_50": true,
+    "rel_err": 0.0023646776098757982
+   },
+   "full_chain": {
+    "us": 53.21599915623665,
+    "bit_identical_50": true,
+    "rel_err": 0.0023646776098757982
+   },
+   "math": {
+    "us": 20.447999238967896,
+    "bit_identical_50": true
+   },
+   "math_chain": {
+    "us": 26.59199945628643,
+    "bit_identical_50": true
+   },
+   "math_skip": {
+    "us": 30.688000842928886,
+    "bit_identical_50": true
+   },
+   "math_noact": {
+    "us": 18.432000651955605,
+    "bit_identical_50": true
+   },
+   "chain_equals_plain": true,
+   "read_fc2_codes_us": 34.78400036692619
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "act_warm": false,
+   "full": {
+    "us": 92.16000139713287,
+    "bit_identical_50": true,
+    "rel_err": 0.002366423374041915
+   },
+   "full_chain": {
+    "us": 86.04799956083298,
+    "bit_identical_50": true,
+    "rel_err": 0.002366423374041915
+   },
+   "math": {
+    "us": 45.024000108242035,
+    "bit_identical_50": true
+   },
+   "math_chain": {
+    "us": 55.26399984955788,
+    "bit_identical_50": true
+   },
+   "math_skip": {
+    "us": 45.024000108242035,
+    "bit_identical_50": true
+   },
+   "math_noact": {
+    "us": 30.688000842928886,
+    "bit_identical_50": true
+   },
+   "chain_equals_plain": true,
+   "read_fc2_codes_us": 53.247999399900436
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "act_warm": false,
+   "full": {
+    "us": 21.95199951529503,
+    "bit_identical_50": true,
+    "rel_err": 0.002342150779440999
+   },
+   "full_chain": {
+    "us": 21.95199951529503,
+    "bit_identical_50": true,
+    "rel_err": 0.002342150779440999
+   },
+   "math": {
+    "us": 14.303999952971935,
+    "bit_identical_50": true
+   },
+   "math_chain": {
+    "us": 14.336000196635723,
+    "bit_identical_50": true
+   },
+   "math_skip": {
+    "us": 13.75999953597784,
+    "bit_identical_50": true
+   },
+   "math_noact": {
+    "us": 10.208000428974628,
+    "bit_identical_50": true
+   },
+   "chain_equals_plain": true,
+   "read_fc2_codes_us": 10.208000428974628
+  }
+ ]
+}

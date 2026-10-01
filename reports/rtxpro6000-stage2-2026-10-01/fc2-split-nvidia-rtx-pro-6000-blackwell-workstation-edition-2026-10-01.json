@@ -1,0 +1,62 @@
+{
+ "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 8,
+   "act_warm": false,
+   "full": {
+    "us": 69.63200122117996,
+    "rel_err": 0.0023646776098757982
+   },
+   "loads": {
+    "us": 43.007999658584595
+   },
+   "math": {
+    "us": 19.967999309301376
+   },
+   "loads_contig": {
+    "us": 43.007999658584595
+   },
+   "read_fc2_codes_us": 34.81600061058998
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "act_warm": false,
+   "full": {
+    "us": 92.16000139713287,
+    "rel_err": 0.002366423374041915
+   },
+   "loads": {
+    "us": 73.72800260782242
+   },
+   "math": {
+    "us": 45.05600035190582
+   },
+   "loads_contig": {
+    "us": 75.77600330114365
+   },
+   "read_fc2_codes_us": 55.296000093221664
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "act_warm": false,
+   "full": {
+    "us": 21.983999758958817,
+    "rel_err": 0.002342150779440999
+   },
+   "loads": {
+    "us": 18.432000651955605
+   },
+   "math": {
+    "us": 14.303999952971935
+   },
+   "loads_contig": {
+    "us": 18.432000651955605
+   },
+   "read_fc2_codes_us": 10.239999741315842
+  }
+ ]
+}

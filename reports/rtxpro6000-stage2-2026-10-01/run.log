@@ -1,0 +1,229 @@
+START 2026-10-01T22:27:10Z
+NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 580.178.04, 97887 MiB, 12.0, 3090 MHz, 14001 MHz
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+torch 2.13.0+cu130 cuda 13.0
+device NVIDIA RTX PRO 6000 Blackwell Workstation Edition (12, 0)
+CUDA_HOME=/usr/local/cuda-13.2 nvcc=/usr/local/cuda-13.2/bin/nvcc
+== floor
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+empty kernel, 1/SM                          2.14 us
+empty cooperative grid sync, 1/SM           4.06 us
+empty PDL pair, 1/SM                        6.11 us
+empty kernel, 2/SM                          4.06 us
+empty cooperative grid sync, 2/SM           4.06 us
+empty PDL pair, 2/SM                        6.11 us
+empty kernel, 4/SM                          4.06 us
+empty cooperative grid sync, 4/SM           6.11 us
+empty PDL pair, 4/SM                        6.11 us
+empty kernel, 8/SM                          4.06 us
+empty PDL pair, 8/SM                        6.11 us
+M= 1 experts   8   20.2 MiB: datasheet   11.8 us | stream   20.4 us (  1038 GB/s, 2/SM) | two-phase coop   22.5 us (2/SM) | two-phase PDL   22.5 us | sweep {1: 30.7, 2: 20.4, 4: 20.4, 8: 20.4, 16: 20.4}
+M= 2 experts  15   38.0 MiB: datasheet   22.2 us | stream   30.7 us (  1297 GB/s, 8/SM) | two-phase coop   34.8 us (4/SM) | two-phase PDL   34.1 us | sweep {1: 49.1, 2: 32.8, 4: 30.8, 8: 30.7, 16: 32.7}
+M= 4 experts  30   75.9 MiB: datasheet   44.4 us | stream   57.3 us (  1389 GB/s, 4/SM) | two-phase coop   61.4 us (4/SM) | two-phase PDL   61.4 us | sweep {1: 84.0, 2: 59.4, 4: 57.3, 8: 57.3, 16: 59.4}
+M= 8 experts  48  121.5 MiB: datasheet   71.1 us | stream   88.1 us (  1447 GB/s, 4/SM) | two-phase coop   92.2 us (4/SM) | two-phase PDL   90.1 us | sweep {1: 116.8, 2: 92.2, 4: 88.1, 8: 88.1, 16: 88.1}
+M=16 experts  81  205.0 MiB: datasheet  120.0 us | stream  143.4 us (  1500 GB/s, 4/SM) | two-phase coop  147.5 us (4/SM) | two-phase PDL  147.5 us | sweep {1: 176.1, 2: 149.5, 4: 143.4, 8: 143.4, 16: 147.5}
+written /workspace/out/micro-floor-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+floor_RC=0
+== layer
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+routing | tokens | FC1 | FC2 | normwise vs fp32 | bit-identical x50 | layer us | all-CUDA-core layer us | best existing
+random  |      1 | cuda_core   | cuda_core       |          0.00248 | True              |     33.0 |                    28.6 | b12x-w4a16 37.6 (1.14x)
+random  |      2 | tensor_core | prefetch        |          0.00225 | True              |     43.0 |                    43.0 | marlin-w4a16 49.9 (1.16x)
+random  |      4 | tensor_core | prefetch        |          0.00234 | True              |     73.7 |                    73.7 | marlin-w4a16 78.8 (1.07x)
+random  |      8 | tensor_core | prefetch        |          0.00236 | True              |    108.5 |                   112.6 | marlin-w4a16 113.9 (1.05x)
+random  |     16 | tensor_core | prefetch        |          0.00237 | True              |    165.9 |                   229.4 | marlin-w4a16 166.5 (1.00x)
+fixed8  |      1 | cuda_core   | cuda_core       |          0.00226 | True              |     28.7 |                    28.7 | -
+fixed8  |      4 | tensor_core | prefetch        |          0.00235 | True              |     28.7 |                    51.2 | -
+fixed8  |      8 | tensor_core | prefetch        |          0.00236 | True              |     30.7 |                    79.9 | -
+fixed8  |     16 | tensor_core | prefetch        |          0.00234 | True              |     45.1 |                   165.9 | -
+written /workspace/out/moe-layer-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+layer_RC=0
+== groups
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+random 8 {'v1': 77.5, 'G1': 55.3, 'G2': 53.2, 'G3': 57.3, 'G4': 55.3, 'G1_skip': 57.3, 'G2_skip': 55.3} read 34.8 stable True skip==plain {'G1': True, 'G2': True}
+random 16 {'v1': 110.6, 'G1': 94.2, 'G2': 90.8, 'G3': 92.2, 'G4': 90.1, 'G1_skip': 94.2, 'G2_skip': 90.1} read 55.3 stable True skip==plain {'G1': True, 'G2': True}
+fixed8 16 {'v1': 22.5, 'G1': 20.5, 'G2': 22.5, 'G3': 22.5, 'G4': 22.5, 'G1_skip': 20.5, 'G2_skip': 22.5} read 10.2 stable True skip==plain {'G1': True, 'G2': True}
+written /workspace/out/fc2-groups-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+groups_RC=0
+== groupswarm
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+random 8 {'v1': 38.9, 'G1': 36.9, 'G2': 43.0, 'G3': 45.1, 'G4': 43.0, 'G1_skip': 38.9, 'G2_skip': 45.1} read 34.8 stable True skip==plain {'G1': True, 'G2': True}
+random 16 {'v1': 71.7, 'G1': 59.4, 'G2': 69.6, 'G3': 71.7, 'G4': 69.6, 'G1_skip': 59.4, 'G2_skip': 69.6} read 55.3 stable True skip==plain {'G1': True, 'G2': True}
+fixed8 16 {'v1': 16.4, 'G1': 14.3, 'G2': 16.4, 'G3': 16.4, 'G4': 16.4, 'G1_skip': 14.3, 'G2_skip': 16.4} read 9.7 stable True skip==plain {'G1': True, 'G2': True}
+written /workspace/out/fc2-groups-actwarm-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+groupswarm_RC=0
+== occupancy
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+random 8 {'W8_G2': 69.6, 'W4_G2': 55.3, 'W4_G4': 45.0, 'W8min2_G2': 57.3} read 34.8 stable True
+random 16 {'W8_G2': 90.1, 'W4_G2': 94.2, 'W4_G4': 79.3, 'W8min2_G2': 88.1} read 55.3 stable True
+fixed8 16 {'W8_G2': 22.5, 'W4_G2': 22.5, 'W4_G4': 24.5, 'W8min2_G2': 28.7} read 10.2 stable True
+{
+ "W8": {
+  "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 238,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 223,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 169,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 163,
+   "stack": 0
+  }
+ },
+ "W4": {
+  "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 238,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 223,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 168,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 163,
+   "stack": 0
+  }
+ },
+ "W8min2": {
+  "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 128,
+   "stack": 296
+  },
+  "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 128,
+   "stack": 248
+  },
+  "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 128,
+   "stack": 136
+  },
+  "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 128,
+   "stack": 88
+  }
+ }
+}
+written /workspace/out/fc2-occupancy-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+occupancy_RC=0
+== occwarm
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+random 8 {'W8_G2': 43.0, 'W4_G2': 38.9, 'W4_G4': 36.9, 'W8min2_G2': 55.3} read 34.8 stable True
+random 16 {'W8_G2': 69.6, 'W4_G2': 61.4, 'W4_G4': 59.4, 'W8min2_G2': 81.9} read 55.3 stable True
+fixed8 16 {'W8_G2': 16.4, 'W4_G2': 16.4, 'W4_G4': 16.4, 'W8min2_G2': 24.6} read 10.2 stable True
+{
+ "W8": {
+  "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 238,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 223,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 169,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 163,
+   "stack": 0
+  }
+ },
+ "W4": {
+  "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 238,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 223,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 168,
+   "stack": 0
+  },
+  "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 163,
+   "stack": 0
+  }
+ },
+ "W8min2": {
+  "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 128,
+   "stack": 296
+  },
+  "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 128,
+   "stack": 248
+  },
+  "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 128,
+   "stack": 136
+  },
+  "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+   "registers": 128,
+   "stack": 88
+  }
+ }
+}
+written /workspace/out/fc2-occupancy-actwarm-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+occwarm_RC=0
+== split
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+random 8 {'full': 69.6, 'loads': 43.0, 'math': 20.0, 'loads_contig': 43.0} read 34.8 full err 0.00236
+random 16 {'full': 92.2, 'loads': 73.7, 'math': 45.1, 'loads_contig': 75.8} read 55.3 full err 0.00237
+fixed8 16 {'full': 22.0, 'loads': 18.4, 'math': 14.3, 'loads_contig': 18.4} read 10.2 full err 0.00234
+written /workspace/out/fc2-split-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+split_RC=0
+== splitwarm
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+random 8 {'full': 43.0, 'loads': 38.9, 'math': 16.4, 'loads_contig': 38.9} read 34.8 full err 0.00236
+random 16 {'full': 69.6, 'loads': 61.4, 'math': 34.8, 'loads_contig': 61.4} read 53.2 full err 0.00237
+fixed8 16 {'full': 16.4, 'loads': 16.4, 'math': 12.3, 'loads_contig': 14.3} read 9.7 full err 0.00234
+written /workspace/out/fc2-split-actwarm-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+splitwarm_RC=0
+== chain
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+random 8 {'full': 69.1, 'full_chain': 53.2, 'math': 20.4, 'math_chain': 26.6, 'math_skip': 30.7, 'math_noact': 18.4} read 34.8 full err 0.00236 chain==plain True
+random 16 {'full': 92.2, 'full_chain': 86.0, 'math': 45.0, 'math_chain': 55.3, 'math_skip': 45.0, 'math_noact': 30.7} read 53.2 full err 0.00237 chain==plain True
+fixed8 16 {'full': 22.0, 'full_chain': 22.0, 'math': 14.3, 'math_chain': 14.3, 'math_skip': 13.8, 'math_noact': 10.2} read 10.2 full err 0.00234 chain==plain True
+written /workspace/out/fc2-chain-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+chain_RC=0
+== chainwarm
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+random 8 {'full': 43.0, 'full_chain': 43.0, 'math': 16.4, 'math_chain': 20.5, 'math_skip': 22.6, 'math_noact': 16.4} read 34.8 full err 0.00236 chain==plain True
+random 16 {'full': 69.6, 'full_chain': 65.5, 'math': 34.8, 'math_chain': 41.0, 'math_skip': 34.8, 'math_noact': 28.7} read 55.3 full err 0.00237 chain==plain True
+fixed8 16 {'full': 16.4, 'full_chain': 14.4, 'math': 12.3, 'math_chain': 12.3, 'math_skip': 12.3, 'math_noact': 10.2} read 10.2 full err 0.00234 chain==plain True
+written /workspace/out/fc2-chain-actwarm-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+chainwarm_RC=0
+== breakdown
+/workspace/venv/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+marlin unavailable: vLLM unavailable: ModuleNotFoundError: No module named 'vllm'
+{"routing": "random", "tokens": 8, "fc1": "tensor_core", "fc2": "prefetch", "experts_touched": 48, "rel_err": 0.0, "route_us": 6.14, "fc1_us": 71.65, "fc2_us": 55.26, "layer_us": 108.0, "read_fc1_codes_us": 55.26, "read_fc2_codes_us": 32.77}
+{"routing": "random", "tokens": 16, "fc1": "tensor_core", "fc2": "prefetch", "experts_touched": 81, "rel_err": 0.0, "route_us": 6.11, "fc1_us": 106.5, "fc2_us": 94.21, "layer_us": 165.89, "read_fc1_codes_us": 88.03, "read_fc2_codes_us": 55.26}
+{"routing": "fixed8", "tokens": 16, "fc1": "tensor_core", "fc2": "prefetch", "experts_touched": 8, "rel_err": 0.0, "route_us": 6.11, "fc1_us": 26.59, "fc2_us": 26.59, "layer_us": 43.01, "read_fc1_codes_us": 14.34, "read_fc2_codes_us": 10.21}
+written /workspace/out/moe-layer-breakdown-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-01.json
+breakdown_RC=0
+END 2026-10-01T22:38:31Z

@@ -1,0 +1,47 @@
+{
+ "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 8,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "experts_touched": 48,
+   "rel_err": 0.0023645530454814434,
+   "route_us": 6.144000217318535,
+   "fc1_us": 71.6480016708374,
+   "fc2_us": 55.26399984955788,
+   "layer_us": 108.0000028014183,
+   "read_fc1_codes_us": 55.26399984955788,
+   "read_fc2_codes_us": 32.76799991726875
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "experts_touched": 81,
+   "rel_err": 0.002366814762353897,
+   "route_us": 6.111999973654747,
+   "fc1_us": 106.49599879980087,
+   "fc2_us": 94.2080020904541,
+   "layer_us": 165.8879965543747,
+   "read_fc1_codes_us": 88.03199976682663,
+   "read_fc2_codes_us": 55.26399984955788
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "experts_touched": 8,
+   "rel_err": 0.0023420487996190786,
+   "route_us": 6.111999973654747,
+   "fc1_us": 26.59199945628643,
+   "fc2_us": 26.59199945628643,
+   "layer_us": 43.007999658584595,
+   "read_fc1_codes_us": 14.336000196635723,
+   "read_fc2_codes_us": 10.208000428974628
+  }
+ ]
+}

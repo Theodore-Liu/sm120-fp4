@@ -1,0 +1,143 @@
+{
+ "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 8,
+   "act_warm": true,
+   "experts_touched": 48,
+   "v1": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 38.91199827194214
+   },
+   "G1": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 36.86400130391121
+   },
+   "G2": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 43.007999658584595
+   },
+   "G3": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 45.05600035190582
+   },
+   "G4": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 43.007999658584595
+   },
+   "G1_skip": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 38.91199827194214
+   },
+   "G2_skip": {
+    "rel_err": 0.0023646776098757982,
+    "bit_identical_50": true,
+    "us": 45.05600035190582
+   },
+   "read_fc2_codes_us": 34.81600061058998,
+   "skip_equals_plain": {
+    "G1": true,
+    "G2": true
+   }
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "act_warm": true,
+   "experts_touched": 81,
+   "v1": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 71.68000191450119
+   },
+   "G1": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 59.39200147986412
+   },
+   "G2": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 69.63200122117996
+   },
+   "G3": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 71.68000191450119
+   },
+   "G4": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 69.63200122117996
+   },
+   "G1_skip": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 59.39200147986412
+   },
+   "G2_skip": {
+    "rel_err": 0.002366423374041915,
+    "bit_identical_50": true,
+    "us": 69.63200122117996
+   },
+   "read_fc2_codes_us": 55.296000093221664,
+   "skip_equals_plain": {
+    "G1": true,
+    "G2": true
+   }
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "act_warm": true,
+   "experts_touched": 8,
+   "v1": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 16.383999958634377
+   },
+   "G1": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 14.336000196635723
+   },
+   "G2": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 16.383999958634377
+   },
+   "G3": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 16.383999958634377
+   },
+   "G4": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 16.383999958634377
+   },
+   "G1_skip": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 14.336000196635723
+   },
+   "G2_skip": {
+    "rel_err": 0.002342150779440999,
+    "bit_identical_50": true,
+    "us": 16.383999958634377
+   },
+   "read_fc2_codes_us": 9.696000255644321,
+   "skip_equals_plain": {
+    "G1": true,
+    "G2": true
+   }
+  }
+ ]
+}

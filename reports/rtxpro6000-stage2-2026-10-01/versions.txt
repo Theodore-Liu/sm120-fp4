@@ -1,0 +1,2 @@
+torch 2.13.0+cu130 cuda 13.0
+device NVIDIA RTX PRO 6000 Blackwell Workstation Edition (12, 0)
