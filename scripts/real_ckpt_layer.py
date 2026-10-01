@@ -57,6 +57,8 @@ def swap_nibbles(packed: torch.Tensor) -> torch.Tensor:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--no-pdl", action="store_true",
+                    help="launch every kernel of the layer without programmatic dependent launch (timing control)")
     ap.add_argument("--with-cols32", action="store_true",
                     help="also time the layer with FC2 at 32 columns per block (scripts/fc2_cols32.py, 4 groups) from 4 "
                          "tokens up, beside the current choice and Marlin in the same session, on random and on "
@@ -95,7 +97,7 @@ def main(argv=None) -> int:
     layout_swapped = {p: {"median": sorted(v)[len(v) // 2]} for p, v in errs_swapped.items()}
     print("layout vs bf16:", json.dumps(layout), "\nswapped nibbles:", json.dumps(layout_swapped), flush=True)
     print("experts with gate and up weight_scale_2 equal:", gate_up_scale_equal, "of", e_n, flush=True)
-    report = {"device": torch.cuda.get_device_name(0), "checkpoint": FP4_REPO, "file": FP4_FILE, "reference": BF16_REPO,
+    report = {"pdl": not a.no_pdl, "device": torch.cuda.get_device_name(0), "checkpoint": FP4_REPO, "file": FP4_FILE, "reference": BF16_REPO,
               "layer": LAYER, "layout_rel_err_vs_bf16": layout, "layout_rel_err_nibbles_swapped": layout_swapped,
               "gate_up_weight_scale_2_equal": gate_up_scale_equal, "experts": e_n, "rows": []}
     if gate_up_scale_equal != e_n:
@@ -125,7 +127,7 @@ def main(argv=None) -> int:
 
     mr, m1, m2, m1m, m2p = moe.build(), fc1.build(), fc2.build(), fc1m.build(), fc2p.build()
     for fn in (m1.fc1_set_pdl, m2.fc2_set_pdl, m1m.fc1_mma_set_pdl, m2p.fc2_pf_set_pdl):
-        fn(True)
+        fn(not a.no_pdl)
     scratch = torch.zeros(4 * 16 * h, device=dev)
     counters = torch.zeros(h // 16, dtype=torch.int32, device=dev)
 
@@ -149,7 +151,7 @@ def main(argv=None) -> int:
         c32mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(c32mod)
         c32 = c32mod.build()
-        c32.fc2_c32_set_pdl(True)
+        c32.fc2_c32_set_pdl(not a.no_pdl)
     cases = [("random", m) for m in (1, 2, 4, 8, 16)] + ([("fixed8", m) for m in (4, 16)] if a.with_cols32 else [])
     for routing, m in cases:
         g = torch.Generator().manual_seed(1000 + m)
@@ -232,6 +234,22 @@ def main(argv=None) -> int:
                 row["fc2_c32_alone_us"] = floor.graph_time(lambda: c32.fc2_c32(w["q2"], w["s2"], act, experts, offsets,
                                                                              pairs, wflat, alpha2, out, scratch, counters,
                                                                              k, 4))
+                # the same, with the activations FC1 wrote (and the routing buffers) read back into L2 after the flush,
+                # as they are when FC2 runs right after FC1 in the layer; the weights stay cold
+                sink = torch.zeros(1, device=dev)
+
+                def warm():
+                    sink.add_(act.float().sum() * 0 + offsets.float().sum() * 0 + pairs.float().sum() * 0)
+                if f2 == "cuda_core":
+                    row["fc2_alone_actwarm_us"] = floor.graph_time(lambda: m2.fc2_w4a16(
+                        w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, k), after_flush=warm)
+                else:
+                    row["fc2_alone_actwarm_us"] = floor.graph_time(lambda: m2p.fc2_pf(
+                        w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters, k,
+                        1 if f2 == "prefetch" else 2), after_flush=warm)
+                row["fc2_c32_alone_actwarm_us"] = floor.graph_time(lambda: c32.fc2_c32(
+                    w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters, k, 4),
+                    after_flush=warm)
         report["rows"].append(row)
         print(json.dumps({kk: (round(v, 5) if isinstance(v, float) else v) for kk, v in row.items()}), flush=True)
     args_out(a.out, report)

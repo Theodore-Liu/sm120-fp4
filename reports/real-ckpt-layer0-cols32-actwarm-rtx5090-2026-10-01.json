@@ -1,0 +1,154 @@
+{
+ "pdl": true,
+ "device": "NVIDIA GeForce RTX 5090",
+ "checkpoint": "nvidia/Qwen3-30B-A3B-NVFP4",
+ "file": "model-00001-of-00004.safetensors",
+ "reference": "Qwen/Qwen3-30B-A3B",
+ "layer": 0,
+ "layout_rel_err_vs_bf16": {
+  "gate": {
+   "median": 0.09434603154659271,
+   "max": 0.0949292927980423
+  },
+  "up": {
+   "median": 0.09469562023878098,
+   "max": 0.09497878700494766
+  },
+  "down": {
+   "median": 0.0946572944521904,
+   "max": 0.09505613148212433
+  }
+ },
+ "layout_rel_err_nibbles_swapped": {
+  "gate": {
+   "median": 1.4144036769866943
+  },
+  "up": {
+   "median": 1.4144974946975708
+  },
+  "down": {
+   "median": 1.414341688156128
+  }
+ },
+ "gate_up_weight_scale_2_equal": 128,
+ "experts": 128,
+ "rows": [
+  {
+   "tokens": 1,
+   "fc1": "cuda_core",
+   "fc2": "cuda_core",
+   "rel_err": 0.001652153441682458,
+   "marlin_rel_err": 0.0030387002043426037,
+   "bit_identical_50": true,
+   "layer_us": 27.39199995994568,
+   "marlin_us": 37.567999213933945,
+   "routing": "random"
+  },
+  {
+   "tokens": 2,
+   "fc1": "cuda_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0020553888753056526,
+   "marlin_rel_err": 0.003831123933196068,
+   "bit_identical_50": true,
+   "layer_us": 39.68000039458275,
+   "marlin_us": 49.92000013589859,
+   "routing": "random"
+  },
+  {
+   "tokens": 4,
+   "fc1": "cuda_core",
+   "fc2": "prefetch",
+   "rel_err": 0.0021873507648706436,
+   "marlin_rel_err": 0.0036614849232137203,
+   "bit_identical_50": true,
+   "layer_us": 68.38399916887283,
+   "marlin_us": 80.09599894285202,
+   "routing": "random",
+   "c32_rel_err": 0.0021873507648706436,
+   "c32_bit_identical_50": true,
+   "layer_c32_us": 74.49600100517273,
+   "route_fc1_us": 45.75999826192856,
+   "fc2_alone_us": 35.77600046992302,
+   "fc2_c32_alone_us": 31.488001346588135,
+   "fc2_alone_actwarm_us": 28.31999957561493,
+   "fc2_c32_alone_actwarm_us": 30.432000756263733
+  },
+  {
+   "tokens": 8,
+   "fc1": "cuda_core",
+   "fc2": "prefetch_split2",
+   "rel_err": 0.0021231218706816435,
+   "marlin_rel_err": 0.0036745979450643063,
+   "bit_identical_50": true,
+   "layer_us": 107.26399719715118,
+   "marlin_us": 113.66400122642517,
+   "routing": "random",
+   "c32_rel_err": 0.0021231218706816435,
+   "c32_bit_identical_50": true,
+   "layer_c32_us": 106.23999685049057,
+   "route_fc1_us": 64.25599753856659,
+   "fc2_alone_us": 49.92000013589859,
+   "fc2_c32_alone_us": 45.823998749256134,
+   "fc2_alone_actwarm_us": 43.71200129389763,
+   "fc2_c32_alone_actwarm_us": 45.823998749256134
+  },
+  {
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch_split2",
+   "rel_err": 0.0019953951705247164,
+   "marlin_rel_err": 0.003594659734517336,
+   "bit_identical_50": true,
+   "layer_us": 172.57599532604218,
+   "marlin_us": 166.6560024023056,
+   "routing": "random",
+   "c32_rel_err": 0.00199539540335536,
+   "c32_bit_identical_50": true,
+   "layer_c32_us": 166.6560024023056,
+   "route_fc1_us": 103.20000350475311,
+   "fc2_alone_us": 90.87999910116196,
+   "fc2_c32_alone_us": 72.4480003118515,
+   "fc2_alone_actwarm_us": 71.3919997215271,
+   "fc2_c32_alone_actwarm_us": 71.68000191450119
+  },
+  {
+   "tokens": 4,
+   "fc1": "cuda_core",
+   "fc2": "prefetch",
+   "rel_err": 0.002122433390468359,
+   "marlin_rel_err": 0.003557386575266719,
+   "bit_identical_50": true,
+   "layer_us": 37.88800165057182,
+   "marlin_us": 37.63199970126152,
+   "routing": "fixed8",
+   "c32_rel_err": 0.002122433390468359,
+   "c32_bit_identical_50": true,
+   "layer_c32_us": 43.74400153756142,
+   "route_fc1_us": 29.440000653266907,
+   "fc2_alone_us": 17.152000218629837,
+   "fc2_c32_alone_us": 19.200000911951065,
+   "fc2_alone_actwarm_us": 13.311999849975109,
+   "fc2_c32_alone_actwarm_us": 19.231999292969704
+  },
+  {
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch_split2",
+   "rel_err": 0.0019510247511789203,
+   "marlin_rel_err": 0.003629341023042798,
+   "bit_identical_50": true,
+   "layer_us": 43.776001781225204,
+   "marlin_us": 41.728001087903976,
+   "routing": "fixed8",
+   "c32_rel_err": 0.0019510247511789203,
+   "c32_bit_identical_50": true,
+   "layer_c32_us": 47.807998955249786,
+   "route_fc1_us": 27.583999559283257,
+   "fc2_alone_us": 25.34399926662445,
+   "fc2_c32_alone_us": 25.34399926662445,
+   "fc2_alone_actwarm_us": 21.056000143289566,
+   "fc2_c32_alone_actwarm_us": 25.119999423623085
+  }
+ ]
+}

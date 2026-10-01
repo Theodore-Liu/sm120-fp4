@@ -241,6 +241,8 @@ cheaper router (1 token).
 
 ## FC2: what the activation re-reads cost
 
+*Correction (2026-10-01): timed with L2 flushed, so the activations came from DRAM; in the layer FC1 has just written them and they are in L2. See "The activations are warm in the layer" at the end.*
+
 FC2 v1 reads, for every output column, the FC1 activation row of every (token, expert) pair the column's experts
 receive: at 16 tokens that is 2048 columns x 128 pairs x 1.5 KB of activation traffic against 58 MB of weights. To
 measure its share (JSON `reports/moe-breakdown-fc2-activation-rtx5090-2026-09-29.json`), FC2 has a diagnostic switch (`fc2_set_skip_act`, never set in normal use) that replaces each
@@ -626,6 +628,8 @@ batch touches is known only on the GPU, after routing).
 
 ## Where the 32-column kernel's gain goes in the layer
 
+*Correction (2026-10-01): timed with L2 flushed, so the activations came from DRAM; in the layer FC1 has just written them and they are in L2. See "The activations are warm in the layer" at the end.*
+
 The same run timed, in one session, the layer up to FC1 (routing and FC1, the same launches), and each FC2 alone on the
 activations that layer had just produced. FC2's share of the layer is the layer minus that prefix; where it is smaller
 than FC2 alone, the difference is FC2 time hidden behind the kernels before it
@@ -643,3 +647,40 @@ At 16 random tokens the 32-column kernel is 18.2 us faster alone and 6.1 us fast
 layer, because the kernel it replaces hides 23.1 us of its time behind routing and FC1 and the 32-column kernel
 hides 11.0. Both launch with programmatic dependent launch; which part of either kernel runs under its predecessor,
 and why the two hide different amounts, is not measured here.
+
+## The activations are warm in the layer, and the timing alone flushed them
+
+Two runs test where the hidden time above comes from. First, the same breakdown with every kernel launched without
+programmatic dependent launch (`reports/real-ckpt-layer0-cols32-split-nopdl-rtx5090-2026-10-01.json`): the time each
+FC2 hides is about the same as with it, so dependent launch is not the cause (microseconds hidden, FC2 alone minus its
+share of the layer):
+
+| routing | tokens | 16-col FC2 hidden, no PDL | 32-col FC2 hidden, no PDL |
+|---|---|---|---|
+| random | 4 | 11.6 | 2.8 |
+| random | 8 | 5.9 | 4.9 |
+| random | 16 | 23.1 | 6.9 |
+| fixed8 | 4 | 7.0 | 4.9 |
+| fixed8 | 16 | 9.0 | 4.9 |
+
+Second, each FC2 timed alone with the activations FC1 wrote, and the routing buffers, read back into L2 after the
+flush and before the timed replay, the weights left cold (`micro_floor.graph_time(after_flush=...)`;
+`reports/real-ckpt-layer0-cols32-actwarm-rtx5090-2026-10-01.json`, with dependent launch as in the layer):
+
+| routing | tokens | 16-col alone, flushed | 16-col alone, activations warm | 16-col share of the layer | 32-col alone, flushed | 32-col alone, activations warm | 32-col share of the layer |
+|---|---|---|---|---|---|---|---|
+| random | 4 | 35.8 | 28.3 | 22.6 | 31.5 | 30.4 | 28.7 |
+| random | 8 | 49.9 | 43.7 | 43.0 | 45.8 | 45.8 | 42.0 |
+| random | 16 | 90.9 | 71.4 | 69.4 | 72.4 | 71.7 | 63.5 |
+| fixed8 | 4 | 17.2 | 13.3 | 8.4 | 19.2 | 19.2 | 14.3 |
+| fixed8 | 16 | 25.3 | 21.1 | 16.2 | 25.3 | 25.1 | 20.2 |
+
+With its activations in L2, as they are when it runs right after FC1, the 16-column FC2 at 16 random tokens takes
+71.4 us instead of 90.9, close to its share of the layer
+(69.4); the 32-column FC2, which reads each activation once, changes little
+(72.4 to 71.7). The hidden time is the activations being in L2,
+not overlap. This corrects the cost given to activation re-reads in the sections above, which timed FC2 with L2 flushed:
+in the layer those re-reads are served from L2, and most of the 32-column kernel's gain alone was the flushed
+activations. In the layer it is still 5.9 us faster at 16 random tokens (shares
+69.4 and 63.5), by a margin these runs
+do not attribute. Timing a kernel of the layer alone needs its inputs in the state its predecessor leaves them.

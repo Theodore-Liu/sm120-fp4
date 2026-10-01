@@ -186,12 +186,15 @@ def flush_l2():
     _FLUSH.fill_(1)
 
 
-def graph_time(fn, iters=50, warmup=5, cold=True):
+def graph_time(fn, iters=50, warmup=5, cold=True, after_flush=None):
     """Median time of one replay of a CUDA graph of fn, in us, L2 flushed before each replay when cold.
 
     The flush also keeps the GPU busy while the host enqueues the start event and the graph, so the host's submission
     latency does not land between the two events. Timed on an idle GPU, an empty kernel reads about 7 us, which is that
-    latency, not the kernel; every timing here is therefore taken behind the flush, fixed costs included."""
+    latency, not the kernel; every timing here is therefore taken behind the flush, fixed costs included.
+
+    after_flush: called after each flush and before the start event, untimed - e.g. a read of the buffers a kernel's
+    predecessor would have left in L2, so a kernel timed alone sees the cache it would see inside a sequence."""
     s = torch.cuda.Stream()
     with torch.cuda.stream(s):
         for _ in range(3):
@@ -207,6 +210,8 @@ def graph_time(fn, iters=50, warmup=5, cold=True):
     for _ in range(iters):
         if cold:
             flush_l2()
+        if after_flush is not None:
+            after_flush()
         a, b = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
         a.record()
         g.replay()
