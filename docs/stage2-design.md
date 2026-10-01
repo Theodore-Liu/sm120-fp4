@@ -570,3 +570,33 @@ bit-identical over 50 calls in every row:
 On real weights the layer is faster than Marlin from 1 to 8 randomly routed tokens, closer to the fp32 reference at
 every size, and 2.4% slower at 16 tokens, as with the synthetic weights
 above.
+
+## FC2: 32 columns per block (`scripts/fc2_cols32.py`)
+
+Every column tile of FC2 reads each of its experts' activations, and the activation reads were the one cost left
+standing at 16 tokens (above). Here each warp computes two 16-row tiles of the same expert from one read of the
+activations, so the grid has half the column tiles. Two tiles of weights are as many loads in flight per warp as the
+prefetch kernel's current and next expert, so this kernel does not also prefetch; expert assignment, warp order and
+group order are the prefetch kernel's, and at the same group count its output is bit-identical to it in every case
+below, and bit-identical over 50 calls. Registers (cuobjdump): 87 to 127 against
+163 to 239 for the prefetch kernel, no local memory in either.
+
+One session, graph replay, L2 flushed (`reports/fc2-cols32-rtx5090-2026-09-30.json`, microseconds; G is the number of
+expert groups per column tile; the last column is the best 32-column time over the best 16-column time):
+
+| routing | tokens | 16 col, G=1 | 16 col, G=2 | 32 col, G=1 | 32 col, G=2 | 32 col, G=4 | read floor | ratio |
+|---|---|---|---|---|---|---|---|---|
+| random | 1 | 15.1 | 15.1 | 17.2 | 19.2 | 18.2 | 9.2 | 1.14 |
+| random | 2 | 21.2 | 23.3 | 27.4 | 21.2 | 21.2 | 13.1 | 1.00 |
+| random | 4 | 35.6 | 35.6 | 43.8 | 33.5 | 31.5 | 23.2 | 0.88 |
+| random | 8 | 52.0 | 50.9 | 60.1 | 45.8 | 45.8 | 31.5 | 0.90 |
+| random | 16 | 95.0 | 88.8 | 92.9 | 75.5 | 72.4 | 49.9 | 0.82 |
+| fixed8 | 1 | 15.1 | 15.1 | 17.2 | 19.0 | 17.2 | 8.9 | 1.14 |
+| fixed8 | 16 | 21.2 | 21.2 | 23.3 | 25.3 | 25.3 | 9.0 | 1.10 |
+
+At 4 to 16 randomly routed tokens the 32-column kernel with 2 or 4 groups is faster, by
+16.4 us at 16 tokens (88.8 to
+72.4, against a 49.9 us read of the codes). At one token, and when 16
+tokens concentrate on 8 experts, it is slower; which of its two changes (no prefetch, half the tiles) costs those cases is
+not measured here. So it joins the layer's choice by batch size for the random-routing sizes it wins, measured on the whole layer
+next.

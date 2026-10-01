@@ -1,0 +1,298 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "check_only": false,
+ "resource_usage": {
+  "cols32": {
+   "_Z9k_fc2_c32ILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 127,
+    "shared_bytes": 17412,
+    "local_bytes": 0
+   },
+   "_Z9k_fc2_c32ILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 101,
+    "shared_bytes": 17412,
+    "local_bytes": 0
+   },
+   "_Z9k_fc2_c32ILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 121,
+    "shared_bytes": 17412,
+    "local_bytes": 0
+   },
+   "_Z9k_fc2_c32ILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 87,
+    "shared_bytes": 17412,
+    "local_bytes": 0
+   }
+  },
+  "cols16_prefetch": {
+   "_Z8k_fc2_pfILi2ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 239,
+    "shared_bytes": 9220,
+    "local_bytes": 0
+   },
+   "_Z8k_fc2_pfILi1ELi8EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 221,
+    "shared_bytes": 9220,
+    "local_bytes": 0
+   },
+   "_Z8k_fc2_pfILi2ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 168,
+    "shared_bytes": 9220,
+    "local_bytes": 0
+   },
+   "_Z8k_fc2_pfILi1ELi6EEvPKhS1_PK13__nv_bfloat16PKiS6_S6_PKfS8_PS2_PfPiiiiii": {
+    "registers": 163,
+    "shared_bytes": 9220,
+    "local_bytes": 0
+   }
+  }
+ },
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 1,
+   "cols16_prefetch_g1": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 15.104000456631184
+   },
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 15.135999768972397
+   },
+   "cols32_g1": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 17.152000218629837
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 19.200000911951065
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 18.17600056529045
+   },
+   "read_fc2_codes_us": 9.247999638319016
+  },
+  {
+   "routing": "random",
+   "tokens": 2,
+   "cols16_prefetch_g1": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 21.247999742627144
+   },
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 23.296000435948372
+   },
+   "cols32_g1": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 27.39199995994568
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 21.247999742627144
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 21.247999742627144
+   },
+   "read_fc2_codes_us": 13.055999763309956
+  },
+  {
+   "routing": "random",
+   "tokens": 4,
+   "cols16_prefetch_g1": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 35.61599925160408
+   },
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 35.58399900794029
+   },
+   "cols32_g1": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 43.776001781225204
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 33.535998314619064
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 31.488001346588135
+   },
+   "read_fc2_codes_us": 23.19999970495701
+  },
+  {
+   "routing": "random",
+   "tokens": 8,
+   "cols16_prefetch_g1": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 51.96800082921982
+   },
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 50.944000482559204
+   },
+   "cols32_g1": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 60.06399914622307
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 45.823998749256134
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 45.823998749256134
+   },
+   "read_fc2_codes_us": 31.488001346588135
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "cols16_prefetch_g1": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 94.97600048780441
+   },
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 88.83199840784073
+   },
+   "cols32_g1": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 92.92799979448318
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 75.52000135183334
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 72.41600006818771
+   },
+   "read_fc2_codes_us": 49.92000013589859
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 1,
+   "cols16_prefetch_g1": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 15.104000456631184
+   },
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 15.104000456631184
+   },
+   "cols32_g1": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 17.152000218629837
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 19.039999693632126
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 17.152000218629837
+   },
+   "read_fc2_codes_us": 8.927999995648861
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "cols16_prefetch_g1": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 21.215999498963356
+   },
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 21.247999742627144
+   },
+   "cols32_g1": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 23.296000435948372
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": true,
+    "us": 25.34399926662445
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_cols16_same_groups": null,
+    "us": 25.34399926662445
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  }
+ ],
+ "failures": []
+}
