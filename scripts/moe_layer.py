@@ -43,10 +43,14 @@ def choice(m: int) -> tuple[str, str]:
 
     FC2 runs the prefetch kernel with one group per column tile up to 16 tokens: in the layer on real weights, with the
     activations FC1 leaves in L2, one group is 6 us faster than two at 8 and 16 random tokens and equal on 8 experts
-    (reports/real-ckpt-layer0-fc2groups*-rtx5090-2026-10-01.json). The FC2 kernels take at most 16 tokens (MAXM)."""
+    (reports/real-ckpt-layer0-fc2groups*-rtx5090-2026-10-01.json). The FC2 kernels take at most 16 tokens (MAXM).
+
+    FC1 runs the tensor-core kernel from 2 tokens up: on random routing the two FC1 kernels time the same in the layer
+    at 1 to 8 tokens, and on routing that puts every token on the same 8 experts the CUDA-core kernel takes 12 us longer
+    at 4 tokens and 30 us longer at 8 (reports/real-ckpt-layer0-fc1sweep-rtx5090-2026-10-01.json)."""
     if not 1 <= m <= 16:
         raise ValueError(f"the layer's kernels take 1 to 16 tokens, not {m}")
-    f1 = "cuda_core" if m <= 8 else "tensor_core"
+    f1 = "cuda_core" if m == 1 else "tensor_core"
     f2 = "cuda_core" if m == 1 else "prefetch"
     return f1, f2
 

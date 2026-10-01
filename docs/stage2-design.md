@@ -846,3 +846,62 @@ tokens; no batch above 16 reaches FC2.) The layer
 under the new rule (`reports/real-ckpt-layer0-rule-g1-rtx5090-2026-10-01.json`): 101.2 us at 8 random tokens and 163.1
 at 16, against Marlin's 113.4 and 164.6 in the same run; at 16 random tokens the two are within the session's spread.
 Marlin stays ahead on 8 concentrated experts (37.7 against 39.7 at 4 tokens, 41.6 against 43.8 at 16).
+
+## Where Marlin's lead on concentrated routing comes from (`scripts/ncu_layer_vs_marlin.py`)
+
+The layer and vLLM's Marlin MoE, each run three times after an L2 eviction under Nsight Compute (`--cache-control none
+--clock-control none`, so each kernel is timed in the cache state its predecessor leaves; synthetic weights of the layer's
+shape, `reports/ncu-layer-vs-marlin-{4-fixed8,16-fixed8,16-random}-rtx5090-2026-10-01.csv`). Kernel time only: no graph,
+no dependent launch, no gaps between kernels, so the sums are not the graph-timed layer times above; and with the clocks
+uncontrolled the repeats differ, by up to 10 percent on the stable rows and far more on one (below). Microseconds, three
+repeats each:
+
+| 4 tokens on 8 experts | ours | Marlin |
+|---|---|---|
+| routing | `k_route` 3.6 to 3.7 | align 3.1, count-and-sort 1.4 to 1.9 |
+| FC1 | `k_fc1` (CUDA cores) 23.1 to 23.4 | Marlin 15.5 to 15.7, act-and-mul 1.6 to 1.8 |
+| FC2 | `k_fc2_pf` 10.0 to 12.3 | Marlin 10.5 to 10.7, reduce 4.4 to 4.8 |
+| sum | 36.7 to 39.1 | 36.8 to 37.9 |
+
+The 2 us by which Marlin leads the layer on 8 experts at 4 tokens (37.7 against 39.7, above) is FC1's: on routing that
+puts all 32 pairs on 8 experts, the CUDA-core FC1 the layer picks up to 8 tokens takes 7.6 us longer than Marlin's FC1,
+while the layer's routing and FC2 together are about 5 us shorter than Marlin's five other kernels. At 16 tokens on 8
+experts the tensor-core FC1 is level with Marlin's (15.9 to 17.2 against 16.8 to 19.8) and the kernel sums are level
+within the spread (34.9 to 39.7 against 38.9 to 41.6), so the 2 us the graph-timed layer gives Marlin there (41.6
+against 43.8) is not in any kernel's time; it is in the launch and dependency gaps, which this run does not see.
+
+At 16 random tokens the layer's `k_fc2_pf` took 56.9, 70.8 and 81.7 us on the three repeats where Marlin's FC2 took 49.7 to
+50.3 and the layer's FC1 91.6 to 95.6: the FC2 kernel's time moves by 25 us between identical runs under the profiler, the
+others' by 2 to 4. The graph-timed layer does not show that spread (163.1 against 163.6 and 164.0 across sessions), so it
+is a property of the profiled, unoverlapped run, and open: the kernel's cross-group counters and its expert walk are the
+places to look.
+
+Next: the tensor-core FC1 at 4 tokens on concentrated routing, where the CUDA-core one loses to Marlin.
+
+## The tensor-core FC1 from 2 tokens up (`scripts/real_ckpt_layer.py --fc1-sweep`)
+
+The ncu run above put the 2 us on 8 experts at 4 tokens in the CUDA-core FC1, which the layer picked up to 8 tokens on
+random-routing timings. The layer on real weights with FC1 forced each way, in one session, then the same sweep again with
+the new rule in place (`reports/real-ckpt-layer0-fc1sweep-rtx5090-2026-10-01.json`, `...-fc1sweep-rule-...json`);
+microseconds, second run, the first within 0.5 us of it on every row but one (random, 1 token: 29.2 and 27.5 for the
+tensor-core FC1, where Marlin's own row moved 0.2):
+
+| routing | tokens | CUDA-core FC1 | tensor-core FC1 | Marlin |
+|---|---|---:|---:|---:|
+| random | 1 | 29.2 | 27.5 | 35.6 |
+| random | 2 | 39.7 | 39.7 | 50.0 |
+| random | 4 | 70.2 | 68.6 | 78.6 |
+| random | 8 | 101.1 | 101.2 | 112.4 |
+| random | 16 | 228.1 | 163.7 | 165.6 |
+| fixed8 | 4 | 39.7 | 27.4 | 37.7 |
+| fixed8 | 8 | 59.1 | 29.5 | 37.7 |
+| fixed8 | 16 | 122.7 | 43.8 | 41.8 |
+
+On random routing the two FC1 kernels time the same in the layer from 1 to 8 tokens (within 1.6 us), so the CUDA-core
+choice bought nothing there; on routing that puts every token on the same 8 experts it cost 12.3 us at 4 tokens and 29.6
+at 8 (a row the layer had not been timed on before), where the CUDA-core kernel's work per expert grows with the tokens
+on it and only 8 blocks' worth of experts are live. Every variant's error against the fp32 reference is the same to four
+digits and bit-identical over 50 calls. `moe_layer.choice` now runs the tensor-core FC1 from 2 tokens up; at 1 token
+the CUDA-core pair stays. Under the new rule the layer is ahead of Marlin on every row but one: 27.4 against 37.7 and
+29.5 against 37.7 on 8 experts at 4 and 8 tokens, 163.0 against 165.6 at 16 random tokens; on 8 experts at 16 tokens
+Marlin keeps 2 us (41.8 against 43.8), which the ncu run above places in launch gaps rather than in any kernel.
