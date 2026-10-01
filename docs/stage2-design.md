@@ -978,3 +978,32 @@ at 4, 43.0 at 2 and 43.0 on 8 experts at 16 - within 5 us of the RTX 5090's 2026
 6000's own repeat spread above. The breakdown's cold FC1 and FC2 are 6 to 9 us longer than the 5090's
 (FC1 71.6 against 62.7 at 8 random tokens; FC2 94.2 against 87.9 at 16) while the layers are level, which is the warm
 activations again: the layer never pays the cold price its pieces show.
+
+## The FC2 kernel's outliers (`scripts/fc2_replay_dist.py`)
+
+The 25 us spread of `k_fc2_pf` across three profiled repeats (above) is sporadic outliers, not a wide distribution, and
+it is not the clocks. Under Nsight Compute with the clocks uncontrolled, ten repeats of the layer at 16 random tokens gave
+the FC2 kernel 55.2 to 59.0 us on eight and 79.7 and 1659.7 on two, while FC1 spanned 89.7 to 93.7 and Marlin's two
+kernels 93.6 to 95.6 and 49.1 to 50.7; with the clocks locked to base, all ten FC2 repeats fell in 73.0 to 76.2 (FC1 112.9
+to 118.7), every kernel about 25 percent slower and none out of line
+(`reports/ncu-jitter-16-random-clock-{none,base}-rtx5090-2026-10-01.csv`). The kernel has no cross-block wait to stall
+on: with one group per tile its blocks are independent, and the counter path (the last group adds the partials) is a single
+atomic per block, never a spin.
+
+Outside the profiler, 400 graph replays each behind an L2 flush, the FC2 kernel with the activations warm, and FC1 and the
+stream read of the codes beside it as controls (`reports/fc2-replay-dist-16-random-rtx5090-2026-10-01.json`):
+
+| kernel | median | p90 | p99 | max | replays above 1.5x the median | above 2x |
+|---|---:|---:|---:|---:|---:|---:|
+| FC2 prefetch, 1 group, activations warm | 63.0 | 65.5 | 226.3 | 549.9 | 10 of 400 | 5 |
+| FC1 tensor core, cold | 102.5 | 104.2 | 106.2 | 911.7 | 2 of 400 | 2 |
+| stream read of the codes, cold | 49.8 | 50.9 | 56.1 | 206.8 | 2 of 400 | 2 |
+
+Every kernel shows rare outliers on this machine, a desktop GPU that also drives the display (the baseline utilisation
+of 24 to 46 percent noted elsewhere in this repository): about one replay in 200 for FC1 and for the read, with maxima of
+4 to 9 times the median. The FC2 kernel's rate is five times that, one replay in 40 above 1.5x the median and one in 80
+above 2x, with maxima of 3 to 9 times. The medians agree with the benches above (63.0 against 59.4 to 62.1 warm), so the
+rule's choice stands; what is open is why this kernel is preempted, or stalls, more often than the others - its blocks run
+longest (about 60 us each at one block per SM) and a kernel whose blocks are all resident for its whole duration has the
+most to lose from a display-driven preemption, but that is a candidate, not a measurement. A run on a GPU with no display
+attached would separate the two.
