@@ -58,6 +58,8 @@ def resources(module) -> dict[str, dict[str, int]]:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--act-warm", action="store_true",
+                    help="read the activations and routing back into L2 after each flush, as FC1 leaves them in the layer")
     a = ap.parse_args(argv)
     builds = {"W8": fc2p.build(), "W4": fc2p.build(warps=4), "W8min2": fc2p.build(min_blocks=2)}
     m1, fl = fc1.build(), floor.build()
@@ -77,10 +79,15 @@ def main(argv=None) -> int:
     def case(label, m, ids, wts, x):
         experts, offsets, pairs = fc1.route(ids)
         act = torch.empty(ids.numel(), i, device=dev, dtype=torch.bfloat16)
+        warm_sink = torch.zeros(1, device=dev)
+
+        def warm():
+            warm_sink.add_(act.float().sum() * 0 + offsets.float().sum() * 0 + pairs.float().sum() * 0)
+        after = warm if a.act_warm else None
         m1.fc1_w4a16(q1, s1, x, experts, offsets, pairs, alpha, act, i, k)
         wf = wts.reshape(-1).contiguous()
         ref = bench.reference(x, w, ids, wts, i, act_quant=False)
-        row = {"routing": label, "tokens": m}
+        row = {"routing": label, "tokens": m, "act_warm": a.act_warm}
         for vname, bname, g in variants:
             mod = builds[bname]
             out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
@@ -94,7 +101,7 @@ def main(argv=None) -> int:
             for _ in range(50):
                 fn()
                 stable = stable and bool(torch.equal(out, first))
-            row[vname] = {"rel_err": rel, "bit_identical_50": stable, "us": floor.graph_time(fn)}
+            row[vname] = {"rel_err": rel, "bit_identical_50": stable, "us": floor.graph_time(fn, after_flush=after)}
         ptrs = torch.tensor([q2.data_ptr() + int(t) * h * i // 2 for t in experts.tolist()], dtype=torch.int64, device=dev)
         row["read_fc2_codes_us"] = floor.graph_time(lambda: fl.stream_read(ptrs, h * i // 2, 0, h * i // 2, sms * 4, 256, sink))
         rows.append(row)

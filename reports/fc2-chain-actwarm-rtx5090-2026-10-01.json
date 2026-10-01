@@ -1,0 +1,104 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 8,
+   "act_warm": true,
+   "full": {
+    "us": 43.10400038957596,
+    "bit_identical_50": true,
+    "rel_err": 0.0023646759800612926
+   },
+   "full_chain": {
+    "us": 43.55200007557869,
+    "bit_identical_50": true,
+    "rel_err": 0.0023646759800612926
+   },
+   "math": {
+    "us": 17.055999487638474,
+    "bit_identical_50": true
+   },
+   "math_chain": {
+    "us": 21.503999829292297,
+    "bit_identical_50": true
+   },
+   "math_skip": {
+    "us": 23.615999147295952,
+    "bit_identical_50": true
+   },
+   "math_noact": {
+    "us": 17.59999990463257,
+    "bit_identical_50": true
+   },
+   "chain_equals_plain": true,
+   "read_fc2_codes_us": 31.456001102924347
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "act_warm": true,
+   "full": {
+    "us": 69.69600170850754,
+    "bit_identical_50": true,
+    "rel_err": 0.002366422675549984
+   },
+   "full_chain": {
+    "us": 67.58400052785873,
+    "bit_identical_50": true,
+    "rel_err": 0.002366422675549984
+   },
+   "math": {
+    "us": 41.98399931192398,
+    "bit_identical_50": true
+   },
+   "math_chain": {
+    "us": 45.75999826192856,
+    "bit_identical_50": true
+   },
+   "math_skip": {
+    "us": 40.47999903559685,
+    "bit_identical_50": true
+   },
+   "math_noact": {
+    "us": 35.90400144457817,
+    "bit_identical_50": true
+   },
+   "chain_equals_plain": true,
+   "read_fc2_codes_us": 49.92000013589859
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "act_warm": true,
+   "full": {
+    "us": 17.823999747633934,
+    "bit_identical_50": true,
+    "rel_err": 0.002342149382457137
+   },
+   "full_chain": {
+    "us": 16.35199971497059,
+    "bit_identical_50": true,
+    "rel_err": 0.002342149382457137
+   },
+   "math": {
+    "us": 12.864000163972378,
+    "bit_identical_50": true
+   },
+   "math_chain": {
+    "us": 12.83199992030859,
+    "bit_identical_50": true
+   },
+   "math_skip": {
+    "us": 12.160000391304493,
+    "bit_identical_50": true
+   },
+   "math_noact": {
+    "us": 10.751999914646149,
+    "bit_identical_50": true
+   },
+   "chain_equals_plain": true,
+   "read_fc2_codes_us": 8.960000239312649
+  }
+ ]
+}

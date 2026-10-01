@@ -760,3 +760,59 @@ build's extra warps add no issue rate and meet the load queue instead (the load-
 instruction saving is smaller and the two-block build meets the same load-queue stall (3.35, against 0.01 and
 0.53), consistent with the one-block build
 being the faster of the two in the layer there; that link is not tested here.
+
+## The single-kernel FC2 results again, with the activations warm (`--act-warm`)
+
+Every FC2 bench above timed the kernel alone behind an L2 flush, so its activations came from DRAM; in the layer FC1 has
+just written them and they are in L2 (above). The four benches now take `--act-warm`: after each flush the activations
+and the routing buffers are read back into L2, untimed, and the weights stay cold. Each bench ran plain and warm back to
+back in one session (`reports/fc2-{groups,occupancy,split,chain}-rtx5090-2026-10-01.json` and the `-actwarm-` files
+beside them). Two checks on the instrument: today's cold runs sit within about 2 us of the 2026-09-30 reports on every
+row, so differences smaller than that are not read; and the math-only build that makes its activations instead of
+reading them times the same cold and warm (35.6 and 35.9 us at 16 random tokens), as does the stream read of the codes
+(49.6 and 49.9), so the warming itself costs the timed kernel nothing.
+
+At 16 random tokens, microseconds, cold then warm:
+
+| bench | variant | cold | warm |
+|---|---|---:|---:|
+| groups | v1 (no prefetch) | 106.2 | 71.7 |
+| groups | prefetch, 1 group | 89.7 | 62.1 |
+| groups | prefetch, 2 groups | 87.0 | 70.2 |
+| groups | prefetch, 3 groups | 87.3 | 73.4 |
+| groups | prefetch, 4 groups | 88.8 | 77.5 |
+| occupancy | 8 warps, 2 groups | 87.0 | 69.4 |
+| occupancy | 4 warps, 2 groups | 87.8 | 63.1 |
+| occupancy | 4 warps, 4 groups | 85.8 | 71.2 |
+| occupancy | 8 warps, two blocks per SM | 82.7 | 78.8 |
+| split | full | 86.8 | 70.2 |
+| split | loads only | 68.4 | 59.1 |
+| split | loads only, contiguous | 70.3 | 58.0 |
+| split | math only | 47.9 | 41.5 |
+| chain | full | 86.8 | 69.7 |
+| chain | full, chain prefetch | 82.7 | 67.6 |
+| chain | math only | 47.9 | 42.0 |
+| chain | math only, activations made | 35.6 | 35.9 |
+
+What changes:
+
+- **Groups per tile.** Cold, one to four groups span 87.0 to 89.7 us and the conclusion was that parallelism over experts
+  does not matter. Warm, they order: one group 62.1, two 70.2, three 73.4, four 77.5. One group is also the fastest warm
+  at 8 random tokens (36.9 against 42.7 for two) and on 8 experts (15.6 against 17.4). With the activations in L2, each
+  added group costs more than the latency it hides.
+- **Two blocks per SM.** Cold it was the fastest build at 16 random tokens (82.7); warm it is the slowest (78.8 against
+  63.1 to 71.2 for the one-block builds), and it is the slowest warm at 8 random tokens (51.8) and on 8 experts (25.1)
+  as well. Its 136 bytes of spill buy occupancy that only helped while the activations came from DRAM.
+- **Loads against a read.** Warm, the loads-only build takes 59.1 us against a comparable read of 56.1 (49.9 x 9/8 for
+  the scale bytes), about 1.05x where it was 1.23x cold; the loads are close to the read once the activations are in L2.
+- **What the activations cost the arithmetic side.** Cold, reading activations was about 12 us of math-only (47.9 against
+  35.6); warm it is about 6 (42.0 against 35.9).
+
+What does not change: skipping the MMAs of empty pair tiles (within 1 us cold and warm at every routing), reading the
+codes contiguously (58.0 against 59.1 warm), and the chain prefetch, whose 2.1 us warm gain at 16 random tokens is
+within the cross-session spread and which is no faster at 8 random tokens (43.6 against 43.1).
+
+The layer picks one group up to 4 tokens and two above (`moe_layer.choice`), so at 16 tokens it runs the 8-warp,
+2-group prefetch build (69.4 to 70.2 warm here, and 69.4 as its share of the layer, above); the benches behind that rule
+were timed cold. The one-group build and the 4-warp, 2-group build are 7 to 8 us faster alone with warm activations; whether
+that holds inside the layer is the next measurement, with `scripts/real_ckpt_layer.py`.

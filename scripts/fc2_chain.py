@@ -37,6 +37,8 @@ fc2p = sys.modules["fc2_mma_pf"]
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--act-warm", action="store_true",
+                    help="read the activations and routing back into L2 after each flush, as FC1 leaves them in the layer")
     a = ap.parse_args(argv)
     builds = {"full": fc2p.build(), "full_chain": fc2p.build(chain=True),
               "math": fc2p.build(mode="math"), "math_chain": fc2p.build(mode="math", chain=True),
@@ -57,9 +59,14 @@ def main(argv=None) -> int:
     def case(label, m, ids, wts, x):
         experts, offsets, pairs = fc1.route(ids)
         act = torch.empty(ids.numel(), i, device=dev, dtype=torch.bfloat16)
+        warm_sink = torch.zeros(1, device=dev)
+
+        def warm():
+            warm_sink.add_(act.float().sum() * 0 + offsets.float().sum() * 0 + pairs.float().sum() * 0)
+        after = warm if a.act_warm else None
         m1.fc1_w4a16(q1, s1, x, experts, offsets, pairs, alpha, act, i, k)
         wf = wts.reshape(-1).contiguous()
-        row = {"routing": label, "tokens": m}
+        row = {"routing": label, "tokens": m, "act_warm": a.act_warm}
         ref = bench.reference(x, w, ids, wts, i, act_quant=False)
         outs = {}
         for mode, mod in builds.items():
@@ -73,7 +80,7 @@ def main(argv=None) -> int:
             for _ in range(50):
                 fn()
                 stable = stable and bool(torch.equal(out, first))
-            row[mode] = {"us": floor.graph_time(fn), "bit_identical_50": stable}
+            row[mode] = {"us": floor.graph_time(fn, after_flush=after), "bit_identical_50": stable}
             outs[mode] = first
             if not mode.startswith("math"):
                 row[mode]["rel_err"] = float((first.float() - ref).norm() / ref.norm())

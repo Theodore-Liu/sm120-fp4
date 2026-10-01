@@ -1,0 +1,62 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 8,
+   "act_warm": false,
+   "full": {
+    "us": 49.8879998922348,
+    "rel_err": 0.0023646759800612926
+   },
+   "loads": {
+    "us": 40.95999896526337
+   },
+   "math": {
+    "us": 18.719999119639397
+   },
+   "loads_contig": {
+    "us": 41.760001331567764
+   },
+   "read_fc2_codes_us": 31.456001102924347
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "act_warm": false,
+   "full": {
+    "us": 86.81599795818329,
+    "rel_err": 0.002366422675549984
+   },
+   "loads": {
+    "us": 68.41599941253662
+   },
+   "math": {
+    "us": 47.87199944257736
+   },
+   "loads_contig": {
+    "us": 70.30399888753891
+   },
+   "read_fc2_codes_us": 49.056001007556915
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "act_warm": false,
+   "full": {
+    "us": 21.247999742627144,
+    "rel_err": 0.002342149382457137
+   },
+   "loads": {
+    "us": 17.88800023496151
+   },
+   "math": {
+    "us": 13.088000006973743
+   },
+   "loads_contig": {
+    "us": 17.696000635623932
+   },
+   "read_fc2_codes_us": 8.991999551653862
+  }
+ ]
+}

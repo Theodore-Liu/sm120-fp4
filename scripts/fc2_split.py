@@ -35,6 +35,8 @@ fc2p = sys.modules["fc2_mma_pf"]
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--act-warm", action="store_true",
+                    help="read the activations and routing back into L2 after each flush, as FC1 leaves them in the layer")
     a = ap.parse_args(argv)
     builds = {mode: fc2p.build(mode=mode) for mode in ("full", "loads", "math", "loads_contig")}
     m1, fl = fc1.build(), floor.build()
@@ -52,16 +54,21 @@ def main(argv=None) -> int:
     def case(label, m, ids, wts, x):
         experts, offsets, pairs = fc1.route(ids)
         act = torch.empty(ids.numel(), i, device=dev, dtype=torch.bfloat16)
+        warm_sink = torch.zeros(1, device=dev)
+
+        def warm():
+            warm_sink.add_(act.float().sum() * 0 + offsets.float().sum() * 0 + pairs.float().sum() * 0)
+        after = warm if a.act_warm else None
         m1.fc1_w4a16(q1, s1, x, experts, offsets, pairs, alpha, act, i, k)
         wf = wts.reshape(-1).contiguous()
-        row = {"routing": label, "tokens": m}
+        row = {"routing": label, "tokens": m, "act_warm": a.act_warm}
         for mode, mod in builds.items():
             out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
             fn = (lambda mm, o: (lambda: mm.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters,
                                                     k, 2)))(mod, out)
             fn()
             torch.cuda.synchronize()
-            row[mode] = {"us": floor.graph_time(fn)}
+            row[mode] = {"us": floor.graph_time(fn, after_flush=after)}
             if mode == "full":
                 ref = bench.reference(x, w, ids, wts, i, act_quant=False)
                 row[mode]["rel_err"] = float((out.float() - ref).norm() / ref.norm())
