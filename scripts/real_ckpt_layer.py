@@ -152,6 +152,9 @@ def main(argv=None) -> int:
         spec.loader.exec_module(c32mod)
         c32 = c32mod.build()
         c32.fc2_c32_set_pdl(not a.no_pdl)
+        # the same kernel padded to one block per SM, the prefetch kernel's occupancy (a timing control)
+        c32one = c32mod.build(one_block=True)
+        c32one.fc2_c32_set_pdl(not a.no_pdl)
     cases = [("random", m) for m in (1, 2, 4, 8, 16)] + ([("fixed8", m) for m in (4, 16)] if a.with_cols32 else [])
     for routing, m in cases:
         g = torch.Generator().manual_seed(1000 + m)
@@ -173,7 +176,7 @@ def main(argv=None) -> int:
         wflat = wts.reshape(-1).contiguous()
         f1, f2 = layer_mod.choice(m)
 
-        def layer(fc2_cols32: bool = False, skip_fc2: bool = False):
+        def layer(fc2_cols32: bool = False, skip_fc2: bool = False, one_block: bool = False):
             mr.route(ids, e_n, experts, offsets, pairs)
             if f1 == "cuda_core":
                 m1.fc1_w4a16(w["q1"], w["s1"], x, experts, offsets, pairs, alpha1, act, i, k)
@@ -182,7 +185,7 @@ def main(argv=None) -> int:
             if skip_fc2:
                 return
             if fc2_cols32:
-                c32.fc2_c32(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters, k, 4)
+                (c32one if one_block else c32).fc2_c32(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters, k, 4)
             elif f2 == "cuda_core":
                 m2.fc2_w4a16(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, k)
             else:
@@ -222,6 +225,10 @@ def main(argv=None) -> int:
                 # the layer up to FC1 (routing and FC1, the same launches), so FC2's share inside the layer is the
                 # difference; and each FC2 alone on the activations this layer just produced
                 row["route_fc1_us"] = floor.graph_time(lambda: layer(skip_fc2=True))
+                layer(True, one_block=True)
+                torch.cuda.synchronize()
+                row["c32_one_block_equal"] = bool(torch.equal(out, first32))
+                row["layer_c32_one_block_us"] = floor.graph_time(lambda: layer(True, one_block=True))
                 layer(skip_fc2=True)
                 torch.cuda.synchronize()
                 if f2 == "cuda_core":

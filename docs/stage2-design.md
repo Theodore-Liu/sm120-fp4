@@ -684,3 +684,24 @@ in the layer those re-reads are served from L2, and most of the 32-column kernel
 activations. In the layer it is still 5.9 us faster at 16 random tokens (shares
 69.4 and 63.5), by a margin these runs
 do not attribute. Timing a kernel of the layer alone needs its inputs in the state its predecessor leaves them.
+
+## Occupancy does not explain the 32-column kernel's place in the layer
+
+The 32-column FC2 fits two blocks per SM (121 registers and 17,412 bytes of shared memory at 16 tokens, cuobjdump); the
+prefetch FC2 it replaces, at 168 registers, fits one. A build of the 32-column kernel with 40 KB of shared memory no
+thread reads (58,372 bytes, so one block per SM; `fc2_cols32.build(one_block=True)`) gives the same output and, in the
+layer, the same time at 16 random tokens (`reports/real-ckpt-layer0-cols32-occupancy-rtx5090-2026-10-01.json`,
+microseconds, one session):
+
+| routing | tokens | layer as chosen | with 32-column FC2 | with 32-column FC2, one block per SM |
+|---|---|---|---|---|
+| random | 4 | 68.6 | 74.5 | 70.4 |
+| random | 8 | 107.3 | 107.3 | 105.0 |
+| random | 16 | 171.0 | 166.7 | 166.7 |
+| fixed8 | 4 | 37.9 | 43.8 | 41.7 |
+| fixed8 | 16 | 41.7 | 45.8 | 45.8 |
+
+At 16 random tokens the layer takes 166.7 us with either build of the 32-column kernel, against
+171.0 as chosen, so the second resident block is not what it gains there. At 4 random tokens the
+one-block build is faster than the two-block one (70.4 against 74.5),
+which these runs do not explain either.

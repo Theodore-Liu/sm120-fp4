@@ -61,6 +61,11 @@ k_fc2_c32(const unsigned char* __restrict__ q2, const unsigned char* __restrict_
           const float* __restrict__ weights, const float* __restrict__ alpha, __nv_bfloat16* __restrict__ out,
           float* __restrict__ scratch, int* __restrict__ counters, int U, int M, int H, int I, int top_k) {
   __shared__ float part[WARPS][COLS2][MAXM];
+#ifdef C32_ONE_BLOCK
+  // timing control: 40 KB of shared memory no thread reads, so two blocks (2 x 56 KB) no longer fit on an SM
+  __shared__ volatile float occupancy_pad[10240];
+  if (threadIdx.x == 0 && blockIdx.x == 0xFFFFFFF) occupancy_pad[0] = 0.f;
+#endif
   __shared__ int last;
   cudaGridDependencySynchronize();
   const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31, gid = lane >> 2, tig = lane & 3;
@@ -214,8 +219,11 @@ void fc2_c32(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tenso
 NAME = "sm120fp4_fc2_c32"
 
 
-def build(verbose: bool = False):
-    return load_inline(name=NAME, cpp_sources=CPP, cuda_sources=CUDA, functions=["fc2_c32", "fc2_c32_set_pdl"],
+def build(verbose: bool = False, one_block: bool = False):
+    """one_block: timing control - pad the kernel's shared memory so one block fits per SM, as for the prefetch kernel."""
+    return load_inline(name=NAME + ("_1blk" if one_block else ""), cpp_sources=CPP,
+                       cuda_sources=("#define C32_ONE_BLOCK\n" if one_block else "") + CUDA,
+                       functions=["fc2_c32", "fc2_c32_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
 
