@@ -705,3 +705,26 @@ At 16 random tokens the layer takes 166.7 us with either build of the 32-column 
 171.0 as chosen, so the second resident block is not what it gains there. At 4 random tokens the
 one-block build is faster than the two-block one (70.4 against 74.5),
 which these runs do not explain either.
+
+## Both FC2 kernels read the same DRAM bytes in the layer (Nsight Compute)
+
+`scripts/ncu_fc2_in_layer.py` runs routing and FC1, then the prefetch FC2; then routing and FC1 again, then the
+32-column FC2 (synthetic weights of the same shape, L2 evicted before each sequence), under
+`ncu --replay-mode application --cache-control none`, so each FC2 is measured with the activations FC1 just wrote still
+in L2 and every metric pass starts from the same state. Megabytes per kernel, L2 hit rate in percent
+(`reports/ncu-fc2-in-layer-*-rtx5090-2026-10-01.csv`):
+
+| case | DRAM read, 16-col | DRAM read, 32-col | L2 traffic, 16-col | L2 traffic, 32-col | L2 hit %, 16-col | L2 hit %, 32-col |
+|---|---|---|---|---|---|---|
+| 16 random | 77.3 | 73.1 | 106.1 | 111.1 | 28.2 | 34.0 |
+| 16 random, repeat | 77.2 | 75.8 | 105.8 | 113.8 | 27.1 | 33.9 |
+| 4 random | 27.4 | 27.7 | 34.6 | 39.0 | 20.1 | 28.5 |
+| 16 concentrated (8 experts) | 8.2 | 7.4 | 37.1 | 33.1 | 75.8 | 77.7 |
+
+The two kernels read about the same bytes from DRAM in every case; between the two runs of the 16-token case a kernel's
+DRAM bytes moved by up to 2.7 MB, as much as the two kernels differ there. The 32-column kernel moves slightly
+more through L2, not less. So it does not gain by reading fewer bytes: the prefetch kernel's repeated activation reads are
+served from L2, as the warm timings above found, and the 32-column kernel's place in the layer comes from something these
+counters do not attribute (how the loads are issued and overlapped, for example). Kernel durations under the profiler
+are not used: it serializes the kernels and drops programmatic dependent launch, and its times do not match the
+graph-replay timings above.
