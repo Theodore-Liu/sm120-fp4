@@ -600,3 +600,26 @@ At 4 to 16 randomly routed tokens the 32-column kernel with 2 or 4 groups is fas
 tokens concentrate on 8 experts, it is slower; which of its two changes (no prefetch, half the tiles) costs those cases is
 not measured here. So it joins the layer's choice by batch size for the random-routing sizes it wins, measured on the whole layer
 next.
+
+## The 32-column FC2 in the layer, on real weights (`scripts/real_ckpt_layer.py --with-cols32`)
+
+The layer of the real-weights section (Qwen3-30B-A3B NVFP4, layer 0) timed three ways in one session: as
+chosen by batch size, with FC2 replaced from 4 tokens up by the 32-column kernel at 4 groups, and vLLM's Marlin; on
+random routing and with every token sent to the same 8 experts. Both versions of the layer are bit-identical over 50
+calls (`reports/real-ckpt-layer0-cols32-rtx5090-2026-09-30.json`, microseconds):
+
+| routing | tokens | layer as chosen | with 32-column FC2 | difference | Marlin |
+|---|---|---|---|---|---|
+| random | 4 | 68.9 | 74.3 | +5.4 | 79.3 |
+| random | 8 | 107.3 | 107.3 | +0.0 | 113.4 |
+| random | 16 | 172.6 | 166.7 | -6.0 | 167.8 |
+| fixed8 | 4 | 37.6 | 43.7 | +6.1 | 37.6 |
+| fixed8 | 16 | 41.7 | 45.8 | +4.1 | 41.7 |
+
+In the layer the kernel gains 6.0 us at 16 random tokens, against
+16.4 us when FC2 is timed alone; that brings the layer to 166.7 us against Marlin's
+167.8. It loses at 4 tokens and when tokens concentrate on 8 experts
+(+4.1 us at 16). Where the rest of the isolated gain goes inside the layer is not
+measured here. The layer chooses by batch size alone, and at 16 tokens the 32-column kernel helps random routing and hurts
+concentrated routing, so the choice is left unchanged until the layer can tell the two apart (the number of experts a
+batch touches is known only on the GPU, after routing).

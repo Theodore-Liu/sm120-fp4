@@ -57,6 +57,10 @@ def swap_nibbles(packed: torch.Tensor) -> torch.Tensor:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--with-cols32", action="store_true",
+                    help="also time the layer with FC2 at 32 columns per block (scripts/fc2_cols32.py, 4 groups) from 4 "
+                         "tokens up, beside the current choice and Marlin in the same session, on random and on "
+                         "concentrated routing (16 tokens all to 8 experts)")
     a = ap.parse_args(argv)
     from safetensors import safe_open
     dev = torch.device("cuda")
@@ -139,12 +143,24 @@ def main(argv=None) -> int:
         w["q2"], w["s2"].view(e_n, h, i // 16).view(torch.float8_e4m3fn), alpha2, is_act_and_mul=True)
     qid = scalar_types.float4_e2m1f.id
 
-    for m in (1, 2, 4, 8, 16):
+    c32 = None
+    if a.with_cols32:
+        spec = importlib.util.spec_from_file_location("fc2_cols32", _here / "fc2_cols32.py")
+        c32mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(c32mod)
+        c32 = c32mod.build()
+        c32.fc2_c32_set_pdl(True)
+    cases = [("random", m) for m in (1, 2, 4, 8, 16)] + ([("fixed8", m) for m in (4, 16)] if a.with_cols32 else [])
+    for routing, m in cases:
         g = torch.Generator().manual_seed(1000 + m)
         x = torch.randn(m, h, generator=g).to(device=dev, dtype=torch.bfloat16)
-        wts, ids = torch.topk(F.softmax(torch.randn(m, e_n, generator=g), dim=-1), k, dim=-1)
-        wts = (wts / wts.sum(-1, keepdim=True)).float().to(dev).contiguous()
-        ids = ids.to(torch.int32).to(dev).contiguous()
+        if routing == "random":
+            wts, ids = torch.topk(F.softmax(torch.randn(m, e_n, generator=g), dim=-1), k, dim=-1)
+            wts = (wts / wts.sum(-1, keepdim=True)).float().to(dev).contiguous()
+            ids = ids.to(torch.int32).to(dev).contiguous()
+        else:
+            ids = (torch.arange(k, dtype=torch.int32, device=dev) * (e_n // k)).repeat(m, 1).contiguous()
+            wts = torch.full((m, k), 1.0 / k, device=dev)
         P, umax = m * k, min(e_n, m * k)
         experts = torch.empty(umax, dtype=torch.int32, device=dev)
         offsets = torch.empty(umax + 1, dtype=torch.int32, device=dev)
@@ -155,13 +171,15 @@ def main(argv=None) -> int:
         wflat = wts.reshape(-1).contiguous()
         f1, f2 = layer_mod.choice(m)
 
-        def layer():
+        def layer(fc2_cols32: bool = False):
             mr.route(ids, e_n, experts, offsets, pairs)
             if f1 == "cuda_core":
                 m1.fc1_w4a16(w["q1"], w["s1"], x, experts, offsets, pairs, alpha1, act, i, k)
             else:
                 m1m.fc1_mma(w["q1"], w["s1"], x, experts, offsets, pairs, alpha1, act, i, k)
-            if f2 == "cuda_core":
+            if fc2_cols32:
+                c32.fc2_c32(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters, k, 4)
+            elif f2 == "cuda_core":
                 m2.fc2_w4a16(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, k)
             else:
                 m2p.fc2_pf(w["q2"], w["s2"], act, experts, offsets, pairs, wflat, alpha2, out, scratch, counters, k,
@@ -184,6 +202,19 @@ def main(argv=None) -> int:
             stable = stable and bool(torch.equal(out, first))
         row = {"tokens": m, "fc1": f1, "fc2": f2, "rel_err": rel, "marlin_rel_err": rel_m, "bit_identical_50": stable,
                "layer_us": floor.graph_time(layer), "marlin_us": floor.graph_time(marlin)}
+        if a.with_cols32:
+            row["routing"] = routing
+            if m >= 4:
+                layer(True)
+                torch.cuda.synchronize()
+                row["c32_rel_err"] = float((out.float() - ref).norm() / ref.norm())
+                first32 = out.clone()
+                ok32 = True
+                for _ in range(50):
+                    layer(True)
+                    ok32 = ok32 and bool(torch.equal(out, first32))
+                row["c32_bit_identical_50"] = ok32
+                row["layer_c32_us"] = floor.graph_time(lambda: layer(True))
         report["rows"].append(row)
         print(json.dumps({kk: (round(v, 5) if isinstance(v, float) else v) for kk, v in row.items()}), flush=True)
     args_out(a.out, report)
