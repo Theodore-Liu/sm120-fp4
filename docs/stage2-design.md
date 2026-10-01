@@ -723,8 +723,40 @@ in L2 and every metric pass starts from the same state. Megabytes per kernel, L2
 
 The two kernels read about the same bytes from DRAM in every case; between the two runs of the 16-token case a kernel's
 DRAM bytes moved by up to 2.7 MB, as much as the two kernels differ there. The 32-column kernel moves slightly
-more through L2, not less. So it does not gain by reading fewer bytes: the prefetch kernel's repeated activation reads are
+more through L2 under random routing and slightly less when the tokens concentrate on 8 experts. So it does not gain by
+reading fewer DRAM bytes: the prefetch kernel's repeated activation reads are
 served from L2, as the warm timings above found, and the 32-column kernel's place in the layer comes from something these
 counters do not attribute (how the loads are issued and overlapped, for example). Kernel durations under the profiler
 are not used: it serializes the kernels and drops programmatic dependent launch, and its times do not match the
 graph-replay timings above.
+
+## What the 32-column kernel does differently, by stall reason (Nsight Compute)
+
+The same driver, now also running the one-block-per-SM build, with the scheduler's issue rate and the stall reasons per
+issued instruction (`reports/ncu-fc2-stall-reasons-*-rtx5090-2026-10-01.csv`; application replay, activations in L2):
+
+| 16 random tokens | 16-col prefetch | 32-col | 32-col, one block per SM |
+|---|---|---|---|
+| warps active, % of peak | 16.65 | 25.84 | 16.65 |
+| instructions executed (millions) | 22.66 | 19.33 | 19.33 |
+| instructions issued per scheduler cycle | 0.17 | 0.23 | 0.22 |
+| stalled on a memory result, per issue | 7.07 | 5.19 | 4.83 |
+| stalled on the load queue, per issue | 0.26 | 3.12 | 0.01 |
+| stalled on the math pipe, per issue | 0.77 | 1.46 | 0.90 |
+
+| 4 random tokens | 16-col prefetch | 32-col | 32-col, one block per SM |
+|---|---|---|---|
+| warps active, % of peak | 16.61 | 25.48 | 16.60 |
+| instructions executed (millions) | 7.46 | 6.89 | 6.90 |
+| instructions issued per scheduler cycle | 0.17 | 0.20 | 0.19 |
+| stalled on a memory result, per issue | 7.61 | 7.20 | 6.19 |
+| stalled on the load queue, per issue | 0.53 | 3.35 | 0.01 |
+| stalled on the math pipe, per issue | 0.19 | 0.30 | 0.17 |
+
+At 16 random tokens the one-block build runs at the prefetch kernel's occupancy and still issues more per cycle: it
+executes 15% fewer instructions (one activation load and the token bookkeeping serve two tiles) and its
+warps wait less on memory results per instruction issued (two tiles of weight loads in flight per warp). The two-block
+build's extra warps add no issue rate and meet the load queue instead (the load-queue stall rises from near zero to about
+3 per issue), which is consistent with the layer time being the same with one block or two (above). At 4 tokens the
+instruction saving is smaller and the two-block build meets the same load-queue stall, consistent with the one-block build
+being the faster of the two in the layer there; that link is not tested here.

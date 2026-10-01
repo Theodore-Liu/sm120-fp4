@@ -40,6 +40,7 @@ def main(argv=None) -> int:
     q1, s1, q2, s2 = (w[n].contiguous() for n in ("q1", "s1", "q2", "s2"))
     alpha = torch.ones(e_n, device=dev)
     mr, m1, m1m, m2p, c32 = moe.build(), fc1.build(), fc1m.build(), pf.build(), c32m.build()
+    c32one = c32m.build(one_block=True)   # the same kernel padded to one block per SM (a control)
     g = torch.Generator().manual_seed(1000 + m)
     x = torch.randn(m, h, generator=g).to(device=dev, dtype=torch.bfloat16)
     if a.routing == "random":
@@ -74,6 +75,8 @@ def main(argv=None) -> int:
     m2p.fc2_pf(q2, s2, act, experts, offsets, pairs, wflat, alpha, out, scratch, counters, k, groups)   # k_fc2_pf
     prefix()
     c32.fc2_c32(q2, s2, act, experts, offsets, pairs, wflat, alpha, out, scratch, counters, k, 4)        # k_fc2_c32
+    prefix()
+    c32one.fc2_c32(q2, s2, act, experts, offsets, pairs, wflat, alpha, out, scratch, counters, k, 4)     # k_fc2_c32, one block per SM
     torch.cuda.synchronize()
     print(f"ran tokens={m} routing={a.routing} fc2 prefetch groups={groups}, cols32 groups=4")
     return 0
