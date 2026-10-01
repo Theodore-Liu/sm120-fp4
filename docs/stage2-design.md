@@ -840,7 +840,9 @@ sweep: 107.3 and 107.2 at 8 random tokens, 170.3 and 170.2 at 16). One group is 
 advantage in the layer was over the two-group build only. Every variant's error against the fp32 reference is 0.20% to
 0.22% and every one is bit-identical over 50 calls.
 
-`moe_layer.choice` now runs one group up to 16 tokens (two above 16, where one group has not been measured). The layer
+`moe_layer.choice` now runs one group from 2 to 16 tokens, which is every batch the layer takes: the FC2 kernels are
+built for at most 16 tokens (`MAXM`). (Corrected 2026-10-01: this sentence first said two groups stayed in use above 16
+tokens; no batch above 16 reaches FC2.) The layer
 under the new rule (`reports/real-ckpt-layer0-rule-g1-rtx5090-2026-10-01.json`): 101.2 us at 8 random tokens and 163.1
 at 16, against Marlin's 113.4 and 164.6 in the same run; at 16 random tokens the two are within the session's spread.
 Marlin stays ahead on 8 concentrated experts (37.7 against 39.7 at 4 tokens, 41.6 against 43.8 at 16).
