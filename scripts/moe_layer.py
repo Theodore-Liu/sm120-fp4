@@ -99,6 +99,8 @@ def main(argv=None) -> int:
         out_cc = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
         wflat = wts.reshape(-1).contiguous()
         f1, f2 = choice(m)
+        for fn in (m1.fc1_set_pdl, m2.fc2_set_pdl, m1m.fc1_mma_set_pdl, m2p.fc2_pf_set_pdl):
+            fn(use_pdl(m))                        # dependent launch per batch size, the layer's rule
 
         def run_fc1():
             if f1 == "cuda_core":

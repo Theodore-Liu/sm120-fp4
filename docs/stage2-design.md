@@ -933,3 +933,48 @@ the layer takes 161.5 us at 16 random tokens against Marlin's 163.5 in the same 
 16 tokens; the other rows are unchanged (28.8, 39.9, 68.6, 101.4, 27.4, 29.5 against Marlin's 35.8, 49.9, 78.8, 112.7,
 37.7, 37.7). Every row is now level with or ahead of Marlin; on 8 experts at 16 tokens the two are within 0.3 us, inside
 the session's spread.
+
+## The same benches on an RTX PRO 6000 Blackwell Workstation Edition (`scripts/pod_stage2.sh`)
+
+A cloud RTX PRO 6000 Blackwell Workstation Edition (96 GB, 188 SMs, driver 580.178.04, CUDA 13.0 host, the same
+torch 2.13.0+cu130 and CUDA 13.2 toolkit as the conformance run) ran the synthetic stage-2 benches with
+`scripts/pod_stage2.sh`: the floor, the layer, the four FC2 benches cold and with `--act-warm`, and the breakdown
+(`reports/rtxpro6000-stage2-2026-10-01/`). vLLM was not installed there, so there is no Marlin column; the layer
+report's `best_existing` field is read from the RTX 5090 baseline file and is not a PRO 6000 number. Two cautions before
+reading: identical configurations timed twice on the PRO 6000 differ by up to 4.4 us (the 1-token layer, 33.0 and 28.6
+us for the same two kernels, where the RTX 5090 gave 27.4 twice), so PRO 6000 differences under about 5 us are not
+read here; and `moe_layer.py` launched every kernel with dependent launch on in that run (it now follows
+`use_pdl`), so its 16-token rows carry the cost the RTX 5090 run measured at 1.8 to 2.0 us.
+
+Microseconds, 16 random tokens, FC2 alone, cold then with the activations warm; the RTX 5090 columns are this
+document's 2026-10-01 runs:
+
+| variant | PRO 6000 cold | PRO 6000 warm | RTX 5090 cold | RTX 5090 warm |
+|---|---:|---:|---:|---:|
+| stream read of the codes | 55.3 | - | 49.3 | - |
+| prefetch, 1 group | 94.2 | 59.4 | 89.7 | 62.1 |
+| prefetch, 2 groups | 90.8 | 69.6 | 87.0 | 70.2 |
+| prefetch, 4 groups | 90.1 | 69.6 | 88.8 | 77.5 |
+| 4 warps, 2 groups | 94.2 | 61.4 | 87.8 | 63.1 |
+| 4 warps, 4 groups | 79.3 | 59.4 | 85.8 | 71.2 |
+| 8 warps, two blocks per SM | 88.1 | 81.9 | 82.7 | 78.8 |
+| loads only | 73.7 | 61.4 | 68.4 | 59.1 |
+| math only | 45.1 | 34.8 | 47.9 | 41.5 |
+| math only, activations made | 30.7 | 28.7 | 35.6 | 35.9 |
+
+What carries over: with the activations warm, one group is 10 us faster than two (59.4 against 69.6; 62.1 against 70.2
+on the 5090) and also fastest at 8 random tokens (36.9 against 43.0) and on 8 experts (14.3 against 16.4); the two-blocks
+build is slowest warm (81.9); the loads-only build sits within 1.1x of the stream read warm (61.4 against 55.3) where it
+was 1.33x cold; reading activations costs the arithmetic side about 6 us warm (34.8 against 28.7) and 14 cold; skipping
+empty pair tiles and the contiguous read change nothing. What differs: the PRO 6000 reads the codes 12 percent slower
+(55.3 against 49.3 us for the same bytes) and its cold kernels are further from its read than the 5090's (the 2-group
+prefetch at 8 random tokens 69.6 cold against 43.0 warm, where the 5090 gave 50.0 and 43.1), so the warm numbers, not the
+cold ones, are the ones that agree across the two parts; and the 4-warp, 4-group build is level with one group warm on
+the PRO 6000 (59.4) where it trailed on the 5090 (71.2), a difference this run does not explain.
+
+The layer (synthetic weights, the rule's kernels, dependent launch on): 165.9 us at 16 random tokens, 108.5 at 8, 73.7
+at 4, 43.0 at 2 and 43.0 on 8 experts at 16 - within 5 us of the RTX 5090's 2026-09-30 synthetic run on every row from 2 tokens up except
+16 random tokens, where it is 5 us faster (170.8); at 1 token it is 5.6 us slower (33.0 against 27.4), inside the PRO
+6000's own repeat spread above. The breakdown's cold FC1 and FC2 are 6 to 9 us longer than the 5090's
+(FC1 71.6 against 62.7 at 8 random tokens; FC2 94.2 against 87.9 at 16) while the layers are level, which is the warm
+activations again: the layer never pays the cold price its pieces show.
