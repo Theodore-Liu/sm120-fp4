@@ -120,11 +120,11 @@ here), and the ratios move the same way with batch size and routing.
 Limits, measured: the FC2 kernel takes at most 16 tokens, so the layer is a decode layer and does not cover prefill.
 At 16 spread tokens the layer and Marlin are within 2 us (RTX 5090) and 9 us (RTX PRO 6000) of each other, and the
 remaining gap to the layer's own weight-read floor is in FC2 (`docs/stage2-design.md`). Only the first MoE layer of one
-checkpoint has been run. Not integrated into a serving engine.
+checkpoint has been run. A vLLM backend module exists and is tested at the layer level; the model-level run and its throughput table are not done (`docs/engine-integration-notes.md`).
 
 ## Status
 
-Stage 1 complete. Stage 2: the W4A16 decode layer above is ahead of Marlin on seven of the eight measured rows of a real NVFP4 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8 experts), and is deterministic; of the stage's gate, the RTX PRO 6000 reproduction is now met, the 8-to-16-token margin over FlashInfer's path is not (the layer is level there), and the layer does not yet run inside an engine - the next item in `BACKLOG.md`. Stage 3 (the FP4 kernels DeepGEMM does not ship for SM120) has not started. See `PLAN.md` for the stage gates.
+Stage 1 complete. Stage 2: the W4A16 decode layer above is ahead of Marlin on seven of the eight measured rows of a real NVFP4 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8 experts), and is deterministic; of the stage's gate, the RTX PRO 6000 reproduction is now met, the 8-to-16-token margin over FlashInfer's path is not (the layer is level there), and the layer does not yet run inside an engine end to end: a vLLM 0.28 backend module exists (`sm120fp4/vllm_backend.py`, opt-in `SM120FP4_MOE=1`, unit-tested bit-identical to the kernels at layer 0), and the model-level comparison is the open item in `BACKLOG.md`. Stage 3 (the FP4 kernels DeepGEMM does not ship for SM120) has not started. See `PLAN.md` for the stage gates.
 
 ## License
 

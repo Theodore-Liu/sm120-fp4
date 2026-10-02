@@ -18,6 +18,10 @@ dev = ["pytest"]
 [project.scripts]
 sm120fp4 = "sm120fp4.cli:main"
 
+[project.entry-points."vllm.general_plugins"]
+# loaded by vLLM at engine start in every process; a no-op unless SM120FP4_MOE=1 (sm120fp4/vllm_backend.py)
+sm120fp4_moe = "sm120fp4.vllm_backend:register"
+
 [tool.setuptools.packages.find]
 include = ["sm120fp4*"]
 

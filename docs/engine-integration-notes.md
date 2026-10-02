@@ -24,10 +24,16 @@ kernels need, and the design chosen before any code is written. Line references 
   `real_ckpt_layer.py` makes: 128 of 128 experts on Qwen3-30B-A3B-NVFP4). After this step the raw checkpoint layout
   is gone.
 - A backend can be added without forking vLLM: `register_quantization_config(name)`
-  (`quantization/__init__.py:58`) registers a `QuantizationConfig` subclass under a new method name, and an installed
-  package can run that registration at engine start through the `vllm.general_plugins` entry-point group
-  (`plugins/__init__.py:18`). A subclass of `ModelOptNvFp4Config` can set `FusedMoEMethodCls` to our method and
-  override `override_quantization_method` to claim NVFP4 checkpoints when the device is SM120 and an opt-in is set.
+  (`quantization/__init__.py:58`) registers a `QuantizationConfig` subclass, and an installed package can run that
+  registration at engine start through the `vllm.general_plugins` entry-point group (`plugins/__init__.py:18`).
+  **A new name cannot claim the checkpoint, though** (found when writing the code): `_verify_quantization`
+  (`config/model.py:1210`) walks a fixed list of override names, resolves a ModelOpt checkpoint to `modelopt_fp4`,
+  and raises if `--quantization` names anything else. What works is re-registering `modelopt_fp4` itself:
+  `register_quantization_config` accepts an existing name (it logs that the entry is overwritten) and
+  `get_quantization_config` consults the customised registry first, so under the opt-in the subclass takes the
+  name and vLLM's own override logic hands it the checkpoint. `sm120fp4/vllm_backend.py` does exactly this, and
+  dispatches per layer inside `get_quant_method`: a routed-experts layer the kernels fit gets our method, every
+  other layer the parent's, so vLLM's path remains the fallback layer by layer, not model by model.
 
 ## 2. What our kernels need, and where it differs from vLLM
 
@@ -78,12 +84,22 @@ kernels need, and the design chosen before any code is written. Line references 
 
 ## 5. Steps
 
-1. Package: `sm120fp4.vllm` module with the `QuantizationConfig` subclass and the `FusedMoEMethodBase` subclass; an
-   entry point `vllm.general_plugins = sm120fp4_moe = sm120fp4.vllm:register`; opt-in by `SM120FP4_MOE=1`.
-2. Weights: keep the checkpoint layout, rotate `w13` to `[up; gate]` once in `process_weights_after_loading`, keep the
-   e4m3 block scales and the two global scales as tensors our kernels read.
-3. `apply`: slice to 16 tokens, call the routing, FC1 and FC2 kernels through `moe_layer.py`'s `choice` rules, write
-   into the output tensor the engine expects (`[tokens, hidden]`, bf16).
-4. Tests: a unit test that loads layer 0's weights through vLLM's loader and compares the method's output with
-   `real_ckpt_layer.py`'s layer on the same inputs; then the model-level greedy comparison.
-5. Measure, document, and move the gate clause.
+1. Done (2026-10-02): `sm120fp4/vllm_backend.py` holds `SM120Fp4Config` (a `ModelOptNvFp4Config` subclass) and
+   `SM120Fp4MoEMethod` (a `ModelOptNvFp4FusedMoE` subclass); the entry point
+   `vllm.general_plugins: sm120fp4_moe = sm120fp4.vllm_backend:register` is in `pyproject.toml`; opt-in by
+   `SM120FP4_MOE=1`, under which `register()` re-registers `modelopt_fp4` (section 1).
+2. Done: `weights_from_vllm_layout` keeps the checkpoint layout, rotates `w13` and its block scales to `[up; gate]`
+   once, refuses a layer whose gate and up global scales differ on any expert, and keeps the e4m3 block scales and
+   the per-expert global scales as the kernels read them; `process_weights_after_loading` re-registers the
+   parameters in that layout and drops the activation scales.
+3. Done: `Weights.forward` slices to 16 tokens and runs route, FC1 and FC2 under `moe_layer.py`'s `choice` and
+   `use_pdl` rules into a bf16 `[tokens, hidden]` output; `apply` refuses shared experts, an expert map and
+   `apply_router_weight_on_input`.
+4. Layer-level test done: `tests/test_vllm_backend.py` (13 tests, in the vLLM 0.28 venv on the RTX 5090) checks
+   the rotation byte for byte against the loader's stacking, the forward bit-identical to the direct kernel calls
+   at 1, 2, 4, 8 and 16 tokens on both routings with error under 1% against the fp32 reference, a 40-token batch
+   equal to its three slices, and that the opt-in re-registration resolves `modelopt_fp4` to the subclass. The
+   test builds the vLLM-layout tensors from the checkpoint shard itself rather than through vLLM's loader; the
+   loader path is exercised by the model-level run.
+5. Next: the model-level greedy comparison of section 4 (`vllm serve nvidia/Qwen3-30B-A3B-NVFP4` with and without
+   `SM120FP4_MOE=1`), then the throughput table, then the gate clause.
