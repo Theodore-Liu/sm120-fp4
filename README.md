@@ -69,33 +69,44 @@ the JSON lands in `reports/`.
 ## Stage 2: the MoE layer on real weights (RTX 5090)
 
 A W4A16 MoE layer for SM120 (router, FC1 with the SwiGLU, FC2 with the weighted sum over experts; FP4 codes decoded with
-SM120's `cvt.rn.f16x2.e2m1x2`, kernels chained with programmatic dependent launch), each GEMM chosen by batch size
-(`scripts/moe_layer.py`). Validated on the 128 experts of layer 0 of `nvidia/Qwen3-30B-A3B-NVFP4` (ModelOpt NVFP4),
-against vLLM's Marlin W4A16 MoE on the same codes, scales and global scales, timed in one session by CUDA-graph replay
-with L2 flushed (`scripts/real_ckpt_layer.py`, `reports/real-ckpt-layer0-rtx5090-2026-09-30.json`):
+SM120's `cvt.rn.f16x2.e2m1x2`), each GEMM chosen by batch size (`scripts/moe_layer.py`): FC1 on CUDA cores at one
+token and on tensor cores from two tokens up, FC2 on CUDA cores at one token and otherwise a tensor-core kernel that
+prefetches its weights and takes one expert group per tile, kernels chained with programmatic dependent launch below 16
+tokens and launched plainly at 16 (each rule was measured on both routing shapes below; `docs/stage2-design.md`
+records every experiment and the hypotheses ruled out). Validated on the 128 experts of layer 0 of
+`nvidia/Qwen3-30B-A3B-NVFP4` (ModelOpt NVFP4), against vLLM's Marlin W4A16 MoE on the same codes, scales and global
+scales, timed in one session by CUDA-graph replay with L2 flushed before each replay
+(`scripts/real_ckpt_layer.py`, `reports/real-ckpt-layer0-fc1sweep-pdlrule-rtx5090-2026-10-01.json`):
 
-| tokens | FC1 | FC2 | this layer (us) | Marlin (us) | Marlin / this | error | Marlin error |
-|---|---|---|---|---|---|---|---|
-| 1 | CUDA cores | CUDA cores | 27.4 | 37.5 | 1.37x | 0.17% | 0.30% |
-| 2 | CUDA cores | tensor cores, prefetch | 39.7 | 49.9 | 1.26x | 0.21% | 0.38% |
-| 4 | CUDA cores | tensor cores, prefetch | 70.4 | 78.8 | 1.12x | 0.22% | 0.37% |
-| 8 | CUDA cores | tensor cores, prefetch, 2 blocks per tile | 107.3 | 113.4 | 1.06x | 0.21% | 0.37% |
-| 16 | tensor cores | tensor cores, prefetch, 2 blocks per tile | 170.8 | 166.7 | 0.98x | 0.20% | 0.36% |
+| tokens | routing | FC1 | FC2 | this layer (us) | Marlin (us) | Marlin / this | error | Marlin error |
+|---|---|---|---|---|---|---|---|---|
+| 1 | random (top-8 of 128) | CUDA cores | CUDA cores | 28.8 | 35.8 | 1.24x | 0.17% | 0.30% |
+| 2 | random (top-8 of 128) | tensor cores | tensor cores, prefetch, one group per tile | 39.9 | 49.9 | 1.25x | 0.21% | 0.38% |
+| 4 | random (top-8 of 128) | tensor cores | tensor cores, prefetch, one group per tile | 68.6 | 78.8 | 1.15x | 0.22% | 0.37% |
+| 8 | random (top-8 of 128) | tensor cores | tensor cores, prefetch, one group per tile | 101.4 | 112.7 | 1.11x | 0.21% | 0.37% |
+| 16 | random (top-8 of 128) | tensor cores | tensor cores, prefetch, one group per tile | 161.5 | 163.5 | 1.01x | 0.20% | 0.36% |
+| 4 | all tokens on the same 8 experts | tensor cores | tensor cores, prefetch, one group per tile | 27.4 | 37.7 | 1.38x | 0.21% | 0.36% |
+| 8 | all tokens on the same 8 experts | tensor cores | tensor cores, prefetch, one group per tile | 29.5 | 37.7 | 1.28x | 0.21% | 0.36% |
+| 16 | all tokens on the same 8 experts | tensor cores | tensor cores, prefetch, one group per tile | 41.8 | 41.5 | 0.99x | 0.20% | 0.36% |
 
 - Error is normwise against an fp32 MoE on the dequantized weights; the layer's output is bit-identical over 50 calls
-  at every size.
+  at every row.
 - The checkpoint layout is checked against an independent source first: every projection dequantized with this
   library's convention matches the bf16 original (`Qwen/Qwen3-30B-A3B`) to 0.094 to 0.095 relative error, the size
   of FP4 rounding; with the nibbles swapped it is 1.414.
+- The two routing shapes are the two ends of a decode batch: tokens spread over the experts (each token its own
+  top-8 of 128) and tokens that all land on the same 8 experts.
 
-Limits, measured: at 16 randomly routed tokens the layer is 2.4%
-slower than Marlin, and when 16 tokens concentrate on 8 experts it is slower too (43.7 against 42.0 us, measured on
-synthetic weights of the same shape, `docs/stage2-design.md`). Measured on one RTX 5090 only; not yet integrated into a serving engine. The design, every
-experiment and the hypotheses ruled out are in `docs/stage2-design.md`.
+Limits, measured: the FC2 kernel takes at most 16 tokens, so the layer is a decode layer and does not cover prefill.
+At 16 spread tokens the layer and Marlin are within 2 us of each other, and the remaining gap to the layer's own
+weight-read floor is in FC2 (`docs/stage2-design.md`). Only the first MoE layer of one checkpoint has been run. On a
+cloud RTX PRO 6000 Blackwell Workstation Edition (188 SMs) the single-kernel benches reproduce the RTX 5090's
+conclusions (`reports/rtxpro6000-stage2-2026-10-01/`, `scripts/pod_stage2.sh`); the real-weights table above has not
+been run there yet. Not integrated into a serving engine.
 
 ## Status
 
-Stage 1 complete; stage 2 in progress. See `PLAN.md` for the stage gates.
+Stage 1 complete. Stage 2: the W4A16 decode layer above is ahead of Marlin on seven of the eight measured rows of a real NVFP4 checkpoint and within 0.3 us on the eighth (16 tokens on the same 8 experts), and is deterministic; the stage's gate is not called met until the real-weights table is reproduced on the RTX PRO 6000 and the layer runs inside an engine. Stage 3 (the FP4 kernels DeepGEMM does not ship for SM120) has not started. See `PLAN.md` for the stage gates.
 
 ## License
 

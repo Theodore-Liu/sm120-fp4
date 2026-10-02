@@ -57,6 +57,13 @@ narrows to what they leave open on the RTX 5090: decode at 1 to 4 tokens, where 
 DRAM weight-read floor under CUDA graphs with a cold L2, and determinism, which the fastest W4A4 path does not have.
 Marlin W4A16 is still to be added to the comparison set.
 
+Status (2026-10-02): a W4A16 decode layer (router, FC1, FC2) runs on the real `nvidia/Qwen3-30B-A3B-NVFP4` layer 0 ahead
+of vLLM's Marlin W4A16 MoE on seven of eight measured rows and within 0.3 us on the eighth (1 to 16 tokens, spread and
+concentrated routing; README table), with bit-identical output over repeated calls. Of the gate: correct output and no corruption over graph replays
+are met on the RTX 5090; batch 1 is 1.24x faster than Marlin; at 8 to 16 tokens the layer is level with Marlin and with
+FlashInfer's W4A16 path rather than faster by a stated margin, so that clause is not met; the RTX PRO 6000 reproduction
+covers the single-kernel benches, not yet the real-weights table. The FC2 kernel takes at most 16 tokens (decode only).
+
 ## Stage 3: the FP4 kernels DeepGEMM does not ship for SM120
 
 Deliverables: SM120 implementations of the three FP4 sites DeepGEMM routes to `tcgen05` today (the FP8xFP4 GEMM, the FP4
