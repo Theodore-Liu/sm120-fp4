@@ -62,7 +62,7 @@ of vLLM's Marlin W4A16 MoE on seven of eight measured rows and within 0.3 us on 
 concentrated routing; README table), with bit-identical output over repeated calls. Of the gate: correct output and no corruption over graph replays
 are met on the RTX 5090; batch 1 is 1.24x faster than Marlin; at 8 to 16 tokens the layer is level with Marlin and with
 FlashInfer's W4A16 path rather than faster by a stated margin, so that clause is not met; the RTX PRO 6000 reproduction
-covers the single-kernel benches, not yet the real-weights table. The FC2 kernel takes at most 16 tokens (decode only).
+now covers the real-weights table too (2026-10-02, with the Marlin column: ahead on the same seven rows, behind on the same eighth, bit-identical on all). The FC2 kernel takes at most 16 tokens (decode only).
 
 ## Stage 3: the FP4 kernels DeepGEMM does not ship for SM120
 

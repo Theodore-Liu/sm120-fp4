@@ -139,19 +139,27 @@ def main(argv=None) -> int:
     scratch = torch.zeros(4 * 16 * h, device=dev)
     counters = torch.zeros(h // 16, dtype=torch.int32, device=dev)
 
-    # Marlin on the same codes and scales, with the checkpoint's own global scales
+    # Marlin on the same codes and scales, with the checkpoint's own global scales. vLLM is optional: on a box where it
+    # cannot be installed against the pinned torch the table is written without the Marlin column and says so.
     from types import SimpleNamespace
-    from vllm.model_executor.layers.fused_moe.experts.marlin_moe import fused_marlin_moe
-    from vllm.model_executor.layers.quantization.utils.marlin_utils_fp4 import prepare_nvfp4_moe_layer_for_marlin
-    from vllm.scalar_type import scalar_types
+    try:
+        from vllm.model_executor.layers.fused_moe.experts.marlin_moe import fused_marlin_moe
+        from vllm.model_executor.layers.quantization.utils.marlin_utils_fp4 import prepare_nvfp4_moe_layer_for_marlin
+        from vllm.scalar_type import scalar_types
+        have_marlin = True
+    except Exception as exc:  # noqa: BLE001 - any import failure means no Marlin column
+        have_marlin = False
+        marlin_unavailable = f"{type(exc).__name__}: {str(exc)[:200]}"
+        print("Marlin column unavailable:", marlin_unavailable)
 
     def gate_first(t):
         return torch.cat([t[:, i:], t[:, :i]], dim=1).contiguous()
     lay = SimpleNamespace(num_experts=e_n, hidden_size=h, intermediate_size_per_partition=i, params_dtype=torch.bfloat16)
-    mw13, ms13, mg13, mw2, ms2, mg2 = prepare_nvfp4_moe_layer_for_marlin(
-        lay, gate_first(w["q1"]), gate_first(w["s1"].view(e_n, 2 * i, h // 16)).view(torch.float8_e4m3fn), alpha1,
-        w["q2"], w["s2"].view(e_n, h, i // 16).view(torch.float8_e4m3fn), alpha2, is_act_and_mul=True)
-    qid = scalar_types.float4_e2m1f.id
+    if have_marlin:
+        mw13, ms13, mg13, mw2, ms2, mg2 = prepare_nvfp4_moe_layer_for_marlin(
+            lay, gate_first(w["q1"]), gate_first(w["s1"].view(e_n, 2 * i, h // 16)).view(torch.float8_e4m3fn), alpha1,
+            w["q2"], w["s2"].view(e_n, h, i // 16).view(torch.float8_e4m3fn), alpha2, is_act_and_mul=True)
+        qid = scalar_types.float4_e2m1f.id
 
     c32 = None
     if a.with_cols32:
@@ -218,18 +226,19 @@ def main(argv=None) -> int:
                              global_scale1=mg13, global_scale2=mg2, workspace=lay.workspace, output=outm)
 
         layer()
-        marlin()
+        if have_marlin:
+            marlin()
         torch.cuda.synchronize()
         ref = bench.reference(x, w, ids, wts, i, act_quant=False)
         rel = float((out.float() - ref).norm() / ref.norm())
-        rel_m = float((outm.float() - ref).norm() / ref.norm())
+        rel_m = float((outm.float() - ref).norm() / ref.norm()) if have_marlin else None
         first = out.clone()
         stable = True
         for _ in range(50):
             layer()
             stable = stable and bool(torch.equal(out, first))
         row = {"tokens": m, "fc1": f1, "fc2": f2, "rel_err": rel, "marlin_rel_err": rel_m, "bit_identical_50": stable,
-               "layer_us": floor.graph_time(layer), "marlin_us": floor.graph_time(marlin)}
+               "layer_us": floor.graph_time(layer), "marlin_us": floor.graph_time(marlin) if have_marlin else None}
         if a.fc1_sweep:
             row["routing"] = routing
             for name in ("cuda_core", "tensor_core"):
@@ -307,6 +316,9 @@ def main(argv=None) -> int:
                     after_flush=warm)
         report["rows"].append(row)
         print(json.dumps({kk: (round(v, 5) if isinstance(v, float) else v) for kk, v in row.items()}), flush=True)
+    report["marlin_available"] = have_marlin
+    if not have_marlin:
+        report["marlin_unavailable"] = marlin_unavailable
     args_out(a.out, report)
     return 0
 

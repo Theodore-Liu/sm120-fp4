@@ -97,16 +97,34 @@ scales, timed in one session by CUDA-graph replay with L2 flushed before each re
 - The two routing shapes are the two ends of a decode batch: tokens spread over the experts (each token its own
   top-8 of 128) and tokens that all land on the same 8 experts.
 
+### The same table on an RTX PRO 6000
+
+The same script, checkpoint shards and Marlin build on a cloud RTX PRO 6000 Blackwell Workstation Edition (188 SMs;
+`NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 610.57.04, 97887 MiB, 12.0, 3090 MHz, 14001 MHz`), set up by `scripts/pod_real_ckpt.sh` and timed the same way (`reports/rtxpro6000-realckpt-2026-10-02/real-ckpt-layer0-fc1sweep-nvidia-rtx-pro-6000-blackwell-workstation-edition-2026-10-02.json`). The layout check gives the same
+0.094 to 0.095 and 1.414 as on the RTX 5090, and every row is bit-identical over 50 calls:
+
+| tokens | routing | this layer (us) | Marlin (us) | Marlin / this | error | Marlin error | RTX 5090: Marlin / this |
+|---|---|---|---|---|---|---|---|
+| 1 | random (top-8 of 128) | 28.7 | 38.9 | 1.36x | 0.17% | 0.30% | 1.24x |
+| 2 | random (top-8 of 128) | 43.0 | 53.2 | 1.24x | 0.21% | 0.38% | 1.25x |
+| 4 | random (top-8 of 128) | 75.8 | 88.1 | 1.16x | 0.22% | 0.37% | 1.15x |
+| 8 | random (top-8 of 128) | 108.5 | 122.9 | 1.13x | 0.21% | 0.37% | 1.11x |
+| 16 | random (top-8 of 128) | 165.9 | 174.1 | 1.05x | 0.20% | 0.36% | 1.01x |
+| 4 | all tokens on the same 8 experts | 30.7 | 43.0 | 1.40x | 0.21% | 0.36% | 1.38x |
+| 8 | all tokens on the same 8 experts | 30.7 | 43.0 | 1.40x | 0.21% | 0.36% | 1.28x |
+| 16 | all tokens on the same 8 experts | 45.1 | 43.0 | 0.96x | 0.20% | 0.36% | 0.99x |
+
+The layer is ahead of Marlin on 7 of the eight rows on both GPUs; the row it loses is the same on both (16 tokens on the same 8 experts, 45.1 against 43.0 us
+here), and the ratios move the same way with batch size and routing.
+
 Limits, measured: the FC2 kernel takes at most 16 tokens, so the layer is a decode layer and does not cover prefill.
-At 16 spread tokens the layer and Marlin are within 2 us of each other, and the remaining gap to the layer's own
-weight-read floor is in FC2 (`docs/stage2-design.md`). Only the first MoE layer of one checkpoint has been run. On a
-cloud RTX PRO 6000 Blackwell Workstation Edition (188 SMs) the single-kernel benches reproduce the RTX 5090's
-conclusions (`reports/rtxpro6000-stage2-2026-10-01/`, `scripts/pod_stage2.sh`); the real-weights table above has not
-been run there yet. Not integrated into a serving engine.
+At 16 spread tokens the layer and Marlin are within 2 us (RTX 5090) and 9 us (RTX PRO 6000) of each other, and the
+remaining gap to the layer's own weight-read floor is in FC2 (`docs/stage2-design.md`). Only the first MoE layer of one
+checkpoint has been run. Not integrated into a serving engine.
 
 ## Status
 
-Stage 1 complete. Stage 2: the W4A16 decode layer above is ahead of Marlin on seven of the eight measured rows of a real NVFP4 checkpoint and within 0.3 us on the eighth (16 tokens on the same 8 experts), and is deterministic; the stage's gate is not called met until the real-weights table is reproduced on the RTX PRO 6000 and the layer runs inside an engine. Stage 3 (the FP4 kernels DeepGEMM does not ship for SM120) has not started. See `PLAN.md` for the stage gates.
+Stage 1 complete. Stage 2: the W4A16 decode layer above is ahead of Marlin on seven of the eight measured rows of a real NVFP4 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8 experts), and is deterministic; of the stage's gate, the RTX PRO 6000 reproduction is now met, the 8-to-16-token margin over FlashInfer's path is not (the layer is level there), and the layer does not yet run inside an engine - the next item in `BACKLOG.md`. Stage 3 (the FP4 kernels DeepGEMM does not ship for SM120) has not started. See `PLAN.md` for the stage gates.
 
 ## License
 
