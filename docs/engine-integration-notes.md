@@ -101,5 +101,13 @@ kernels need, and the design chosen before any code is written. Line references 
    equal to its three slices, and that the opt-in re-registration resolves `modelopt_fp4` to the subclass. The
    test builds the vLLM-layout tensors from the checkpoint shard itself rather than through vLLM's loader; the
    loader path is exercised by the model-level run.
-5. Next: the model-level greedy comparison of section 4 (`vllm serve nvidia/Qwen3-30B-A3B-NVFP4` with and without
-   `SM120FP4_MOE=1`), then the throughput table, then the gate clause.
+5. In progress: the model-level greedy comparison of section 4. `scripts/vllm_model_compare.py` runs the offline
+   `LLM` API greedily over a fixed, seeded prompt set (300 retrieval items of the layer benches' shape plus 50
+   free-form prompts, 64 new tokens, batches of 16), once per backend, each run to its own JSON (it refuses to
+   overwrite), and `compare` reports the identical fraction, the first differing position per prompt and the
+   retrieval items whose correctness flips. The package is installed into the vLLM 0.28 venv (`uv pip install -e`),
+   so its `vllm.general_plugins` entry point is visible there (2026-10-02). What stands between the script and its
+   first report: the other three checkpoint shards (the layer benches needed only shard 1 of 4; the full model is
+   18.1 GB and the download was started on 2026-10-02 into the WSL HF cache). Then the throughput table, then the
+   gate clause. A run under the plugin is slow at prefill by design (section 3), so the comparison is a
+   correctness measurement and the throughput table is decode-only.

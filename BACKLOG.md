@@ -12,8 +12,10 @@ closes it. Dates are when an item was added, not estimates.
    Qwen3-30B-A3B-NVFP4 model (greedy outputs over a fixed prompt set), decode throughput at 1 to 16 concurrent
    sequences. Closes with a reproducible install recipe and the measured table.
    State 2026-10-02: the backend module, entry point and layer-level unit test are in (`sm120fp4/vllm_backend.py`,
-   `tests/test_vllm_backend.py`, `docs/engine-integration-notes.md` section 5); the model-level greedy comparison
-   and the decode-throughput table are what remains.
+   `tests/test_vllm_backend.py`, `docs/engine-integration-notes.md` section 5); the comparison script
+   `scripts/vllm_model_compare.py` is written and smoke-tested on synthetic reports, the package is installed into
+   the vLLM venv, and the full checkpoint is downloading; the two runs, their comparison and the decode-throughput
+   table are what remains.
 
 ## Ready, in order
 
