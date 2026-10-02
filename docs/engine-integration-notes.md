@@ -84,6 +84,8 @@ kernels need, and the design chosen before any code is written. Line references 
 
 **Model-level result (2026-10-02, RTX 5090, vLLM 0.28.0, `reports/vllm-compare-20261002.json`).** The full `nvidia/Qwen3-30B-A3B-NVFP4` model, greedy, 64 new tokens, 350 prompts, the Triton attention backend in both runs so the MoE layers are the only difference. Stock vLLM runs the checkpoint on its `VLLM_CUTLASS` W4A4 path (activations quantized to FP4 per call); under `SM120FP4_MOE=1` every one of the 48 routed-experts layers runs on this repository's W4A16 kernels (bf16 activations). Both answer all 300 retrieval items (300 and 300 of 300; 0 items flip), and the first generated token, which on a retrieval item is the answer, agrees on 293 of the 300. Whole 64-token sequences are identical on 3 of 350 (3 retrieval, 0 free-form): the two paths compute different functions (W4A4 against W4A16), so after the answer the greedy continuations part - first differing position median 5, 90th percentile 20, 12 of 347 at the first token - the way two correct implementations of different numerics do, not the way a wrong one does (the layer-level test is bit-identical to Marlin W4A16 on the same codes). Generation of the 350 prompts took 19 s stock and 23 s on the plugin, prefill included; that number is not a throughput measurement (prefill runs through 16-token slices by design) and the decode-throughput table is the next item.
 
+**Throughput result (2026-10-02, `reports/vllm-decode-compare-20261002.json`).** `scripts/vllm_decode_throughput.py`, same model, GPU, engine version and attention backend as the greedy comparison, one engine per run, prefix caching off, N in 1, 2, 4, 8, 16, decode throughput by differencing a 128-token and a 32-token budget (median of 3 after warm-up). Stock 150, 264, 522, 1097, 2098 decode tokens/s; this backend 206, 355, 671, 1435, 2534; ratios 1.37, 1.35, 1.28, 1.31, 1.21. The README's engine table carries the rows. The ratio falls with N as the layer table's margin over Marlin does, and at 16 the 32-token budget's wall time is 1.61 times stock's, the sliced prefill (section 3) that item 5 addresses.
+
 ## 5. Steps
 
 1. Done (2026-10-02): `sm120fp4/vllm_backend.py` holds `SM120Fp4Config` (a `ModelOptNvFp4Config` subclass) and
@@ -113,6 +115,7 @@ kernels need, and the design chosen before any code is written. Line references 
    overwrite), and `compare` reports the identical fraction, the first differing position per prompt and the
    retrieval items whose correctness flips. The package is installed into the vLLM 0.28 venv (`uv pip install -e`),
    so its `vllm.general_plugins` entry point is visible there (2026-10-02). What stands between the script and its
-   first report was the other three checkpoint shards (18.1 GB in all), now in the WSL HF cache. Next: the throughput
-   table, then the gate clause. A run under the plugin is slow at prefill by design (section 3), so the comparison is a
+   first report was the other three checkpoint shards (18.1 GB in all), now in the WSL HF cache.
+6. Done: the throughput table (the paragraph above section 5). Backlog item 2 closes with the install recipe in
+   `README.md` (opt-in `SM120FP4_MOE=1`, the package installed into the vLLM venv) and the two measured tables. A run under the plugin is slow at prefill by design (section 3), so the comparison is a
    correctness measurement and the throughput table is decode-only.

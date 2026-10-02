@@ -117,14 +117,28 @@ The same script, checkpoint shards and Marlin build on a cloud RTX PRO 6000 Blac
 The layer is ahead of Marlin on 7 of the eight rows on both GPUs; the row it loses is the same on both (16 tokens on the same 8 experts, 45.1 against 43.0 us
 here), and the ratios move the same way with batch size and routing.
 
+### Inside vLLM: decode throughput of the whole engine
+
+`scripts/vllm_decode_throughput.py`, `nvidia/Qwen3-30B-A3B-NVFP4` on the RTX 5090 under vLLM 0.28.0, one engine per run, the Triton attention backend in both, prefix caching off. For each concurrency N the engine decodes N sequences as one batch; decode throughput is the difference between a 128-token and a 32-token budget on the same prompts (so prefill and fixed overhead cancel), each the median of 3 runs after a warm-up. Stock vLLM runs this checkpoint on its `VLLM_CUTLASS` W4A4 path; under `SM120FP4_MOE=1` all 48 routed-experts layers run on this repository's W4A16 kernels, everything else unchanged (`reports/vllm-decode-stock-20261002.json`, `reports/vllm-decode-sm120-20261002.json`, `reports/vllm-decode-compare-20261002.json`):
+
+| concurrent sequences | stock vLLM (W4A4 CUTLASS), decode tok/s | this backend (W4A16), decode tok/s | this / stock | ms per decode step, stock | ms per decode step, this |
+|---|---|---|---|---|---|
+| 1 | 150 | 206 | 1.37x | 6.67 | 4.85 |
+| 2 | 264 | 355 | 1.35x | 7.58 | 5.63 |
+| 4 | 522 | 671 | 1.28x | 7.66 | 5.96 |
+| 8 | 1097 | 1435 | 1.31x | 7.29 | 5.58 |
+| 16 | 2098 | 2534 | 1.21x | 7.63 | 6.31 |
+
+The engine decodes 1.21 to 1.37 times faster with the layer in place, most at 1 sequence and least at 16, where the layer's own table above is level with Marlin. The two paths are different numerics (W4A4 against W4A16; the greedy comparison in `docs/engine-integration-notes.md` has both at 300 of 300 retrieval items), so this is the engine-level remainder of the per-layer gain, not a like-for-like kernel race; the like-for-like one is the layer table. Prefill is differenced out: the backend runs it through 16-token slices by design, and the 32-token budget's wall time at 16 sequences (0.51 s against stock's 0.32 s) shows that cost, which backlog item 5 addresses.
+
 Limits, measured: the FC2 kernel takes at most 16 tokens, so the layer is a decode layer and does not cover prefill.
 At 16 spread tokens the layer and Marlin are within 2 us (RTX 5090) and 9 us (RTX PRO 6000) of each other, and the
 remaining gap to the layer's own weight-read floor is in FC2 (`docs/stage2-design.md`). Only the first MoE layer of one
-checkpoint has been run on the layer bench. Inside vLLM 0.28 (`sm120fp4/vllm_backend.py`, opt-in `SM120FP4_MOE=1`) the full model answers all 300 retrieval items with every routed-experts layer on these kernels, as stock vLLM does on its W4A4 path; the first generated token agrees with stock on 293 of 300 and whole 64-token greedy sequences on 3 of 350, the two paths being different numerics (`docs/engine-integration-notes.md`). The decode-throughput table inside the engine is not done.
+checkpoint has been run on the layer bench. Inside vLLM 0.28 (`sm120fp4/vllm_backend.py`, opt-in `SM120FP4_MOE=1`) the full model answers all 300 retrieval items with every routed-experts layer on these kernels, as stock vLLM does on its W4A4 path; the first generated token agrees with stock on 293 of 300 and whole 64-token greedy sequences on 3 of 350, the two paths being different numerics (`docs/engine-integration-notes.md`). The decode-throughput table inside the engine is above.
 
 ## Status
 
-Stage 1 complete. Stage 2: the W4A16 decode layer above is ahead of Marlin on seven of the eight measured rows of a real NVFP4 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8 experts), and is deterministic; of the stage's gate, the RTX PRO 6000 reproduction is now met, the 8-to-16-token margin over FlashInfer's path is not (the layer is level there), and the layer now runs inside vLLM 0.28 end to end as an opt-in backend (`SM120FP4_MOE=1`): the full model answers 300 of 300 retrieval items on it, the same as stock; the engine-level throughput table is the open item in `BACKLOG.md`. Stage 3 (the FP4 kernels DeepGEMM does not ship for SM120) has not started. See `PLAN.md` for the stage gates.
+Stage 1 complete. Stage 2: the W4A16 decode layer above is ahead of Marlin on seven of the eight measured rows of a real NVFP4 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8 experts), and is deterministic; of the stage's gate, the RTX PRO 6000 reproduction is now met, the 8-to-16-token margin over FlashInfer's path is not (the layer is level there), and the layer runs inside vLLM 0.28 end to end as an opt-in backend (`SM120FP4_MOE=1`): the full model answers 300 of 300 retrieval items on it, the same as stock, and the engine decodes 1.21 to 1.37 times faster at 1 to 16 concurrent sequences than on vLLM's own W4A4 path. The stage's remaining clause is the 8-to-16-token margin over FlashInfer's path at the layer level (`BACKLOG.md`); stage 3 has started. Stage 3 (the FP4 kernels DeepGEMM does not ship for SM120) has not started. See `PLAN.md` for the stage gates.
 
 ## License
 
