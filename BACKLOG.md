@@ -10,6 +10,9 @@ closes it. Dates are when an item was added, not estimates.
    sources for the FP8xFP4 GEMM, the FP4 attention path and the FP4 einsum: their interfaces, tile shapes, the
    `tcgen05`/TMEM features they depend on, and what SM120 lacks (no TMEM, 99 KB shared memory, `mma.sync` only).
    Closes with `docs/stage3-survey.md` naming, per site, the SM120 design and the first kernel to write.
+   State 2026-10-02: the survey is written against DeepGEMM `057ca5964aae` (the einsum site is FP8, not FP4;
+   tiles, stages, recipe defaults confirmed), the first kernel and its interface are named, and the UE8M0 reference
+   (`scripts/ue8m0_reference.py`) matches DeepGEMM's helpers bit for bit; next is the kernel itself.
 
 ## Ready, in order
 
