@@ -13,9 +13,9 @@ closes it. Dates are when an item was added, not estimates.
    sequences. Closes with a reproducible install recipe and the measured table.
    State 2026-10-02: the backend module, entry point and layer-level unit test are in (`sm120fp4/vllm_backend.py`,
    `tests/test_vllm_backend.py`, `docs/engine-integration-notes.md` section 5); the comparison script
-   `scripts/vllm_model_compare.py` is written and smoke-tested on synthetic reports, the package is installed into
-   the vLLM venv, and the full checkpoint is downloading; the two runs, their comparison and the decode-throughput
-   table are what remains.
+   the model-level greedy comparison is done (`reports/vllm-compare-20261002.json`: both backends 300 of 300
+   retrieval items, first token agreeing on 293 of 300, whole sequences identical on 3 of 350 because the
+   stock path is W4A4 and ours W4A16); the decode-throughput table at 1 to 16 concurrent sequences is what remains.
 
 ## Ready, in order
 

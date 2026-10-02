@@ -82,6 +82,8 @@ kernels need, and the design chosen before any code is written. Line references 
   decode streams, stock backend and ours, same model, same GPU, same session, median of repeats, with the layer-only
   table beside it so a reader can see how much of the per-layer gain survives the engine.
 
+**Model-level result (2026-10-02, RTX 5090, vLLM 0.28.0, `reports/vllm-compare-20261002.json`).** The full `nvidia/Qwen3-30B-A3B-NVFP4` model, greedy, 64 new tokens, 350 prompts, the Triton attention backend in both runs so the MoE layers are the only difference. Stock vLLM runs the checkpoint on its `VLLM_CUTLASS` W4A4 path (activations quantized to FP4 per call); under `SM120FP4_MOE=1` every one of the 48 routed-experts layers runs on this repository's W4A16 kernels (bf16 activations). Both answer all 300 retrieval items (300 and 300 of 300; 0 items flip), and the first generated token, which on a retrieval item is the answer, agrees on 293 of the 300. Whole 64-token sequences are identical on 3 of 350 (3 retrieval, 0 free-form): the two paths compute different functions (W4A4 against W4A16), so after the answer the greedy continuations part - first differing position median 5, 90th percentile 20, 12 of 347 at the first token - the way two correct implementations of different numerics do, not the way a wrong one does (the layer-level test is bit-identical to Marlin W4A16 on the same codes). Generation of the 350 prompts took 19 s stock and 23 s on the plugin, prefill included; that number is not a throughput measurement (prefill runs through 16-token slices by design) and the decode-throughput table is the next item.
+
 ## 5. Steps
 
 1. Done (2026-10-02): `sm120fp4/vllm_backend.py` holds `SM120Fp4Config` (a `ModelOptNvFp4Config` subclass) and
@@ -101,13 +103,16 @@ kernels need, and the design chosen before any code is written. Line references 
    equal to its three slices, and that the opt-in re-registration resolves `modelopt_fp4` to the subclass. The
    test builds the vLLM-layout tensors from the checkpoint shard itself rather than through vLLM's loader; the
    loader path is exercised by the model-level run.
-5. In progress: the model-level greedy comparison of section 4. `scripts/vllm_model_compare.py` runs the offline
+5. Done at the correctness level (the paragraph above section 5): the model-level greedy comparison of section 4.
+   Two defects the run found and the code now states: a class defined inside a function cannot be pickled into the
+   engine-core process (the classes moved to `sm120fp4/vllm_classes.py`), and `RoutedExperts.weight_loader` picks
+   its ModelOpt loading branch by the method's class name (`"ModelOpt" in quant_method_name`), so the method is
+   named `ModelOptNvFp4FusedMoESM120`. `scripts/vllm_model_compare.py` runs the offline
    `LLM` API greedily over a fixed, seeded prompt set (300 retrieval items of the layer benches' shape plus 50
    free-form prompts, 64 new tokens, batches of 16), once per backend, each run to its own JSON (it refuses to
    overwrite), and `compare` reports the identical fraction, the first differing position per prompt and the
    retrieval items whose correctness flips. The package is installed into the vLLM 0.28 venv (`uv pip install -e`),
    so its `vllm.general_plugins` entry point is visible there (2026-10-02). What stands between the script and its
-   first report: the other three checkpoint shards (the layer benches needed only shard 1 of 4; the full model is
-   18.1 GB and the download was started on 2026-10-02 into the WSL HF cache). Then the throughput table, then the
-   gate clause. A run under the plugin is slow at prefill by design (section 3), so the comparison is a
+   first report was the other three checkpoint shards (18.1 GB in all), now in the WSL HF cache. Next: the throughput
+   table, then the gate clause. A run under the plugin is slow at prefill by design (section 3), so the comparison is a
    correctness measurement and the throughput table is decode-only.
