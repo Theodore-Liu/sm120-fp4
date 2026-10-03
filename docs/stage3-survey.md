@@ -236,7 +236,7 @@ The numbers are what one warp per row gives: with seq_len warps in flight the ma
 | 8 | 65536 | 16 | 5426.6 | 230.9 | 23.5x | 28 | 9.30 | 1.4e-07 |
 | 128 | 8192 | 16 | 565.2 | 382.2 | 1.5x | 13 | 11.24 | 1.4e-07 |
 
-v1 is 0.3 to 23.5 times v0 and reaches 0.6 to 11.2 TFLOP/s; the kv bytes are read once per sixteen query rows instead of once per row, and the machine has (seq_len/16) x (kv/256) blocks instead of seq_len warps. What remains is the per-row A-fragment reload per head tile, the scalar scale reads and a kv tile that is not double-buffered; v2 takes those, then the paged form.
+v1 is 0.3 to 23.5 times v0 and reaches 0.6 to 11.2 TFLOP/s. The gain follows the block count: at seq_len 8 x kv 65536 the grid is 1 x 256 blocks against v0's eight warps (23.5x); at seq_len 32 x kv 1024 it is 2 x 4 blocks of eight warps against v0's 32 warps, so v1 is slower there (0.3x) and the segment or the row tile must shrink when the grid is small. The kv bytes are read once per sixteen query rows instead of once per row. What remains is the per-row A-fragment reload per head tile, the scalar scale reads, a kv tile that is not double-buffered and a tile-size rule for small grids; v2 takes those, then the paged form.
 ### 2.3 einsum (FP8, not FP4)
 
 Confirmed in the checkout: `csrc/apis/einsum.hpp` has `einsum` (BF16; `"bmk,bnk->mn"`, `"bhr,hdr->bhd"`,

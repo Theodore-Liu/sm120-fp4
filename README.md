@@ -186,8 +186,9 @@ four of the five decode shapes and -1.6 on one, 454 to 504 GB/s on the 2048-wide
 MQA-logits kernel's v0 (`reports/fp8-fp4-mqa-logits-v0-rtx5090-20261003.json`) computes DeepGEMM's indexer logits (ReLU of the
 per-head FP8 x FP4 scores, weighted and summed over heads, per-row kv spans) to a relative error of 1.5e-7 against the test
 reference on six shapes; v1 (`reports/fp8-fp4-mqa-logits-v1-rtx5090-20261003.json`) stages a 256-row kv segment in shared
-memory for sixteen query rows at a time and is 0.3 to 23.5 times v0, bit-identical to it, at 0.6 to 11.2 TFLOP/s.
-A double-buffered v2 and the paged form follow the
+memory for sixteen query rows at a time and is 0.3 to 23.5 times v0 (slower only where its grid has fewer warps than v0),
+bit-identical to it, at 0.6 to 11.2 TFLOP/s. A v2 with a tile-size rule for small grids and double-buffered kv tiles, then the
+paged form, follow the
 GEMM; the einsum site, being FP8, comes last.
 
 ## Status
