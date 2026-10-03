@@ -1,0 +1,81 @@
+{
+ "kernel": "fp8_fp4_gemm_nt_sm120_v1",
+ "device": "NVIDIA GeForce RTX 5090",
+ "sm_count": 170,
+ "note": "cold L2 (256 MB fill before each launch); one launch per timing; bytes = A e4m3 + B packed e2m1 + packed scales + bf16 D",
+ "tile": {
+  "BM": 32,
+  "BN": 128,
+  "BK": 128,
+  "stages": 4,
+  "threads": 256
+ },
+ "rows": [
+  {
+   "m": 16,
+   "n": 2048,
+   "k": 7168,
+   "us_median": 70.39999961853027,
+   "us_min": 68.2239979505539,
+   "repeats": 20,
+   "bytes": 7635840,
+   "achieved_GBps": 108.46363695135787,
+   "weight_bytes": 7340032,
+   "floor_us_at_peak": 4.261071428571428,
+   "ratio_to_floor": 16.521666158065944
+  },
+  {
+   "m": 16,
+   "n": 7168,
+   "k": 7168,
+   "us_median": 73.34399968385696,
+   "us_min": 71.68000191450119,
+   "repeats": 20,
+   "bytes": 26436480,
+   "achieved_GBps": 360.4450277316779,
+   "weight_bytes": 25690112,
+   "floor_us_at_peak": 14.7525,
+   "ratio_to_floor": 4.971631905362275
+  },
+  {
+   "m": 32,
+   "n": 2048,
+   "k": 7168,
+   "us_median": 70.39999961853027,
+   "us_min": 69.69600170850754,
+   "repeats": 20,
+   "bytes": 7816960,
+   "achieved_GBps": 111.03636423802574,
+   "weight_bytes": 7340032,
+   "floor_us_at_peak": 4.362142857142857,
+   "ratio_to_floor": 16.13885696183763
+  },
+  {
+   "m": 32,
+   "n": 7168,
+   "k": 7168,
+   "us_median": 74.40000027418137,
+   "us_min": 72.48000055551529,
+   "repeats": 20,
+   "bytes": 26781440,
+   "achieved_GBps": 359.96559007129224,
+   "weight_bytes": 25690112,
+   "floor_us_at_peak": 14.945,
+   "ratio_to_floor": 4.978253614866602
+  },
+  {
+   "m": 16,
+   "n": 4096,
+   "k": 2048,
+   "us_median": 23.32800067961216,
+   "us_min": 23.135999217629433,
+   "repeats": 20,
+   "bytes": 4423936,
+   "achieved_GBps": 189.64059804175,
+   "weight_bytes": 4194304,
+   "floor_us_at_peak": 2.468714285714286,
+   "ratio_to_floor": 9.449453431935947
+  }
+ ],
+ "peak_GBps_assumed": 1792.0
+}

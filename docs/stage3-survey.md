@@ -91,6 +91,18 @@ matrix maximum of 50 to 1685 (one case 1345 against 1214, fp32 summation order),
 2.0e-3. DeepGEMM's own tolerance for the mixed configuration is `max_diff` 0.01 against an fp32 reference of the
 original values; this test is against the exact dequantized product, so the bar is tighter and different in kind.
 
+**v1, the tiled kernel, measured (2026-10-02, RTX 5090, `reports/fp8-fp4-gemm-v1-rtx5090-20261002.json`).** Block of 8 warps on a 32 x 128 output tile, each warp 16 columns for both m16 tiles; A (32 x 128 bytes) and B (128 x 64 packed bytes) per 128-K block through a 4-stage `cp.async` pipeline (48 KB of shared memory); fragments from shared memory with the e2m1 containers formed on the way; the UE8M0 fold once per 128-K block as in v0. It is correct against the reference to bf16 output rounding on six shapes (M 7 to 32, N 128 to 2048, K 128 to 7168) and bit-identical to v0 on every shape v0 covers. Its speed is where a first tiled version lands, not where the kernel has to be: cold-L2 medians of 20 single launches,
+
+| M | N | K | bytes moved | v1 median (us) | achieved GB/s | floor at 1792 GB/s (us) | v1 / floor |
+|---|---|---|---|---|---|---|---|
+| 16 | 2048 | 7168 | 7.64 MB | 70.4 | 108 | 4.3 | 16.5x |
+| 16 | 7168 | 7168 | 26.44 MB | 73.3 | 360 | 14.8 | 5.0x |
+| 32 | 2048 | 7168 | 7.82 MB | 70.4 | 111 | 4.4 | 16.1x |
+| 32 | 7168 | 7168 | 26.78 MB | 74.4 | 360 | 14.9 | 5.0x |
+| 16 | 4096 | 2048 | 4.42 MB | 23.3 | 190 | 2.5 | 9.4x |
+
+Achieved bandwidth is 108 to 360 GB/s against the card's 1792, 5.0 to 16.5 times the byte floor. The cause is in the grid: one block per 128 columns means 16 blocks for N = 2048 and 56 for N = 7168 on a 170-SM card, so most SMs idle and the N = 2048 rows read at 108 to 111 GB/s; the K = 7168 rows also take 56 serial 128-K blocks per block, each with a `__syncthreads`-bounded fold. The next version splits K across blocks (each block a slice of the 128-K blocks, partials reduced in fp32 before the bf16 store, which keeps the fold's arithmetic and so the bit-for-bit agreement per slice) and shrinks `BLOCK_N` to 64 for small N, the two moves the stage-2 FC2 kernel made for the same reason; the shared-memory fragment loads also want an XOR swizzle (the A tile's 128-byte rows put lanes of equal `t` on one bank).
+
 **Interface of the first kernel, `sm120_fp8_fp4_gemm_1d1d`.** The same arguments `fp8_fp4_gemm_nt` passes the SM100
 launcher at `gemm.hpp:128`: `a` codes (e4m3, `[M, K]`), `sfa` (packed UE8M0 `[M, K/gran_k_a]` after the layout
 transform), `b` codes (packed e2m1, `[N, K/2]`), `sfb`, optional `c`, output `d` (bf16 or fp32, N-major), `m, n, k`,
