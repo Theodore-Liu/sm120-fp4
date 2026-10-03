@@ -12,7 +12,11 @@ closes it. Dates are when an item was added, not estimates.
    Closes with `docs/stage3-survey.md` naming, per site, the SM120 design and the first kernel to write.
    State 2026-10-02: the survey is written against DeepGEMM `057ca5964aae` (the einsum site is FP8, not FP4;
    tiles, stages, recipe defaults confirmed), the first kernel and its interface are named, and the UE8M0 reference
-   (`scripts/ue8m0_reference.py`) matches DeepGEMM's helpers bit for bit; next is the kernel itself.
+   (`scripts/ue8m0_reference.py`) matches DeepGEMM's helpers bit for bit. The first kernel exists at its minimum
+   (`scripts/fp8_fp4_gemm_sm120.py`: one warp per 16 x 8 tile, M <= 16, gran_k 128) and is correct against the
+   reference to bf16 output rounding on five shapes; the MMA's fragment layout and e2m1 container convention were
+   measured (`scripts/probe_f8f6f4*.py`: the code sits in bits 5:2 of its byte, not the low nibble). Next: the tiled
+   kernel of the survey's section 2.1 and its timing against the byte floor.
 
 ## Ready, in order
 

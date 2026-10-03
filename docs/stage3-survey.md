@@ -70,6 +70,27 @@ to e4m3 fragments and the E4M3-per-16 block scale replaced by the UE8M0-per-128 
 formula with the activation bytes halved. Prefill shapes (M in the hundreds) take the same kernel with `BLOCK_M` 128
 and the register budget re-split (two warps per 16-N strip); that is a second configuration, not a second kernel.
 
+**Measured on the RTX 5090 (2026-10-02), before the tiled kernel.** `scripts/probe_f8f6f4.py` and
+`scripts/probe_f8f6f4_onehot.py` run single `mma.sync.aligned.m16n8k32.row.col.kind::f8f6f4.f32.e4m3.e2m1.f32`
+instructions on fragments built from a hypothesis and compare with the exact product. Two facts came out, one of them
+not what the first draft assumed. The fragment layout is the PTX ISA's for m16n8k32 with 8-bit containers: lane
+`4g + t`; `a0` row `g` k `4t..4t+3`, `a1` row `g+8` same k, `a2` row `g` k `16+4t..`, `a3` row `g+8` k `16+4t..`;
+`b0` col `g` k `4t..4t+3`, `b1` col `g` k `16+4t..`; `c0,c1` row `g` cols `2t, 2t+1`, `c2,c3` row `g+8`. The e2m1
+container is **not** the low nibble: the hardware reads each 8-bit container as a 6-bit field in bits 5:0 (sign at
+bit 5, two exponent bits, three mantissa bits), so an e2m1 code goes in bits 5:2 (`code << 2`) with bits 1:0 and 7:6
+zero; `0x08` reads as 1.0, `0x3C` as -6.0, `0x02` as 0.25 (a mantissa bit of the wider field), and a code left in the
+low nibble produces numbers a few times too small. With that convention the probe matches the exact product to 0.0
+on random inputs, and the other seven hypotheses miss by 113 to 157.
+
+`scripts/fp8_fp4_gemm_sm120.py` is the first kernel at its minimum: one warp per 16 x 8 tile over the whole K,
+direct global loads, no shared memory, M <= 16, N a multiple of 8, K a multiple of 128, `gran_k` 128, packed UE8M0
+scales in DeepGEMM's layout (padded to a multiple of four scales per row), the fold outside the MMA once per 128-K
+block, bf16 output. Against `ue8m0_reference.mx_gemm_reference` on five synthetic instances (M 1 to 16, N 8 to 512, K
+128 to 2048) the error is bf16 output rounding: maximum absolute error 38 to 1498 against a bf16 half-ulp at the
+matrix maximum of 50 to 1685 (one case 1345 against 1214, fp32 summation order), relative Frobenius error 1.2e-3 to
+2.0e-3. DeepGEMM's own tolerance for the mixed configuration is `max_diff` 0.01 against an fp32 reference of the
+original values; this test is against the exact dequantized product, so the bar is tighter and different in kind.
+
 **Interface of the first kernel, `sm120_fp8_fp4_gemm_1d1d`.** The same arguments `fp8_fp4_gemm_nt` passes the SM100
 launcher at `gemm.hpp:128`: `a` codes (e4m3, `[M, K]`), `sfa` (packed UE8M0 `[M, K/gran_k_a]` after the layout
 transform), `b` codes (packed e2m1, `[N, K/2]`), `sfb`, optional `c`, output `d` (bf16 or fp32, N-major), `m, n, k`,
@@ -129,7 +150,8 @@ sites.
    upstream; tile, stage and shared-memory figures from `sm100.hpp` and the `.cuh`; default recipe `(1, 1, 128)`).
 2. Done 2026-10-02: `scripts/ue8m0_reference.py`, bit for bit with `deep_gemm/utils/math.py` on six configurations
    (`python scripts/ue8m0_reference.py --selftest` with the checkout at `~/oss/DeepGEMM` or `DEEPGEMM=`).
-3. First kernel: **the FP8xFP4 dense GEMM (`sm120_fp8_fp4_gemm_1d1d`)**, NT layout, M <= 16 first (the decode shape this
+3. Started 2026-10-02 (the minimal correct version above; the tiled version is next). First kernel: **the FP8xFP4 dense GEMM
+   (`sm120_fp8_fp4_gemm_1d1d`)**, NT layout, M <= 16 first (the decode shape this
    repository knows how to measure) and then the prefill shapes, because it is the site whose SM100 counterpart is one
    GEMM with a known reference, because the MoE path (`fp8_fp4_mega_moe`) is built from it, and because the attention and
    einsum sites reduce to batched forms of it. The attention indexer follows, the einsum last.
