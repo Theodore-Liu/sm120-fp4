@@ -226,6 +226,17 @@ load does on SM120.
 | 128 | 8192 | 16 | 539.0 | 9 | 7.97 | 1.4e-07 |
 
 The numbers are what one warp per row gives: with seq_len warps in flight the machine is nearly idle (0.4 to 8 TFLOP/s against the GEMM's hundreds of GB/s), and the 65536-row case takes 5.8 ms. The next version follows the design above: a block per (query tile, kv range) with the kv tile staged through shared memory once for all heads, and a persistent row scheduler for unequal spans. Correctness at the fragment level is settled here, which is what v0 was for.
+
+**v1, measured (2026-10-03, RTX 5090, `reports/fp8-fp4-mqa-logits-v1-rtx5090-20261003.json`).** A block of eight warps owns sixteen query rows and one 256-row kv segment; the segment's packed e2m1 rows (16 KB) are staged in shared memory by `cp.async` and its 256 scale bytes by one byte per thread (the segment start is the rows' span start, which has no 16-byte alignment), then every warp runs its two query rows over every head tile and every n8 tile of the segment from shared memory with v0's fragments, fold, ReLU, weights and shuffle. Rows whose span does not meet the segment are skipped and columns outside a row's span are neither computed nor written; a later head tile accumulates into what the first wrote, in the same warp, so there are no atomics. The grid is (ceil(seq_len/16), ceil((kv_hi - kv_lo)/256)) over the union of the rows' spans. On seven shapes v1 is bit-identical to v0 (0 items differing) and within 1.5e-7 of the reference. Timing, cold L2, median of 10, full spans:
+
+| seq_len | seq_len_kv | heads | v0 (us) | v1 (us) | speed-up | v1 GB/s | v1 TFLOP/s | v1 rel. max error |
+|---|---|---|---|---|---|---|---|---|
+| 32 | 1024 | 16 | 72.4 | 223.8 | 0.3x | 1 | 0.60 | 6.5e-08 |
+| 32 | 8192 | 16 | 556.4 | 216.7 | 2.6x | 8 | 4.95 | 1.2e-07 |
+| 8 | 65536 | 16 | 5426.6 | 230.9 | 23.5x | 28 | 9.30 | 1.4e-07 |
+| 128 | 8192 | 16 | 565.2 | 382.2 | 1.5x | 13 | 11.24 | 1.4e-07 |
+
+v1 is 0.3 to 23.5 times v0 and reaches 0.6 to 11.2 TFLOP/s; the kv bytes are read once per sixteen query rows instead of once per row, and the machine has (seq_len/16) x (kv/256) blocks instead of seq_len warps. What remains is the per-row A-fragment reload per head tile, the scalar scale reads and a kv tile that is not double-buffered; v2 takes those, then the paged form.
 ### 2.3 einsum (FP8, not FP4)
 
 Confirmed in the checkout: `csrc/apis/einsum.hpp` has `einsum` (BF16; `"bmk,bnk->mn"`, `"bhr,hdr->bhd"`,
