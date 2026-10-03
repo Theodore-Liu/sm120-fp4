@@ -55,6 +55,11 @@ closes it. Dates are when an item was added, not estimates.
    with the install and the one-line enable in the README. The only part of this repository with an end-to-end gain today, so
    the only part someone else is likely to use. **The upstream text (a vLLM issue or PR) waits until the project is
    essentially complete (author, 2026-10-03): nothing is drafted or posted before then.**
+   State 2026-10-03: in progress. `scripts/plugin_install_test.py` builds a fresh venv with stock `vllm==0.28.0` from PyPI, installs
+   the checkout editable, and probes it: the entry point is listed, the switch off leaves vLLM's `ModelOptNvFp4Config`, the
+   switch on installs `SM120Fp4Config` (`reports/plugin-install-test-20261003.json`, pass). The README has an Install section.
+   What remains before the item closes: the wheel does not carry the kernels (they compile from `scripts/` at first use), so the
+   install must be editable from a clone; package the kernel sources under `sm120fp4/` and re-run the test non-editable.
 5. **Adoption 2: one stage-3 kernel inside an engine on a model that runs on an SM120 card** (second). The kernels are correct
    and measured but nothing calls them; pick the path a RTX PRO 6000 can hold (an FP4 checkpoint whose engine needs the FP8 x
    FP4 GEMM or the MQA-logits indexer), wire the kernel in behind a flag, and measure end to end against the engine's own path,

@@ -9,7 +9,16 @@ description = "FP4 (NVFP4/MXFP4) scale-factor layouts, reference kernels and a c
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
+keywords = ["nvfp4", "mxfp4", "sm120", "blackwell", "vllm", "moe", "fp4"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Environment :: GPU :: NVIDIA CUDA",
+  "Topic :: Scientific/Engineering",
+]
 dependencies = ["torch>=2.6", "numpy"]
+
+[project.urls]
+Repository = "https://github.com/Theodore-Liu/sm120-fp4"
 
 [project.optional-dependencies]
 conformance = ["flashinfer-python"]
