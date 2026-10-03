@@ -36,7 +36,10 @@ closes it. Dates are when an item was added, not estimates.
    v1 stages a 256-row kv segment in shared memory for sixteen query rows and is bit-identical to v0; its first report's timings
    included two host syncs and are superseded (re-timed: 25 to 32 us, 2.9 to 175 times v0). v2 adds a tile rule (64-row segments,
    8 or 16 rows) and a double-buffer arm: 7.6 to 29.3 us on the four shapes, 1.1 to 3.3 times v1, 18 to 147 TFLOP/s, bit-identical
-   (`reports/fp8-fp4-mqa-logits-v2-rtx5090-20261003.json`). Next: the paged form (block tables, context lengths).
+   (`reports/fp8-fp4-mqa-logits-v2-rtx5090-20261003.json`). v3 is the paged form (block tables, context lengths; one page per
+   warp per step), bit-identical to v0 on the flat layout through random page permutations, 13 to 32 us on three decode shapes
+   at 0.7 to 1.1 TB/s of kv rows (`reports/fp8-fp4-paged-mqa-logits-v3-rtx5090-20261003.json`). Both indexer forms now exist
+   for SM120. Next: the einsum site (FP8), and a persistent scheduler for the GEMM if a line needs it.
 
 ## Ready, in order
 

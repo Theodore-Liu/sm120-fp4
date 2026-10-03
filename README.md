@@ -157,7 +157,7 @@ done on the RTX 5090:
   reads an e2m1 container as a six-bit field, so the code goes in bits 5:2 of its byte; the fragment layout is the PTX ISA's
   8-bit m16n8k32 one. A code left in the low nibble gives wrong, smaller numbers.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
-- `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) and v2 (a tile rule, segment groups, a double-buffer arm), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
+- `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
   rounding - v0 (one warp per 16 x 8 tile, the convention check), v1 (32 x 128 tiles, 4-stage `cp.async`, bit-identical to
   v0) and v2 (split-K with a fixed-order reduce, bit-identical to v1 except one element one ulp off). Cold-L2 medians of 20
   launches on DeepSeek-V4-style decode shapes (`reports/fp8-fp4-gemm-v2-rtx5090-20261002.json`):
@@ -188,7 +188,9 @@ per-head FP8 x FP4 scores, weighted and summed over heads, per-row kv spans) to 
 reference on six shapes; v1 stages a 256-row kv segment in shared memory for sixteen query rows at a time (its first report's
 timings included two host syncs and are superseded by the v2 report, which re-times it at 25 to 32 us); v2
 (`reports/fp8-fp4-mqa-logits-v2-rtx5090-20261003.json`) picks 64-row segments and 8 or 16 rows per block and runs 7.6 to 29.3 us
-on the four shapes, 18 to 147 TFLOP/s, bit-identical to v0. The paged form follows the
+on the four shapes, 18 to 147 TFLOP/s, bit-identical to v0; v3 (`reports/fp8-fp4-paged-mqa-logits-v3-rtx5090-20261003.json`) is the
+paged form the decode path needs, bit-identical to v0 through random page permutations, reading 0.7 to 1.1 TB/s of kv rows on three
+decode shapes. Both indexer forms DeepGEMM ships for SM100 now exist for SM120. The einsum site, being FP8, follows the
 GEMM; the einsum site, being FP8, comes last.
 
 ## Status
@@ -200,7 +202,7 @@ full model answers 300 of 300 retrieval items as stock does and the engine decod
 concurrent sequences than on vLLM's own W4A4 path. Of the stage's gate, the RTX PRO 6000 reproduction and the engine
 integration are met; the 8-to-16-token margin over FlashInfer's path at the layer level is not (the layer is level there)
 and stays in `BACKLOG.md`. Stage 3 is in progress: the survey, the UE8M0 reference, the measured operand convention and
-the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel is correct against DeepGEMM's reference in three bit-identical versions and v2 runs 18 to 147 TFLOP/s, as the section above states. See `PLAN.md` for the stage gates.
+the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel is correct against DeepGEMM's reference in both its forms (flat, 18 to 147 TFLOP/s; paged, 0.7 to 1.1 TB/s of kv), as the section above states. See `PLAN.md` for the stage gates.
 
 ## License
 

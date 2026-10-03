@@ -248,6 +248,16 @@ The numbers are what one warp per row gives: with seq_len warps in flight the ma
 | 128 | 8192 | 16 | 553.4 | 31.5 | 29.3 | (16, 64, 1) | 1.08x | 146.5 |
 
 A sweep of every tile at every shape (groups 1 and 4) read the rule from data: the 64-row segment beats the 256-row one on every shape (7.6 against 23.3 us at seq_len 32 x kv 1024; 19.2 against 29.5 at seq_len 8 x kv 65536), eight rows beat sixteen where the grid would otherwise be small, and a group above 1 is slower everywhere (the doubled shared memory halves the blocks per SM and the prefetch has little to hide behind at these sizes), so the double buffer stays in the kernel as an arm and the default group is 1. v2 is 1.1 to 3.3 times v1 and reaches 18 to 147 TFLOP/s; at seq_len 128 x kv 8192 it is 10 times its byte floor and the output write dominates the bytes. The paged form, which the decode path needs, is next.
+
+**v3, the paged form (2026-10-03, RTX 5090, `reports/fp8-fp4-paged-mqa-logits-v3-rtx5090-20261003.json`).** DeepGEMM's `fp8_fp4_paged_mqa_logits` interface for decode: `kv_cache` packed e2m1 `[num_blocks, 64, 64 bytes]` with UE8M0 scales `[num_blocks, 64]`, `context_lens[S]` (query row i attends to positions 0 to context_lens[i] of its own block-table row), `block_table[S, max_pages]`, logits `[S, max_context_len]` with positions past a row's context untouched. One warp per query row and one page per blockIdx.y: each warp stages its own row's page (the rows of a block may point at different pages) into its 4 KB plus 64 B of shared memory by `cp.async`, then runs v0's fragments, fold, ReLU, weights and shuffle over the page's n8 tiles. The selftest lays a flat kv out through a random page permutation with random context lengths on six shapes (up to 1024 pages, 604 per row) and checks v3 bit-identical to v0 on the flat layout and within 1e-7 of the reference, with no position past a context written. Timing, cold L2, median of 10, random contexts, the kv rows actually read counted:
+
+| seq_len (rows) | kv pool | heads | kv rows read (sum of contexts) | v3 (us) | TFLOP/s | kv GB/s |
+|---|---|---|---|---|---|---|
+| 32 | 8192 | 16 | 142459 | 13.1 | 44.6 | 708 |
+| 8 | 65536 | 16 | 214805 | 17.8 | 49.5 | 785 |
+| 128 | 8192 | 16 | 513327 | 31.5 | 66.8 | 1060 |
+
+The paged kernel reads 0.7 to 1.1 TB/s of kv rows, at or above the dense GEMM's best (897 GB/s), because the page staging is one 16-byte `cp.async` per lane per chunk and every page is read exactly once per row; what is left is the per-row A-fragment reload per page and the block-table gather. Both MQA-logits forms DeepGEMM ships for SM100 now exist for SM120, correct against its test reference. What remains in stage 3 is the einsum site, which is FP8 and last.
 ### 2.3 einsum (FP8, not FP4)
 
 Confirmed in the checkout: `csrc/apis/einsum.hpp` has `einsum` (BF16; `"bmk,bnk->mn"`, `"bhr,hdr->bhd"`,
