@@ -312,3 +312,13 @@ sites.
 | 128 | 8 | 1024 | 4096 | 256.3 | 156 | 33.5 | 22.3 | 1.7e-03 |
 
 At B 8 the kernel reads 709 GB/s, 2.5 times the byte floor, because `y` (H x D x R bytes) is read once per 16-row b tile and there is one tile; at B 128 the same `y` is read eight times and the kernel falls to 156 GB/s, so the next version tiles b wider or stages `y`'s rows in shared memory for all b, which is the FP8 x FP4 GEMM's v1 block with an e4m3 B operand. With this, every kernel family DeepGEMM routes to tcgen05 on SM100 has a correct SM120 form in this repository: the FP8 x FP4 GEMM, both MQA-logits forms, and the FP8 einsum.
+
+**v1, measured (2026-10-03, RTX 5090, `reports/fp8-einsum-v1-rtx5090-20261003.json`).** The tiled form: one block of eight warps per (h, 128 columns of d, 128 rows of b); per 128-R block the `y` tile (128 d x 128 r bytes) and the `x` tile (128 b x 128 r) are staged in shared memory by `cp.async` (row stride 144 bytes so the eight rows of a fragment read fall in distinct banks), double-buffered, 72 KB of shared memory per block; each warp owns sixteen columns for every 16-row b tile, so `y` is read from global memory once per 128-row b chunk. Same per-element accumulation order as v0: bit-identical on all seven selftest shapes (0 elements differ), within two bf16 half-ulps of the reference. Timing, same protocol as v0 (the timed region holds the launch only):
+
+| B | H | D | R | v0 (us) | v1 (us) | v1 GB/s | v1 / v0 | floor (us) |
+|---|---|---|---|---|---|---|---|---|
+| 8 | 8 | 1024 | 4096 | 48.1 | 52.4 | 648 | 1.09x slower | 18.9 |
+| 32 | 8 | 1024 | 4096 | 71.7 | 76.5 | 459 | 1.07x slower | 19.6 |
+| 128 | 8 | 1024 | 4096 | 256.0 | 192.5 | 207 | 1.33x faster | 22.3 |
+
+v1 wins only where v0's re-read of `y` was the cost (B 128: eight re-reads become one) and loses 7 to 9 percent at B 8 and 32, where the grid is the bound: D/128 x H = 64 blocks of 256 threads on 170 SMs, against v0's 1024 warps. The next step is the GEMM's lesson in the other direction: a 64-column d tile with four warps (128 blocks) or a split over R with a fixed-order reduce, so that the staged `y` is read once and the card is full at the same time. Neither is done; the einsum site stands at v1 with the decode-sized B below 128 still served best by v0.

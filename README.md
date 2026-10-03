@@ -34,6 +34,44 @@ their own builds.
 - Optional, for the conformance suite: FlashInfer (any version that exposes `fp4_quantize` and `mm_fp4`), CUTLASS
   (C++ headers for the SM120 examples, or the CuTe DSL wheels).
 
+## Install
+
+The stage-2 MoE layer is an opt-in vLLM 0.28 plugin. From a clone, into a Python 3.12 environment that already has vLLM 0.28:
+
+```
+git clone https://github.com/Theodore-Liu/sm120-fp4 && cd sm120-fp4
+pip install -e .
+```
+
+The install registers the `vllm.general_plugins` entry point `sm120fp4_moe`. vLLM loads it at engine start in every process, and it
+is a no-op unless the switch is set:
+
+```
+SM120FP4_MOE=1 vllm serve nvidia/Qwen3-30B-A3B-NVFP4 ...
+```
+
+With the switch set, vLLM's `modelopt_fp4` quantization config resolves to `sm120fp4.vllm_classes.SM120Fp4Config`, whose MoE
+method runs this repository's W4A16 decode layer (`sm120fp4/vllm_backend.py`); without it, vLLM's own class stays in place. To
+check an install without serving a model:
+
+```
+python -c "import importlib.metadata as m; print([e.name for e in m.entry_points(group='vllm.general_plugins')])"
+# ... 'sm120fp4_moe' ...
+SM120FP4_MOE=1 python -c "from vllm.plugins import load_general_plugins as l; l(); from vllm.model_executor.layers.quantization import get_quantization_config as g; print(g('modelopt_fp4').__module__)"
+# sm120fp4.vllm_classes
+```
+
+`scripts/plugin_install_test.py` runs exactly these checks in a fresh venv with stock `vllm==0.28.0` from PyPI and an editable
+install of the checkout; `reports/plugin-install-test-20261003.json` records the pass of 2026-10-03 (entry point listed, the
+switch off leaves `vllm.model_executor.layers.quantization.modelopt.ModelOptNvFp4Config`, the switch on installs
+`sm120fp4.vllm_classes.SM120Fp4Config`).
+
+Limits. The install has to be editable from a clone: the kernels compile at first use from `scripts/moe_layer.py` and the kernel
+files beside it, which the wheel does not carry yet (the remaining step of `BACKLOG.md` item 4), so a CUDA toolkit with `nvcc`
+is needed on the serving host. The backend checks the shapes it was measured on (`sm120fp4/vllm_backend.py`: at most 16 tokens
+per call, hidden size 2048, intermediate size 768 or 1024, the Qwen3-30B-A3B-NVFP4 layer) and was measured on the RTX 5090 and
+the RTX PRO 6000 only (the tables below).
+
 ## Layout of the repository
 
 - `docs/scale-layouts.md`: the specification, with every formula quoted from its source and a worked example.
@@ -44,8 +82,10 @@ their own builds.
   `scripts/real_ckpt_layer.py` runs it on a real checkpoint beside Marlin.
 - `sm120fp4/vllm_backend.py`, `sm120fp4/vllm_classes.py`: the layer as an opt-in vLLM 0.28 MoE backend (`SM120FP4_MOE=1`);
   `scripts/vllm_model_compare.py` and `scripts/vllm_decode_throughput.py` measure it inside the engine.
-- `docs/stage3-survey.md`, `scripts/ue8m0_reference.py`, `scripts/fp8_fp4_gemm_sm120.py`, `scripts/probe_f8f6f4*.py`: stage 3,
-  the FP4 kernels DeepGEMM routes to `tcgen05` and SM120 lacks.
+- `docs/stage3-survey.md`, `scripts/ue8m0_reference.py`, `scripts/fp8_fp4_gemm_sm120.py`, `scripts/fp8_fp4_mqa_logits_sm120.py`,
+  `scripts/fp8_einsum_sm120.py`, `scripts/probe_f8f6f4*.py`: stage 3, the FP4 kernels DeepGEMM routes to `tcgen05` and SM120 lacks.
+- `scripts/plugin_install_test.py` (`run-plugin-install-test.cmd`): the clean-venv check that `pip install` of this checkout registers
+  the vLLM plugin on a stock vLLM 0.28 (adoption item 1); its report is `reports/plugin-install-test-<date>.json`.
 - `BACKLOG.md`: the ranked work queue; `PLAN.md`: the stage gates; `reports/`: every measurement the tables above cite.
 
 ## What works on SM120 today (RTX 5090 and RTX PRO 6000, FlashInfer 0.6.16.post3, PyTorch 2.13 cu130, driver 610)
@@ -158,7 +198,7 @@ done on the RTX 5090:
   8-bit m16n8k32 one. A code left in the low nibble gives wrong, smaller numbers.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
-- `scripts/fp8_einsum_sm120.py` — the FP8 einsum `bhr,hdr->bhd` for SM120 (DeepGEMM's `fp8_einsum` recipe: per-token x, per-block y), v0 correct against torch.einsum on the dequantised operands; `--selftest`, `--bench`.
+- `scripts/fp8_einsum_sm120.py` — the FP8 einsum `bhr,hdr->bhd` for SM120 (DeepGEMM's `fp8_einsum` recipe: per-token x, per-block y): v0 (one warp per 16 x 8 tile) and v1 (y and x tiles staged in shared memory, 8 warps per 128 x 128 tile), both correct against torch.einsum on the dequantised operands and bit-identical to each other; `--selftest`, `--bench`.
   rounding - v0 (one warp per 16 x 8 tile, the convention check), v1 (32 x 128 tiles, 4-stage `cp.async`, bit-identical to
   v0) and v2 (split-K with a fixed-order reduce, bit-identical to v1 except one element one ulp off). Cold-L2 medians of 20
   launches on DeepSeek-V4-style decode shapes (`reports/fp8-fp4-gemm-v2-rtx5090-20261002.json`):
@@ -193,9 +233,10 @@ on the four shapes, 18 to 147 TFLOP/s, bit-identical to v0; v3 (`reports/fp8-fp4
 paged form the decode path needs, bit-identical to v0 through random page permutations, reading 0.7 to 1.1 TB/s of kv rows on three
 decode shapes. Both indexer forms DeepGEMM ships for SM100 now exist for SM120. The einsum site's `bhr,hdr->bhd` has its v0
 (`reports/fp8-einsum-v0-rtx5090-20261003.json`: within two bf16 half-ulps of the reference on six shapes, 709 GB/s at B 8 and
-156 at B 128, the re-read of y being its next item), so every kernel family DeepGEMM routes to tcgen05 has a correct SM120 form
-here. The einsum's tiled version follows the
-GEMM; the einsum site, being FP8, comes last.
+156 at B 128, the re-read of y being its cost), so every kernel family DeepGEMM routes to tcgen05 has a correct SM120 form
+here. The tiled v1 (`reports/fp8-einsum-v1-rtx5090-20261003.json`) stages y and x in shared memory and is bit-identical to v0: 1.33
+times faster at B 128 (192.5 against 256.0 us) and 7 to 9 percent slower at B 8 and 32, where its 64-block grid is the bound. The
+einsum site, being FP8, stays last; the adoption items below come before its next version.
 
 ## Status
 
@@ -206,7 +247,7 @@ full model answers 300 of 300 retrieval items as stock does and the engine decod
 concurrent sequences than on vLLM's own W4A4 path. Of the stage's gate, the RTX PRO 6000 reproduction and the engine
 integration are met; the 8-to-16-token margin over FlashInfer's path at the layer level is not (the layer is level there)
 and stays in `BACKLOG.md`. Stage 3 is in progress: the survey, the UE8M0 reference, the measured operand convention and
-the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel is correct against DeepGEMM's reference in both its forms (flat, 18 to 147 TFLOP/s; paged, 0.7 to 1.1 TB/s of kv), and the FP8 einsum has a correct v0, as the section above states. See `PLAN.md` for the stage gates. What makes the repository useful to others comes next, in this order (`BACKLOG.md` items 4 to 6): the stage-2 backend as an installable vLLM plugin (the upstream issue or PR waits until the project is essentially complete), one stage-3 kernel wired into an engine on a model an SM120 card can hold, and a minimal CI on an SM120 runner.
+the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel is correct against DeepGEMM's reference in both its forms (flat, 18 to 147 TFLOP/s; paged, 0.7 to 1.1 TB/s of kv), and the FP8 einsum has a correct v0 and a tiled v1 (faster only at B 128), as the section above states. See `PLAN.md` for the stage gates. What makes the repository useful to others comes next, in this order (`BACKLOG.md` items 4 to 6): the stage-2 backend as an installable vLLM plugin (the upstream issue or PR waits until the project is essentially complete), one stage-3 kernel wired into an engine on a model an SM120 card can hold, and a minimal CI on an SM120 runner.
 
 ## License
 
