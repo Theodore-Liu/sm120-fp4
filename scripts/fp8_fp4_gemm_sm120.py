@@ -373,12 +373,30 @@ k_fp8_fp4_gemm_nt_v2(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
     if (!s_last) return;
     __threadfence();
     const int n0 = blockIdx.x * BN;
-    for (int i = threadIdx.x; i < M * BN; i += blockDim.x) {
-      const int r = i / BN, c = n0 + (i % BN);
-      const float* p = ws + (size_t)r * N + c;
-      float acc = 0.f;
-      for (int q = 0; q < used; ++q) acc += __ldcg(p + (size_t)q * M * N);
-      d[(size_t)r * N + c] = __float2bfloat16(acc);
+    if constexpr (FUSED == 2) {
+      // (i) four consecutive columns per thread as one float4 per partial: four independent chains, the same per-element
+      // split order 0..used-1 as the scalar form, 16-byte loads (N is a multiple of 64, so each row offset is aligned)
+      const size_t stride = (size_t)M * N;
+      for (int i = threadIdx.x; i < M * (BN / 4); i += blockDim.x) {
+        const int r = i / (BN / 4), c = n0 + (i % (BN / 4)) * 4;
+        const float4* p = reinterpret_cast<const float4*>(ws + (size_t)r * N + c);
+        float4 acc = make_float4(0.f, 0.f, 0.f, 0.f);
+#pragma unroll 4
+        for (int q = 0; q < used; ++q) {
+          const float4 v = __ldcg(reinterpret_cast<const float4*>(reinterpret_cast<const char*>(p) + q * stride * sizeof(float)));
+          acc.x += v.x; acc.y += v.y; acc.z += v.z; acc.w += v.w;
+        }
+        __nv_bfloat16* o = d + (size_t)r * N + c;
+        o[0] = __float2bfloat16(acc.x); o[1] = __float2bfloat16(acc.y); o[2] = __float2bfloat16(acc.z); o[3] = __float2bfloat16(acc.w);
+      }
+    } else {
+      for (int i = threadIdx.x; i < M * BN; i += blockDim.x) {
+        const int r = i / BN, c = n0 + (i % BN);
+        const float* p = ws + (size_t)r * N + c;
+        float acc = 0.f;
+        for (int q = 0; q < used; ++q) acc += __ldcg(p + (size_t)q * M * N);
+        d[(size_t)r * N + c] = __float2bfloat16(acc);
+      }
     }
   }
 }
@@ -419,7 +437,8 @@ static void launch_v2(const uint8_t* pa, const uint8_t* psa, const uint8_t* pb, 
 template <int BN>
 static void launch_v2_arms(int arms, const uint8_t* pa, const uint8_t* psa, const uint8_t* pb, const uint8_t* psb, float* ws, int M, int N,
                            int K, int sfs, int chunk, int used, __nv_bfloat16* d, int* counters, cudaStream_t st) {
-  // bits: 1 SWZ, 2 KPERM, 4 ONESYNC, 8 two stages, 16 PAIR (PAIR needs four stages), 32 fused reduce. The combinations the bench uses.
+  // bits: 1 SWZ, 2 KPERM, 4 ONESYNC, 8 two stages, 16 PAIR (PAIR needs four stages), 32 fused reduce, 64 the fused reduce's
+  // float4 form (with 32). The combinations the bench uses.
   switch (arms) {
     case 0: launch_v2<BN, 0, 0, 0, 4, 0, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, d, counters, st); break;
     case 1: launch_v2<BN, 1, 0, 0, 4, 0, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, d, counters, st); break;
@@ -430,7 +449,9 @@ static void launch_v2_arms(int arms, const uint8_t* pa, const uint8_t* psa, cons
     case 17: launch_v2<BN, 1, 0, 0, 4, 1, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, d, counters, st); break;
     case 33: launch_v2<BN, 1, 0, 0, 4, 0, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, d, counters, st); break;
     case 41: launch_v2<BN, 1, 0, 0, 2, 0, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, d, counters, st); break;
-    default: TORCH_CHECK(false, "arms: one of 0, 1, 2, 4, 7, 9 (swizzle + 2 stages), 17 (swizzle + pairs), 33 (swizzle + fused reduce), 41 (swizzle + 2 stages + fused reduce)");
+    case 97: launch_v2<BN, 1, 0, 0, 4, 0, 2>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, d, counters, st); break;
+    case 105: launch_v2<BN, 1, 0, 0, 2, 0, 2>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, d, counters, st); break;
+    default: TORCH_CHECK(false, "arms: one of 0, 1, 2, 4, 7, 9 (swizzle + 2 stages), 17 (swizzle + pairs), 33 / 41 (fused reduce, scalar), 97 / 105 (fused reduce, float4; bit 64)");
   }
 }
 
@@ -483,7 +504,7 @@ void fp8_fp4_gemm_nt_sm120_v2_part(torch::Tensor a, torch::Tensor sfa, torch::Te
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v5a", cpp_sources=CPP, cuda_sources=CUDA,
+    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v6a", cpp_sources=CPP, cuda_sources=CUDA,
                        functions=["fp8_fp4_gemm_nt_sm120", "fp8_fp4_gemm_nt_sm120_v1", "fp8_fp4_gemm_nt_sm120_v2", "fp8_fp4_gemm_nt_sm120_v2_part"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
@@ -491,13 +512,14 @@ def build(verbose: bool = False):
 SM_COUNT = None
 
 
-def plan_v2(n: int, k: int, sm_count: int) -> tuple[int, int]:
-    """(BN, splits): the smallest split count that gives at least two blocks per SM, BN 64 when 128 would need more than
-    half the K blocks as splits, else 128."""
+def plan_v2(n: int, k: int, sm_count: int, blocks_per_sm: int = 2) -> tuple[int, int]:
+    """(BN, splits): the smallest split count that gives at least `blocks_per_sm` blocks per SM (two by default; one is
+    the v6 arm for the two-stage kernel, where the reduce's share makes fewer splits pay), BN 64 when 128 would need
+    more than half the K blocks as splits, else 128."""
     nblocks = k // 128
     for bn in (128, 64):
         cols = n // bn
-        splits = max(1, min(nblocks, math.ceil(2 * sm_count / cols)))
+        splits = max(1, min(nblocks, math.ceil(blocks_per_sm * sm_count / cols)))
         if splits <= max(1, nblocks // 2) or bn == 64:
             return bn, splits
     return 64, 1
@@ -595,14 +617,14 @@ def selftest(mod, dev) -> int:
     # the three arms, alone and together, against arm 0 on three shapes: SWZ and ONESYNC must be bit-identical (same arithmetic);
     # KPERM permutes the summation index inside the MMA and is allowed one ulp, and the count of differing elements is reported
     print("arms against v2 (arm 0): 1 = swizzled A rows, 2 = K permutation (8-byte A, 4-byte B loads), 4 = one barrier per stage, "
-          "8 = two stages, 16 = pairs, 32 = fused reduce (last block per column tile sums in split order)")
+          "8 = two stages, 16 = pairs, 32 = fused reduce (last block per column tile sums in split order), 64 = its float4 form")
     for (m, n, k, seed) in ((16, 2048, 7168, 31), (32, 7168, 7168, 32), (16, 4096, 2048, 33)):
         a8, sfa, b4, sfb = make_inputs(m, n, k, 128, seed, dev)
         base = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
         v2(mod, a8, sfa, b4, sfb, base, arms=0)
         torch.cuda.synchronize()
         rb = check(base, a8, sfa, b4, sfb, 128)
-        for arms in (1, 2, 4, 7, 9, 17, 33, 41):
+        for arms in (1, 2, 4, 7, 9, 17, 33, 41, 97, 105):
             dd = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
             v2(mod, a8, sfa, b4, sfb, dd, arms=arms)
             if arms & 32:                       # a second call on the same counters: the self-reset must leave them at zero
@@ -637,16 +659,21 @@ def bench(mod, dev, out):
         counters = torch.zeros(n // bn, device=dev, dtype=torch.int32)
         half = max(1, (splits + 1) // 2)
         ws_half = torch.empty(half, m, n, device=dev, dtype=torch.float32)
+        bn1, sp1 = plan_v2(n, k, props.multi_processor_count, blocks_per_sm=1)   # the planner may also change BN (128 where 64 was chosen for two blocks per SM)
+        ws1 = torch.empty(sp1, m, n, device=dev, dtype=torch.float32)
+        counters1 = torch.zeros(n // bn1, device=dev, dtype=torch.int32)
         res["splits_half"] = half
+        res["bn_plan1"] = bn1
+        res["splits_plan1"] = sp1
         variants = [("v1", lambda: mod.fp8_fp4_gemm_nt_sm120_v1(a8, sfa, b4, sfb, d, 128))]
         for arms, label in ((0, "v2"), (9, "v2_swz_stg2")):
             variants.append((label, (lambda arms=arms: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws, 128, bn, splits, arms))))
-        # (f) the two kernels of the best v4 configuration timed alone; (g) half the splits; (h) the fused reduce
-        variants.append(("v2_swz_stg2_tile_only", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws, counters, 128, bn, splits, 9, 1)))
-        variants.append(("v2_swz_stg2_reduce_only", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws, counters, 128, bn, splits, 9, 2)))
+        # v5's half splits and scalar fused reduce; v6's float4 fused reduce (i) and one-block-per-SM planner (j), alone and together
         variants.append(("v2_swz_stg2_half_splits", lambda: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws_half, 128, bn, half, 9)))
         variants.append(("v2_swz_stg2_fused", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws, counters, 128, bn, splits, 41, 0)))
-        variants.append(("v2_swz_stg2_half_fused", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws_half, counters, 128, bn, half, 41, 0)))
+        variants.append(("v2_swz_stg2_fused_vec", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws, counters, 128, bn, splits, 105, 0)))
+        variants.append(("v2_swz_stg2_plan1", lambda: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws1, 128, bn1, sp1, 9)))
+        variants.append(("v2_swz_stg2_plan1_fused_vec", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws1, counters1, 128, bn1, sp1, 105, 0)))
         for name, fn in variants:
             fn()
             torch.cuda.synchronize()
@@ -664,23 +691,22 @@ def bench(mod, dev, out):
         nbytes = a8.numel() + b4.numel() + sfa.numel() * 4 + sfb.numel() * 4 + d.numel() * 2
         res["bytes"] = nbytes
         res["v2_achieved_GBps"] = nbytes / res["v2_us_median"] / 1e3
-        for label in ("v2_swz_stg2", "v2_swz_stg2_half_splits", "v2_swz_stg2_fused", "v2_swz_stg2_half_fused"):
+        for label in ("v2_swz_stg2", "v2_swz_stg2_half_splits", "v2_swz_stg2_fused", "v2_swz_stg2_fused_vec", "v2_swz_stg2_plan1", "v2_swz_stg2_plan1_fused_vec"):
             res[f"{label}_achieved_GBps"] = nbytes / res[f"{label}_us_median"] / 1e3
             res[f"{label}_gain_vs_v2"] = res["v2_us_median"] / res[f"{label}_us_median"] - 1.0
             res[f"{label}_gain_vs_v4best"] = res["v2_swz_stg2_us_median"] / res[f"{label}_us_median"] - 1.0
-        res["parts_sum_minus_whole_us"] = res["v2_swz_stg2_tile_only_us_median"] + res["v2_swz_stg2_reduce_only_us_median"] - res["v2_swz_stg2_us_median"]
-        res["reduce_share_of_whole"] = res["v2_swz_stg2_reduce_only_us_median"] / res["v2_swz_stg2_us_median"]
         res["v1_achieved_GBps"] = nbytes / res["v1_us_median"] / 1e3
         res["floor_us_at_1792"] = nbytes / 1792.0 / 1e3
         rows.append(res)
-        print(f"m={m} n={n} k={k} (splits {splits}, half {half}): v2 {res['v2_us_median']:.1f} us; v4best swz+2stages {res['v2_swz_stg2_us_median']:.1f} "
-              f"= tile {res['v2_swz_stg2_tile_only_us_median']:.1f} + reduce {res['v2_swz_stg2_reduce_only_us_median']:.1f} (sum-whole {res['parts_sum_minus_whole_us']:+.1f}); "
+        print(f"m={m} n={n} k={k} (BN {bn}, splits {splits}, half {half}; plan1 BN {bn1} x {sp1}): v2 {res['v2_us_median']:.1f} us; v4best {res['v2_swz_stg2_us_median']:.1f}; "
               f"half splits {res['v2_swz_stg2_half_splits_us_median']:.1f} ({res['v2_swz_stg2_half_splits_gain_vs_v4best']:+.1%}), "
-              f"fused {res['v2_swz_stg2_fused_us_median']:.1f} ({res['v2_swz_stg2_fused_gain_vs_v4best']:+.1%}), "
-              f"half+fused {res['v2_swz_stg2_half_fused_us_median']:.1f} ({res['v2_swz_stg2_half_fused_gain_vs_v4best']:+.1%}); floor {res['floor_us_at_1792']:.1f} us", flush=True)
-    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2, swizzle + two stages, with the split-K fixed-cost arms: part timing, half splits, fused reduce (and v1, v2)",
+              f"fused scalar {res['v2_swz_stg2_fused_us_median']:.1f} ({res['v2_swz_stg2_fused_gain_vs_v4best']:+.1%}), "
+              f"fused float4 {res['v2_swz_stg2_fused_vec_us_median']:.1f} ({res['v2_swz_stg2_fused_vec_gain_vs_v4best']:+.1%}), "
+              f"plan1 {res['v2_swz_stg2_plan1_us_median']:.1f} ({res['v2_swz_stg2_plan1_gain_vs_v4best']:+.1%}), "
+              f"plan1+fused float4 {res['v2_swz_stg2_plan1_fused_vec_us_median']:.1f} ({res['v2_swz_stg2_plan1_fused_vec_gain_vs_v4best']:+.1%}); floor {res['floor_us_at_1792']:.1f} us", flush=True)
+    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2, swizzle + two stages, with the fused reduce in scalar and float4 form and the one-block-per-SM planner (and v1, v2, half splits)",
               "device": props.name, "sm_count": props.multi_processor_count,
-              "note": "cold L2 (256 MB fill before each launch); one timing = one call (tile kernel + reduce, or the fused kernel alone; *_tile_only / *_reduce_only time one kernel); bytes = A e4m3 + B packed e2m1 + packed scales + bf16 D; floor at 1792 GB/s",
+              "note": "cold L2 (256 MB fill before each launch); one timing = one call (tile kernel + reduce, or the fused kernel alone); bytes = A e4m3 + B packed e2m1 + packed scales + bf16 D; floor at 1792 GB/s",
               "tile": {"BM": 32, "BK": 128, "stages": 4}, "rows": rows}
     if out is not None:
         out.parent.mkdir(parents=True, exist_ok=True)

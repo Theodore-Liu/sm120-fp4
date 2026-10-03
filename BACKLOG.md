@@ -27,8 +27,10 @@ closes it. Dates are when an item was added, not estimates.
    N7168 (`reports/fp8-fp4-gemm-v4-rtx5090-20261002.json`). The N = 2048 shapes are bound by two launches and the 22-way
    reduce at 17 to 19 us: the reduce alone is 41 to 47 percent of the whole, half the splits gain 9 to 12.5 percent there, and
    a last-block fused reduce is 29 to 42 percent slower because it is latency-bound on N/BN blocks
-   (`reports/fp8-fp4-gemm-v5-rtx5090-20261003.json`). Next: the planner at one block per SM for two stages, a vectorised
-   fused reduce, then the MQA-logits kernel.
+   (`reports/fp8-fp4-gemm-v5-rtx5090-20261003.json`). The fused reduce with float4 loads is still 19 to 34 percent slower, so
+   the pattern is closed for decode shapes; the planner at one block per SM gains 11 to 13 percent on the 2048-wide shapes and
+   loses on none (`reports/fp8-fp4-gemm-v6-rtx5090-20261003.json`). Next: make that planner the two-stage default (v7), then
+   the MQA-logits kernel.
 
 ## Ready, in order
 
