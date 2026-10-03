@@ -169,9 +169,12 @@ done on the RTX 5090:
 | 32 | 7168 | 7168 | 70.7 | 43.8 (128-wide tiles, 7 splits) | 612 | 14.9 | 2.9x |
 | 16 | 4096 | 2048 | 23.3 | 13.1 (64-wide tiles, 6 splits) | 338 | 2.5 | 5.3x |
 
-v2 is 1.7 to 3.5 times v1 and 2.8 to 5.3 times the byte floor. The grid is no longer the bound; the next measured steps are
-the shared-memory fragment loads (an XOR swizzle on the A rows, 4-byte B loads) and one barrier per stage. The MQA-logits
-kernel follows the GEMM; the einsum site, being FP8, comes last.
+v2 is 1.7 to 3.5 times v1 and 2.8 to 5.3 times the byte floor. Three single-change arms on top of it, each bit-identical to v2
+(`reports/fp8-fp4-gemm-v3-rtx5090-20261002.json`): swizzling the A rows in shared memory adds 10 to 17 percent on the K = 7168
+shapes, a K permutation that widens the fragment loads adds the same and not more (the same bank conflict), one barrier per
+stage adds nothing; the best configuration reads 743 GB/s, 2.4 times the floor on the widest shape. What is
+left is latency at two blocks per SM, so pipeline depth and occupancy are the next arms. The MQA-logits kernel follows the
+GEMM; the einsum site, being FP8, comes last.
 
 ## Status
 
@@ -182,7 +185,7 @@ full model answers 300 of 300 retrieval items as stock does and the engine decod
 concurrent sequences than on vLLM's own W4A4 path. Of the stage's gate, the RTX PRO 6000 reproduction and the engine
 integration are met; the 8-to-16-token margin over FlashInfer's path at the layer level is not (the layer is level there)
 and stays in `BACKLOG.md`. Stage 3 is in progress: the survey, the UE8M0 reference, the measured operand convention and
-the first kernel at 2.8 times its byte floor on the widest shape, as the section above states. See `PLAN.md` for the stage gates.
+the first kernel at 2.4 times its byte floor on the widest shape, as the section above states. See `PLAN.md` for the stage gates.
 
 ## License
 

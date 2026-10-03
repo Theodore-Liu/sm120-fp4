@@ -20,7 +20,10 @@ closes it. Dates are when an item was added, not estimates.
    5.0 to 16.5 times the byte floor (`reports/fp8-fp4-gemm-v1-rtx5090-20261002.json`): the grid is too small
    (N/128 blocks). Split-K v2 (`reports/fp8-fp4-gemm-v2-rtx5090-20261002.json`) is 1.7 to 3.5 times v1 at 338 to
    633 GB/s, 2.8 to 5.3 times the floor, bit-identical to v1 except one element one ulp off; the grid is
-   no longer the bound. Next: the swizzled 4-byte shared-memory fragment loads, then one barrier per stage.
+   no longer the bound. The swizzled A rows add 10 to 17 percent on the K = 7168 shapes (K permutation the same, not additive;
+   one barrier per stage within noise), best 743 GB/s, 2.4 to 4.9 times the floor
+   (`reports/fp8-fp4-gemm-v3-rtx5090-20261002.json`). Next: occupancy and pipeline depth (2 stages for four blocks per SM;
+   two 128-K blocks in flight before the fold).
 
 ## Ready, in order
 

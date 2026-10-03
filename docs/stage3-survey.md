@@ -115,6 +115,18 @@ Achieved bandwidth is 108 to 360 GB/s against the card's 1792, 5.0 to 16.5 times
 
 v2 is 1.7 to 3.5 times v1 and reads 338 to 633 GB/s, 2.8 to 5.3 times the byte floor. The registered expectation (900 GB/s at N 2048, 1200 at N 7168) was not met: the grid is no longer the bound, so what is left is inside the block. The two candidates, in order: the shared-memory fragment loads (the A tile's 128-byte rows put lanes of equal `t` on one bank; an XOR swizzle on the chunk index fixes it, and the B loads are 2-byte and should become 4-byte with the two n8 tiles' nibbles fetched together), and the per-128-K-block `__syncthreads` pair around the fold, which can move to one per stage. Each is a measured step, not a rewrite.
 
+**v3, the three single-change arms, measured (2026-10-02, RTX 5090, `reports/fp8-fp4-gemm-v3-rtx5090-20261002.json`).** Each arm is a template parameter on v2's tile and is bit-identical to v2 on three shapes (the K permutation included: the MMA's k32 sum is order-independent at these magnitudes). Cold-L2 medians of 20 launches, each arm alone and all together:
+
+| M | N | K | v2 (us) | A rows swizzled | K permutation | one barrier | all three | best GB/s | best / floor |
+|---|---|---|---|---|---|---|---|---|---|
+| 16 | 2048 | 7168 | 19.2 | 17.2 (+12%) | 17.2 (+12%) | 18.4 (+4%) | 17.2 (+12%) | 445 | 4.0x |
+| 16 | 7168 | 7168 | 41.7 | 35.6 (+17%) | 35.6 (+17%) | 41.7 (+0%) | 35.6 (+17%) | 743 | 2.4x |
+| 32 | 2048 | 7168 | 19.2 | 19.2 (+0%) | 19.1 (+1%) | 19.2 (+0%) | 18.4 (+4%) | 424 | 4.2x |
+| 32 | 7168 | 7168 | 43.8 | 39.7 (+10%) | 38.7 (+13%) | 43.8 (+0%) | 37.6 (+16%) | 712 | 2.5x |
+| 16 | 4096 | 2048 | 13.1 | 12.0 (+9%) | 12.6 (+4%) | 13.1 (+0%) | 12.8 (+2%) | 368 | 4.9x |
+
+Swizzling the A rows and permuting K inside each k32 step (one 8-byte A load and one 4-byte B load per lane) buy the same 10 to 17 percent on the K = 7168 shapes and do not add, so they remove the same bank conflict; the one-barrier arm is within noise (under 5 percent everywhere), as registered. The registered expectation for the swizzle (at least 25 percent at N 7168) was not met: the best configuration reads 743 GB/s, 2.4 to 4.9 times the byte floor, so the shared-memory access pattern was a sixth of the gap, not most of it. What is left is latency: 48 KB of shared memory per block allows two blocks per SM, sixteen warps, and each 128-K block is four dependent MMA steps followed by a fold and a barrier. The next arms are pipeline depth (2 stages, 24 KB, four blocks per SM) and two 128-K blocks in flight per block before the fold; the swizzle is kept, the permutation and the single barrier are not.
+
 **Interface of the first kernel, `sm120_fp8_fp4_gemm_1d1d`.** The same arguments `fp8_fp4_gemm_nt` passes the SM100
 launcher at `gemm.hpp:128`: `a` codes (e4m3, `[M, K]`), `sfa` (packed UE8M0 `[M, K/gran_k_a]` after the layout
 transform), `b` codes (packed e2m1, `[N, K/2]`), `sfb`, optional `c`, output `d` (bf16 or fp32, N-major), `m, n, k`,

@@ -50,7 +50,7 @@ CPP = r"""
 void fp8_fp4_gemm_nt_sm120(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, int64_t gran_k);
 void fp8_fp4_gemm_nt_sm120_v1(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, int64_t gran_k);
 void fp8_fp4_gemm_nt_sm120_v2(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, torch::Tensor ws,
-                              int64_t gran_k, int64_t bn, int64_t splits);
+                              int64_t gran_k, int64_t bn, int64_t splits, int64_t arms);
 """
 
 CUDA = r"""
@@ -163,7 +163,12 @@ __device__ __forceinline__ void cp_async_commit() { asm volatile("cp.async.commi
 template <int N> __device__ __forceinline__ void cp_async_wait() { asm volatile("cp.async.wait_group %0;\n" :: "n"(N)); }
 
 // Computes the fold-accumulated fp32 tile for 128-K blocks [kb0, kb1) and hands it to `store` (per-thread fragment values).
-template <int BN, typename Store>
+// Arms (scripts/fp8_fp4_gemm_sm120.py --bench, 2026-10-02): SWZ swizzles the A tile's 16-byte chunks by (chunk ^ (row & 7)) so the
+// eight lanes of equal t that read one chunk column hit eight banks; KPERM permutes k inside each k32 step so that lane t's A bytes
+// (k 4t..4t+3 and 16+4t..16+4t+3) sit at physical bytes 8t..8t+7 (one 8-byte load) and its B nibbles at physical codes 8t..8t+7
+// (one 4-byte load) - a permutation of the summation index that the MMA sums over, applied to A and B alike; ONESYNC drops the
+// trailing barrier of each 128-K block (the barrier after the wait already orders every thread's previous compute before the refill).
+template <int BN, int SWZ, int KPERM, int ONESYNC, typename Store>
 __device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const uint8_t* __restrict__ sfa,
                                           const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
                                           int M, int N, int K, int sf_stride, int n_base, int m_base, int kb0, int kb1,
@@ -178,8 +183,9 @@ __device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const u
     uint8_t* sB = sA + A_BYTES;
     for (int c = threadIdx.x; c < BM * 8; c += THREADS) {            // A: 32 rows x 8 chunks of 16 bytes
       const int row = c >> 3, ch = c & 7;
-      if (m_base + row < M) cp_async_16(sA + row * BK + ch * 16, a + (size_t)(m_base + row) * K + (size_t)kb * BK + ch * 16);
-      else *reinterpret_cast<uint4*>(sA + row * BK + ch * 16) = make_uint4(0, 0, 0, 0);
+      const int chs = SWZ ? (ch ^ (row & 7)) : ch;   // where the chunk lands in shared memory
+      if (m_base + row < M) cp_async_16(sA + row * BK + chs * 16, a + (size_t)(m_base + row) * K + (size_t)kb * BK + ch * 16);
+      else *reinterpret_cast<uint4*>(sA + row * BK + chs * 16) = make_uint4(0, 0, 0, 0);
     }
     for (int c = threadIdx.x; c < BN * 4; c += THREADS) {            // B: BN cols x 4 chunks of 16 bytes
       const int col = c >> 2, ch = c & 3;
@@ -227,18 +233,36 @@ __device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const u
 #pragma unroll
       for (int nt = 0; nt < 2; ++nt) {
         const uint8_t* brow = sB + (warp * 16 + nt * 8 + g) * 64;
-        bf[nt][0] = unpack_e2m1_x4(*reinterpret_cast<const uint16_t*>(brow + (k0 + 4 * t) / 2));
-        bf[nt][1] = unpack_e2m1_x4(*reinterpret_cast<const uint16_t*>(brow + (k0 + 16 + 4 * t) / 2));
+        if (KPERM) {   // physical codes 8t..8t+7 of this k32 step: one 4-byte load, low 16 bits -> b0, high 16 bits -> b1
+          const uint32_t w = *reinterpret_cast<const uint32_t*>(brow + (k0 + 8 * t) / 2);
+          bf[nt][0] = unpack_e2m1_x4(w & 0xFFFFu);
+          bf[nt][1] = unpack_e2m1_x4(w >> 16);
+        } else {
+          bf[nt][0] = unpack_e2m1_x4(*reinterpret_cast<const uint16_t*>(brow + (k0 + 4 * t) / 2));
+          bf[nt][1] = unpack_e2m1_x4(*reinterpret_cast<const uint16_t*>(brow + (k0 + 16 + 4 * t) / 2));
+        }
       }
 #pragma unroll
       for (int mt = 0; mt < 2; ++mt) {
         uint32_t af[4];
-        const uint8_t* r0 = sA + (mt * 16 + row_g) * BK;
-        const uint8_t* r1 = sA + (mt * 16 + row_g8) * BK;
-        af[0] = *reinterpret_cast<const uint32_t*>(r0 + k0 + 4 * t);
-        af[1] = *reinterpret_cast<const uint32_t*>(r1 + k0 + 4 * t);
-        af[2] = *reinterpret_cast<const uint32_t*>(r0 + k0 + 16 + 4 * t);
-        af[3] = *reinterpret_cast<const uint32_t*>(r1 + k0 + 16 + 4 * t);
+        const int ra = mt * 16 + row_g, rb = mt * 16 + row_g8;
+        const uint8_t* r0 = sA + ra * BK;
+        const uint8_t* r1 = sA + rb * BK;
+        if (KPERM) {   // physical bytes 8t..8t+7 of this step: one 8-byte load per row (the swizzle moves whole 16-byte chunks)
+          const int off = k0 + 8 * t;
+          const int c0a = SWZ ? ((off >> 4) ^ (ra & 7)) : (off >> 4), c0b = SWZ ? ((off >> 4) ^ (rb & 7)) : (off >> 4);
+          const uint2 wa = *reinterpret_cast<const uint2*>(r0 + c0a * 16 + (off & 15));
+          const uint2 wb = *reinterpret_cast<const uint2*>(r1 + c0b * 16 + (off & 15));
+          af[0] = wa.x; af[2] = wa.y; af[1] = wb.x; af[3] = wb.y;
+        } else {
+          const int o0 = k0 + 4 * t, o2 = k0 + 16 + 4 * t;
+          const int ca0 = SWZ ? ((o0 >> 4) ^ (ra & 7)) : (o0 >> 4), ca2 = SWZ ? ((o2 >> 4) ^ (ra & 7)) : (o2 >> 4);
+          const int cb0 = SWZ ? ((o0 >> 4) ^ (rb & 7)) : (o0 >> 4), cb2 = SWZ ? ((o2 >> 4) ^ (rb & 7)) : (o2 >> 4);
+          af[0] = *reinterpret_cast<const uint32_t*>(r0 + ca0 * 16 + (o0 & 15));
+          af[1] = *reinterpret_cast<const uint32_t*>(r1 + cb0 * 16 + (o0 & 15));
+          af[2] = *reinterpret_cast<const uint32_t*>(r0 + ca2 * 16 + (o2 & 15));
+          af[3] = *reinterpret_cast<const uint32_t*>(r1 + cb2 * 16 + (o2 & 15));
+        }
 #pragma unroll
         for (int nt = 0; nt < 2; ++nt) mma_f8f6f4(part[mt][nt], af, bf[nt]);
       }
@@ -259,7 +283,7 @@ __device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const u
         acc[mt][nt][3] += part[mt][nt][3] * (sa1 * sb1);
       }
     }
-    __syncthreads();
+    if (!ONESYNC) __syncthreads();
   }
   cp_async_wait<0>();
 
@@ -281,12 +305,12 @@ k_fp8_fp4_gemm_nt_v1(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
                      const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
                      __nv_bfloat16* __restrict__ d, int M, int N, int K, int sf_stride) {
   extern __shared__ __align__(16) uint8_t smem[];
-  gemm_tile<128>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * 128, blockIdx.y * BM, 0, K / BK, smem,
+  gemm_tile<128, 0, 0, 0>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * 128, blockIdx.y * BM, 0, K / BK, smem,
                  [&](int r, int c, float v) { d[(size_t)r * N + c] = __float2bfloat16(v); });
 }
 
 // v2: block (n, split) over its slice of the 128-K blocks, fp32 partial to the workspace
-template <int BN>
+template <int BN, int SWZ, int KPERM, int ONESYNC>
 __global__ void __launch_bounds__((BN / 16) * 32)
 k_fp8_fp4_gemm_nt_v2(const uint8_t* __restrict__ a, const uint8_t* __restrict__ sfa,
                      const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
@@ -295,7 +319,7 @@ k_fp8_fp4_gemm_nt_v2(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
   const int nblocks = K / BK;
   const int kb0 = blockIdx.y * chunk, kb1 = min(nblocks, kb0 + chunk);
   float* out = ws + (size_t)blockIdx.y * M * N;
-  gemm_tile<BN>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * BN, 0, kb0, kb1, smem,
+  gemm_tile<BN, SWZ, KPERM, ONESYNC>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * BN, 0, kb0, kb1, smem,
                 [&](int r, int c, float v) { out[(size_t)r * N + c] = v; });
 }
 
@@ -323,8 +347,32 @@ void fp8_fp4_gemm_nt_sm120_v1(torch::Tensor a, torch::Tensor sfa, torch::Tensor 
                                                            reinterpret_cast<__nv_bfloat16*>(d.data_ptr()), M, N, K, (int)sfa.size(1) * 4);
 }
 
+template <int BN, int SWZ, int KPERM, int ONESYNC>
+static void launch_v2(const uint8_t* pa, const uint8_t* psa, const uint8_t* pb, const uint8_t* psb, float* ws, int M, int N, int K,
+                      int sfs, int chunk, int used, cudaStream_t st) {
+  const int smem = STAGES * (BM * BK + BN * (BK / 2));
+  static bool set = false;
+  if (!set) { cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v2<BN, SWZ, KPERM, ONESYNC>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem); set = true; }
+  k_fp8_fp4_gemm_nt_v2<BN, SWZ, KPERM, ONESYNC><<<dim3(N / BN, used), (BN / 16) * 32, smem, st>>>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk);
+}
+
+template <int BN>
+static void launch_v2_arms(int arms, const uint8_t* pa, const uint8_t* psa, const uint8_t* pb, const uint8_t* psb, float* ws, int M, int N,
+                           int K, int sfs, int chunk, int used, cudaStream_t st) {
+  switch (arms & 7) {
+    case 0: launch_v2<BN, 0, 0, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 1: launch_v2<BN, 1, 0, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 2: launch_v2<BN, 0, 1, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 3: launch_v2<BN, 1, 1, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 4: launch_v2<BN, 0, 0, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 5: launch_v2<BN, 1, 0, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 6: launch_v2<BN, 0, 1, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    default: launch_v2<BN, 1, 1, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+  }
+}
+
 void fp8_fp4_gemm_nt_sm120_v2(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, torch::Tensor ws,
-                              int64_t gran_k, int64_t bn, int64_t splits) {
+                              int64_t gran_k, int64_t bn, int64_t splits, int64_t arms) {
   const int M = (int)a.size(0), K = (int)a.size(1), N = (int)b.size(0);
   check_common(a, sfa, b, sfb, gran_k, M, N, K);
   TORCH_CHECK(M >= 1 && M <= BM, "v2: M <= 32");
@@ -342,17 +390,8 @@ void fp8_fp4_gemm_nt_sm120_v2(torch::Tensor a, torch::Tensor sfa, torch::Tensor 
   const uint8_t* pb = reinterpret_cast<const uint8_t*>(b.data_ptr<int8_t>());
   const uint8_t* psb = reinterpret_cast<const uint8_t*>(sfb.data_ptr<int>());
   const int sfs = (int)sfa.size(1) * 4;
-  if (bn == 128) {
-    const int smem = STAGES * (BM * BK + 128 * (BK / 2));
-    static bool set128 = false;
-    if (!set128) { cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v2<128>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem); set128 = true; }
-    k_fp8_fp4_gemm_nt_v2<128><<<dim3(N / 128, used), 256, smem, st>>>(pa, psa, pb, psb, ws.data_ptr<float>(), M, N, K, sfs, chunk);
-  } else {
-    const int smem = STAGES * (BM * BK + 64 * (BK / 2));
-    static bool set64 = false;
-    if (!set64) { cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v2<64>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem); set64 = true; }
-    k_fp8_fp4_gemm_nt_v2<64><<<dim3(N / 64, used), 128, smem, st>>>(pa, psa, pb, psb, ws.data_ptr<float>(), M, N, K, sfs, chunk);
-  }
+  if (bn == 128) launch_v2_arms<128>((int)arms, pa, psa, pb, psb, ws.data_ptr<float>(), M, N, K, sfs, chunk, used, st);
+  else launch_v2_arms<64>((int)arms, pa, psa, pb, psb, ws.data_ptr<float>(), M, N, K, sfs, chunk, used, st);
   const int total = M * N;
   k_split_reduce<<<(total + 255) / 256, 256, 0, st>>>(ws.data_ptr<float>(), reinterpret_cast<__nv_bfloat16*>(d.data_ptr()), M, N, used);
 }
@@ -360,7 +399,7 @@ void fp8_fp4_gemm_nt_sm120_v2(torch::Tensor a, torch::Tensor sfa, torch::Tensor 
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v2a", cpp_sources=CPP, cuda_sources=CUDA,
+    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v3a", cpp_sources=CPP, cuda_sources=CUDA,
                        functions=["fp8_fp4_gemm_nt_sm120", "fp8_fp4_gemm_nt_sm120_v1", "fp8_fp4_gemm_nt_sm120_v2"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
@@ -380,7 +419,7 @@ def plan_v2(n: int, k: int, sm_count: int) -> tuple[int, int]:
     return 64, 1
 
 
-def v2(mod, a8, sfa, b4, sfb, d, bn=None, splits=None):
+def v2(mod, a8, sfa, b4, sfb, d, bn=None, splits=None, arms=0):
     global SM_COUNT
     if SM_COUNT is None:
         SM_COUNT = torch.cuda.get_device_properties(0).multi_processor_count
@@ -388,7 +427,7 @@ def v2(mod, a8, sfa, b4, sfb, d, bn=None, splits=None):
     pbn, psp = plan_v2(n, k, SM_COUNT)
     bn, splits = bn or pbn, splits or psp
     ws = torch.empty(splits, m, n, device=a8.device, dtype=torch.float32)
-    mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws, 128, bn, splits)
+    mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws, 128, bn, splits, arms)
     return bn, splits
 
 
@@ -464,6 +503,26 @@ def selftest(mod, dev) -> int:
     u = bf16_ulps_apart(da, db)
     ok &= u <= 1
     print(f"  v2 BN 64/11 splits vs BN 128/7 splits: max {u} bf16 ulp apart -> {'ok' if u <= 1 else 'FAIL'}")
+    # the three arms, alone and together, against arm 0 on three shapes: SWZ and ONESYNC must be bit-identical (same arithmetic);
+    # KPERM permutes the summation index inside the MMA and is allowed one ulp, and the count of differing elements is reported
+    print("arms against v2 (arm 0): 1 = swizzled A rows, 2 = K permutation (8-byte A, 4-byte B loads), 4 = one barrier per stage")
+    for (m, n, k, seed) in ((16, 2048, 7168, 31), (32, 7168, 7168, 32), (16, 4096, 2048, 33)):
+        a8, sfa, b4, sfb = make_inputs(m, n, k, 128, seed, dev)
+        base = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
+        v2(mod, a8, sfa, b4, sfb, base, arms=0)
+        torch.cuda.synchronize()
+        rb = check(base, a8, sfa, b4, sfb, 128)
+        for arms in (1, 2, 4, 7):
+            dd = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
+            v2(mod, a8, sfa, b4, sfb, dd, arms=arms)
+            torch.cuda.synchronize()
+            r = check(dd, a8, sfa, b4, sfb, 128)
+            u = bf16_ulps_apart(base, dd)
+            nd = int((base != dd).sum())
+            bound = 1 if (arms & 2) else 0
+            good = r["pass"] and u <= bound
+            ok &= good
+            print(f"  m={m} n={n} k={k} arms={arms}: rel {r['rel_fro_err']:.2e}, differing from arm 0 {nd}/{m * n}, max {u} ulp (bound {bound}) -> {'ok' if good else 'FAIL'}", flush=True)
     print("fp8_fp4_gemm_sm120 selftest:", "ok" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -482,8 +541,10 @@ def bench(mod, dev, out):
         bn, splits = plan_v2(n, k, props.multi_processor_count)
         ws = torch.empty(splits, m, n, device=dev, dtype=torch.float32)
         res = {"m": m, "n": n, "k": k, "bn": bn, "splits": splits, "blocks_v2": (n // bn) * splits, "blocks_v1": n // 128}
-        for name, fn in (("v1", lambda: mod.fp8_fp4_gemm_nt_sm120_v1(a8, sfa, b4, sfb, d, 128)),
-                         ("v2", lambda: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws, 128, bn, splits))):
+        variants = [("v1", lambda: mod.fp8_fp4_gemm_nt_sm120_v1(a8, sfa, b4, sfb, d, 128))]
+        for arms, label in ((0, "v2"), (1, "v2_swz"), (2, "v2_kperm"), (4, "v2_onesync"), (7, "v2_all")):
+            variants.append((label, (lambda arms=arms: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws, 128, bn, splits, arms))))
+        for name, fn in variants:
             fn()
             torch.cuda.synchronize()
             times = []
@@ -500,12 +561,17 @@ def bench(mod, dev, out):
         nbytes = a8.numel() + b4.numel() + sfa.numel() * 4 + sfb.numel() * 4 + d.numel() * 2
         res["bytes"] = nbytes
         res["v2_achieved_GBps"] = nbytes / res["v2_us_median"] / 1e3
+        for label in ("v2_swz", "v2_kperm", "v2_onesync", "v2_all"):
+            res[f"{label}_achieved_GBps"] = nbytes / res[f"{label}_us_median"] / 1e3
+            res[f"{label}_gain_vs_v2"] = res["v2_us_median"] / res[f"{label}_us_median"] - 1.0
         res["v1_achieved_GBps"] = nbytes / res["v1_us_median"] / 1e3
         res["floor_us_at_1792"] = nbytes / 1792.0 / 1e3
         rows.append(res)
-        print(f"m={m} n={n} k={k}: v1 {res['v1_us_median']:.1f} us, v2 (BN {bn}, {splits} splits, {res['blocks_v2']} blocks) {res['v2_us_median']:.1f} us, "
-              f"{res['v2_achieved_GBps']:.0f} GB/s, floor {res['floor_us_at_1792']:.1f} us", flush=True)
-    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2 (and v1)", "device": props.name, "sm_count": props.multi_processor_count,
+        print(f"m={m} n={n} k={k}: v1 {res['v1_us_median']:.1f} us; v2 {res['v2_us_median']:.1f} us ({res['v2_achieved_GBps']:.0f} GB/s); "
+              f"swz {res['v2_swz_us_median']:.1f} ({res['v2_swz_gain_vs_v2']:+.1%}), kperm {res['v2_kperm_us_median']:.1f} ({res['v2_kperm_gain_vs_v2']:+.1%}), "
+              f"onesync {res['v2_onesync_us_median']:.1f} ({res['v2_onesync_gain_vs_v2']:+.1%}), all {res['v2_all_us_median']:.1f} ({res['v2_all_gain_vs_v2']:+.1%}); "
+              f"floor {res['floor_us_at_1792']:.1f} us", flush=True)
+    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2 with arms (and v1)", "device": props.name, "sm_count": props.multi_processor_count,
               "note": "cold L2 (256 MB fill before each launch); one launch per timing (v2 = tile kernel + reduce); bytes = A e4m3 + B packed e2m1 + packed scales + bf16 D; floor at 1792 GB/s",
               "tile": {"BM": 32, "BK": 128, "stages": 4}, "rows": rows}
     if out is not None:
