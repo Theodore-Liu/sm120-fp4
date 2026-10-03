@@ -48,18 +48,31 @@ closes it. Dates are when an item was added, not estimates.
 
 ## Ready, in order
 
-4. **Stage 2, 8 to 16 tokens against FlashInfer's `compute_120f` grouped path by a stated margin** (2026-10-02). The
+4. **Adoption 1: the stage-2 backend as an installable vLLM plugin, with the upstream text drafted** (author's order, 2026-10-03,
+   first of three). Package `sm120fp4` so `pip install` registers the `vllm.general_plugins` entry point on a stock vLLM 0.28,
+   with the install and the one-line enable in the README; then draft (not post) a vLLM issue or PR with the real-checkpoint
+   table, the 300-of-300 parity and the 1.21 to 1.37x decode numbers, for the author to review. The only part of this repository
+   with an end-to-end gain today, so the only part someone else is likely to use.
+5. **Adoption 2: one stage-3 kernel inside an engine on a model that runs on an SM120 card** (second). The kernels are correct
+   and measured but nothing calls them; pick the path a RTX PRO 6000 can hold (an FP4 checkpoint whose engine needs the FP8 x
+   FP4 GEMM or the MQA-logits indexer), wire the kernel in behind a flag, and measure end to end against the engine's own path,
+   as stage 2 was. Until this, stage 3 is a reference implementation, not a product.
+6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
+   `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
+   scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its
+   author runs.
+7. **Stage 2, 8 to 16 tokens against FlashInfer's `compute_120f` grouped path by a stated margin** (2026-10-02). The
    gate clause not met: at 16 tokens the layer is level with Marlin and FlashInfer W4A16. The remaining gap is FC2
    against its own byte floor (`docs/stage2-design.md`); the candidate is a tensor-core FC2 that keeps two blocks per
    SM with the one-group tile. Closes with the 16-token rows ahead of both by the margin the report states.
-5. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
+8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
-6. **Report the b12x W4A4 nondeterminism upstream** (2026-10-01). `reports/b12x-nondeterminism-rtx5090-2026-09-29.json`
+9. **Report the b12x W4A4 nondeterminism upstream** (2026-10-01). `reports/b12x-nondeterminism-rtx5090-2026-09-29.json`
    and `docs/stage2-baselines.md`: 20 identical calls, 20 outputs, 1.8 to 3.8% apart; the atomic scatter the source
    describes plus a lost or duplicated 8-column group in 2 of 100 calls. The issue text is drafted for the maintainer
    to review before anything is posted.
-7. **Stage 2 on a second checkpoint family** (2026-10-02). A Gemma-class or Mixtral-class NVFP4 MoE checkpoint through
+10. **Stage 2 on a second checkpoint family** (2026-10-02). A Gemma-class or Mixtral-class NVFP4 MoE checkpoint through
    the same table, to show the layer is not tuned to one expert shape.
 
 ## Closed
