@@ -190,7 +190,8 @@ timings included two host syncs and are superseded by the v2 report, which re-ti
 (`reports/fp8-fp4-mqa-logits-v2-rtx5090-20261003.json`) picks 64-row segments and 8 or 16 rows per block and runs 7.6 to 29.3 us
 on the four shapes, 18 to 147 TFLOP/s, bit-identical to v0; v3 (`reports/fp8-fp4-paged-mqa-logits-v3-rtx5090-20261003.json`) is the
 paged form the decode path needs, bit-identical to v0 through random page permutations, reading 0.7 to 1.1 TB/s of kv rows on three
-decode shapes. Both indexer forms DeepGEMM ships for SM100 now exist for SM120. The einsum site, being FP8, follows the
+decode shapes. Both indexer forms DeepGEMM ships for SM100 now exist for SM120. The einsum site is read (survey 2.3: four
+expressions, FP8 on both operands, no FP4; its SM120 v0 is the GEMM's block with an e4m3 B operand) and follows the
 GEMM; the einsum site, being FP8, comes last.
 
 ## Status

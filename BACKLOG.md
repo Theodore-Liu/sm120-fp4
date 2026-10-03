@@ -39,7 +39,9 @@ closes it. Dates are when an item was added, not estimates.
    (`reports/fp8-fp4-mqa-logits-v2-rtx5090-20261003.json`). v3 is the paged form (block tables, context lengths; one page per
    warp per step), bit-identical to v0 on the flat layout through random page permutations, 13 to 32 us on three decode shapes
    at 0.7 to 1.1 TB/s of kv rows (`reports/fp8-fp4-paged-mqa-logits-v3-rtx5090-20261003.json`). Both indexer forms now exist
-   for SM120. Next: the einsum site (FP8), and a persistent scheduler for the GEMM if a line needs it.
+   for SM120. The einsum site is read (survey 2.3): DeepGEMM's `fp8_einsum` covers four expressions, FP8 on both operands, no FP4;
+   `bhr,hdr->bhd` is a per-head GEMM with per-token and per-block scales, so its SM120 v0 is the GEMM's block with an e4m3 B
+   operand. Next: that v0 (`scripts/fp8_einsum_sm120.py`), then the sparse MQA-logits forms.
 
 ## Ready, in order
 
