@@ -175,8 +175,11 @@ shapes, a K permutation that widens the fragment loads adds the same and not mor
 stage adds nothing. Two further arms (`reports/fp8-fp4-gemm-v4-rtx5090-20261002.json`): two pipeline stages instead of four,
 which lets four blocks share an SM, add 30 to 34 percent on the 7168-wide shapes; pairs of 128-K blocks per barrier add 21 to
 24 and not on top of that. The best configuration reads 852 GB/s on M16 N7168 K7168, 2.1 times the byte floor;
-the 2048-wide shapes sit at the cost of two launches and a 22-way reduce, so a fused reduce is the next step there. The
-MQA-logits kernel follows the
+the 2048-wide shapes sit at the cost of two launches and a 22-way reduce. Decomposed (`reports/fp8-fp4-gemm-v5-rtx5090-20261003.json`),
+the reduce kernel alone is 41 to 47 percent of those shapes' time; halving the splits recovers 9 to 12.5 percent where a block per SM
+remains, and a fused last-block reduce, bit-identical to the separate one, is 29 to 42 percent slower because it is latency-bound on
+a few blocks, so it stays an arm rather than the default. The planner's one-block-per-SM rule for two stages and a vectorised fused
+reduce are the next arms. The MQA-logits kernel follows the
 GEMM; the einsum site, being FP8, comes last.
 
 ## Status
@@ -188,7 +191,7 @@ full model answers 300 of 300 retrieval items as stock does and the engine decod
 concurrent sequences than on vLLM's own W4A4 path. Of the stage's gate, the RTX PRO 6000 reproduction and the engine
 integration are met; the 8-to-16-token margin over FlashInfer's path at the layer level is not (the layer is level there)
 and stays in `BACKLOG.md`. Stage 3 is in progress: the survey, the UE8M0 reference, the measured operand convention and
-the first kernel at 2.1 times its byte floor on the widest shape, as the section above states. See `PLAN.md` for the stage gates.
+the first kernel at 2.1 times its byte floor on the widest shape, with the split-K reduce measured as the 2048-wide shapes' remaining cost, as the section above states. See `PLAN.md` for the stage gates.
 
 ## License
 

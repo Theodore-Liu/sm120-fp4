@@ -25,7 +25,10 @@ closes it. Dates are when an item was added, not estimates.
    (`reports/fp8-fp4-gemm-v3-rtx5090-20261002.json`). Two stages instead of four (four blocks per SM) add 30 to 34 percent on
    the N = 7168 shapes, pairs of blocks 21 to 24 and not on top; best 852 GB/s, 2.1 times the floor on M16
    N7168 (`reports/fp8-fp4-gemm-v4-rtx5090-20261002.json`). The N = 2048 shapes are bound by two launches and the 22-way
-   reduce at 17 to 19 us. Next: a fused reduce (or fewer splits now that occupancy is free), then the MQA-logits kernel.
+   reduce at 17 to 19 us: the reduce alone is 41 to 47 percent of the whole, half the splits gain 9 to 12.5 percent there, and
+   a last-block fused reduce is 29 to 42 percent slower because it is latency-bound on N/BN blocks
+   (`reports/fp8-fp4-gemm-v5-rtx5090-20261003.json`). Next: the planner at one block per SM for two stages, a vectorised
+   fused reduce, then the MQA-logits kernel.
 
 ## Ready, in order
 
