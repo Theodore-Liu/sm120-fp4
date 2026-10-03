@@ -236,7 +236,18 @@ The numbers are what one warp per row gives: with seq_len warps in flight the ma
 | 8 | 65536 | 16 | 5426.6 | 230.9 | 23.5x | 28 | 9.30 | 1.4e-07 |
 | 128 | 8192 | 16 | 565.2 | 382.2 | 1.5x | 13 | 11.24 | 1.4e-07 |
 
-v1 is 0.3 to 23.5 times v0 and reaches 0.6 to 11.2 TFLOP/s. The gain follows the block count: at seq_len 8 x kv 65536 the grid is 1 x 256 blocks against v0's eight warps (23.5x); at seq_len 32 x kv 1024 it is 2 x 4 blocks of eight warps against v0's 32 warps, so v1 is slower there (0.3x) and the segment or the row tile must shrink when the grid is small. The kv bytes are read once per sixteen query rows instead of once per row. What remains is the per-row A-fragment reload per head tile, the scalar scale reads, a kv tile that is not double-buffered and a tile-size rule for small grids; v2 takes those, then the paged form.
+**Correction (same day).** The v1 timings in that table and in `reports/fp8-fp4-mqa-logits-v1-rtx5090-20261003.json` include two device-to-host reads (`ks.min()`, `ke.max()`) that the Python launcher made inside the timed region, about 200 us of host round trips; v0 took no such read, so the v1 column was wrong by that amount and the '0.3x' was an artifact. The v2 report below re-times v1 with the reads outside the region: 25.3, 25.4, 29.5 and 31.5 us on the four shapes, 2.9 to 175 times v0. The v1 file is kept as written and superseded.
+
+**v2, measured (2026-10-03, RTX 5090, `reports/fp8-fp4-mqa-logits-v2-rtx5090-20261003.json`).** v1's block templated on the row tile (16 or 8 rows) and the kv segment (256 or 64 rows), with a group of consecutive segments per block and two shared-memory buffers (the next segment prefetched by `cp.async` while the current one is computed). The host picks the first of (16, 256), (16, 64), (8, 64) whose grid has at least two blocks per SM, and a group that keeps the grid near four blocks per SM. Eight selftest shapes, every tile and groups of 1 to 4, are bit-identical to v0. Timing, cold L2, median of 10, full spans, the span reads outside the timed region for every version:
+
+| seq_len | seq_len_kv | heads | v0 (us) | v1 (us) | v2 (us) | v2 tile (rows, kv rows, group) | v2 / v1 | v2 TFLOP/s |
+|---|---|---|---|---|---|---|---|---|
+| 32 | 1024 | 16 | 72.5 | 25.3 | 7.6 | (8, 64, 1) | 3.34x | 17.7 |
+| 32 | 8192 | 16 | 559.5 | 25.4 | 13.0 | (8, 64, 1) | 1.96x | 82.7 |
+| 8 | 65536 | 16 | 5159.0 | 29.5 | 24.9 | (16, 64, 1) | 1.18x | 86.1 |
+| 128 | 8192 | 16 | 553.4 | 31.5 | 29.3 | (16, 64, 1) | 1.08x | 146.5 |
+
+A sweep of every tile at every shape (groups 1 and 4) read the rule from data: the 64-row segment beats the 256-row one on every shape (7.6 against 23.3 us at seq_len 32 x kv 1024; 19.2 against 29.5 at seq_len 8 x kv 65536), eight rows beat sixteen where the grid would otherwise be small, and a group above 1 is slower everywhere (the doubled shared memory halves the blocks per SM and the prefetch has little to hide behind at these sizes), so the double buffer stays in the kernel as an arm and the default group is 1. v2 is 1.1 to 3.3 times v1 and reaches 18 to 147 TFLOP/s; at seq_len 128 x kv 8192 it is 10 times its byte floor and the output write dominates the bytes. The paged form, which the decode path needs, is next.
 ### 2.3 einsum (FP8, not FP4)
 
 Confirmed in the checkout: `csrc/apis/einsum.hpp` has `einsum` (BF16; `"bmk,bnk->mn"`, `"bhr,hdr->bhd"`,

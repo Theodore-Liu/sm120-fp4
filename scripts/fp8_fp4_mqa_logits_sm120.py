@@ -40,6 +40,9 @@ void fp8_fp4_mqa_logits_sm120_v0(torch::Tensor q, torch::Tensor sfq, torch::Tens
                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits);
 void fp8_fp4_mqa_logits_sm120_v1(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi);
+void fp8_fp4_mqa_logits_sm120_v2(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
+                                 torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
+                                 int64_t rows, int64_t kvseg, int64_t group);
 """
 
 CUDA = r"""
@@ -212,6 +215,138 @@ k_mqa_logits_v1(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, 
   }
 }
 
+
+// v2: v1 templated on the row tile and the kv segment, with a group of GROUP consecutive segments per block and two shared-memory
+// buffers: the next segment is prefetched by cp.async while the current one is computed. The host picks ROWS / KVSEG so the grid
+// has at least two blocks per SM (v1's 16 x 256 left eight blocks on 170 SMs at seq_len 32 x kv 1024) and GROUP so a block has
+// segments to overlap. The inner computation is v1's: fragments, fold, relu, weights, shuffle, spans.
+template <int ROWS, int KVSEG>
+__global__ void __launch_bounds__(V1_WARPS * 32)
+k_mqa_logits_v2(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, const uint8_t* __restrict__ kv,
+                const uint8_t* __restrict__ sfkv, const __nv_bfloat16* __restrict__ w, const int* __restrict__ ks,
+                const int* __restrict__ ke, float* __restrict__ logits, int S, int H, int N, int max_k, int kv_lo, int kv_hi, int group) {
+  static_assert(ROWS % V1_WARPS == 0 || V1_WARPS % ROWS == 0, "rows per warp");
+  constexpr int RPW = ROWS >= V1_WARPS ? ROWS / V1_WARPS : 1;        // rows per warp (ROWS 16 -> 2, ROWS 8 -> 1)
+  __shared__ __align__(16) uint8_t s_kv[2][KVSEG * 64];
+  __shared__ __align__(16) uint8_t s_sf[2][KVSEG];
+  const int row0 = blockIdx.x * ROWS;
+  const int tid = threadIdx.x, warp = tid >> 5, lane = tid & 31, g = lane >> 2, t = lane & 3;
+  const int first_seg = blockIdx.y * group;
+  const int nsegs_total = (kv_hi - kv_lo + KVSEG - 1) / KVSEG;
+  const int last_seg = min(nsegs_total, first_seg + group);
+  if (first_seg >= last_seg) return;
+  auto stage = [&](int seg, int buf) {
+    const int seg0 = kv_lo + seg * KVSEG, seg1 = min(N, min(kv_hi, seg0 + KVSEG));
+    for (int c = tid; c < KVSEG * 4; c += V1_WARPS * 32) {
+      const int r = c >> 2, part = c & 3;
+      if (seg0 + r < seg1) cp_async_16(s_kv[buf] + r * 64 + part * 16, kv + (size_t)(seg0 + r) * 64 + part * 16);
+      else *reinterpret_cast<uint4*>(s_kv[buf] + r * 64 + part * 16) = make_uint4(0u, 0u, 0u, 0u);
+    }
+    for (int r = tid; r < KVSEG; r += V1_WARPS * 32) s_sf[buf][r] = (seg0 + r < seg1) ? sfkv[seg0 + r] : 0;
+    asm volatile("cp.async.commit_group;\n");
+  };
+  stage(first_seg, 0);
+  for (int seg = first_seg; seg < last_seg; ++seg) {
+    const int buf = (seg - first_seg) & 1;
+    if (seg + 1 < last_seg) { stage(seg + 1, buf ^ 1); asm volatile("cp.async.wait_group 1;\n"); }
+    else { asm volatile("cp.async.wait_group 0;\n"); }
+    __syncthreads();
+    const int seg0 = kv_lo + seg * KVSEG, seg1 = min(N, min(kv_hi, seg0 + KVSEG));
+    const uint8_t* skv = s_kv[buf];
+    const uint8_t* ssf = s_sf[buf];
+    for (int rr = 0; rr < RPW; ++rr) {
+      const int i = row0 + (ROWS >= V1_WARPS ? warp * RPW + rr : warp);
+      if (i >= S || (ROWS < V1_WARPS && warp >= ROWS)) continue;
+      const int k_start = ks[i], k_end = ke[i];
+      const int n_lo = max(k_start, seg0), n_hi = min(k_end, seg1);
+      if (n_lo >= n_hi) continue;
+      const uint8_t* qrow = q + (size_t)i * H * 128;
+      float* out = logits + (size_t)i * max_k;
+      for (int h0 = 0; h0 < H; h0 += 16) {
+        const int ha = h0 + g, hb = h0 + g + 8;
+        const bool has_a = ha < H, has_b = hb < H;
+        const float sa = has_a ? ue8m0_to_float(sfq[(size_t)i * H + ha]) : 0.f;
+        const float sb = has_b ? ue8m0_to_float(sfq[(size_t)i * H + hb]) : 0.f;
+        const float wa = has_a ? __bfloat162float(w[(size_t)i * H + ha]) : 0.f;
+        const float wb = has_b ? __bfloat162float(w[(size_t)i * H + hb]) : 0.f;
+        uint32_t af[4][4];
+        for (int st = 0; st < 4; ++st) {
+          const int k0 = st * 32;
+          af[st][0] = has_a ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)ha * 128 + k0 + 4 * t) : 0u;
+          af[st][1] = has_b ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)hb * 128 + k0 + 4 * t) : 0u;
+          af[st][2] = has_a ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)ha * 128 + k0 + 16 + 4 * t) : 0u;
+          af[st][3] = has_b ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)hb * 128 + k0 + 16 + 4 * t) : 0u;
+        }
+        const int tile0 = (n_lo - seg0) & ~7;
+        for (int n0 = seg0 + tile0; n0 < n_hi; n0 += 8) {
+          const int col = n0 + g;
+          const bool has_col = col >= n_lo && col < n_hi;
+          const uint8_t* brow = skv + (size_t)(has_col ? (col - seg0) : 0) * 64;
+          float part[4] = {0.f, 0.f, 0.f, 0.f};
+          for (int st = 0; st < 4; ++st) {
+            const int k0 = st * 32;
+            uint32_t bf[2];
+            bf[0] = has_col ? unpack_e2m1_x4(*reinterpret_cast<const uint16_t*>(brow + (k0 + 4 * t) / 2)) : 0u;
+            bf[1] = has_col ? unpack_e2m1_x4(*reinterpret_cast<const uint16_t*>(brow + (k0 + 16 + 4 * t) / 2)) : 0u;
+            mma_f8f6f4(part, af[st], bf);
+          }
+          const int c0 = n0 + 2 * t, c1 = c0 + 1;
+          const bool in0 = c0 >= n_lo && c0 < n_hi, in1 = c1 >= n_lo && c1 < n_hi;
+          const float sk0 = in0 ? ue8m0_to_float(ssf[c0 - seg0]) : 0.f;
+          const float sk1 = in1 ? ue8m0_to_float(ssf[c1 - seg0]) : 0.f;
+          float v0 = fmaxf(part[0] * (sa * sk0), 0.f) * wa + fmaxf(part[2] * (sb * sk0), 0.f) * wb;
+          float v1 = fmaxf(part[1] * (sa * sk1), 0.f) * wa + fmaxf(part[3] * (sb * sk1), 0.f) * wb;
+          for (int m = 4; m < 32; m <<= 1) {
+            v0 += __shfl_xor_sync(0xffffffffu, v0, m);
+            v1 += __shfl_xor_sync(0xffffffffu, v1, m);
+          }
+          if (g == 0) {
+            if (in0) { if (h0 == 0) out[c0 - k_start] = v0; else out[c0 - k_start] += v0; }
+            if (in1) { if (h0 == 0) out[c1 - k_start] = v1; else out[c1 - k_start] += v1; }
+          }
+        }
+      }
+    }
+    __syncthreads();   // every warp is done with this buffer before the prefetch two iterations on overwrites it
+  }
+}
+
+template <int ROWS, int KVSEG>
+static void launch_v2(const uint8_t* pq, const uint8_t* psq, const uint8_t* pkv, const uint8_t* psk, const __nv_bfloat16* pw,
+                      const int* pks, const int* pke, float* pl, int S, int H, int N, int max_k, int kv_lo, int kv_hi, int group,
+                      cudaStream_t st) {
+  const int nsegs = (kv_hi - kv_lo + KVSEG - 1) / KVSEG;
+  const dim3 grid((S + ROWS - 1) / ROWS, (nsegs + group - 1) / group);
+  k_mqa_logits_v2<ROWS, KVSEG><<<grid, V1_WARPS * 32, 0, st>>>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, kv_lo, kv_hi, group);
+}
+
+void fp8_fp4_mqa_logits_sm120_v2(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
+                                 torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
+                                 int64_t rows, int64_t kvseg, int64_t group) {
+  const int S = (int)q.size(0), H = (int)q.size(1), N = (int)kv.size(0), max_k = (int)logits.size(1);
+  TORCH_CHECK(q.scalar_type() == torch::kFloat8_e4m3fn && q.is_contiguous() && q.size(2) == 128, "q: e4m3 [S, H, 128]");
+  TORCH_CHECK(sfq.scalar_type() == torch::kUInt8 && sfq.numel() == (int64_t)S * H && sfq.is_contiguous(), "sfq: uint8 UE8M0 [S, H]");
+  TORCH_CHECK(kv.scalar_type() == torch::kInt8 && kv.is_contiguous() && kv.size(1) == 64, "kv: packed e2m1 int8 [N, 64]");
+  TORCH_CHECK(sfkv.scalar_type() == torch::kUInt8 && sfkv.numel() == N && sfkv.is_contiguous(), "sfkv: uint8 UE8M0 [N]");
+  TORCH_CHECK(w.scalar_type() == torch::kBFloat16 && w.size(0) == S && w.size(1) == H && w.is_contiguous(), "weights: bf16 [S, H]");
+  TORCH_CHECK(ks.scalar_type() == torch::kInt && ke.scalar_type() == torch::kInt && ks.numel() == S && ke.numel() == S, "ks, ke: int32 [S]");
+  TORCH_CHECK(logits.scalar_type() == torch::kFloat && logits.size(0) == S && logits.is_contiguous(), "logits: fp32 [S, max_seqlen_k]");
+  TORCH_CHECK(kv_lo >= 0 && kv_hi <= N && kv_lo < kv_hi, "kv_lo < kv_hi within [0, N]");
+  TORCH_CHECK(group >= 1, "group >= 1");
+  auto st = at::cuda::getCurrentCUDAStream();
+  const uint8_t* pq = static_cast<const uint8_t*>(q.data_ptr());
+  const uint8_t* psq = sfq.data_ptr<uint8_t>();
+  const uint8_t* pkv = reinterpret_cast<const uint8_t*>(kv.data_ptr<int8_t>());
+  const uint8_t* psk = sfkv.data_ptr<uint8_t>();
+  const __nv_bfloat16* pw = reinterpret_cast<const __nv_bfloat16*>(w.data_ptr());
+  float* pl = logits.data_ptr<float>();
+  if (rows == 16 && kvseg == 256) launch_v2<16, 256>(pq, psq, pkv, psk, pw, ks.data_ptr<int>(), ke.data_ptr<int>(), pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 16 && kvseg == 64) launch_v2<16, 64>(pq, psq, pkv, psk, pw, ks.data_ptr<int>(), ke.data_ptr<int>(), pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 8 && kvseg == 256) launch_v2<8, 256>(pq, psq, pkv, psk, pw, ks.data_ptr<int>(), ke.data_ptr<int>(), pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 8 && kvseg == 64) launch_v2<8, 64>(pq, psq, pkv, psk, pw, ks.data_ptr<int>(), ke.data_ptr<int>(), pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else TORCH_CHECK(false, "rows in {16, 8}, kvseg in {256, 64}");
+}
+
 void fp8_fp4_mqa_logits_sm120_v1(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi) {
   const int S = (int)q.size(0), H = (int)q.size(1), N = (int)kv.size(0), max_k = (int)logits.size(1);
@@ -251,8 +386,8 @@ void fp8_fp4_mqa_logits_sm120_v0(torch::Tensor q, torch::Tensor sfq, torch::Tens
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_mqa_logits_v1b", cpp_sources=CPP, cuda_sources=CUDA,
-                       functions=["fp8_fp4_mqa_logits_sm120_v0", "fp8_fp4_mqa_logits_sm120_v1"],
+    return load_inline(name="sm120fp4_mqa_logits_v2a", cpp_sources=CPP, cuda_sources=CUDA,
+                       functions=["fp8_fp4_mqa_logits_sm120_v0", "fp8_fp4_mqa_logits_sm120_v1", "fp8_fp4_mqa_logits_sm120_v2"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
 
@@ -308,11 +443,38 @@ def make_case(S, N, H, seed, dev, full_span=False):
     return q, kv, w, ks.to(dev), ke.to(dev)
 
 
-def launch(mod, version, q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out):
+SM_COUNT = None
+
+
+def plan_v2(S: int, span: int, sm_count: int) -> tuple[int, int, int]:
+    """(rows, kvseg, group): the first tile of (16, 256), (16, 64), (8, 64) whose grid has at least two blocks per SM, and a
+    segment group that keeps the grid at about four blocks per SM when the tile alone would give far more (so a block has
+    segments to prefetch across)."""
+    for rows, kvseg in ((16, 256), (16, 64), (8, 64)):
+        nseg = -(-span // kvseg)
+        blocks = -(-S // rows) * nseg
+        if blocks >= 2 * sm_count or (rows, kvseg) == (8, 64):
+            group = max(1, min(nseg, blocks // (4 * sm_count)))
+            return rows, kvseg, group
+    return 8, 64, 1
+
+
+def span_of(ks, ke) -> tuple[int, int]:
+    """The union of the rows' spans, read once: ks.min() and ke.max() are device-to-host syncs, so a caller that times the
+    kernel must take them outside the timed region (the first v1 bench timed them and read 200 us where the kernel was 20)."""
+    return int(ks.min()), int(ke.max())
+
+
+def launch(mod, version, q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, plan=None, span=None):
     if version == 0:
         mod.fp8_fp4_mqa_logits_sm120_v0(q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out)
+        return
+    lo, hi = span or span_of(ks, ke)
+    if version == 1:
+        mod.fp8_fp4_mqa_logits_sm120_v1(q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, lo, hi)
     else:
-        mod.fp8_fp4_mqa_logits_sm120_v1(q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, int(ks.min()), int(ke.max()))
+        rows, kvseg, group = plan or plan_v2(q8.shape[0], hi - lo, SM_COUNT)
+        mod.fp8_fp4_mqa_logits_sm120_v2(q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, lo, hi, rows, kvseg, group)
 
 
 def run_case(mod, S, N, H, seed, dev, full_span=False, version=0):
@@ -329,7 +491,7 @@ def run_case(mod, S, N, H, seed, dev, full_span=False, version=0):
     res = {"S": S, "N": N, "H": H, "max_k": max_k, "version": version, "max_abs_err": float(diff.max()), "ref_abs_max": float(scale),
            "rel_max_err": float(diff.max() / scale), "untouched_outside_span": bool(torch.equal(torch.isfinite(out), valid))}
     res["pass"] = res["rel_max_err"] < 1e-5 and res["untouched_outside_span"]
-    if version == 1:
+    if version >= 1:
         out0 = torch.full((S, max_k), float("-inf"), device=dev, dtype=torch.float32)
         launch(mod, 0, q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out0)
         torch.cuda.synchronize()
@@ -354,7 +516,25 @@ def selftest(mod, dev) -> int:
         ok &= r["pass"]
         print(f"  S={S} N={N} H={H} {'full span' if full else 'random spans'}: rel max err {r['rel_max_err']:.2e}, vs v0 {r['rel_max_err_vs_v0']:.2e} "
               f"(items differing {r['items_differing_from_v0']}), outside-span untouched {r['untouched_outside_span']} -> {'ok' if r['pass'] else 'FAIL'}", flush=True)
-    print("fp8_fp4_mqa_logits_sm120 v0 + v1 selftest:", "ok" if ok else "FAIL")
+    print("v2 against the reference and against v0, every tile and a group of segments")
+    for (S, N, H, seed, full, plan) in ((8, 256, 8, 1, False, (16, 256, 1)), (32, 1024, 16, 3, False, (16, 64, 1)), (32, 1024, 8, 4, True, (8, 64, 2)),
+                                        (5, 300, 12, 5, False, (8, 64, 1)), (16, 2048, 32, 6, False, (16, 256, 3)), (100, 777, 16, 7, False, (16, 64, 4)),
+                                        (8, 65536, 16, 8, True, None), (40, 3000, 16, 9, False, None)):
+        q, kv, w, ks, ke = make_case(S, N, H, seed, dev, full)
+        q8, sfq_u8, kv4, sfkv_u8, sfq_f, sfkv_f = quantize_inputs(q, kv)
+        max_k = int((ke - ks).max())
+        out = torch.full((S, max_k), float("-inf"), device=dev, dtype=torch.float32)
+        out0 = torch.full((S, max_k), float("-inf"), device=dev, dtype=torch.float32)
+        launch(mod, 2, q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, plan)
+        launch(mod, 0, q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, out0)
+        torch.cuda.synchronize()
+        valid = torch.isfinite(out0)
+        same = bool(torch.equal(out, out0))
+        untouched = bool(torch.equal(torch.isfinite(out), valid))
+        ok &= same and untouched
+        used = plan or plan_v2(S, int(ke.max()) - int(ks.min()), SM_COUNT)
+        print(f"  S={S} N={N} H={H} {'full span' if full else 'random spans'} tile {used}: bit-identical to v0 {same}, outside-span untouched {untouched} -> {'ok' if same and untouched else 'FAIL'}", flush=True)
+    print("fp8_fp4_mqa_logits_sm120 v0 + v1 + v2 selftest:", "ok" if ok else "FAIL")
     return 0 if ok else 1
 
 
@@ -370,21 +550,25 @@ def bench(mod, dev, out: Path | None) -> int:
         q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, o = args
         nbytes = q8.numel() + kv4.numel() + sfq_u8.numel() + sfkv_u8.numel() + w.numel() * 2 + o.numel() * 4
         flops = 2.0 * S * H * N * HEAD_DIM
-        for version in (0, 1):
+        span = span_of(ks, ke)                      # outside the timed region: these two reads sync the device
+        r["v2_plan"] = list(plan_v2(S, span[1] - span[0], SM_COUNT))
+        for version in (0, 1, 2):
             times = []
             for _ in range(10):
                 flush_buf.fill_(1)
                 e0, e1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-                e0.record(); launch(mod, version, q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, o); e1.record()
+                e0.record(); launch(mod, version, q8, sfq_u8, kv4, sfkv_u8, w, ks, ke, o, span=span); e1.record()
                 torch.cuda.synchronize()
                 times.append(e0.elapsed_time(e1) * 1000)
             med = statistics.median(times)
             r.update({f"v{version}_us_median": med, f"v{version}_us_min": min(times), f"v{version}_GBps": nbytes / med / 1e3, f"v{version}_TFLOPs": flops / med / 1e6})
-        r.update({"bytes": nbytes, "floor_us_at_1792": nbytes / 1792.0 / 1e3, "v1_speedup_vs_v0": r["v0_us_median"] / r["v1_us_median"]})
+        r.update({"bytes": nbytes, "floor_us_at_1792": nbytes / 1792.0 / 1e3, "v1_speedup_vs_v0": r["v0_us_median"] / r["v1_us_median"],
+                  "v2_speedup_vs_v0": r["v0_us_median"] / r["v2_us_median"], "v2_speedup_vs_v1": r["v1_us_median"] / r["v2_us_median"]})
         rows.append(r)
-        print(f"S={S} N={N} H={H}: v0 {r['v0_us_median']:.1f} us ({r['v0_TFLOPs']:.2f} TFLOP/s); v1 {r['v1_us_median']:.1f} us ({r['v1_TFLOPs']:.2f} TFLOP/s, {r['v1_GBps']:.0f} GB/s), "
-              f"{r['v1_speedup_vs_v0']:.1f}x; floor {r['floor_us_at_1792']:.1f} us; v1 rel max err {r['rel_max_err']:.1e}", flush=True)
-    report = {"kernel": "fp8_fp4_mqa_logits_sm120 v0 (one warp per query row) and v1 (16 query rows x 256-row kv segment per block, kv staged in shared memory)", "device": props.name,
+        print(f"S={S} N={N} H={H}: v0 {r['v0_us_median']:.1f} us; v1 {r['v1_us_median']:.1f} us ({r['v1_speedup_vs_v0']:.1f}x); "
+              f"v2 {r['v2_us_median']:.1f} us tile {r['v2_plan']} ({r['v2_TFLOPs']:.2f} TFLOP/s, {r['v2_speedup_vs_v0']:.1f}x v0, {r['v2_speedup_vs_v1']:.2f}x v1); "
+              f"floor {r['floor_us_at_1792']:.1f} us", flush=True)
+    report = {"kernel": "fp8_fp4_mqa_logits_sm120 v0 (one warp per query row), v1 (16 x 256 tile, kv staged in shared memory) and v2 (tile rule, segment groups, double-buffered kv)", "device": props.name,
               "note": "cold L2 (256 MB fill before each launch); median of 10; full spans; bytes = q e4m3 + kv packed e2m1 + scales + bf16 weights + fp32 logits; floor at 1792 GB/s; the logits output dominates the bytes at these shapes", "rows": rows}
     if out is not None:
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -400,6 +584,8 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path)
     a = ap.parse_args(argv)
     dev = torch.device("cuda")
+    global SM_COUNT
+    SM_COUNT = torch.cuda.get_device_properties(0).multi_processor_count
     mod = build()
     rc = 0
     if a.selftest:
