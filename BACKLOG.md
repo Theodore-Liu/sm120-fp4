@@ -29,8 +29,9 @@ closes it. Dates are when an item was added, not estimates.
    a last-block fused reduce is 29 to 42 percent slower because it is latency-bound on N/BN blocks
    (`reports/fp8-fp4-gemm-v5-rtx5090-20261003.json`). The fused reduce with float4 loads is still 19 to 34 percent slower, so
    the pattern is closed for decode shapes; the planner at one block per SM gains 11 to 13 percent on the 2048-wide shapes and
-   loses on none (`reports/fp8-fp4-gemm-v6-rtx5090-20261003.json`). Next: make that planner the two-stage default (v7), then
-   the MQA-logits kernel.
+   loses on none (`reports/fp8-fp4-gemm-v6-rtx5090-20261003.json`); v7 makes it the two-stage default (+2.2 to +13.3 percent
+   on four shapes, -1.6 on one; 454 to 897 GB/s; `reports/fp8-fp4-gemm-v7-rtx5090-20261003.json`). Next: the MQA-logits
+   kernel (interface and reference read from DeepGEMM, survey 2.2), non-paged first at head_dim 128.
 
 ## Ready, in order
 

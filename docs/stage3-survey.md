@@ -163,6 +163,18 @@ The reduce kernel alone is 5 to 9 us on every shape, 41 to 47 percent of the who
 
 The vector form recovers a third to a half of the scalar fused reduce's loss and no more (-19 to -34 percent against -28 to -42), so the fused pattern does not pay at decode shapes on this part: N/BN blocks, 16 on the 2048-wide shapes, carry the whole sum while the separate kernel spreads the same bytes over every SM, and a 3 to 5 us launch saving cannot cover that. It stays in the file as an arm. The one-block planner is the result that carries: +13.2 and +11.2 percent on the 2048-wide shapes, +6.7 and +2.7 on the 7168-wide, and 0.0 at K = 2048 where it picks the same split count at a wider tile, so no shape is worse; it matches the half-splits arm where that helped and avoids its -17.6 percent where that fell below a block per SM. The registered expectations: (i) fused within 5 percent of the separate reduce, missed; (j) at least 9 percent on the 2048-wide shapes with no shape worse than -2 percent, met. The planner's default moves to one block per SM for the two-stage kernel in the next version; the MQA-logits kernel is next.
 
+**v7, the default (2026-10-03, RTX 5090, `reports/fp8-fp4-gemm-v7-rtx5090-20261003.json`).** The planner now asks for one block per SM when the two-stage kernel runs (arms bit 8) and two otherwise; `blocks_per_sm_for(arms)` holds the rule. The selftest checks the one-block and two-block plans against each other at the two-stage arm on three shapes (0 items differing, 0 ulp). Cold-L2 medians of 20 launches, the v4 best against the v7 default:
+
+| M | N | K | v4 best (BN x splits, us) | v7 default (BN x splits, us) | gain | v7 GB/s | v7 / floor |
+|---|---|---|---|---|---|---|---|
+| 16 | 2048 | 7168 | 128 x 22, 17.2 | 128 x 11, 15.1 | +13.3% | 504 | 3.6x |
+| 16 | 7168 | 7168 | 128 x 7, 31.5 | 128 x 4, 29.5 | +6.8% | 897 | 2.0x |
+| 32 | 2048 | 7168 | 128 x 22, 19.2 | 128 x 11, 17.2 | +11.7% | 454 | 3.9x |
+| 32 | 7168 | 7168 | 128 x 7, 32.8 | 128 x 4, 33.3 | -1.6% | 805 | 2.2x |
+| 16 | 4096 | 2048 | 64 x 6, 11.3 | 128 x 6, 11.0 | +2.2% | 401 | 4.5x |
+
+Four shapes gain (2.2 to 13.3 percent) and one, M32 N7168, loses 1.6 percent, inside the 2 percent the arm was registered against; on that shape the two plans differ by four splits against seven at the same tile and the reduce's saving does not cover the lost overlap. The 2048-wide shapes now read 454 to 504 GB/s, 3.5 to 3.9 times their byte floor, down from 4.0 to 4.1; the 7168-wide shapes 805 to 897 GB/s, 2.0 to 2.2 times. The remaining distance on the 2048-wide shapes is the second launch and the reduce, and the fused form is closed (v5, v6), so the kernel line moves to the MQA-logits kernel and returns to this GEMM with a persistent-kernel design if that line needs it.
+
 **Interface of the first kernel, `sm120_fp8_fp4_gemm_1d1d`.** The same arguments `fp8_fp4_gemm_nt` passes the SM100
 launcher at `gemm.hpp:128`: `a` codes (e4m3, `[M, K]`), `sfa` (packed UE8M0 `[M, K/gran_k_a]` after the layout
 transform), `b` codes (packed e2m1, `[N, K/2]`), `sfb`, optional `c`, output `d` (bf16 or fp32, N-major), `m, n, k`,
@@ -199,6 +211,10 @@ so the kernel is bound by key-stream bandwidth and by how many 128-row tiles a b
 paged variant adds a gather through the block table, which the TMA 3D descriptor does on SM100 and a plain per-page
 load does on SM120.
 
+
+**What DeepGEMM ships for the indexer (read 2026-10-03 from its README and `tests/test_attention.py`).** Two kernels: `fp8_fp4_mqa_logits(q, kv, weights, cu_seq_len_k_start, cu_seq_len_k_end, max_seqlen_k, schedule_meta)` for prefill and `fp8_fp4_paged_mqa_logits(q, kv_cache, weights, context_lens, block_table, schedule_meta, max_context_len, indices)` for decode. `q` is a `(data, scale)` pair, FP8 e4m3 or MXFP4 per token; `kv` is `(data, scale)` of logical shape `[seq_len_kv, head_dim]`, FP8, MXFP4 or MXFP8 per token; `weights` is `[seq_len, num_heads]` (bf16 on SM100). The reference the tests check against is `score = einsum('mhd,nd->hmn', q, k)`, then `logits = einsum('hmn,hm->mn', relu(score), w)`, masked to `[cu_seq_len_k_start[i], cu_seq_len_k_end[i])` per query row, the output compressed to `[seq_len, max_seqlen_k]` with each row's valid span starting at column zero. Test shapes: seq_len 2048 and 8192, seq_len_kv 8192 and 65536, heads 8 to 64, head_dim 32, 64 and 128, paged block size 64. The README names SM100 for the MXFP4 and MXFP8 inputs; nothing in it names SM120, and the kernels are the tcgen05 family this survey's Section 1 lists as absent on SM120.
+
+**What an SM120 version needs.** The operation is a GEMM of `q` (per head) against `kv` with a ReLU and a weighted sum over heads in the epilogue, so the FP8xFP4 tile of Section 2.1 is the inner loop: `q` as the FP8 operand, `kv` as the FP4 (or FP8) operand, per-token UE8M0 scales folded outside the MMA as the GEMM already does. What is new is the epilogue (ReLU, the head-weighted reduction, the per-row span mask and the compressed store) and, for the paged form, the block-table gather of `kv` rows. The decode shape (seq_len small, seq_len_kv up to 65536, head_dim 128) is the bandwidth-bound regime this GEMM is tuned for, and the per-row span makes the work per query row unequal, which argues for a persistent kernel with a row scheduler, the design Section 2.1 deferred. The first version will be the non-paged kernel at head_dim 128 with FP8 `q` and FP4 `kv`, checked against the test file's reference on its own shapes.
 ### 2.3 einsum (FP8, not FP4)
 
 Confirmed in the checkout: `csrc/apis/einsum.hpp` has `einsum` (BF16; `"bmk,bnk->mn"`, `"bhr,hdr->bhd"`,

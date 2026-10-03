@@ -180,7 +180,8 @@ the reduce kernel alone is 41 to 47 percent of those shapes' time; halving the s
 remains, and a fused last-block reduce, bit-identical to the separate one, is 29 to 42 percent slower because it is latency-bound on
 a few blocks, so it stays an arm rather than the default; with float4 loads it is still 19 to 34 percent slower
 (`reports/fp8-fp4-gemm-v6-rtx5090-20261003.json`), which closes that pattern for decode shapes. The planner asked for one block per
-SM instead of two gains 11 to 13 percent on the 2048-wide shapes and loses on none, and becomes the two-stage default next. The
+SM instead of two is the two-stage default since v7 (`reports/fp8-fp4-gemm-v7-rtx5090-20261003.json`): +2.2 to +13.3 percent on
+four of the five decode shapes and -1.6 on one, 454 to 504 GB/s on the 2048-wide shapes and 805 to 897 on the 7168-wide. The
 MQA-logits kernel follows the
 GEMM; the einsum site, being FP8, comes last.
 
@@ -193,7 +194,7 @@ full model answers 300 of 300 retrieval items as stock does and the engine decod
 concurrent sequences than on vLLM's own W4A4 path. Of the stage's gate, the RTX PRO 6000 reproduction and the engine
 integration are met; the 8-to-16-token margin over FlashInfer's path at the layer level is not (the layer is level there)
 and stays in `BACKLOG.md`. Stage 3 is in progress: the survey, the UE8M0 reference, the measured operand convention and
-the first kernel at 2.1 times its byte floor on the widest shape, with the split-K reduce measured as the 2048-wide shapes' remaining cost and the one-block planner as the next default, as the section above states. See `PLAN.md` for the stage gates.
+the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel's interface and reference are read and its SM120 design is set out in the survey, as the section above states. See `PLAN.md` for the stage gates.
 
 ## License
 

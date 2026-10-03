@@ -504,7 +504,7 @@ void fp8_fp4_gemm_nt_sm120_v2_part(torch::Tensor a, torch::Tensor sfa, torch::Te
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v6a", cpp_sources=CPP, cuda_sources=CUDA,
+    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v7a", cpp_sources=CPP, cuda_sources=CUDA,
                        functions=["fp8_fp4_gemm_nt_sm120", "fp8_fp4_gemm_nt_sm120_v1", "fp8_fp4_gemm_nt_sm120_v2", "fp8_fp4_gemm_nt_sm120_v2_part"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
@@ -512,10 +512,17 @@ def build(verbose: bool = False):
 SM_COUNT = None
 
 
+def blocks_per_sm_for(arms: int) -> int:
+    """v7: the two-stage kernel (arms bit 8) plans one block per SM, the four-stage arms two. Measured 2026-10-03
+    (reports/fp8-fp4-gemm-v6-rtx5090-20261003.json): one block per SM at two stages is +11 to +13 percent on the
+    2048-wide shapes and worse on none; the reduce over fewer splits pays for the lower occupancy."""
+    return 1 if (arms & 8) else 2
+
+
 def plan_v2(n: int, k: int, sm_count: int, blocks_per_sm: int = 2) -> tuple[int, int]:
-    """(BN, splits): the smallest split count that gives at least `blocks_per_sm` blocks per SM (two by default; one is
-    the v6 arm for the two-stage kernel, where the reduce's share makes fewer splits pay), BN 64 when 128 would need
-    more than half the K blocks as splits, else 128."""
+    """(BN, splits): the smallest split count that gives at least `blocks_per_sm` blocks per SM (two for the four-stage
+    arms, one for the two-stage kernel: see blocks_per_sm_for), BN 64 when 128 would need more than half the K blocks
+    as splits, else 128."""
     nblocks = k // 128
     for bn in (128, 64):
         cols = n // bn
@@ -530,7 +537,7 @@ def v2(mod, a8, sfa, b4, sfb, d, bn=None, splits=None, arms=0, part=0, counters=
     if SM_COUNT is None:
         SM_COUNT = torch.cuda.get_device_properties(0).multi_processor_count
     m, n, k = a8.shape[0], b4.shape[0], a8.shape[1]
-    pbn, psp = plan_v2(n, k, SM_COUNT)
+    pbn, psp = plan_v2(n, k, SM_COUNT, blocks_per_sm_for(arms))
     bn, splits = bn or pbn, splits or psp
     ws = torch.empty(splits, m, n, device=a8.device, dtype=torch.float32)
     if (arms & 32) or part:
@@ -604,6 +611,21 @@ def selftest(mod, dev) -> int:
         print(f"  m={m} n={n} k={k}: v1 rel {r1['rel_fro_err']:.2e}{tail0}; v2 (BN {bn}, splits {splits}) rel {r2['rel_fro_err']:.2e}, "
               f"max|err| {r2['max_abs_err']:.4g} vs half-ulp {r2['bf16_half_ulp_at_max']:.4g}, items differing from v1 {ndiff}/{m * n}, "
               f"max {ulps} bf16 ulp -> {'ok' if (r1['pass'] and r2['pass'] and ulps <= 1 and same0 is not False) else 'FAIL'}", flush=True)
+    # v7: the one-block plan (the two-stage default) against the two-block plan at the same arm, within one ulp
+    print("v7 planner: one block per SM (two-stage default) against two blocks per SM, arm 9")
+    for (m, n, k, seed) in ((16, 2048, 7168, 41), (32, 7168, 7168, 42), (16, 4096, 2048, 43)):
+        a8, sfa, b4, sfb = make_inputs(m, n, k, 128, seed, dev)
+        b1, s1 = plan_v2(n, k, SM_COUNT, 1)
+        b2, s2 = plan_v2(n, k, SM_COUNT, 2)
+        d1 = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
+        d2 = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
+        v2(mod, a8, sfa, b4, sfb, d1, bn=b1, splits=s1, arms=9)
+        v2(mod, a8, sfa, b4, sfb, d2, bn=b2, splits=s2, arms=9)
+        torch.cuda.synchronize()
+        u = bf16_ulps_apart(d1, d2)
+        nd = int((d1 != d2).sum())
+        ok &= u <= 1 and check(d1, a8, sfa, b4, sfb, 128)["pass"]
+        print(f"  m={m} n={n} k={k}: plan1 BN {b1} x {s1} vs plan2 BN {b2} x {s2}: items differing {nd}/{m * n}, max {u} ulp -> {'ok' if u <= 1 else 'FAIL'}", flush=True)
     # explicit BN 64 and BN 128 at the same shape agree with each other up to the same ulp bound
     a8, sfa, b4, sfb = make_inputs(16, 2048, 7168, 128, 21, dev)
     da = torch.empty(16, 2048, device=dev, dtype=torch.bfloat16)
@@ -672,7 +694,7 @@ def bench(mod, dev, out):
         variants.append(("v2_swz_stg2_half_splits", lambda: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws_half, 128, bn, half, 9)))
         variants.append(("v2_swz_stg2_fused", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws, counters, 128, bn, splits, 41, 0)))
         variants.append(("v2_swz_stg2_fused_vec", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws, counters, 128, bn, splits, 105, 0)))
-        variants.append(("v2_swz_stg2_plan1", lambda: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws1, 128, bn1, sp1, 9)))
+        variants.append(("v7_default", lambda: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws1, 128, bn1, sp1, 9)))   # the one-block plan at the two-stage arm
         variants.append(("v2_swz_stg2_plan1_fused_vec", lambda: mod.fp8_fp4_gemm_nt_sm120_v2_part(a8, sfa, b4, sfb, d, ws1, counters1, 128, bn1, sp1, 105, 0)))
         for name, fn in variants:
             fn()
@@ -691,7 +713,7 @@ def bench(mod, dev, out):
         nbytes = a8.numel() + b4.numel() + sfa.numel() * 4 + sfb.numel() * 4 + d.numel() * 2
         res["bytes"] = nbytes
         res["v2_achieved_GBps"] = nbytes / res["v2_us_median"] / 1e3
-        for label in ("v2_swz_stg2", "v2_swz_stg2_half_splits", "v2_swz_stg2_fused", "v2_swz_stg2_fused_vec", "v2_swz_stg2_plan1", "v2_swz_stg2_plan1_fused_vec"):
+        for label in ("v2_swz_stg2", "v2_swz_stg2_half_splits", "v2_swz_stg2_fused", "v2_swz_stg2_fused_vec", "v7_default", "v2_swz_stg2_plan1_fused_vec"):
             res[f"{label}_achieved_GBps"] = nbytes / res[f"{label}_us_median"] / 1e3
             res[f"{label}_gain_vs_v2"] = res["v2_us_median"] / res[f"{label}_us_median"] - 1.0
             res[f"{label}_gain_vs_v4best"] = res["v2_swz_stg2_us_median"] / res[f"{label}_us_median"] - 1.0
@@ -702,9 +724,9 @@ def bench(mod, dev, out):
               f"half splits {res['v2_swz_stg2_half_splits_us_median']:.1f} ({res['v2_swz_stg2_half_splits_gain_vs_v4best']:+.1%}), "
               f"fused scalar {res['v2_swz_stg2_fused_us_median']:.1f} ({res['v2_swz_stg2_fused_gain_vs_v4best']:+.1%}), "
               f"fused float4 {res['v2_swz_stg2_fused_vec_us_median']:.1f} ({res['v2_swz_stg2_fused_vec_gain_vs_v4best']:+.1%}), "
-              f"plan1 {res['v2_swz_stg2_plan1_us_median']:.1f} ({res['v2_swz_stg2_plan1_gain_vs_v4best']:+.1%}), "
+              f"v7 default {res['v7_default_us_median']:.1f} ({res['v7_default_gain_vs_v4best']:+.1%}, {res['v7_default_achieved_GBps']:.0f} GB/s), "
               f"plan1+fused float4 {res['v2_swz_stg2_plan1_fused_vec_us_median']:.1f} ({res['v2_swz_stg2_plan1_fused_vec_gain_vs_v4best']:+.1%}); floor {res['floor_us_at_1792']:.1f} us", flush=True)
-    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2, swizzle + two stages, with the fused reduce in scalar and float4 form and the one-block-per-SM planner (and v1, v2, half splits)",
+    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2: the v7 default (swizzle, two stages, one block per SM) beside the v4 best (two blocks per SM), half splits and the fused-reduce arms (and v1, v2)",
               "device": props.name, "sm_count": props.multi_processor_count,
               "note": "cold L2 (256 MB fill before each launch); one timing = one call (tile kernel + reduce, or the fused kernel alone); bytes = A e4m3 + B packed e2m1 + packed scales + bf16 D; floor at 1792 GB/s",
               "tile": {"BM": 32, "BK": 128, "stages": 4}, "rows": rows}
