@@ -33,9 +33,10 @@ closes it. Dates are when an item was added, not estimates.
    on four shapes, -1.6 on one; 454 to 897 GB/s; `reports/fp8-fp4-gemm-v7-rtx5090-20261003.json`). The MQA-logits kernel's
    v0 (`scripts/fp8_fp4_mqa_logits_sm120.py`) is correct against DeepGEMM's test reference on six shapes (relative error at
    most 1.5e-7) and slow by design (one warp per query row: 0.4 to 8 TFLOP/s; `reports/fp8-fp4-mqa-logits-v0-rtx5090-20261003.json`);
-   v1 stages a 256-row kv segment in shared memory for sixteen query rows and is 0.3 to 23.5 times v0 (slower only
-   where its grid has fewer warps than v0), bit-identical to it (0.6 to 11.2 TFLOP/s; `reports/fp8-fp4-mqa-logits-v1-rtx5090-20261003.json`). Next: v2 (double-buffered kv
-   tiles, A fragments kept across head tiles), then the paged form.
+   v1 stages a 256-row kv segment in shared memory for sixteen query rows and is bit-identical to v0; its first report's timings
+   included two host syncs and are superseded (re-timed: 25 to 32 us, 2.9 to 175 times v0). v2 adds a tile rule (64-row segments,
+   8 or 16 rows) and a double-buffer arm: 7.6 to 29.3 us on the four shapes, 1.1 to 3.3 times v1, 18 to 147 TFLOP/s, bit-identical
+   (`reports/fp8-fp4-mqa-logits-v2-rtx5090-20261003.json`). Next: the paged form (block tables, context lengths).
 
 ## Ready, in order
 
