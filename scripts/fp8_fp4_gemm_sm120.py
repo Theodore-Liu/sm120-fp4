@@ -1,5 +1,5 @@
 """Stage 3, the first kernel: SM120 FP8xFP4 GEMM with UE8M0 block scales (DeepGEMM's `fp8_fp4_gemm_nt` contract, 1D1D,
-dense, NT, K-major), in two versions.
+dense, NT, K-major), in three versions.
 
     D[m, n] = sum_k A[m, k] * B[n, k],   A e4m3 [M, K] with packed UE8M0 scales sfa [M, K/gran_k] (int32, 4 per word),
                                         B packed e2m1 [N, K/2] with sfb [N, K/gran_k]; D bf16 [M, N].
@@ -13,19 +13,26 @@ added to the running fp32 accumulator).
 
 v1 (the tiled kernel of docs/stage3-survey.md section 2.1): a block of 8 warps owns a 32 x 128 output tile; each warp
 owns 16 columns (two n8 tiles) for both m16 tiles; A (32 x 128 bytes) and B (128 x 64 packed bytes) tiles for one 128-K
-block stream through a 4-stage cp.async pipeline in shared memory (12 KB a stage, 48 KB), fragments are loaded from
-shared memory (the e2m1 nibbles unpacked to containers on the way), and the UE8M0 fold happens once per 128-K block
-exactly as in v0, so v1's arithmetic order per output element is v0's and the two agree bit for bit. M <= 32, N a
-multiple of 128, K a multiple of 128, gran_k 128, no epilogue.
+block stream through a 4-stage cp.async pipeline in shared memory, fragments are loaded from shared memory (the e2m1
+nibbles unpacked to containers on the way), and the UE8M0 fold happens once per 128-K block exactly as in v0, so v1's
+arithmetic order per output element is v0's and the two agree bit for bit. M <= 32, N a multiple of 128.
 
-    PYTHONPATH=. python scripts/fp8_fp4_gemm_sm120.py --selftest                       # both versions against the reference
-    PYTHONPATH=. python scripts/fp8_fp4_gemm_sm120.py --bench --out reports/fp8-fp4-gemm-v1-<device>-<date>.json
+v2 (split-K, 2026-10-02): v1's block, templated on BN (128 or 64 columns, 8 or 4 warps), with the grid (N/BN, splits);
+each block folds its slice of the 128-K blocks into an fp32 partial and writes it to a workspace [splits, M, N]; a
+reduce kernel sums the partials in a fixed order and stores bf16. The fold inside a slice is v1's, so each slice's
+partial is exact in v1's sense; only the order in which slices are summed differs from v1's single running sum, which
+moves an output by at most a few fp32 ulps before the bf16 round. `splits` and `BN` default to the smallest that give
+at least two blocks per SM (the N = 2048 case that left 16 blocks on 170 SMs in v1 gets BN 64 and 11 splits, 352 blocks).
+
+    PYTHONPATH=. python scripts/fp8_fp4_gemm_sm120.py --selftest                       # all versions against the reference
+    PYTHONPATH=. python scripts/fp8_fp4_gemm_sm120.py --bench --out reports/fp8-fp4-gemm-v2-<device>-<date>.json
 """
 from __future__ import annotations
 
 import argparse
 import importlib.util
 import json
+import math
 import statistics
 import sys
 from pathlib import Path
@@ -42,6 +49,8 @@ CPP = r"""
 #include <torch/extension.h>
 void fp8_fp4_gemm_nt_sm120(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, int64_t gran_k);
 void fp8_fp4_gemm_nt_sm120_v1(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, int64_t gran_k);
+void fp8_fp4_gemm_nt_sm120_v2(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, torch::Tensor ws,
+                              int64_t gran_k, int64_t bn, int64_t splits);
 """
 
 CUDA = r"""
@@ -118,14 +127,19 @@ k_fp8_fp4_gemm_nt_v0(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
   }
 }
 
-void fp8_fp4_gemm_nt_sm120(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, int64_t gran_k) {
-  const int M = (int)a.size(0), K = (int)a.size(1), N = (int)b.size(0);
+static void check_common(const torch::Tensor& a, const torch::Tensor& sfa, const torch::Tensor& b, const torch::Tensor& sfb,
+                         int64_t gran_k, int M, int N, int K) {
   TORCH_CHECK(a.scalar_type() == torch::kFloat8_e4m3fn && a.is_contiguous(), "A: e4m3 [M, K], contiguous");
   TORCH_CHECK(b.scalar_type() == torch::kInt8 && b.is_contiguous() && b.size(1) * 2 == K, "B: packed e2m1 int8 [N, K/2]");
   TORCH_CHECK(sfa.scalar_type() == torch::kInt && sfb.scalar_type() == torch::kInt, "scales: packed UE8M0 int32");
-  TORCH_CHECK(gran_k == 128 && K % gran_k == 0, "this version: gran_k 128, K a multiple of 128");
+  TORCH_CHECK(gran_k == 128 && K % gran_k == 0, "gran_k 128, K a multiple of 128");
   TORCH_CHECK(sfa.size(0) == M && sfb.size(0) == N && sfa.size(1) == sfb.size(1) && sfa.size(1) * 4 >= K / gran_k
               && sfa.is_contiguous() && sfb.is_contiguous(), "scale shapes: [rows, ceil((K/gran_k)/4)] int32, padded to a multiple of 4 scales");
+}
+
+void fp8_fp4_gemm_nt_sm120(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, int64_t gran_k) {
+  const int M = (int)a.size(0), K = (int)a.size(1), N = (int)b.size(0);
+  check_common(a, sfa, b, sfb, gran_k, M, N, K);
   TORCH_CHECK(M >= 1 && M <= 16 && N % 8 == 0, "v0: M <= 16, N a multiple of 8");
   TORCH_CHECK(d.scalar_type() == torch::kBFloat16 && d.size(0) == M && d.size(1) == N && d.is_contiguous(), "D: bf16 [M, N]");
   auto st = at::cuda::getCurrentCUDAStream();
@@ -135,14 +149,11 @@ void fp8_fp4_gemm_nt_sm120(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, 
                                              reinterpret_cast<__nv_bfloat16*>(d.data_ptr()), M, N, K, (int)gran_k, (int)sfa.size(1) * 4);
 }
 
-// ------------------------------------------------------------------------------------------------------------ v1
-// Block: 8 warps, a 32 (M) x 128 (N) output tile; warp w owns columns 16w..16w+15 (two n8 tiles) for both m16 tiles.
-// Per 128-K block (one UE8M0 block): A tile 32 x 128 bytes (4 KB), B tile 128 cols x 64 packed bytes (8 KB), staged by
-// cp.async in STAGES stages. Fragments come from shared memory; the fold per 128-K block is v0's, so v1 == v0 bit for bit.
-constexpr int V1_BM = 32, V1_BN = 128, V1_BK = 128, V1_STAGES = 4, V1_THREADS = 256;
-constexpr int V1_A_BYTES = V1_BM * V1_BK;          // 4096
-constexpr int V1_B_BYTES = V1_BN * (V1_BK / 2);    // 8192
-constexpr int V1_STAGE_BYTES = V1_A_BYTES + V1_B_BYTES;
+// ------------------------------------------------------------------------------------------------------------ v1 / v2 core
+// Block: BN/16 warps, a 32 (M) x BN (N) output tile; warp w owns columns 16w..16w+15 (two n8 tiles) for both m16 tiles.
+// Per 128-K block (one UE8M0 block): A tile 32 x 128 bytes (4 KB), B tile BN cols x 64 packed bytes, staged by cp.async in
+// STAGES stages. Fragments come from shared memory; the fold per 128-K block is v0's.
+constexpr int BM = 32, BK = 128, STAGES = 4;
 
 __device__ __forceinline__ void cp_async_16(void* smem, const void* gmem) {
   const uint32_t s = (uint32_t)__cvta_generic_to_shared(smem);
@@ -151,27 +162,29 @@ __device__ __forceinline__ void cp_async_16(void* smem, const void* gmem) {
 __device__ __forceinline__ void cp_async_commit() { asm volatile("cp.async.commit_group;\n"); }
 template <int N> __device__ __forceinline__ void cp_async_wait() { asm volatile("cp.async.wait_group %0;\n" :: "n"(N)); }
 
-__global__ void __launch_bounds__(V1_THREADS)
-k_fp8_fp4_gemm_nt_v1(const uint8_t* __restrict__ a, const uint8_t* __restrict__ sfa,
-                     const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
-                     __nv_bfloat16* __restrict__ d, int M, int N, int K, int sf_stride) {
-  extern __shared__ __align__(16) uint8_t smem[];
+// Computes the fold-accumulated fp32 tile for 128-K blocks [kb0, kb1) and hands it to `store` (per-thread fragment values).
+template <int BN, typename Store>
+__device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const uint8_t* __restrict__ sfa,
+                                          const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
+                                          int M, int N, int K, int sf_stride, int n_base, int m_base, int kb0, int kb1,
+                                          uint8_t* smem, Store store) {
+  constexpr int THREADS = (BN / 16) * 32;
+  constexpr int A_BYTES = BM * BK, B_BYTES = BN * (BK / 2), STAGE_BYTES = A_BYTES + B_BYTES;
   const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31, g = lane >> 2, t = lane & 3;
-  const int n_base = blockIdx.x * V1_BN, m_base = blockIdx.y * V1_BM;
-  const int nblocks = K / V1_BK;
+  const int nb = kb1 - kb0;
 
-  // copy duties per stage: A has 256 16-byte chunks (one per thread), B has 512 (two per thread)
-  const int a_row = threadIdx.x >> 3, a_chunk = threadIdx.x & 7;
-  const bool a_row_ok = (m_base + a_row) < M;
-  const int b_col0 = threadIdx.x >> 2, b_chunk0 = threadIdx.x & 3;
-  const int b_col1 = b_col0 + 64;
   auto issue = [&](int kb, int stage) {
-    uint8_t* sA = smem + stage * V1_STAGE_BYTES;
-    uint8_t* sB = sA + V1_A_BYTES;
-    if (a_row_ok) cp_async_16(sA + a_row * V1_BK + a_chunk * 16, a + (size_t)(m_base + a_row) * K + (size_t)kb * V1_BK + a_chunk * 16);
-    else *reinterpret_cast<uint4*>(sA + a_row * V1_BK + a_chunk * 16) = make_uint4(0, 0, 0, 0);
-    cp_async_16(sB + b_col0 * 64 + b_chunk0 * 16, b + (size_t)(n_base + b_col0) * (K / 2) + (size_t)kb * (V1_BK / 2) + b_chunk0 * 16);
-    cp_async_16(sB + b_col1 * 64 + b_chunk0 * 16, b + (size_t)(n_base + b_col1) * (K / 2) + (size_t)kb * (V1_BK / 2) + b_chunk0 * 16);
+    uint8_t* sA = smem + stage * STAGE_BYTES;
+    uint8_t* sB = sA + A_BYTES;
+    for (int c = threadIdx.x; c < BM * 8; c += THREADS) {            // A: 32 rows x 8 chunks of 16 bytes
+      const int row = c >> 3, ch = c & 7;
+      if (m_base + row < M) cp_async_16(sA + row * BK + ch * 16, a + (size_t)(m_base + row) * K + (size_t)kb * BK + ch * 16);
+      else *reinterpret_cast<uint4*>(sA + row * BK + ch * 16) = make_uint4(0, 0, 0, 0);
+    }
+    for (int c = threadIdx.x; c < BN * 4; c += THREADS) {            // B: BN cols x 4 chunks of 16 bytes
+      const int col = c >> 2, ch = c & 3;
+      cp_async_16(sB + col * 64 + ch * 16, b + (size_t)(n_base + col) * (K / 2) + (size_t)kb * (BK / 2) + ch * 16);
+    }
   };
 
   float acc[2][2][4];
@@ -183,21 +196,21 @@ k_fp8_fp4_gemm_nt_v1(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
       for (int i = 0; i < 4; ++i) acc[mt][nt][i] = 0.f;
 
 #pragma unroll
-  for (int s = 0; s < V1_STAGES - 1; ++s) {
-    if (s < nblocks) issue(s, s);
+  for (int s = 0; s < STAGES - 1; ++s) {
+    if (s < nb) issue(kb0 + s, s);
     cp_async_commit();
   }
-
   const int row_g = g, row_g8 = g + 8;
   const bool has[2][2] = {{m_base + row_g < M, m_base + row_g8 < M}, {m_base + 16 + row_g < M, m_base + 16 + row_g8 < M}};
-  for (int kb = 0; kb < nblocks; ++kb) {
-    cp_async_wait<V1_STAGES - 2>();
+  for (int i = 0; i < nb; ++i) {
+    cp_async_wait<STAGES - 2>();
     __syncthreads();
-    const int nxt = kb + V1_STAGES - 1;
-    if (nxt < nblocks) issue(nxt, nxt % V1_STAGES);
+    const int nxt = i + STAGES - 1;
+    if (nxt < nb) issue(kb0 + nxt, nxt % STAGES);
     cp_async_commit();
-    const uint8_t* sA = smem + (kb % V1_STAGES) * V1_STAGE_BYTES;
-    const uint8_t* sB = sA + V1_A_BYTES;
+    const uint8_t* sA = smem + (i % STAGES) * STAGE_BYTES;
+    const uint8_t* sB = sA + A_BYTES;
+    const int kb = kb0 + i;
 
     float part[2][2][4];
 #pragma unroll
@@ -205,10 +218,10 @@ k_fp8_fp4_gemm_nt_v1(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
 #pragma unroll
       for (int nt = 0; nt < 2; ++nt)
 #pragma unroll
-        for (int i = 0; i < 4; ++i) part[mt][nt][i] = 0.f;
+        for (int q = 0; q < 4; ++q) part[mt][nt][q] = 0.f;
 
 #pragma unroll
-    for (int s = 0; s < V1_BK / 32; ++s) {
+    for (int s = 0; s < BK / 32; ++s) {
       const int k0 = s * 32;
       uint32_t bf[2][2];
 #pragma unroll
@@ -220,8 +233,8 @@ k_fp8_fp4_gemm_nt_v1(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
 #pragma unroll
       for (int mt = 0; mt < 2; ++mt) {
         uint32_t af[4];
-        const uint8_t* r0 = sA + (mt * 16 + row_g) * V1_BK;
-        const uint8_t* r1 = sA + (mt * 16 + row_g8) * V1_BK;
+        const uint8_t* r0 = sA + (mt * 16 + row_g) * BK;
+        const uint8_t* r1 = sA + (mt * 16 + row_g8) * BK;
         af[0] = *reinterpret_cast<const uint32_t*>(r0 + k0 + 4 * t);
         af[1] = *reinterpret_cast<const uint32_t*>(r1 + k0 + 4 * t);
         af[2] = *reinterpret_cast<const uint32_t*>(r0 + k0 + 16 + 4 * t);
@@ -256,48 +269,127 @@ k_fp8_fp4_gemm_nt_v1(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
 #pragma unroll
     for (int nt = 0; nt < 2; ++nt) {
       const int c0 = n_base + warp * 16 + nt * 8 + 2 * t;
-      if (has[mt][0]) {
-        d[(size_t)r0 * N + c0] = __float2bfloat16(acc[mt][nt][0]);
-        d[(size_t)r0 * N + c0 + 1] = __float2bfloat16(acc[mt][nt][1]);
-      }
-      if (has[mt][1]) {
-        d[(size_t)r1 * N + c0] = __float2bfloat16(acc[mt][nt][2]);
-        d[(size_t)r1 * N + c0 + 1] = __float2bfloat16(acc[mt][nt][3]);
-      }
+      if (has[mt][0]) { store(r0, c0, acc[mt][nt][0]); store(r0, c0 + 1, acc[mt][nt][1]); }
+      if (has[mt][1]) { store(r1, c0, acc[mt][nt][2]); store(r1, c0 + 1, acc[mt][nt][3]); }
     }
   }
 }
 
+// v1: one block over the whole K, bf16 store
+__global__ void __launch_bounds__(256)
+k_fp8_fp4_gemm_nt_v1(const uint8_t* __restrict__ a, const uint8_t* __restrict__ sfa,
+                     const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
+                     __nv_bfloat16* __restrict__ d, int M, int N, int K, int sf_stride) {
+  extern __shared__ __align__(16) uint8_t smem[];
+  gemm_tile<128>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * 128, blockIdx.y * BM, 0, K / BK, smem,
+                 [&](int r, int c, float v) { d[(size_t)r * N + c] = __float2bfloat16(v); });
+}
+
+// v2: block (n, split) over its slice of the 128-K blocks, fp32 partial to the workspace
+template <int BN>
+__global__ void __launch_bounds__((BN / 16) * 32)
+k_fp8_fp4_gemm_nt_v2(const uint8_t* __restrict__ a, const uint8_t* __restrict__ sfa,
+                     const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
+                     float* __restrict__ ws, int M, int N, int K, int sf_stride, int chunk) {
+  extern __shared__ __align__(16) uint8_t smem[];
+  const int nblocks = K / BK;
+  const int kb0 = blockIdx.y * chunk, kb1 = min(nblocks, kb0 + chunk);
+  float* out = ws + (size_t)blockIdx.y * M * N;
+  gemm_tile<BN>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * BN, 0, kb0, kb1, smem,
+                [&](int r, int c, float v) { out[(size_t)r * N + c] = v; });
+}
+
+// v2 reduce: sum the splits in a fixed order, store bf16
+__global__ void k_split_reduce(const float* __restrict__ ws, __nv_bfloat16* __restrict__ d, int M, int N, int splits) {
+  const size_t i = (size_t)blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= (size_t)M * N) return;
+  float s = 0.f;
+  for (int p = 0; p < splits; ++p) s += ws[(size_t)p * M * N + i];
+  d[i] = __float2bfloat16(s);
+}
+
 void fp8_fp4_gemm_nt_sm120_v1(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, int64_t gran_k) {
   const int M = (int)a.size(0), K = (int)a.size(1), N = (int)b.size(0);
-  TORCH_CHECK(a.scalar_type() == torch::kFloat8_e4m3fn && a.is_contiguous(), "A: e4m3 [M, K], contiguous");
-  TORCH_CHECK(b.scalar_type() == torch::kInt8 && b.is_contiguous() && b.size(1) * 2 == K, "B: packed e2m1 int8 [N, K/2]");
-  TORCH_CHECK(sfa.scalar_type() == torch::kInt && sfb.scalar_type() == torch::kInt, "scales: packed UE8M0 int32");
-  TORCH_CHECK(gran_k == V1_BK && K % V1_BK == 0, "v1: gran_k 128, K a multiple of 128");
-  TORCH_CHECK(sfa.size(0) == M && sfb.size(0) == N && sfa.size(1) == sfb.size(1) && sfa.size(1) * 4 >= K / gran_k
-              && sfa.is_contiguous() && sfb.is_contiguous(), "scale shapes: [rows, ceil((K/gran_k)/4)] int32, padded to a multiple of 4 scales");
-  TORCH_CHECK(M >= 1 && M <= V1_BM && N % V1_BN == 0, "v1: M <= 32, N a multiple of 128");
+  check_common(a, sfa, b, sfb, gran_k, M, N, K);
+  TORCH_CHECK(M >= 1 && M <= BM && N % 128 == 0, "v1: M <= 32, N a multiple of 128");
   TORCH_CHECK(d.scalar_type() == torch::kBFloat16 && d.size(0) == M && d.size(1) == N && d.is_contiguous(), "D: bf16 [M, N]");
-  const int smem = V1_STAGES * V1_STAGE_BYTES;
+  const int smem = STAGES * (BM * BK + 128 * (BK / 2));
   static bool attr_set = false;
-  if (!attr_set) {
-    cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v1, cudaFuncAttributeMaxDynamicSharedMemorySize, smem);
-    attr_set = true;
-  }
+  if (!attr_set) { cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v1, cudaFuncAttributeMaxDynamicSharedMemorySize, smem); attr_set = true; }
   auto st = at::cuda::getCurrentCUDAStream();
-  const dim3 grid(N / V1_BN, 1);
-  k_fp8_fp4_gemm_nt_v1<<<grid, V1_THREADS, smem, st>>>(static_cast<const uint8_t*>(a.data_ptr()), reinterpret_cast<const uint8_t*>(sfa.data_ptr<int>()),
-                                                      reinterpret_cast<const uint8_t*>(b.data_ptr<int8_t>()),
-                                                      reinterpret_cast<const uint8_t*>(sfb.data_ptr<int>()),
-                                                      reinterpret_cast<__nv_bfloat16*>(d.data_ptr()), M, N, K, (int)sfa.size(1) * 4);
+  k_fp8_fp4_gemm_nt_v1<<<dim3(N / 128, 1), 256, smem, st>>>(static_cast<const uint8_t*>(a.data_ptr()), reinterpret_cast<const uint8_t*>(sfa.data_ptr<int>()),
+                                                           reinterpret_cast<const uint8_t*>(b.data_ptr<int8_t>()),
+                                                           reinterpret_cast<const uint8_t*>(sfb.data_ptr<int>()),
+                                                           reinterpret_cast<__nv_bfloat16*>(d.data_ptr()), M, N, K, (int)sfa.size(1) * 4);
+}
+
+void fp8_fp4_gemm_nt_sm120_v2(torch::Tensor a, torch::Tensor sfa, torch::Tensor b, torch::Tensor sfb, torch::Tensor d, torch::Tensor ws,
+                              int64_t gran_k, int64_t bn, int64_t splits) {
+  const int M = (int)a.size(0), K = (int)a.size(1), N = (int)b.size(0);
+  check_common(a, sfa, b, sfb, gran_k, M, N, K);
+  TORCH_CHECK(M >= 1 && M <= BM, "v2: M <= 32");
+  TORCH_CHECK(bn == 64 || bn == 128, "v2: BN 64 or 128");
+  TORCH_CHECK(N % bn == 0, "v2: N a multiple of BN");
+  const int nblocks = K / BK;
+  TORCH_CHECK(splits >= 1 && splits <= nblocks, "v2: 1 <= splits <= K/128");
+  const int chunk = (nblocks + (int)splits - 1) / (int)splits;
+  const int used = (nblocks + chunk - 1) / chunk;              // splits that get at least one block
+  TORCH_CHECK(ws.scalar_type() == torch::kFloat && ws.numel() >= (int64_t)used * M * N && ws.is_contiguous(), "workspace: fp32 [splits, M, N]");
+  TORCH_CHECK(d.scalar_type() == torch::kBFloat16 && d.size(0) == M && d.size(1) == N && d.is_contiguous(), "D: bf16 [M, N]");
+  auto st = at::cuda::getCurrentCUDAStream();
+  const uint8_t* pa = static_cast<const uint8_t*>(a.data_ptr());
+  const uint8_t* psa = reinterpret_cast<const uint8_t*>(sfa.data_ptr<int>());
+  const uint8_t* pb = reinterpret_cast<const uint8_t*>(b.data_ptr<int8_t>());
+  const uint8_t* psb = reinterpret_cast<const uint8_t*>(sfb.data_ptr<int>());
+  const int sfs = (int)sfa.size(1) * 4;
+  if (bn == 128) {
+    const int smem = STAGES * (BM * BK + 128 * (BK / 2));
+    static bool set128 = false;
+    if (!set128) { cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v2<128>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem); set128 = true; }
+    k_fp8_fp4_gemm_nt_v2<128><<<dim3(N / 128, used), 256, smem, st>>>(pa, psa, pb, psb, ws.data_ptr<float>(), M, N, K, sfs, chunk);
+  } else {
+    const int smem = STAGES * (BM * BK + 64 * (BK / 2));
+    static bool set64 = false;
+    if (!set64) { cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v2<64>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem); set64 = true; }
+    k_fp8_fp4_gemm_nt_v2<64><<<dim3(N / 64, used), 128, smem, st>>>(pa, psa, pb, psb, ws.data_ptr<float>(), M, N, K, sfs, chunk);
+  }
+  const int total = M * N;
+  k_split_reduce<<<(total + 255) / 256, 256, 0, st>>>(ws.data_ptr<float>(), reinterpret_cast<__nv_bfloat16*>(d.data_ptr()), M, N, used);
 }
 """
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v1a", cpp_sources=CPP, cuda_sources=CUDA,
-                       functions=["fp8_fp4_gemm_nt_sm120", "fp8_fp4_gemm_nt_sm120_v1"],
+    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v2a", cpp_sources=CPP, cuda_sources=CUDA,
+                       functions=["fp8_fp4_gemm_nt_sm120", "fp8_fp4_gemm_nt_sm120_v1", "fp8_fp4_gemm_nt_sm120_v2"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
+
+
+SM_COUNT = None
+
+
+def plan_v2(n: int, k: int, sm_count: int) -> tuple[int, int]:
+    """(BN, splits): the smallest split count that gives at least two blocks per SM, BN 64 when 128 would need more than
+    half the K blocks as splits, else 128."""
+    nblocks = k // 128
+    for bn in (128, 64):
+        cols = n // bn
+        splits = max(1, min(nblocks, math.ceil(2 * sm_count / cols)))
+        if splits <= max(1, nblocks // 2) or bn == 64:
+            return bn, splits
+    return 64, 1
+
+
+def v2(mod, a8, sfa, b4, sfb, d, bn=None, splits=None):
+    global SM_COUNT
+    if SM_COUNT is None:
+        SM_COUNT = torch.cuda.get_device_properties(0).multi_processor_count
+    m, n, k = a8.shape[0], b4.shape[0], a8.shape[1]
+    pbn, psp = plan_v2(n, k, SM_COUNT)
+    bn, splits = bn or pbn, splits or psp
+    ws = torch.empty(splits, m, n, device=a8.device, dtype=torch.float32)
+    mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws, 128, bn, splits)
+    return bn, splits
 
 
 def make_inputs(m: int, n: int, k: int, gran_k: int, seed: int, dev):
@@ -309,48 +401,75 @@ def make_inputs(m: int, n: int, k: int, gran_k: int, seed: int, dev):
     return a8, sfa, b4, sfb
 
 
-def run_case(mod, fn, m: int, n: int, k: int, gran_k: int, seed: int, dev):
-    a8, sfa, b4, sfb = make_inputs(m, n, k, gran_k, seed, dev)
-    d = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
-    fn(a8, sfa, b4, sfb, d, gran_k)
-    torch.cuda.synchronize()
+def check(d, a8, sfa, b4, sfb, gran_k):
     exact = ref.mx_gemm_reference(a8, ref.unpack_ue8m0_from_int(sfa), b4, ref.unpack_ue8m0_from_int(sfb), gran_k)
     diff = (d.float() - exact).abs()
-    out = {"m": m, "n": n, "k": k, "gran_k": gran_k, "seed": seed, "max_abs_err": float(diff.max()),
-           "rel_fro_err": float((d.float() - exact).norm() / exact.norm()), "ref_abs_max": float(exact.abs().max()),
-           "bf16_half_ulp_at_max": float(exact.abs().max()) * 2 ** -9}
+    out = {"max_abs_err": float(diff.max()), "rel_fro_err": float((d.float() - exact).norm() / exact.norm()),
+           "ref_abs_max": float(exact.abs().max()), "bf16_half_ulp_at_max": float(exact.abs().max()) * 2 ** -9}
     out["pass"] = out["max_abs_err"] <= 2 * out["bf16_half_ulp_at_max"] + 1e-6 and out["rel_fro_err"] < 4e-3
-    return out, d
+    return out
+
+
+def bf16_ulps_apart(x: torch.Tensor, y: torch.Tensor) -> int:
+    """Largest distance in bf16 ulps between two bf16 tensors (0 when equal)."""
+    xi = x.view(torch.int16).to(torch.int32)
+    yi = y.view(torch.int16).to(torch.int32)
+    return int((xi - yi).abs().max())
 
 
 def selftest(mod, dev) -> int:
-    # The reference is the exact dequantized product, so the only admissible error is bf16 output rounding (half an ulp at
-    # each element's magnitude) plus fp32 summation order; DeepGEMM's own tolerance for a mixed FP8xFP4 configuration is
-    # max_diff 0.01 against an fp32 reference of the *original* values (tests/generators.py), a different and looser bar.
     ok = True
     print("v0 against the reference")
     for (m, n, k, seed) in ((16, 128, 256, 1), (16, 8, 128, 2), (5, 64, 512, 3), (16, 512, 2048, 4), (1, 256, 1024, 5)):
-        r, _ = run_case(mod, mod.fp8_fp4_gemm_nt_sm120, m, n, k, 128, seed, dev)
+        a8, sfa, b4, sfb = make_inputs(m, n, k, 128, seed, dev)
+        d = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
+        mod.fp8_fp4_gemm_nt_sm120(a8, sfa, b4, sfb, d, 128)
+        torch.cuda.synchronize()
+        r = check(d, a8, sfa, b4, sfb, 128)
         ok &= r["pass"]
         print(f"  m={m} n={n} k={k}: max|err| {r['max_abs_err']:.4g} (half-ulp at max {r['bf16_half_ulp_at_max']:.4g}), rel Frobenius {r['rel_fro_err']:.3e} -> {'ok' if r['pass'] else 'FAIL'}", flush=True)
-    print("v1 against the reference, and bit for bit against v0 where v0 applies (M <= 16)")
-    for (m, n, k, seed) in ((16, 128, 256, 11), (32, 128, 2048, 12), (16, 512, 2048, 13), (32, 2048, 7168, 14), (7, 256, 1024, 15), (32, 128, 128, 16)):
-        r, d1 = run_case(mod, mod.fp8_fp4_gemm_nt_sm120_v1, m, n, k, 128, seed, dev)
-        same = None
+    print("v1 against the reference and bit for bit against v0 (M <= 16); v2 against the reference and against v1 in bf16 ulps")
+    for (m, n, k, seed) in ((16, 128, 256, 11), (32, 128, 2048, 12), (16, 512, 2048, 13), (32, 2048, 7168, 14), (7, 256, 1024, 15), (32, 128, 128, 16), (16, 7168, 7168, 17)):
+        a8, sfa, b4, sfb = make_inputs(m, n, k, 128, seed, dev)
+        d1 = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
+        mod.fp8_fp4_gemm_nt_sm120_v1(a8, sfa, b4, sfb, d1, 128)
+        torch.cuda.synchronize()
+        r1 = check(d1, a8, sfa, b4, sfb, 128)
+        ok &= r1["pass"]
+        same0 = None
         if m <= 16:
-            _, d0 = run_case(mod, mod.fp8_fp4_gemm_nt_sm120, m, n, k, 128, seed, dev)
-            same = bool(torch.equal(d0, d1))
-            ok &= same
-        ok &= r["pass"]
-        tail = "" if same is None else f", v0 bit-identical {same}"
-        print(f"  m={m} n={n} k={k}: max|err| {r['max_abs_err']:.4g} (half-ulp at max {r['bf16_half_ulp_at_max']:.4g}), rel Frobenius {r['rel_fro_err']:.3e}{tail} -> {'ok' if r['pass'] and same is not False else 'FAIL'}", flush=True)
+            d0 = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
+            mod.fp8_fp4_gemm_nt_sm120(a8, sfa, b4, sfb, d0, 128)
+            torch.cuda.synchronize()
+            same0 = bool(torch.equal(d0, d1))
+            ok &= same0
+        d2 = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
+        bn, splits = v2(mod, a8, sfa, b4, sfb, d2)
+        torch.cuda.synchronize()
+        r2 = check(d2, a8, sfa, b4, sfb, 128)
+        ulps = bf16_ulps_apart(d1, d2)
+        ndiff = int((d1 != d2).sum())
+        ok &= r2["pass"] and ulps <= 1          # fp32 summation-order differences before the bf16 round: at most one bf16 ulp
+        tail0 = "" if same0 is None else f", v1==v0 {same0}"
+        print(f"  m={m} n={n} k={k}: v1 rel {r1['rel_fro_err']:.2e}{tail0}; v2 (BN {bn}, splits {splits}) rel {r2['rel_fro_err']:.2e}, "
+              f"max|err| {r2['max_abs_err']:.4g} vs half-ulp {r2['bf16_half_ulp_at_max']:.4g}, items differing from v1 {ndiff}/{m * n}, "
+              f"max {ulps} bf16 ulp -> {'ok' if (r1['pass'] and r2['pass'] and ulps <= 1 and same0 is not False) else 'FAIL'}", flush=True)
+    # explicit BN 64 and BN 128 at the same shape agree with each other up to the same ulp bound
+    a8, sfa, b4, sfb = make_inputs(16, 2048, 7168, 128, 21, dev)
+    da = torch.empty(16, 2048, device=dev, dtype=torch.bfloat16)
+    db = torch.empty(16, 2048, device=dev, dtype=torch.bfloat16)
+    v2(mod, a8, sfa, b4, sfb, da, bn=64, splits=11)
+    v2(mod, a8, sfa, b4, sfb, db, bn=128, splits=7)
+    torch.cuda.synchronize()
+    u = bf16_ulps_apart(da, db)
+    ok &= u <= 1
+    print(f"  v2 BN 64/11 splits vs BN 128/7 splits: max {u} bf16 ulp apart -> {'ok' if u <= 1 else 'FAIL'}")
     print("fp8_fp4_gemm_sm120 selftest:", "ok" if ok else "FAIL")
     return 0 if ok else 1
 
 
 def bench(mod, dev, out):
-    """v1 timed on decode shapes after an L2 flush, median of 20 single launches; the achieved GB/s is operand bytes over
-    the measured time, to be read against the card's peak bandwidth stated in the report."""
+    """v1 and v2 timed on decode shapes after an L2 flush, median of 20 single launches (v2 includes its reduce kernel)."""
     if out is not None and out.exists():
         print(f"refusing to overwrite {out}", file=sys.stderr)
         return 2
@@ -360,25 +479,35 @@ def bench(mod, dev, out):
     for (m, n, k) in ((16, 2048, 7168), (16, 7168, 7168), (32, 2048, 7168), (32, 7168, 7168), (16, 4096, 2048)):
         a8, sfa, b4, sfb = make_inputs(m, n, k, 128, 100 + m, dev)
         d = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
-        mod.fp8_fp4_gemm_nt_sm120_v1(a8, sfa, b4, sfb, d, 128)
-        torch.cuda.synchronize()
-        times = []
-        for _ in range(20):
-            flush_buf.fill_(1)
-            e0, e1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-            e0.record()
-            mod.fp8_fp4_gemm_nt_sm120_v1(a8, sfa, b4, sfb, d, 128)
-            e1.record()
+        bn, splits = plan_v2(n, k, props.multi_processor_count)
+        ws = torch.empty(splits, m, n, device=dev, dtype=torch.float32)
+        res = {"m": m, "n": n, "k": k, "bn": bn, "splits": splits, "blocks_v2": (n // bn) * splits, "blocks_v1": n // 128}
+        for name, fn in (("v1", lambda: mod.fp8_fp4_gemm_nt_sm120_v1(a8, sfa, b4, sfb, d, 128)),
+                         ("v2", lambda: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws, 128, bn, splits))):
+            fn()
             torch.cuda.synchronize()
-            times.append(e0.elapsed_time(e1) * 1000)
-        med = statistics.median(times)
+            times = []
+            for _ in range(20):
+                flush_buf.fill_(1)
+                e0, e1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+                e0.record()
+                fn()
+                e1.record()
+                torch.cuda.synchronize()
+                times.append(e0.elapsed_time(e1) * 1000)
+            res[f"{name}_us_median"] = statistics.median(times)
+            res[f"{name}_us_min"] = min(times)
         nbytes = a8.numel() + b4.numel() + sfa.numel() * 4 + sfb.numel() * 4 + d.numel() * 2
-        rows.append({"m": m, "n": n, "k": k, "us_median": med, "us_min": min(times), "repeats": 20, "bytes": nbytes,
-                     "achieved_GBps": nbytes / med / 1e3, "weight_bytes": b4.numel()})
-        print(f"m={m} n={n} k={k}: {med:.1f} us median ({min(times):.1f} min), {nbytes / 1e6:.2f} MB moved, {nbytes / med / 1e3:.0f} GB/s achieved", flush=True)
-    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v1", "device": props.name, "sm_count": props.multi_processor_count,
-              "note": "cold L2 (256 MB fill before each launch); one launch per timing; bytes = A e4m3 + B packed e2m1 + packed scales + bf16 D",
-              "tile": {"BM": 32, "BN": 128, "BK": 128, "stages": 4, "threads": 256}, "rows": rows}
+        res["bytes"] = nbytes
+        res["v2_achieved_GBps"] = nbytes / res["v2_us_median"] / 1e3
+        res["v1_achieved_GBps"] = nbytes / res["v1_us_median"] / 1e3
+        res["floor_us_at_1792"] = nbytes / 1792.0 / 1e3
+        rows.append(res)
+        print(f"m={m} n={n} k={k}: v1 {res['v1_us_median']:.1f} us, v2 (BN {bn}, {splits} splits, {res['blocks_v2']} blocks) {res['v2_us_median']:.1f} us, "
+              f"{res['v2_achieved_GBps']:.0f} GB/s, floor {res['floor_us_at_1792']:.1f} us", flush=True)
+    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2 (and v1)", "device": props.name, "sm_count": props.multi_processor_count,
+              "note": "cold L2 (256 MB fill before each launch); one launch per timing (v2 = tile kernel + reduce); bytes = A e4m3 + B packed e2m1 + packed scales + bf16 D; floor at 1792 GB/s",
+              "tile": {"BM": 32, "BK": 128, "stages": 4}, "rows": rows}
     if out is not None:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, indent=1), encoding="utf-8")

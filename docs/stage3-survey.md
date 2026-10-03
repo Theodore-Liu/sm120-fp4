@@ -103,6 +103,18 @@ original values; this test is against the exact dequantized product, so the bar 
 
 Achieved bandwidth is 108 to 360 GB/s against the card's 1792, 5.0 to 16.5 times the byte floor. The cause is in the grid: one block per 128 columns means 16 blocks for N = 2048 and 56 for N = 7168 on a 170-SM card, so most SMs idle and the N = 2048 rows read at 108 to 111 GB/s; the K = 7168 rows also take 56 serial 128-K blocks per block, each with a `__syncthreads`-bounded fold. The next version splits K across blocks (each block a slice of the 128-K blocks, partials reduced in fp32 before the bf16 store, which keeps the fold's arithmetic and so the bit-for-bit agreement per slice) and shrinks `BLOCK_N` to 64 for small N, the two moves the stage-2 FC2 kernel made for the same reason; the shared-memory fragment loads also want an XOR swizzle (the A tile's 128-byte rows put lanes of equal `t` on one bank).
 
+**v2, split-K, measured (2026-10-02, RTX 5090, `reports/fp8-fp4-gemm-v2-rtx5090-20261002.json`).** v1's block, templated on BN (128 or 64 columns), with the grid (N/BN, splits): each block folds its slice of the 128-K blocks into an fp32 partial in a workspace [splits, M, N], and a reduce kernel sums the slices in a fixed order and stores bf16. Inside a slice the fold is v1's, so v2 agrees with v1 bit for bit on six of seven self-test shapes and differs by one bf16 ulp on one element of the seventh (the slice order of the fp32 sum before the round); BN 64 with 11 splits and BN 128 with 7 splits agree with each other bit for bit. `splits` is the smallest count that gives at least two blocks per SM. Cold-L2 medians of 20 launches (v2 includes its reduce kernel):
+
+| M | N | K | v1 (us) | v2 config | v2 (us) | v2 GB/s | floor (us) | v2 / floor | v2 / v1 |
+|---|---|---|---|---|---|---|---|---|---|
+| 16 | 2048 | 7168 | 66.6 | BN 128, 22 splits, 352 blocks | 19.1 | 401 | 4.3 | 4.5x | 3.5x |
+| 16 | 7168 | 7168 | 70.4 | BN 128, 7 splits, 392 blocks | 41.8 | 633 | 14.8 | 2.8x | 1.7x |
+| 32 | 2048 | 7168 | 68.4 | BN 128, 22 splits, 352 blocks | 19.2 | 406 | 4.4 | 4.4x | 3.6x |
+| 32 | 7168 | 7168 | 70.7 | BN 128, 7 splits, 392 blocks | 43.8 | 612 | 14.9 | 2.9x | 1.6x |
+| 16 | 4096 | 2048 | 23.3 | BN 64, 6 splits, 384 blocks | 13.1 | 338 | 2.5 | 5.3x | 1.8x |
+
+v2 is 1.7 to 3.5 times v1 and reads 338 to 633 GB/s, 2.8 to 5.3 times the byte floor. The registered expectation (900 GB/s at N 2048, 1200 at N 7168) was not met: the grid is no longer the bound, so what is left is inside the block. The two candidates, in order: the shared-memory fragment loads (the A tile's 128-byte rows put lanes of equal `t` on one bank; an XOR swizzle on the chunk index fixes it, and the B loads are 2-byte and should become 4-byte with the two n8 tiles' nibbles fetched together), and the per-128-K-block `__syncthreads` pair around the fold, which can move to one per stage. Each is a measured step, not a rewrite.
+
 **Interface of the first kernel, `sm120_fp8_fp4_gemm_1d1d`.** The same arguments `fp8_fp4_gemm_nt` passes the SM100
 launcher at `gemm.hpp:128`: `a` codes (e4m3, `[M, K]`), `sfa` (packed UE8M0 `[M, K/gran_k_a]` after the layout
 transform), `b` codes (packed e2m1, `[N, K/2]`), `sfb`, optional `c`, output `d` (bf16 or fp32, N-major), `m, n, k`,

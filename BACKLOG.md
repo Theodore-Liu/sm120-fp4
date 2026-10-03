@@ -18,7 +18,9 @@ closes it. Dates are when an item was added, not estimates.
    measured (`scripts/probe_f8f6f4*.py`: the code sits in bits 5:2 of its byte, not the low nibble). The tiled v1
    (32 x 128 tile, 4-stage cp.async, 8 warps) is correct and bit-identical to v0, and runs at 108 to 360 GB/s on the decode shapes,
    5.0 to 16.5 times the byte floor (`reports/fp8-fp4-gemm-v1-rtx5090-20261002.json`): the grid is too small
-   (N/128 blocks). Next: split-K and BLOCK_N 64 for small N, then the swizzled shared-memory loads.
+   (N/128 blocks). Split-K v2 (`reports/fp8-fp4-gemm-v2-rtx5090-20261002.json`) is 1.7 to 3.5 times v1 at 338 to
+   633 GB/s, 2.8 to 5.3 times the floor, bit-identical to v1 except one element one ulp off; the grid is
+   no longer the bound. Next: the swizzled 4-byte shared-memory fragment loads, then one barrier per stage.
 
 ## Ready, in order
 
