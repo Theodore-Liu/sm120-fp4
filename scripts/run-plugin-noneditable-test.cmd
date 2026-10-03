@@ -1,0 +1,3 @@
+@echo off
+REM ASCII ONLY. One-shot: BACKLOG item 4's non-editable install test under WSL (wheel build of this checkout into the stock-vllm venv; the probe compiles the packaged kernels from site-packages), logged.
+wsl.exe -e bash -lc "export PATH=$HOME/.local/bin:$PATH; cd /mnt/c/Users/jingz/oss/sm120-fp4 && ~/mlsys-5090-runtime/vllm028/.venv/bin/python scripts/plugin_install_test.py --non-editable --venv ~/sm120-plugin-test --out reports/plugin-install-test-noneditable-20261003.json >> reports/.plugin-install-test-noneditable-20261003.log 2>&1; echo TEST_RC=$? >> reports/.plugin-install-test-noneditable-20261003.log"

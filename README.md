@@ -36,12 +36,13 @@ their own builds.
 
 ## Install
 
-The stage-2 MoE layer is an opt-in vLLM 0.28 plugin. From a clone, into a Python 3.12 environment that already has vLLM 0.28:
+The stage-2 MoE layer is an opt-in vLLM 0.28 plugin. Into a Python 3.12 environment that already has vLLM 0.28:
 
 ```
-git clone https://github.com/Theodore-Liu/sm120-fp4 && cd sm120-fp4
-pip install -e .
+pip install git+https://github.com/Theodore-Liu/sm120-fp4
 ```
+
+(or `pip install -e .` from a clone, for development).
 
 The install registers the `vllm.general_plugins` entry point `sm120fp4_moe`. vLLM loads it at engine start in every process, and it
 is a no-op unless the switch is set:
@@ -61,16 +62,16 @@ SM120FP4_MOE=1 python -c "from vllm.plugins import load_general_plugins as l; l(
 # sm120fp4.vllm_classes
 ```
 
-`scripts/plugin_install_test.py` runs exactly these checks in a fresh venv with stock `vllm==0.28.0` from PyPI and an editable
-install of the checkout; `reports/plugin-install-test-20261003.json` records the pass of 2026-10-03 (entry point listed, the
-switch off leaves `vllm.model_executor.layers.quantization.modelopt.ModelOptNvFp4Config`, the switch on installs
-`sm120fp4.vllm_classes.SM120Fp4Config`).
+`scripts/plugin_install_test.py` runs exactly these checks in a fresh venv with stock `vllm==0.28.0` from PyPI, once with an editable
+install of the checkout and once (`--non-editable`) with a wheel build of it, the probe run from outside the checkout and compiling the
+kernels from site-packages: `reports/plugin-install-test-20261003.json` and `reports/plugin-install-test-noneditable-20261003.json`
+both record a pass on 2026-10-03 (entry point listed; the switch off leaves `vllm.model_executor.layers.quantization.modelopt.ModelOptNvFp4Config`;
+the switch on installs `sm120fp4.vllm_classes.SM120Fp4Config`; the five kernel modules compile from `site-packages/sm120fp4/kernels/`).
 
-Limits. The install has to be editable from a clone: the kernels compile at first use from `scripts/moe_layer.py` and the kernel
-files beside it, which the wheel does not carry yet (the remaining step of `BACKLOG.md` item 4), so a CUDA toolkit with `nvcc`
-is needed on the serving host. The backend checks the shapes it was measured on (`sm120fp4/vllm_backend.py`: at most 16 tokens
-per call, hidden size 2048, intermediate size 768 or 1024, the Qwen3-30B-A3B-NVFP4 layer) and was measured on the RTX 5090 and
-the RTX PRO 6000 only (the tables below).
+Limits. The kernels compile at first use (`torch.utils.cpp_extension.load_inline`), so a CUDA toolkit with `nvcc` is needed on the serving
+host and the first engine start takes a few minutes longer. The backend checks the shapes it was measured on (`sm120fp4/vllm_backend.py`:
+at most 16 tokens per call, hidden size 2048, intermediate size 768 or 1024, the Qwen3-30B-A3B-NVFP4 layer) and was measured on the RTX 5090
+and the RTX PRO 6000 only (the tables below).
 
 ## Layout of the repository
 
@@ -78,14 +79,16 @@ the RTX PRO 6000 only (the tables below).
 - `sm120fp4/layouts.py`: converters (`to_128x4`, `from_128x4`, padding helpers) and layout descriptors.
 - `sm120fp4/reference.py`: the NVFP4 reference quantizer, dequantizer and reference GEMM (fp32 accumulate).
 - `tests/`: conformance tests; each test states which failure class it exists to catch and cites the public report.
-- `scripts/moe_layer.py` and the `fc1_*.py` / `fc2_*.py` / `moe_w4a16.py` kernels beside it: the stage-2 W4A16 decode MoE layer;
-  `scripts/real_ckpt_layer.py` runs it on a real checkpoint beside Marlin.
+- `sm120fp4/kernels/`: the stage-2 W4A16 decode MoE layer (`moe_layer.py`) and the `fc1_*.py` / `fc2_*.py` / `moe_w4a16.py` kernels it
+  loads, packaged since 2026-10-03 so a pip install carries them; `scripts/` keeps shims under the old names for the bench and diagnostic
+  scripts, and `scripts/real_ckpt_layer.py` runs the layer on a real checkpoint beside Marlin.
 - `sm120fp4/vllm_backend.py`, `sm120fp4/vllm_classes.py`: the layer as an opt-in vLLM 0.28 MoE backend (`SM120FP4_MOE=1`);
   `scripts/vllm_model_compare.py` and `scripts/vllm_decode_throughput.py` measure it inside the engine.
 - `docs/stage3-survey.md`, `scripts/ue8m0_reference.py`, `scripts/fp8_fp4_gemm_sm120.py`, `scripts/fp8_fp4_mqa_logits_sm120.py`,
   `scripts/fp8_einsum_sm120.py`, `scripts/probe_f8f6f4*.py`: stage 3, the FP4 kernels DeepGEMM routes to `tcgen05` and SM120 lacks.
-- `scripts/plugin_install_test.py` (`run-plugin-install-test.cmd`): the clean-venv check that `pip install` of this checkout registers
-  the vLLM plugin on a stock vLLM 0.28 (adoption item 1); its report is `reports/plugin-install-test-<date>.json`.
+- `scripts/plugin_install_test.py` (`run-plugin-install-test.cmd`, `run-plugin-noneditable-test.cmd`): the clean-venv check that a pip
+  install of this repository, editable or as a wheel, registers the vLLM plugin on a stock vLLM 0.28 and compiles its kernels from
+  site-packages (adoption item 1); reports `reports/plugin-install-test-20261003.json` and `plugin-install-test-noneditable-20261003.json`.
 - `BACKLOG.md`: the ranked work queue; `PLAN.md`: the stage gates; `reports/`: every measurement the tables above cite.
 
 ## What works on SM120 today (RTX 5090 and RTX PRO 6000, FlashInfer 0.6.16.post3, PyTorch 2.13 cu130, driver 610)
@@ -247,7 +250,7 @@ full model answers 300 of 300 retrieval items as stock does and the engine decod
 concurrent sequences than on vLLM's own W4A4 path. Of the stage's gate, the RTX PRO 6000 reproduction and the engine
 integration are met; the 8-to-16-token margin over FlashInfer's path at the layer level is not (the layer is level there)
 and stays in `BACKLOG.md`. Stage 3 is in progress: the survey, the UE8M0 reference, the measured operand convention and
-the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel is correct against DeepGEMM's reference in both its forms (flat, 18 to 147 TFLOP/s; paged, 0.7 to 1.1 TB/s of kv), and the FP8 einsum has a correct v0 and a tiled v1 (faster only at B 128), as the section above states. See `PLAN.md` for the stage gates. What makes the repository useful to others comes next, in this order (`BACKLOG.md` items 4 to 6): the stage-2 backend as an installable vLLM plugin (the upstream issue or PR waits until the project is essentially complete), one stage-3 kernel wired into an engine on a model an SM120 card can hold, and a minimal CI on an SM120 runner.
+the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel is correct against DeepGEMM's reference in both its forms (flat, 18 to 147 TFLOP/s; paged, 0.7 to 1.1 TB/s of kv), and the FP8 einsum has a correct v0 and a tiled v1 (faster only at B 128), as the section above states. See `PLAN.md` for the stage gates. Of the three adoption items (`BACKLOG.md`), the first is done: the stage-2 backend installs as a vLLM plugin from a wheel, with the kernels packaged, on a stock vLLM 0.28 (the Install section above). Next, in order: one stage-3 kernel wired into an engine on a model an SM120 card can hold, and a minimal CI on an SM120 runner. The upstream issue or PR waits until the project is essentially complete.
 
 ## License
 

@@ -42,7 +42,7 @@ MAXM = 16  # the FC2 kernels take at most 16 tokens per call
 HIDDEN = 2048  # scripts/fc1_w4a16.py and fc1_mma.py are specialised to this hidden size
 INTERMEDIATES = (768, 1024)  # scripts/fc2_mma_pf.py's shape check
 
-_SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+_SCRIPTS = Path(__file__).resolve().parent / "kernels"  # the packaged kernels (since 2026-10-03); the checkout's scripts/ holds shims
 _KERNELS: SimpleNamespace | None = None
 
 
@@ -51,11 +51,11 @@ def enabled() -> bool:
 
 
 def kernels() -> SimpleNamespace:
-    """Load scripts/moe_layer.py (which loads and compiles the five kernel modules) once per process."""
+    """Load sm120fp4/kernels/moe_layer.py (which loads and compiles the five kernel modules) once per process."""
     global _KERNELS
     if _KERNELS is None:
         if not (_SCRIPTS / "moe_layer.py").is_file():
-            raise FileNotFoundError(f"the kernels live in the repository checkout; {_SCRIPTS} has no moe_layer.py")
+            raise FileNotFoundError(f"the packaged kernels are missing: {_SCRIPTS} has no moe_layer.py")
         if str(_SCRIPTS) not in sys.path:
             sys.path.insert(0, str(_SCRIPTS))
         if "moe_layer" not in sys.modules:

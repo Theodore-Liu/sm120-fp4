@@ -50,16 +50,6 @@ closes it. Dates are when an item was added, not estimates.
 
 ## Ready, in order
 
-4. **Adoption 1: the stage-2 backend as an installable vLLM plugin, with the upstream text drafted** (author's order, 2026-10-03,
-   first of three). Package `sm120fp4` so `pip install` registers the `vllm.general_plugins` entry point on a stock vLLM 0.28,
-   with the install and the one-line enable in the README. The only part of this repository with an end-to-end gain today, so
-   the only part someone else is likely to use. **The upstream text (a vLLM issue or PR) waits until the project is
-   essentially complete (author, 2026-10-03): nothing is drafted or posted before then.**
-   State 2026-10-03: in progress. `scripts/plugin_install_test.py` builds a fresh venv with stock `vllm==0.28.0` from PyPI, installs
-   the checkout editable, and probes it: the entry point is listed, the switch off leaves vLLM's `ModelOptNvFp4Config`, the
-   switch on installs `SM120Fp4Config` (`reports/plugin-install-test-20261003.json`, pass). The README has an Install section.
-   What remains before the item closes: the wheel does not carry the kernels (they compile from `scripts/` at first use), so the
-   install must be editable from a clone; package the kernel sources under `sm120fp4/` and re-run the test non-editable.
 5. **Adoption 2: one stage-3 kernel inside an engine on a model that runs on an SM120 card** (second). The kernels are correct
    and measured but nothing calls them; pick the path a RTX PRO 6000 can hold (an FP4 checkpoint whose engine needs the FP8 x
    FP4 GEMM or the MQA-logits indexer), wire the kernel in behind a flag, and measure end to end against the engine's own path,
@@ -84,6 +74,12 @@ closes it. Dates are when an item was added, not estimates.
 
 ## Closed
 
+- **Adoption 1, the stage-2 backend as an installable vLLM plugin** (closed 2026-10-03): the kernel sources moved into
+  `sm120fp4/kernels/` with shims left in `scripts/`; `scripts/plugin_install_test.py` installs the repository into a fresh venv with
+  stock `vllm==0.28.0`, editable and as a wheel, and probes it (entry point listed; switch off leaves vLLM's config; switch on installs
+  `SM120Fp4Config` and compiles the five kernels from site-packages): `reports/plugin-install-test-20261003.json` and
+  `reports/plugin-install-test-noneditable-20261003.json`, both pass. README has the Install section. **The upstream text (a vLLM
+  issue or PR) waits until the project is essentially complete (author, 2026-10-03): nothing is drafted or posted before then.**
 - Engine integration, the layer as an optional MoE backend in vLLM (closed 2026-10-02): `sm120fp4/vllm_backend.py`,
   `sm120fp4/vllm_classes.py`, `scripts/vllm_model_compare.py`, `scripts/vllm_decode_throughput.py`,
   `reports/vllm-compare-20261002.json`, `reports/vllm-decode-compare-20261002.json`, README section "Inside vLLM".

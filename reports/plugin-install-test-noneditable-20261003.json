@@ -1,0 +1,101 @@
+{
+ "mode": "non-editable",
+ "repo_head": "8da3903",
+ "venv": "/home/jingze/sm120-plugin-test",
+ "vllm_requirement": "vllm==0.28.0",
+ "steps": [
+  {
+   "cmd": "uv pip install --python /home/jingze/sm120-plugin-test/bin/python vllm==0.28.0",
+   "rc": 0,
+   "seconds": 0.2,
+   "tail": [
+    "Using Python 3.12.14 environment at: /home/jingze/sm120-plugin-test",
+    "Checked 1 package in 170ms"
+   ],
+   "step": "install vllm"
+  },
+  {
+   "cmd": "uv pip uninstall --python /home/jingze/sm120-plugin-test/bin/python sm120fp4",
+   "rc": 0,
+   "seconds": 0.0,
+   "tail": [
+    "Using Python 3.12.14 environment at: /home/jingze/sm120-plugin-test",
+    "Uninstalled 1 package in 3ms",
+    " - sm120fp4==0.0.1 (from file:///mnt/c/Users/jingz/oss/sm120-fp4)"
+   ],
+   "step": "uninstall sm120fp4"
+  },
+  {
+   "cmd": "uv pip install --python /home/jingze/sm120-plugin-test/bin/python --no-cache-dir /mnt/c/Users/jingz/oss/sm120-fp4",
+   "rc": 0,
+   "seconds": 3.3,
+   "tail": [
+    "Using Python 3.12.14 environment at: /home/jingze/sm120-plugin-test",
+    "Resolved 31 packages in 349ms",
+    "   Building sm120fp4 @ file:///mnt/c/Users/jingz/oss/sm120-fp4",
+    "      Built sm120fp4 @ file:///mnt/c/Users/jingz/oss/sm120-fp4",
+    "Prepared 1 package in 2.87s",
+    "warning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.",
+    "         If the cache and target directories are on different filesystems, hardlinking may not be supported.",
+    "         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.",
+    "Installed 1 package in 13ms",
+    " + sm120fp4==0.0.1 (from file:///mnt/c/Users/jingz/oss/sm120-fp4)"
+   ],
+   "step": "install sm120fp4 (wheel, not editable)"
+  },
+  {
+   "cmd": "/home/jingze/sm120-plugin-test/bin/python -c \nimport importlib.metadata as md, json, os, sys\nout = {\"env\": os.environ.get(\"SM120FP4_MOE\", \"\"), \"python\": sys.version.split()[0]}\neps = [e for e in md.entry_points(group=\"vllm.general_plugins\")]\nout[\"entry_points\"] = [f\"{e.name} = {e.value}\" for e in eps]\nimport vllm\nout[\"vllm\"] = vllm.__version__\nimport sm120fp4\nout[\"sm120fp4\"] = sm120fp4.__version__\nfrom vllm.plugins import load_general_plugins\nload_general_plugins()\nfrom vllm.model_executor.layers.quantization import get_quantization_config\ncls = get_quantization_config(\"modelopt_fp4\")\nout[\"modelopt_fp4_class\"] = f\"{cls.__module__}.{cls.__name__}\"\nif os.environ.get(\"SM120FP4_KERNEL_PROBE\") == \"1\":\n    from sm120fp4.vllm_backend import kernels\n    k = kernels()\n    out[\"kernels_layer_file\"] = k.layer.__file__\n    out[\"kernels_compiled\"] = all(getattr(k, n) is not None for n in (\"route\", \"fc1_cc\", \"fc2_cc\", \"fc1_tc\", \"fc2_pf\"))\nprint(\"PROBE_JSON \" + json.dumps(out))\n",
+   "rc": 0,
+   "seconds": 10.7,
+   "tail": [
+    "PROBE_JSON {\"env\": \"\", \"python\": \"3.12.14\", \"entry_points\": [\"sm120fp4_moe = sm120fp4.vllm_backend:register\", \"lora_filesystem_resolver = vllm.plugins.lora_resolvers.filesystem_resolver:register_filesystem_resolver\", \"lora_hf_hub_resolver = vllm.plugins.lora_resolvers.hf_hub_resolver:register_hf_hub_resolver\"], \"vllm\": \"0.28.0\", \"sm120fp4\": \"0.0.1\", \"modelopt_fp4_class\": \"vllm.model_executor.layers.quantization.modelopt.ModelOptNvFp4Config\"}"
+   ],
+   "step": "probe, plugin off"
+  },
+  {
+   "cmd": "/home/jingze/sm120-plugin-test/bin/python -c \nimport importlib.metadata as md, json, os, sys\nout = {\"env\": os.environ.get(\"SM120FP4_MOE\", \"\"), \"python\": sys.version.split()[0]}\neps = [e for e in md.entry_points(group=\"vllm.general_plugins\")]\nout[\"entry_points\"] = [f\"{e.name} = {e.value}\" for e in eps]\nimport vllm\nout[\"vllm\"] = vllm.__version__\nimport sm120fp4\nout[\"sm120fp4\"] = sm120fp4.__version__\nfrom vllm.plugins import load_general_plugins\nload_general_plugins()\nfrom vllm.model_executor.layers.quantization import get_quantization_config\ncls = get_quantization_config(\"modelopt_fp4\")\nout[\"modelopt_fp4_class\"] = f\"{cls.__module__}.{cls.__name__}\"\nif os.environ.get(\"SM120FP4_KERNEL_PROBE\") == \"1\":\n    from sm120fp4.vllm_backend import kernels\n    k = kernels()\n    out[\"kernels_layer_file\"] = k.layer.__file__\n    out[\"kernels_compiled\"] = all(getattr(k, n) is not None for n in (\"route\", \"fc1_cc\", \"fc2_cc\", \"fc1_tc\", \"fc2_pf\"))\nprint(\"PROBE_JSON \" + json.dumps(out))\n",
+   "rc": 0,
+   "seconds": 209.7,
+   "tail": [
+    "PROBE_JSON {\"env\": \"1\", \"python\": \"3.12.14\", \"entry_points\": [\"sm120fp4_moe = sm120fp4.vllm_backend:register\", \"lora_filesystem_resolver = vllm.plugins.lora_resolvers.filesystem_resolver:register_filesystem_resolver\", \"lora_hf_hub_resolver = vllm.plugins.lora_resolvers.hf_hub_resolver:register_hf_hub_resolver\"], \"vllm\": \"0.28.0\", \"sm120fp4\": \"0.0.1\", \"modelopt_fp4_class\": \"sm120fp4.vllm_classes.SM120Fp4Config\", \"kernels_layer_file\": \"/home/jingze/sm120-plugin-test/lib/python3.12/site-packages/sm120fp4/kernels/moe_layer.py\", \"kernels_compiled\": true}"
+   ],
+   "step": "probe, plugin on"
+  }
+ ],
+ "probes": {
+  "plugin off": {
+   "env": "",
+   "python": "3.12.14",
+   "entry_points": [
+    "sm120fp4_moe = sm120fp4.vllm_backend:register",
+    "lora_filesystem_resolver = vllm.plugins.lora_resolvers.filesystem_resolver:register_filesystem_resolver",
+    "lora_hf_hub_resolver = vllm.plugins.lora_resolvers.hf_hub_resolver:register_hf_hub_resolver"
+   ],
+   "vllm": "0.28.0",
+   "sm120fp4": "0.0.1",
+   "modelopt_fp4_class": "vllm.model_executor.layers.quantization.modelopt.ModelOptNvFp4Config"
+  },
+  "plugin on": {
+   "env": "1",
+   "python": "3.12.14",
+   "entry_points": [
+    "sm120fp4_moe = sm120fp4.vllm_backend:register",
+    "lora_filesystem_resolver = vllm.plugins.lora_resolvers.filesystem_resolver:register_filesystem_resolver",
+    "lora_hf_hub_resolver = vllm.plugins.lora_resolvers.hf_hub_resolver:register_hf_hub_resolver"
+   ],
+   "vllm": "0.28.0",
+   "sm120fp4": "0.0.1",
+   "modelopt_fp4_class": "sm120fp4.vllm_classes.SM120Fp4Config",
+   "kernels_layer_file": "/home/jingze/sm120-plugin-test/lib/python3.12/site-packages/sm120fp4/kernels/moe_layer.py",
+   "kernels_compiled": true
+  }
+ },
+ "checks": {
+  "entry point registered": true,
+  "stock vllm 0.28": true,
+  "plugin off leaves vllm's modelopt_fp4": true,
+  "plugin on installs sm120fp4's config": true,
+  "kernels compiled from site-packages": true
+ },
+ "verdict": "pass"
+}
