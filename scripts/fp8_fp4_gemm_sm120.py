@@ -168,7 +168,7 @@ template <int N> __device__ __forceinline__ void cp_async_wait() { asm volatile(
 // (k 4t..4t+3 and 16+4t..16+4t+3) sit at physical bytes 8t..8t+7 (one 8-byte load) and its B nibbles at physical codes 8t..8t+7
 // (one 4-byte load) - a permutation of the summation index that the MMA sums over, applied to A and B alike; ONESYNC drops the
 // trailing barrier of each 128-K block (the barrier after the wait already orders every thread's previous compute before the refill).
-template <int BN, int SWZ, int KPERM, int ONESYNC, typename Store>
+template <int BN, int SWZ, int KPERM, int ONESYNC, int STG, int PAIR, typename Store>
 __device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const uint8_t* __restrict__ sfa,
                                           const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
                                           int M, int N, int K, int sf_stride, int n_base, int m_base, int kb0, int kb1,
@@ -201,24 +201,10 @@ __device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const u
 #pragma unroll
       for (int i = 0; i < 4; ++i) acc[mt][nt][i] = 0.f;
 
-#pragma unroll
-  for (int s = 0; s < STAGES - 1; ++s) {
-    if (s < nb) issue(kb0 + s, s);
-    cp_async_commit();
-  }
   const int row_g = g, row_g8 = g + 8;
   const bool has[2][2] = {{m_base + row_g < M, m_base + row_g8 < M}, {m_base + 16 + row_g < M, m_base + 16 + row_g8 < M}};
-  for (int i = 0; i < nb; ++i) {
-    cp_async_wait<STAGES - 2>();
-    __syncthreads();
-    const int nxt = i + STAGES - 1;
-    if (nxt < nb) issue(kb0 + nxt, nxt % STAGES);
-    cp_async_commit();
-    const uint8_t* sA = smem + (i % STAGES) * STAGE_BYTES;
-    const uint8_t* sB = sA + A_BYTES;
-    const int kb = kb0 + i;
-
-    float part[2][2][4];
+  // one 128-K block from its stage into `part` (the MMAs), then its fold into acc
+  auto compute = [&](const uint8_t* sA, const uint8_t* sB, float (&part)[2][2][4]) {
 #pragma unroll
     for (int mt = 0; mt < 2; ++mt)
 #pragma unroll
@@ -267,6 +253,8 @@ __device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const u
         for (int nt = 0; nt < 2; ++nt) mma_f8f6f4(part[mt][nt], af, bf[nt]);
       }
     }
+  };
+  auto fold = [&](int kb, const float (&part)[2][2][4]) {
 #pragma unroll
     for (int mt = 0; mt < 2; ++mt) {
       const int r0 = m_base + mt * 16 + row_g, r1 = m_base + mt * 16 + row_g8;
@@ -283,7 +271,53 @@ __device__ __forceinline__ void gemm_tile(const uint8_t* __restrict__ a, const u
         acc[mt][nt][3] += part[mt][nt][3] * (sa1 * sb1);
       }
     }
-    if (!ONESYNC) __syncthreads();
+  };
+
+  if constexpr (!PAIR) {
+#pragma unroll
+    for (int s = 0; s < STG - 1; ++s) {
+      if (s < nb) issue(kb0 + s, s);
+      cp_async_commit();
+    }
+    for (int i = 0; i < nb; ++i) {
+      cp_async_wait<STG - 2>();
+      __syncthreads();
+      const int nxt = i + STG - 1;
+      if (nxt < nb) issue(kb0 + nxt, nxt % STG);
+      cp_async_commit();
+      const uint8_t* sA = smem + (i % STG) * STAGE_BYTES;
+      float part[2][2][4];
+      compute(sA, sA + A_BYTES, part);
+      fold(kb0 + i, part);
+      if (!ONESYNC) __syncthreads();
+    }
+  } else {
+    // pairs of blocks through a 4-stage ring: pair p lives in stages (2p % 4, 2p % 4 + 1); two pairs are in flight, one being
+    // computed and one landing; after the trailing barrier the two consumed stages are refilled with pair p + 2
+    static_assert(STG == 4 || !PAIR, "PAIR needs the 4-stage ring");
+    auto issue_pair = [&](int pr) {
+      const int b0 = 2 * pr;
+      if (b0 < nb) issue(kb0 + b0, (2 * pr) % 4);
+      if (b0 + 1 < nb) issue(kb0 + b0 + 1, (2 * pr) % 4 + 1);
+      cp_async_commit();
+    };
+    issue_pair(0);
+    issue_pair(1);
+    const int npairs = (nb + 1) / 2;
+    for (int pr = 0; pr < npairs; ++pr) {
+      cp_async_wait<1>();
+      __syncthreads();
+      const int b0 = 2 * pr;
+      const uint8_t* sA0 = smem + ((2 * pr) % 4) * STAGE_BYTES;
+      const uint8_t* sA1 = sA0 + STAGE_BYTES;
+      float part0[2][2][4], part1[2][2][4];
+      compute(sA0, sA0 + A_BYTES, part0);
+      if (b0 + 1 < nb) compute(sA1, sA1 + A_BYTES, part1);
+      fold(kb0 + b0, part0);
+      if (b0 + 1 < nb) fold(kb0 + b0 + 1, part1);
+      __syncthreads();
+      issue_pair(pr + 2);
+    }
   }
   cp_async_wait<0>();
 
@@ -305,12 +339,12 @@ k_fp8_fp4_gemm_nt_v1(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
                      const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
                      __nv_bfloat16* __restrict__ d, int M, int N, int K, int sf_stride) {
   extern __shared__ __align__(16) uint8_t smem[];
-  gemm_tile<128, 0, 0, 0>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * 128, blockIdx.y * BM, 0, K / BK, smem,
+  gemm_tile<128, 0, 0, 0, 4, 0>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * 128, blockIdx.y * BM, 0, K / BK, smem,
                  [&](int r, int c, float v) { d[(size_t)r * N + c] = __float2bfloat16(v); });
 }
 
 // v2: block (n, split) over its slice of the 128-K blocks, fp32 partial to the workspace
-template <int BN, int SWZ, int KPERM, int ONESYNC>
+template <int BN, int SWZ, int KPERM, int ONESYNC, int STG, int PAIR>
 __global__ void __launch_bounds__((BN / 16) * 32)
 k_fp8_fp4_gemm_nt_v2(const uint8_t* __restrict__ a, const uint8_t* __restrict__ sfa,
                      const uint8_t* __restrict__ b, const uint8_t* __restrict__ sfb,
@@ -319,7 +353,7 @@ k_fp8_fp4_gemm_nt_v2(const uint8_t* __restrict__ a, const uint8_t* __restrict__ 
   const int nblocks = K / BK;
   const int kb0 = blockIdx.y * chunk, kb1 = min(nblocks, kb0 + chunk);
   float* out = ws + (size_t)blockIdx.y * M * N;
-  gemm_tile<BN, SWZ, KPERM, ONESYNC>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * BN, 0, kb0, kb1, smem,
+  gemm_tile<BN, SWZ, KPERM, ONESYNC, STG, PAIR>(a, sfa, b, sfb, M, N, K, sf_stride, blockIdx.x * BN, 0, kb0, kb1, smem,
                 [&](int r, int c, float v) { out[(size_t)r * N + c] = v; });
 }
 
@@ -347,27 +381,28 @@ void fp8_fp4_gemm_nt_sm120_v1(torch::Tensor a, torch::Tensor sfa, torch::Tensor 
                                                            reinterpret_cast<__nv_bfloat16*>(d.data_ptr()), M, N, K, (int)sfa.size(1) * 4);
 }
 
-template <int BN, int SWZ, int KPERM, int ONESYNC>
+template <int BN, int SWZ, int KPERM, int ONESYNC, int STG, int PAIR>
 static void launch_v2(const uint8_t* pa, const uint8_t* psa, const uint8_t* pb, const uint8_t* psb, float* ws, int M, int N, int K,
                       int sfs, int chunk, int used, cudaStream_t st) {
-  const int smem = STAGES * (BM * BK + BN * (BK / 2));
+  const int smem = STG * (BM * BK + BN * (BK / 2));
   static bool set = false;
-  if (!set) { cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v2<BN, SWZ, KPERM, ONESYNC>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem); set = true; }
-  k_fp8_fp4_gemm_nt_v2<BN, SWZ, KPERM, ONESYNC><<<dim3(N / BN, used), (BN / 16) * 32, smem, st>>>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk);
+  if (!set) { cudaFuncSetAttribute(k_fp8_fp4_gemm_nt_v2<BN, SWZ, KPERM, ONESYNC, STG, PAIR>, cudaFuncAttributeMaxDynamicSharedMemorySize, smem); set = true; }
+  k_fp8_fp4_gemm_nt_v2<BN, SWZ, KPERM, ONESYNC, STG, PAIR><<<dim3(N / BN, used), (BN / 16) * 32, smem, st>>>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk);
 }
 
 template <int BN>
 static void launch_v2_arms(int arms, const uint8_t* pa, const uint8_t* psa, const uint8_t* pb, const uint8_t* psb, float* ws, int M, int N,
                            int K, int sfs, int chunk, int used, cudaStream_t st) {
-  switch (arms & 7) {
-    case 0: launch_v2<BN, 0, 0, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
-    case 1: launch_v2<BN, 1, 0, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
-    case 2: launch_v2<BN, 0, 1, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
-    case 3: launch_v2<BN, 1, 1, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
-    case 4: launch_v2<BN, 0, 0, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
-    case 5: launch_v2<BN, 1, 0, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
-    case 6: launch_v2<BN, 0, 1, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
-    default: launch_v2<BN, 1, 1, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+  // bits: 1 SWZ, 2 KPERM, 4 ONESYNC, 8 two stages, 16 PAIR (PAIR needs four stages). The combinations the bench uses.
+  switch (arms) {
+    case 0: launch_v2<BN, 0, 0, 0, 4, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 1: launch_v2<BN, 1, 0, 0, 4, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 2: launch_v2<BN, 0, 1, 0, 4, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 4: launch_v2<BN, 0, 0, 1, 4, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 7: launch_v2<BN, 1, 1, 1, 4, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 9: launch_v2<BN, 1, 0, 0, 2, 0>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    case 17: launch_v2<BN, 1, 0, 0, 4, 1>(pa, psa, pb, psb, ws, M, N, K, sfs, chunk, used, st); break;
+    default: TORCH_CHECK(false, "arms: one of 0, 1, 2, 4, 7, 9 (swizzle + 2 stages), 17 (swizzle + pairs)");
   }
 }
 
@@ -399,7 +434,7 @@ void fp8_fp4_gemm_nt_sm120_v2(torch::Tensor a, torch::Tensor sfa, torch::Tensor 
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v3a", cpp_sources=CPP, cuda_sources=CUDA,
+    return load_inline(name="sm120fp4_fp8_fp4_gemm_nt_v4b", cpp_sources=CPP, cuda_sources=CUDA,
                        functions=["fp8_fp4_gemm_nt_sm120", "fp8_fp4_gemm_nt_sm120_v1", "fp8_fp4_gemm_nt_sm120_v2"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
@@ -512,14 +547,14 @@ def selftest(mod, dev) -> int:
         v2(mod, a8, sfa, b4, sfb, base, arms=0)
         torch.cuda.synchronize()
         rb = check(base, a8, sfa, b4, sfb, 128)
-        for arms in (1, 2, 4, 7):
+        for arms in (1, 2, 4, 7, 9, 17):
             dd = torch.empty(m, n, device=dev, dtype=torch.bfloat16)
             v2(mod, a8, sfa, b4, sfb, dd, arms=arms)
             torch.cuda.synchronize()
             r = check(dd, a8, sfa, b4, sfb, 128)
             u = bf16_ulps_apart(base, dd)
             nd = int((base != dd).sum())
-            bound = 1 if (arms & 2) else 0
+            bound = 1 if (arms & 2) else 0   # 9 and 17 keep the fold order: bit-identical required
             good = r["pass"] and u <= bound
             ok &= good
             print(f"  m={m} n={n} k={k} arms={arms}: rel {r['rel_fro_err']:.2e}, differing from arm 0 {nd}/{m * n}, max {u} ulp (bound {bound}) -> {'ok' if good else 'FAIL'}", flush=True)
@@ -542,7 +577,7 @@ def bench(mod, dev, out):
         ws = torch.empty(splits, m, n, device=dev, dtype=torch.float32)
         res = {"m": m, "n": n, "k": k, "bn": bn, "splits": splits, "blocks_v2": (n // bn) * splits, "blocks_v1": n // 128}
         variants = [("v1", lambda: mod.fp8_fp4_gemm_nt_sm120_v1(a8, sfa, b4, sfb, d, 128))]
-        for arms, label in ((0, "v2"), (1, "v2_swz"), (2, "v2_kperm"), (4, "v2_onesync"), (7, "v2_all")):
+        for arms, label in ((0, "v2"), (1, "v2_swz"), (9, "v2_swz_stg2"), (17, "v2_swz_pair")):
             variants.append((label, (lambda arms=arms: mod.fp8_fp4_gemm_nt_sm120_v2(a8, sfa, b4, sfb, d, ws, 128, bn, splits, arms))))
         for name, fn in variants:
             fn()
@@ -561,17 +596,16 @@ def bench(mod, dev, out):
         nbytes = a8.numel() + b4.numel() + sfa.numel() * 4 + sfb.numel() * 4 + d.numel() * 2
         res["bytes"] = nbytes
         res["v2_achieved_GBps"] = nbytes / res["v2_us_median"] / 1e3
-        for label in ("v2_swz", "v2_kperm", "v2_onesync", "v2_all"):
+        for label in ("v2_swz", "v2_swz_stg2", "v2_swz_pair"):
             res[f"{label}_achieved_GBps"] = nbytes / res[f"{label}_us_median"] / 1e3
             res[f"{label}_gain_vs_v2"] = res["v2_us_median"] / res[f"{label}_us_median"] - 1.0
         res["v1_achieved_GBps"] = nbytes / res["v1_us_median"] / 1e3
         res["floor_us_at_1792"] = nbytes / 1792.0 / 1e3
         rows.append(res)
         print(f"m={m} n={n} k={k}: v1 {res['v1_us_median']:.1f} us; v2 {res['v2_us_median']:.1f} us ({res['v2_achieved_GBps']:.0f} GB/s); "
-              f"swz {res['v2_swz_us_median']:.1f} ({res['v2_swz_gain_vs_v2']:+.1%}), kperm {res['v2_kperm_us_median']:.1f} ({res['v2_kperm_gain_vs_v2']:+.1%}), "
-              f"onesync {res['v2_onesync_us_median']:.1f} ({res['v2_onesync_gain_vs_v2']:+.1%}), all {res['v2_all_us_median']:.1f} ({res['v2_all_gain_vs_v2']:+.1%}); "
-              f"floor {res['floor_us_at_1792']:.1f} us", flush=True)
-    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2 with arms (and v1)", "device": props.name, "sm_count": props.multi_processor_count,
+              f"swz {res['v2_swz_us_median']:.1f} ({res['v2_swz_gain_vs_v2']:+.1%}), swz+2stages {res['v2_swz_stg2_us_median']:.1f} ({res['v2_swz_stg2_gain_vs_v2']:+.1%}), "
+              f"swz+pairs {res['v2_swz_pair_us_median']:.1f} ({res['v2_swz_pair_gain_vs_v2']:+.1%}); floor {res['floor_us_at_1792']:.1f} us", flush=True)
+    report = {"kernel": "fp8_fp4_gemm_nt_sm120_v2 with arms: swizzle, two stages, pairs (and v1)", "device": props.name, "sm_count": props.multi_processor_count,
               "note": "cold L2 (256 MB fill before each launch); one launch per timing (v2 = tile kernel + reduce); bytes = A e4m3 + B packed e2m1 + packed scales + bf16 D; floor at 1792 GB/s",
               "tile": {"BM": 32, "BK": 128, "stages": 4}, "rows": rows}
     if out is not None:

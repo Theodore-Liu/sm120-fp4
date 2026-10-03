@@ -22,8 +22,10 @@ closes it. Dates are when an item was added, not estimates.
    633 GB/s, 2.8 to 5.3 times the floor, bit-identical to v1 except one element one ulp off; the grid is
    no longer the bound. The swizzled A rows add 10 to 17 percent on the K = 7168 shapes (K permutation the same, not additive;
    one barrier per stage within noise), best 743 GB/s, 2.4 to 4.9 times the floor
-   (`reports/fp8-fp4-gemm-v3-rtx5090-20261002.json`). Next: occupancy and pipeline depth (2 stages for four blocks per SM;
-   two 128-K blocks in flight before the fold).
+   (`reports/fp8-fp4-gemm-v3-rtx5090-20261002.json`). Two stages instead of four (four blocks per SM) add 30 to 34 percent on
+   the N = 7168 shapes, pairs of blocks 21 to 24 and not on top; best 852 GB/s, 2.1 times the floor on M16
+   N7168 (`reports/fp8-fp4-gemm-v4-rtx5090-20261002.json`). The N = 2048 shapes are bound by two launches and the 22-way
+   reduce at 17 to 19 us. Next: a fused reduce (or fewer splits now that occupancy is free), then the MQA-logits kernel.
 
 ## Ready, in order
 

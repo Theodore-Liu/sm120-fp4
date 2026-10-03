@@ -127,6 +127,18 @@ v2 is 1.7 to 3.5 times v1 and reads 338 to 633 GB/s, 2.8 to 5.3 times the byte f
 
 Swizzling the A rows and permuting K inside each k32 step (one 8-byte A load and one 4-byte B load per lane) buy the same 10 to 17 percent on the K = 7168 shapes and do not add, so they remove the same bank conflict; the one-barrier arm is within noise (under 5 percent everywhere), as registered. The registered expectation for the swizzle (at least 25 percent at N 7168) was not met: the best configuration reads 743 GB/s, 2.4 to 4.9 times the byte floor, so the shared-memory access pattern was a sixth of the gap, not most of it. What is left is latency: 48 KB of shared memory per block allows two blocks per SM, sixteen warps, and each 128-K block is four dependent MMA steps followed by a fold and a barrier. The next arms are pipeline depth (2 stages, 24 KB, four blocks per SM) and two 128-K blocks in flight per block before the fold; the swizzle is kept, the permutation and the single barrier are not.
 
+**v4, occupancy and pipeline depth, measured (2026-10-02, RTX 5090, `reports/fp8-fp4-gemm-v4-rtx5090-20261002.json`).** Two arms on v2 with the swizzle, both bit-identical to v2 on three shapes: two pipeline stages instead of four (24 KB of shared memory, four blocks per SM) and pairs of 128-K blocks computed per barrier pair through the four-stage ring (two independent MMA chains, one barrier per block). Cold-L2 medians of 20 launches:
+
+| M | N | K | v2 (us) | + swizzle | + swizzle, 2 stages | + swizzle, pairs | best GB/s | best / floor |
+|---|---|---|---|---|---|---|---|---|
+| 16 | 2048 | 7168 | 17.2 | 17.0 (+1%) | 17.1 (+0%) | 17.1 (+0%) | 449 | 4.0x |
+| 16 | 7168 | 7168 | 41.5 | 35.6 (+17%) | 31.0 (+34%) | 33.5 (+24%) | 852 | 2.1x |
+| 32 | 2048 | 7168 | 19.1 | 17.8 (+7%) | 18.6 (+3%) | 19.2 (-0%) | 439 | 4.1x |
+| 32 | 7168 | 7168 | 43.0 | 38.9 (+11%) | 33.0 (+30%) | 35.6 (+21%) | 813 | 2.2x |
+| 16 | 4096 | 2048 | 13.1 | 11.7 (+12%) | 11.0 (+19%) | 13.1 (-0%) | 401 | 4.5x |
+
+Two stages are the larger step on every shape with K = 7168 and N = 7168 (+30 to +34 percent over v2, +12 to +18 over the swizzle alone) and on the K = 2048 shape; the pairs give +21 to +24 percent on the same shapes and nothing elsewhere, so the bound was occupancy, not the per-block dependency chain, and the two arms are not kept together. On the N = 2048, K = 7168 shapes neither moves anything: those runs sit at 17 to 19 us whatever the kernel does, which is the cost of two launches and a reduce over 22 split partials, so their next step is a fused reduce or fewer splits with the freed occupancy, not more tile work. The best configuration (swizzle, two stages) reads 852 GB/s on M16 N7168 K7168, 2.1 times the byte floor, and 4.5 times on the overhead-bound N 2048 shapes. The registered expectations: (d) at least 20 percent at N 2048 missed (0 percent, for the reason above); (e) at least 15 percent at N 7168 met (21 to 24).
+
 **Interface of the first kernel, `sm120_fp8_fp4_gemm_1d1d`.** The same arguments `fp8_fp4_gemm_nt` passes the SM100
 launcher at `gemm.hpp:128`: `a` codes (e4m3, `[M, K]`), `sfa` (packed UE8M0 `[M, K/gran_k_a]` after the layout
 transform), `b` codes (packed e2m1, `[N, K/2]`), `sfb`, optional `c`, output `d` (bf16 or fp32, N-major), `m, n, k`,
