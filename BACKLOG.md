@@ -50,9 +50,9 @@ closes it. Dates are when an item was added, not estimates.
 
 4. **Adoption 1: the stage-2 backend as an installable vLLM plugin, with the upstream text drafted** (author's order, 2026-10-03,
    first of three). Package `sm120fp4` so `pip install` registers the `vllm.general_plugins` entry point on a stock vLLM 0.28,
-   with the install and the one-line enable in the README; then draft (not post) a vLLM issue or PR with the real-checkpoint
-   table, the 300-of-300 parity and the 1.21 to 1.37x decode numbers, for the author to review. The only part of this repository
-   with an end-to-end gain today, so the only part someone else is likely to use.
+   with the install and the one-line enable in the README. The only part of this repository with an end-to-end gain today, so
+   the only part someone else is likely to use. **The upstream text (a vLLM issue or PR) waits until the project is
+   essentially complete (author, 2026-10-03): nothing is drafted or posted before then.**
 5. **Adoption 2: one stage-3 kernel inside an engine on a model that runs on an SM120 card** (second). The kernels are correct
    and measured but nothing calls them; pick the path a RTX PRO 6000 can hold (an FP4 checkpoint whose engine needs the FP8 x
    FP4 GEMM or the MQA-logits indexer), wire the kernel in behind a flag, and measure end to end against the engine's own path,
