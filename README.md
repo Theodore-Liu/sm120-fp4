@@ -40,6 +40,13 @@ their own builds.
 - `sm120fp4/layouts.py`: converters (`to_128x4`, `from_128x4`, padding helpers) and layout descriptors.
 - `sm120fp4/reference.py`: the NVFP4 reference quantizer, dequantizer and reference GEMM (fp32 accumulate).
 - `tests/`: conformance tests; each test states which failure class it exists to catch and cites the public report.
+- `scripts/moe_layer.py` and the `fc1_*.py` / `fc2_*.py` / `moe_w4a16.py` kernels beside it: the stage-2 W4A16 decode MoE layer;
+  `scripts/real_ckpt_layer.py` runs it on a real checkpoint beside Marlin.
+- `sm120fp4/vllm_backend.py`, `sm120fp4/vllm_classes.py`: the layer as an opt-in vLLM 0.28 MoE backend (`SM120FP4_MOE=1`);
+  `scripts/vllm_model_compare.py` and `scripts/vllm_decode_throughput.py` measure it inside the engine.
+- `docs/stage3-survey.md`, `scripts/ue8m0_reference.py`, `scripts/fp8_fp4_gemm_sm120.py`, `scripts/probe_f8f6f4*.py`: stage 3,
+  the FP4 kernels DeepGEMM routes to `tcgen05` and SM120 lacks.
+- `BACKLOG.md`: the ranked work queue; `PLAN.md`: the stage gates; `reports/`: every measurement the tables above cite.
 
 ## What works on SM120 today (RTX 5090 and RTX PRO 6000, FlashInfer 0.6.16.post3, PyTorch 2.13 cu130, driver 610)
 
@@ -136,9 +143,46 @@ At 16 spread tokens the layer and Marlin are within 2 us (RTX 5090) and 9 us (RT
 remaining gap to the layer's own weight-read floor is in FC2 (`docs/stage2-design.md`). Only the first MoE layer of one
 checkpoint has been run on the layer bench. Inside vLLM 0.28 (`sm120fp4/vllm_backend.py`, opt-in `SM120FP4_MOE=1`) the full model answers all 300 retrieval items with every routed-experts layer on these kernels, as stock vLLM does on its W4A4 path; the first generated token agrees with stock on 293 of 300 and whole 64-token greedy sequences on 3 of 350, the two paths being different numerics (`docs/engine-integration-notes.md`). The decode-throughput table inside the engine is above.
 
+## Stage 3: the FP4 kernels DeepGEMM does not ship for SM120 (in progress)
+
+DeepSeek-V4-Flash on consumer Blackwell is blocked by three DeepGEMM dispatch sites that have an SM100 kernel built on
+`tcgen05` and no SM120 one (vLLM issue #41063). `docs/stage3-survey.md` reads DeepGEMM at commit `057ca5964aae` and settles
+what each site needs: the FP8xFP4 GEMM with UE8M0 block scales (`sm100_fp8_fp4_gemm_1d1d`), the FP4 MQA-logits indexer
+kernels, and an einsum that turns out to be FP8, not FP4, upstream. The first kernel is the GEMM, and three steps of it are
+done on the RTX 5090:
+
+- `scripts/ue8m0_reference.py`: the UE8M0 (MX) scale path - scale rule, e2m1 grid and rounding, nibble and scale packing -
+  mirrored from `deep_gemm/utils/math.py` and checked bit for bit against it on six configurations.
+- The `mma.sync kind::f8f6f4` operand convention, measured with one-hot probes (`scripts/probe_f8f6f4_onehot.py`): the card
+  reads an e2m1 container as a six-bit field, so the code goes in bits 5:2 of its byte; the fragment layout is the PTX ISA's
+  8-bit m16n8k32 one. A code left in the low nibble gives wrong, smaller numbers.
+- `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
+  rounding - v0 (one warp per 16 x 8 tile, the convention check), v1 (32 x 128 tiles, 4-stage `cp.async`, bit-identical to
+  v0) and v2 (split-K with a fixed-order reduce, bit-identical to v1 except one element one ulp off). Cold-L2 medians of 20
+  launches on DeepSeek-V4-style decode shapes (`reports/fp8-fp4-gemm-v2-rtx5090-20261002.json`):
+
+| M | N | K | v1 (one block per 128 columns), us | v2 (split-K), us | v2 GB/s | byte floor at 1792 GB/s, us | v2 / floor |
+|---|---|---|---|---|---|---|---|
+| 16 | 2048 | 7168 | 66.6 | 19.1 (128-wide tiles, 22 splits) | 401 | 4.3 | 4.5x |
+| 16 | 7168 | 7168 | 70.4 | 41.8 (128-wide tiles, 7 splits) | 633 | 14.8 | 2.8x |
+| 32 | 2048 | 7168 | 68.4 | 19.2 (128-wide tiles, 22 splits) | 406 | 4.4 | 4.4x |
+| 32 | 7168 | 7168 | 70.7 | 43.8 (128-wide tiles, 7 splits) | 612 | 14.9 | 2.9x |
+| 16 | 4096 | 2048 | 23.3 | 13.1 (64-wide tiles, 6 splits) | 338 | 2.5 | 5.3x |
+
+v2 is 1.7 to 3.5 times v1 and 2.8 to 5.3 times the byte floor. The grid is no longer the bound; the next measured steps are
+the shared-memory fragment loads (an XOR swizzle on the A rows, 4-byte B loads) and one barrier per stage. The MQA-logits
+kernel follows the GEMM; the einsum site, being FP8, comes last.
+
 ## Status
 
-Stage 1 complete. Stage 2: the W4A16 decode layer above is ahead of Marlin on seven of the eight measured rows of a real NVFP4 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8 experts), and is deterministic; of the stage's gate, the RTX PRO 6000 reproduction is now met, the 8-to-16-token margin over FlashInfer's path is not (the layer is level there), and the layer runs inside vLLM 0.28 end to end as an opt-in backend (`SM120FP4_MOE=1`): the full model answers 300 of 300 retrieval items on it, the same as stock, and the engine decodes 1.21 to 1.37 times faster at 1 to 16 concurrent sequences than on vLLM's own W4A4 path. The stage's remaining clause is the 8-to-16-token margin over FlashInfer's path at the layer level (`BACKLOG.md`). Stage 3 has started: `docs/stage3-survey.md` reads DeepGEMM at a pinned commit and fixes the first kernel (`sm120_fp8_fp4_gemm_1d1d`) and its conformance plan; `scripts/ue8m0_reference.py` mirrors DeepGEMM's UE8M0 scale path bit for bit, and `scripts/fp8_fp4_gemm_sm120.py` holds an SM120 FP8xFP4 GEMM with UE8M0 scales in two versions, both correct against that reference to bf16 output rounding; the split-K one reaches 633 GB/s on a 7168-wide decode shape, 2.8 times its byte floor, with the shared-memory fragment loads the next thing to fix (the `mma.sync` `kind::f8f6f4` e2m1 container convention was measured on the card: the code sits in bits 5:2 of its byte). Stage 3 (the FP4 kernels DeepGEMM does not ship for SM120) has not started. See `PLAN.md` for the stage gates.
+Stage 1 complete. Stage 2: the W4A16 decode layer is ahead of Marlin on seven of the eight measured rows of a real NVFP4
+checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8
+experts), and is deterministic; it runs inside vLLM 0.28 end to end as an opt-in backend (`SM120FP4_MOE=1`), where the
+full model answers 300 of 300 retrieval items as stock does and the engine decodes 1.21 to 1.37 times faster at 1 to 16
+concurrent sequences than on vLLM's own W4A4 path. Of the stage's gate, the RTX PRO 6000 reproduction and the engine
+integration are met; the 8-to-16-token margin over FlashInfer's path at the layer level is not (the layer is level there)
+and stays in `BACKLOG.md`. Stage 3 is in progress: the survey, the UE8M0 reference, the measured operand convention and
+the first kernel at 2.8 times its byte floor on the widest shape, as the section above states. See `PLAN.md` for the stage gates.
 
 ## License
 
