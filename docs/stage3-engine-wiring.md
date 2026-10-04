@@ -120,8 +120,14 @@ operand as it is and lands within 3.0e-7 of the fp32 reference on the same five 
 reference at absolute columns on four shapes (1e-5 bar); the two-mode precision record above; the paged call against the flat call
 on the same rows through random page permutations, with 1-D and 2-D `seq_lens`, `next_n` of 1 and 2 and a block table with spare
 columns, bit for bit; and both calls through `vllm.utils.deep_gemm`'s own wrappers after `register(force=True)`, equal to the direct
-calls. What this does not yet test: `sparse_attn_indexer.py`'s own code path end to end (its top-k over our logits), which needs
-the indexer module's buffers and metadata constructed as the engine constructs them; that is the remaining piece of step 1.
+calls. `tests/test_indexer_topk.py` (6 tests) then runs the engine's own top-k kernels, `top_k_per_row_prefill` and
+`top_k_per_row_decode` from `vllm._custom_ops`, over the adapter's logits and over the fp32 reference logits and compares the
+selected index sets row by row (prefill: 2048 of spans up to 8192 and 512 of up to 3000, indices relative to each row's `ks`,
+which is the kernel's convention; decode: 2048 and 512 over paged contexts with `next_n` of 1 and 2, absolute positions): the
+sets are identical on every row. What the attention layer consumes is that index buffer, so the kernel-level path the indexer
+runs on SM120 (our logits, its top-k) is closed. The function `sparse_attn_indexer()` itself is not called standalone: it reads
+the engine's forward context and attention metadata, which exist only inside a running engine, so its call is exercised by
+step 3's two-GPU run rather than by a unit test.
 
 ## 4. The order of work (adoption item 2)
 
@@ -135,8 +141,10 @@ the indexer module's buffers and metadata constructed as the engine constructs t
    `SM120FP4_INDEXER=1`. Test: `sparse_attn_indexer.py`'s own code path on synthetic q, kv and block tables against the
    reference the paper's selftests use (DeepGEMM's test reference), bit for bit with our v2/v3, and vLLM's `is_deep_gemm_supported`
    left as the engine has it. Closes when the engine's indexer function, called as the engine calls it, returns our logits.
-   **State 2026-10-04: the adapter, its binding and its test through `vllm.utils.deep_gemm`'s wrappers are in (Section 3d);
-   the fp32-weights kernel variant the engine's operand needs is in; the `sparse_attn_indexer.py` end-to-end call remains.**
+   **State 2026-10-04: closed at the kernel level (Section 3d). The adapter, its binding, its test through
+   `vllm.utils.deep_gemm`'s wrappers, the fp32-weights kernel variant the engine's operand needs, and the engine's own top-k
+   kernels over our logits (identical index sets to the reference on every row) are in. `sparse_attn_indexer()` as a function is
+   first called by step 3's engine run; it has no standalone form.**
 2. **The q-side formats.** vLLM's indexer quantises q to FP8 e4m3 per token (default) or MXFP4; our kernels take FP8 q. The
    MXFP4-q path (`use_fp4=True`) needs an FP4 x FP4 instruction form (`kind::f8f6f4` with e2m1 on both operands) that the
    repository has not measured; FP8 q is the default and is what step 1 wires.

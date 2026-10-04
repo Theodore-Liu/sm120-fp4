@@ -81,8 +81,10 @@ closes it. Dates are when an item was added, not estimates.
    `SM120FP4_INDEXER=1`; the engine's fp32 `weights` cost 1.2e-3 to 2.8e-3 relative when read as bf16, so v5 gained an fp32-weights
    variant (within 3.0e-7) that the adapter uses by default (wiring doc 3d; `tests/test_indexer_adapter.py`, 9 tests, through
    `vllm.utils.deep_gemm`'s own wrappers). The three MQA-logits kernel modules and `ue8m0_reference.py` moved into
-   `sm120fp4/kernels/` with shims in `scripts/`. Next: `sparse_attn_indexer.py`'s own code path end to end on synthetic buffers
-   (closes step 1), then the paged staging's 4-byte loads, then step 3's two-GPU run.
+   `sm120fp4/kernels/` with shims in `scripts/`. Step 1 closed the same day at the kernel level: the engine's own top-k kernels
+   over our logits select the same index sets as over the reference on every row (`tests/test_indexer_topk.py`, 6 tests; the
+   indexer function itself reads the engine's forward context and is first called by step 3's run). Next: the paged staging's
+   4-byte loads (the paged v5 is three times the paged v4), the v5f-against-v5 timing, then step 3's two-GPU run.
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its
