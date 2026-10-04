@@ -102,8 +102,9 @@ closes it. Dates are when an item was added, not estimates.
    runner when the repository has a second contributor. Landed 2026-10-04: `scripts/ci_nightly.py` (the dedicated checkout reset to
    origin/master, the GPU-idle check, pytest with junit, `reports/ci/<date>.json`, the README's CI status line, `--push` from the
    working copy), scheduled task `Sm120Ci` at 05:30 daily; the first hand run: 67 passed, 0 failed, 15 skipped (the checkpoint-bound
-   tests without the shard) in 11 s on f033af8. Open: the skipped tests need the NVFP4 shard in the local cache to count, and a
-   self-hosted runner remains the step after.
+   tests without the shard) in 11 s on f033af8. The 15 skips are `tests/test_mm_fp4.py` on FlashInfer's `mm_fp4` backends (cuDNN, TensorRT-LLM, CuTe DSL), which the
+   pinned FlashInfer 0.6.16.post3 declines on this device; that is stage 1's finding, not a CI defect, and the report now
+   groups the skip reasons so a reader sees it. A self-hosted runner remains the step after.
 7. **Stage 2, 8 to 16 tokens against FlashInfer's `compute_120f` grouped path by a stated margin** (2026-10-02). The
    gate clause not met: at 16 tokens the layer is level with Marlin and FlashInfer W4A16. The remaining gap is FC2
    against its own byte floor (`docs/stage2-design.md`); the candidate is a tensor-core FC2 that keeps two blocks per

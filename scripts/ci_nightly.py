@@ -71,12 +71,23 @@ def parse_junit(junit: Path) -> dict:
             summary[k] += int(s.get(k, 0))
         summary["time_s"] += float(s.get("time", 0.0))
         for tc in s.iter("testcase"):
-            outcome = "passed"
+            outcome, why = "passed", None
             for child in tc:
                 if child.tag in ("failure", "error", "skipped"):
-                    outcome = child.tag if child.tag != "error" else "error"
-            tests.append({"name": f"{tc.get('classname')}::{tc.get('name')}", "outcome": outcome, "time_s": float(tc.get("time", 0.0))})
+                    outcome = child.tag
+                    why = (child.get("message") or (child.text or "").strip())[:300] or None
+            row = {"name": f"{tc.get('classname')}::{tc.get('name')}", "outcome": outcome, "time_s": float(tc.get("time", 0.0))}
+            if why:
+                row["why"] = why
+            tests.append(row)
     summary["passed"] = summary["tests"] - summary["failures"] - summary["errors"] - summary["skipped"]
+    # the skip reasons, grouped: a reader sees at once whether a skip is the environment (a backend this device lacks) or a bug
+    reasons: dict[str, int] = {}
+    for t in tests:
+        if t["outcome"] == "skipped":
+            key = (t.get("why") or "no reason").split(":")[0][:80]
+            reasons[key] = reasons.get(key, 0) + 1
+    summary["skip_reasons"] = reasons
     return {"summary": summary, "tests": tests}
 
 
