@@ -31,7 +31,11 @@ rate), then the measured pod attached to that volume.
 
 - vLLM: the nightly or the first release in which PR #41834 (the SM120 DeepSeek-V4 megapatch) has landed, or 0.28 plus the
   commits the public recipe (Infatoshi/dsv4-flash-2x-rtxpro6000s) pins; which one is decided on the day from the PR's state, and the
-  build is recorded in the report.
+  build is recorded in the report. State read 2026-10-04: #41834 ("Add SM12x support for DeepSeek V4 Flash with essential fixes") is
+  open, last tagged 2026-08-09 (`sm120-pr-41834-stable-preview-20260809`), with a stock-deps path on released FlashInfer wheels, Triton
+  sparse-MLA kernels and an indexer that selects top-k without materialising the logits; reviewers flagged that its FP4 indexer still
+  needs DeepGEMM on SM120. So the pod runs that branch at its tag (not a release), and the comparison inside it is its own indexer
+  path against ours behind the flag; our adapter serves the FP8 indexer cache, which is the one SM120 runs.
 - Our plugin, installed from the wheel (`scripts/plugin_install_test.py --non-editable` is the check that the entry point registers on
   a stock install). Both flags are independent: `SM120FP4_INDEXER=1` alone wires the indexer; `SM120FP4_MOE=1` is stage 2's layer and
   is off for this run unless the V4 experts' format fits it (they are NVFP4 `modelopt_fp4`, so it may).
