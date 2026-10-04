@@ -216,6 +216,8 @@ done on the RTX 5090:
   to lane-strided 16-byte loads, against the paged v4's 23.3 / 72.4 / 74.5 (`reports/fp8-paged-mqa-logits-v5-stage16-rtx5090-20261004.json`,
   `reports/fp8-fp4-paged-mqa-logits-v4-rtx5090-20261003.json`); Nsight Compute puts its occupancy at one block per SM, capped by the
   67.6 KB of shared memory the eight staged pages take (`docs/stage3-engine-wiring.md` 3g).
+- The half-page staging (`fp8_paged_mqa_logits_sm120_v5h`, two blocks per SM) runs 33.5 / 103.4 / 113.4 us against the full page's
+  33.6 / 115.5 / 124.9 on the same shapes back to back (`reports/fp8-paged-mqa-logits-v5h-rtx5090-20261004.json`; wiring doc 3h).
 - `scripts/fp8_einsum_sm120.py` — the FP8 einsum `bhr,hdr->bhd` for SM120 (DeepGEMM's `fp8_einsum` recipe: per-token x, per-block y): v0 (one warp per 16 x 8 tile) and v1 (y and x tiles staged in shared memory, 8 warps per 128 x 128 tile), both correct against torch.einsum on the dequantised operands and bit-identical to each other; `--selftest`, `--bench`.
   rounding - v0 (one warp per 16 x 8 tile, the convention check), v1 (32 x 128 tiles, 4-stage `cp.async`, bit-identical to
   v0) and v2 (split-K with a fixed-order reduce, bit-identical to v1 except one element one ulp off). Cold-L2 medians of 20

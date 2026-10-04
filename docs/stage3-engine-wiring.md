@@ -215,6 +215,18 @@ next page's loads behind this page's MMAs. Either is a kernel change for a later
 The paged v4 reads 64-byte rows, half the bytes per page, and so stages 4.1 KB per warp: its two blocks per SM is where its 1.44 to
 1.66 times advantage comes from, as much as from the bytes.
 
+### 3h. The half-page staging, timed (2026-10-04)
+
+`fp8_paged_mqa_logits_sm120_v5h` stages each page in two halves of 32 rows (4.2 KB per warp, 33.8 KB per block, so two blocks fit an SM where 3g found one). Bit-identical to the flat v5 on five shapes including a 70-row context (a partial second half). Timed back to back on the idle GPU, cold L2, median of 10 (`reports/fp8-paged-mqa-logits-v5h-rtx5090-20261004.json` and `reports/fp8-paged-mqa-logits-v5-full-rerun-rtx5090-20261004.json`):
+
+| shape (S, N, H) | full page (v5), us | two halves (v5h), us | v5h / v5 | paged v4, us |
+|---|---:|---:|---:|---:|
+| 64, 8192, 8 | 33.6 | 33.5 | 1.00 | 23.3 |
+| 128, 16384, 8 | 115.5 | 103.4 | 0.90 | 72.4 |
+| 32, 65536, 16 | 124.9 | 113.4 | 0.91 | 74.5 |
+
+Ten percent on the two large shapes, nothing on the small one (128 pages over 170 SMs: there is no second block to place). The gap to the paged v4 is now 1.44 to 1.52 times; the remaining lever 3g named, a two-page double buffer per warp so the next page's loads hide behind this page's MMAs, is the next kernel change. The adapter keeps the full-page kernel until the half-page form is the default after a wider shape sweep.
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's
