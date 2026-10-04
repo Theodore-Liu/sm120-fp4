@@ -97,6 +97,9 @@ closes it. Dates are when an item was added, not estimates.
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its
    author runs.
+   Plan 2026-10-04 (`docs/ci-plan.md`): start as a nightly scheduled task on this machine that runs the suite in a dedicated
+   checkout, writes `reports/ci/<date>.json` and pushes it (no new credential, no runner process); a self-hosted Actions
+   runner when the repository has a second contributor. Not started: item 5's step 3 comes first.
 7. **Stage 2, 8 to 16 tokens against FlashInfer's `compute_120f` grouped path by a stated margin** (2026-10-02). The
    gate clause not met: at 16 tokens the layer is level with Marlin and FlashInfer W4A16. The remaining gap is FC2
    against its own byte floor (`docs/stage2-design.md`); the candidate is a tensor-core FC2 that keeps two blocks per
