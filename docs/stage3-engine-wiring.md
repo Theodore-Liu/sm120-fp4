@@ -129,6 +129,29 @@ runs on SM120 (our logits, its top-k) is closed. The function `sparse_attn_index
 the engine's forward context and attention metadata, which exist only inside a running engine, so its call is exercised by
 step 3's two-GPU run rather than by a unit test.
 
+### 3e. The paged staging, and a page-geometry risk for DeepSeek-V4 (2026-10-04)
+
+**Staging.** The first paged v5 read each 132-byte cache row as 33 4-byte words (2112 loads per page, 66 per lane) and ran at
+62.4 / 234.2 / 240.7 us on the three decode shapes, three times the paged v4 (`reports/fp8-paged-mqa-logits-v5-rtx5090-20261004.json`).
+Two 16-byte forms were tried. The first grouped four rows (528 bytes, 33 aligned chunks) and looped over 16 groups with a one-or-two
+trip inner loop in which lane 0 alone fetched each group's 33rd chunk; it was bit-identical and slower, 78.6 / 296.3 / 308.0 us, because
+that lone load serialised one memory latency per group on one lane while the other 31 waited. The second reads the page as 528
+contiguous 16-byte chunks lane-strided (17 passes, the last one for 16 lanes), scattering each 4-byte word to its row; bit-identical to
+the flat v5 through random page permutations on six shapes, and 33.5 / 115.6 / 123.7 us, 1.86 to 2.03 times faster than the 4-byte
+form and 1.44 to 1.66 times the paged v4's 23.3 / 72.4 / 74.5 us (`reports/fp8-paged-mqa-logits-v5-stage16-rtx5090-20261004.json`,
+GPU idle before and after, 3.0 GB in use by the desktop). The remaining gap to v4 is the row width: a 128-byte e4m3 row is twice the
+bytes of v4's 64-byte e2m1 row, so the kernel reads twice the cache bytes per logit. The fp32-weights variant's cost against the bf16
+form is not yet timed.
+
+**A risk for the end-to-end run.** vLLM issue #53635 (open, read 2026-10-04) reports that on SM12x with DeepGEMM present the indexer's
+decode paged MQA-logits path fails for DeepSeek-V4: the kernel is templated for pages of 32 or 64 states, while V4's compressed
+indexer cache uses 2 states per page (128 tokens per state) after the KV-cache layout standardisation of PR #51718; the proposed fixes
+are a kernel that takes the smaller geometry, the short-row decode path of PR #41834, or a non-DeepGEMM fallback. Our adapter checks
+for the [num_blocks, 64, 1, 132] layout and refuses anything else, so on V4 it would refuse rather than corrupt; before step 3 the
+V4 indexer cache's actual page geometry on the pinned vLLM has to be read from the source and, if it is the 2-state form, the paged
+kernel needs a variant for it. PR #54929 (a portable Triton sparse-MLA fallback for SM12x) is the engine-side context for the same
+machines.
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's

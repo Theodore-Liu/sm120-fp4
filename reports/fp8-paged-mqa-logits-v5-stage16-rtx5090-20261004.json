@@ -1,0 +1,40 @@
+{
+ "kernel": "fp8_paged_mqa_logits_sm120_v5: one 132-byte-entry page per warp per step (vLLM's fp8 indexer cache layout), staged with 4-byte loads, v5's fold",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; every row reads the whole cache; the cache rate counts logical rows read (S x N) as the v3 and v4 reports did; the timed region holds the launch only",
+ "rows": [
+  {
+   "S": 64,
+   "N": 8192,
+   "H": 8,
+   "pages": 128,
+   "us_median": 33.63199904561043,
+   "us_min": 33.504001796245575,
+   "kv_rows_read": 524288,
+   "kv_GBps": 2057.7431602012553,
+   "TFLOPs": 31.92619690978917
+  },
+  {
+   "S": 128,
+   "N": 16384,
+   "H": 8,
+   "pages": 256,
+   "us_median": 115.53600057959557,
+   "us_min": 114.68800157308578,
+   "kv_rows_read": 2097152,
+   "kv_GBps": 2395.9983261605908,
+   "TFLOPs": 37.17427706043098
+  },
+  {
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "pages": 1024,
+   "us_median": 123.6800029873848,
+   "us_min": 123.64800274372101,
+   "kv_rows_read": 2097152,
+   "kv_GBps": 2238.228147748636,
+   "TFLOPs": 69.45289767559403
+  }
+ ]
+}

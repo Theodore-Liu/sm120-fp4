@@ -178,8 +178,8 @@ void fp8_mqa_logits_sm120_v5(torch::Tensor q, torch::Tensor sfq, torch::Tensor k
 }
 
 // paged v5: one page of 64 cache rows per warp per step, the page in vLLM's fp8 indexer layout (132 bytes per row: 128 e4m3 bytes
-// then the fp32 scale). A row stride of 132 bytes has no 16-byte alignment, so the page is staged with 4-byte loads: 64 rows x 33
-// words = 2112 words, 66 per lane; the codes go to a 128-byte-stride shared buffer and the scales beside it.
+// then the fp32 scale). The rows are staged into a 128-byte-stride shared buffer with the scales beside it; the first version
+// read the page as 2112 4-byte words (66 per lane), this one as 528 16-byte chunks lane-strided (17 passes), see the loop.
 constexpr int V5_PAGE = 64, V5_WARPS = 8, V5_ENTRY = 132;
 
 __global__ void __launch_bounds__(V5_WARPS * 32)
@@ -197,12 +197,24 @@ k_paged_mqa_logits_v5(const uint8_t* __restrict__ q, const uint8_t* __restrict__
   if (pos0 >= len) return;
   const int n_valid = min(V5_PAGE, len - pos0);
   const int page = block_table[(size_t)i * max_pages + p];
-  const uint32_t* src = reinterpret_cast<const uint32_t*>(kv_cache + (size_t)page * V5_PAGE * V5_ENTRY);
-  for (int wd = lane; wd < V5_PAGE * 33; wd += 32) {
-    const int r = wd / 33, part = wd - r * 33;
-    const uint32_t v = src[wd];
-    if (part < 32) *reinterpret_cast<uint32_t*>(s_k[warp] + r * 128 + part * 4) = v;
-    else s_sf[warp][r] = __uint_as_float(v);
+  // A 132-byte row is 4-byte aligned only, but the page (64 rows, 8448 bytes, base a multiple of 8448 = 528 * 16) is 528 contiguous
+  // 16-byte chunks. Each lane takes chunks lane, lane + 32, ... (16 full passes and a 17th for lanes 0 to 15); each 4-byte word of a
+  // chunk goes to its row (word w of the page lands in row w / 33, part w % 33; 132 is a multiple of 4, so no word straddles rows).
+  const uint4* src4 = reinterpret_cast<const uint4*>(kv_cache + (size_t)page * V5_PAGE * V5_ENTRY);
+#pragma unroll
+  for (int it = 0; it < 17; ++it) {
+    const int c = it * 32 + lane;
+    if (c < 528) {
+      const uint4 v = src4[c];
+      const uint32_t wv[4] = {v.x, v.y, v.z, v.w};
+#pragma unroll
+      for (int j = 0; j < 4; ++j) {
+        const int word = c * 4 + j;
+        const int r = word / 33, part = word - r * 33;
+        if (part < 32) *reinterpret_cast<uint32_t*>(s_k[warp] + r * 128 + part * 4) = wv[j];
+        else s_sf[warp][r] = __uint_as_float(wv[j]);
+      }
+    }
   }
   __syncwarp();
   const uint8_t* qrow = q + (size_t)i * H * 128;
@@ -304,7 +316,7 @@ CPP_V5F, CUDA_V5F = _fp32_weights_variant(CPP_V5, CUDA_V5)
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_mqa_logits_v5c", cpp_sources=base.CPP + CPP_V5 + CPP_V5F,
+    return load_inline(name="sm120fp4_fp8_mqa_logits_v5e", cpp_sources=base.CPP + CPP_V5 + CPP_V5F,
                        cuda_sources=base.CUDA + CUDA_V5 + CUDA_V5F,
                        functions=["fp8_mqa_logits_sm120_v5", "fp8_paged_mqa_logits_sm120_v5",
                                   "fp8_mqa_logits_sm120_v5f", "fp8_paged_mqa_logits_sm120_v5f"],

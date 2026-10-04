@@ -83,8 +83,12 @@ closes it. Dates are when an item was added, not estimates.
    `vllm.utils.deep_gemm`'s own wrappers). The three MQA-logits kernel modules and `ue8m0_reference.py` moved into
    `sm120fp4/kernels/` with shims in `scripts/`. Step 1 closed the same day at the kernel level: the engine's own top-k kernels
    over our logits select the same index sets as over the reference on every row (`tests/test_indexer_topk.py`, 6 tests; the
-   indexer function itself reads the engine's forward context and is first called by step 3's run). Next: the paged staging's
-   4-byte loads (the paged v5 is three times the paged v4), the v5f-against-v5 timing, then step 3's two-GPU run.
+   indexer function itself reads the engine's forward context and is first called by step 3's run). The paged staging moved to
+   16-byte lane-strided loads the same day: 33.5 / 115.6 / 123.7 us against 62.4 / 234.2 / 240.7, now 1.44 to 1.66 times the paged
+   v4 (wiring doc 3e; a first 16-byte form with a lone 33rd load per group on lane 0 was slower and is recorded there). Open before
+   step 3: vLLM #53635 says DeepSeek-V4's indexer cache uses 2-state pages on SM12x, not the 64-row pages the adapter accepts
+   (wiring doc 3e); read the pinned engine's geometry and add a page variant if needed. Next: that reading, the v5f-against-v5
+   timing, then step 3's two-GPU run.
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its
