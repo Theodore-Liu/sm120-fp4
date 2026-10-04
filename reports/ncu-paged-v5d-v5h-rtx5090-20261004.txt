@@ -1,0 +1,150 @@
+=== --double launch-skip 13 ===
+==PROF== Connected to process 467 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v5d": 0%....50%....100% - 9 passes
+==PROF== Disconnected from process 467
+[467] python3.12@127.0.0.1
+  k_paged_mqa_logits_v5d(const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 256, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        13.98
+    SM Frequency                    Ghz         2.35
+    Elapsed Cycles                cycle       376543
+    Memory Throughput                 %        53.66
+    DRAM Throughput                   %         5.51
+    Duration                         us       158.11
+    L1/TEX Cache Throughput           %        56.21
+    L2 Cache Throughput               %        10.56
+    SM Active Cycles              cycle    354322.08
+    Compute (SM) Throughput           %        40.82
+    ----------------------- ----------- ------------
+
+    OPT   This workload exhibits low compute throughput and memory bandwidth utilization relative to the peak           
+          performance of this device. Achieved compute throughput and/or memory bandwidth below 60.0% of peak           
+          typically indicate latency issues. Look at Scheduler Statistics and Warp State Statistics for potential       
+          reasons.                                                                                                      
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   256
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   4096
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread             200
+    Shared Memory Configuration Size           Kbyte           65.54
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           33.79
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread         1048576
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                               24.09
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            1
+    Block Limit Shared Mem                block            1
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        16.34
+    Achieved Active Warps Per SM           warp         7.84
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the number of required      
+          registers, and the required amount of shared memory.                                                          
+
+=== --half launch-skip 13 ===
+==PROF== Connected to process 545 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v5h": 0%....50%....100% - 9 passes
+==PROF== Disconnected from process 545
+[545] python3.12@127.0.0.1
+  k_paged_mqa_logits_v5h(const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 256, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        13.98
+    SM Frequency                    Ghz         2.31
+    Elapsed Cycles                cycle       286333
+    Memory Throughput                 %        71.16
+    DRAM Throughput                   %         6.98
+    Duration                         us       122.18
+    L1/TEX Cache Throughput           %        73.42
+    L2 Cache Throughput               %        20.35
+    SM Active Cycles              cycle    272853.45
+    Compute (SM) Throughput           %        54.09
+    ----------------------- ----------- ------------
+
+    OPT   Memory is more heavily utilized than Compute: Look at the Memory Workload Analysis section to identify the L1 
+          bottleneck. Check memory replay (coalescing) metrics to make sure you're efficiently utilizing the bytes      
+          transferred. Also consider whether it is possible to do more work per memory access (kernel fusion) or        
+          whether there are values you can (re)compute.                                                                 
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   256
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   4096
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread             128
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           33.79
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread         1048576
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                               12.05
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            2
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        32.32
+    Achieved Active Warps Per SM           warp        15.51
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the number of required      
+          registers, and the required amount of shared memory.                                                          
+

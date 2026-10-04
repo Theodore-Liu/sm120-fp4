@@ -38,6 +38,8 @@ void fp8_paged_mqa_logits_sm120_v5(torch::Tensor q, torch::Tensor sfq, torch::Te
                                    torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits, int64_t max_pages);
 void fp8_paged_mqa_logits_sm120_v5h(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv_cache, torch::Tensor w,
                                     torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits, int64_t max_pages);
+void fp8_paged_mqa_logits_sm120_v5d(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv_cache, torch::Tensor w,
+                                    torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits, int64_t max_pages);
 """
 
 CUDA_V5 = r"""
@@ -394,6 +396,129 @@ void fp8_paged_mqa_logits_sm120_v5h(torch::Tensor q, torch::Tensor sfq, torch::T
       reinterpret_cast<const __nv_bfloat16*>(w.data_ptr()), context_lens.data_ptr<int>(), block_table.data_ptr<int>(),
       logits.data_ptr<float>(), S, H, (int)max_pages, max_ctx);
 }
+__global__ void __launch_bounds__(V5_WARPS * 32)
+k_paged_mqa_logits_v5d(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, const uint8_t* __restrict__ kv_cache,
+                      const __nv_bfloat16* __restrict__ w, const int* __restrict__ ctx, const int* __restrict__ block_table,
+                      float* __restrict__ logits, int S, int H, int max_pages, int max_ctx) {
+  __shared__ __align__(16) uint8_t s_k[V5_WARPS][V5_HALF * 128];
+  __shared__ __align__(16) float s_sf[V5_WARPS][V5_HALF];
+  const int tid = threadIdx.x, warp = tid >> 5, lane = tid & 31, g = lane >> 2, t = lane & 3;
+  const int i = blockIdx.x * V5_WARPS + warp;
+  const int p = blockIdx.y;
+  if (i >= S) return;
+  const int len = ctx[i];
+  const int pos0 = p * V5_PAGE;
+  if (pos0 >= len) return;
+  const int n_valid = min(V5_PAGE, len - pos0);
+  const int page = block_table[(size_t)i * max_pages + p];
+  // The page in two halves of 32 rows (4224 bytes = 264 chunks of 16 bytes each, both halves 16-byte aligned): each half is staged
+  // lane-strided (8 full passes and a 9th for lanes 0 to 7) into a 4.2 KB buffer, then every head's scores for its rows are formed;
+  // 33.8 KB per block lets two blocks share an SM where the full-page form fits one.
+  const uint4* src4 = reinterpret_cast<const uint4*>(kv_cache + (size_t)page * V5_PAGE * V5_ENTRY);
+  const uint8_t* qrow = q + (size_t)i * H * 128;
+  float* out = logits + (size_t)i * max_ctx + pos0;
+  const uint8_t* sk = s_k[warp];
+  const float* ssf = s_sf[warp];
+  // Double buffering through registers: each lane holds its 9 chunks (36 words) of the half being staged; the next half's chunks are
+  // loaded into the same registers after this half's are written to shared memory, so their latency overlaps this half's MMAs.
+  const int halves = n_valid > V5_HALF ? 2 : 1;
+  uint4 pre[9];
+#pragma unroll
+  for (int it = 0; it < 9; ++it) {
+    const int c = it * 32 + lane;
+    pre[it] = (c < 264) ? src4[c] : make_uint4(0u, 0u, 0u, 0u);
+  }
+  for (int half = 0; half < halves; ++half) {
+    const int row0 = half * V5_HALF;
+    const int nv = min(V5_HALF, n_valid - row0);
+    __syncwarp();
+#pragma unroll
+    for (int it = 0; it < 9; ++it) {
+      const int c = it * 32 + lane;
+      if (c < 264) {
+        const uint32_t wv[4] = {pre[it].x, pre[it].y, pre[it].z, pre[it].w};
+#pragma unroll
+        for (int j = 0; j < 4; ++j) {
+          const int word = c * 4 + j;
+          const int r = word / 33, part = word - r * 33;
+          if (part < 32) *reinterpret_cast<uint32_t*>(s_k[warp] + r * 128 + part * 4) = wv[j];
+          else s_sf[warp][r] = __uint_as_float(wv[j]);
+        }
+      }
+    }
+    __syncwarp();
+    if (half + 1 < halves) {
+      const uint4* src4n = src4 + 264;
+#pragma unroll
+      for (int it = 0; it < 9; ++it) {
+        const int c = it * 32 + lane;
+        pre[it] = (c < 264) ? src4n[c] : make_uint4(0u, 0u, 0u, 0u);
+      }
+    }
+    for (int h0 = 0; h0 < H; h0 += 16) {
+      const int ha = h0 + g, hb = h0 + g + 8;
+      const bool has_a = ha < H, has_b = hb < H;
+      const float sa = has_a ? ue8m0_to_float(sfq[(size_t)i * H + ha]) : 0.f;
+      const float sb = has_b ? ue8m0_to_float(sfq[(size_t)i * H + hb]) : 0.f;
+      const float wa = has_a ? __bfloat162float(w[(size_t)i * H + ha]) : 0.f;
+      const float wb = has_b ? __bfloat162float(w[(size_t)i * H + hb]) : 0.f;
+      uint32_t af[4][4];
+      for (int st = 0; st < 4; ++st) {
+        const int k0 = st * 32;
+        af[st][0] = has_a ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)ha * 128 + k0 + 4 * t) : 0u;
+        af[st][1] = has_b ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)hb * 128 + k0 + 4 * t) : 0u;
+        af[st][2] = has_a ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)ha * 128 + k0 + 16 + 4 * t) : 0u;
+        af[st][3] = has_b ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)hb * 128 + k0 + 16 + 4 * t) : 0u;
+      }
+      for (int n0 = 0; n0 < nv; n0 += 8) {
+        const int col = n0 + g;
+        const bool has_col = col < nv;
+        const uint8_t* brow = sk + (size_t)(has_col ? col : 0) * 128;
+        float part[4] = {0.f, 0.f, 0.f, 0.f};
+        for (int st = 0; st < 4; ++st) {
+          const int k0 = st * 32;
+          uint32_t bf[2];
+          bf[0] = has_col ? *reinterpret_cast<const uint32_t*>(brow + k0 + 4 * t) : 0u;
+          bf[1] = has_col ? *reinterpret_cast<const uint32_t*>(brow + k0 + 16 + 4 * t) : 0u;
+          mma_e4m3_e4m3_v5(part, af[st], bf);
+        }
+        const int l0 = n0 + 2 * t, l1 = l0 + 1;
+        const bool in0 = l0 < nv, in1 = l1 < nv;
+        const float sk0 = in0 ? ssf[l0] : 0.f;
+        const float sk1 = in1 ? ssf[l1] : 0.f;
+        const int c0 = row0 + l0, c1 = row0 + l1;
+        float v0 = fmaxf(part[0] * (sa * sk0), 0.f) * wa + fmaxf(part[2] * (sb * sk0), 0.f) * wb;
+        float v1 = fmaxf(part[1] * (sa * sk1), 0.f) * wa + fmaxf(part[3] * (sb * sk1), 0.f) * wb;
+        for (int m = 4; m < 32; m <<= 1) {
+          v0 += __shfl_xor_sync(0xffffffffu, v0, m);
+          v1 += __shfl_xor_sync(0xffffffffu, v1, m);
+        }
+        if (g == 0) {
+          if (in0) { if (h0 == 0) out[c0] = v0; else out[c0] += v0; }
+          if (in1) { if (h0 == 0) out[c1] = v1; else out[c1] += v1; }
+        }
+      }
+    }
+
+  }
+}
+void fp8_paged_mqa_logits_sm120_v5d(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv_cache, torch::Tensor w,
+                                   torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits, int64_t max_pages) {
+  const int S = (int)q.size(0), H = (int)q.size(1), max_ctx = (int)logits.size(1);
+  TORCH_CHECK(q.scalar_type() == torch::kFloat8_e4m3fn && q.is_contiguous() && q.size(2) == 128, "q: e4m3 [S, H, 128]");
+  TORCH_CHECK(sfq.scalar_type() == torch::kUInt8 && sfq.numel() == (int64_t)S * H && sfq.is_contiguous(), "sfq: uint8 UE8M0 [S, H]");
+  TORCH_CHECK(kv_cache.scalar_type() == torch::kUInt8 && kv_cache.is_contiguous() && kv_cache.dim() == 4 && kv_cache.size(1) == 64 && kv_cache.size(2) == 1 && kv_cache.size(3) == 132,
+              "kv_cache: uint8 [num_blocks, 64, 1, 132] (128 e4m3 bytes then the fp32 scale per row)");
+  TORCH_CHECK(w.scalar_type() == torch::kBFloat16 && w.size(0) == S && w.size(1) == H && w.is_contiguous(), "weights: bf16 [S, H]");
+  TORCH_CHECK(context_lens.scalar_type() == torch::kInt && context_lens.numel() == S, "context_lens: int32 [S]");
+  TORCH_CHECK(block_table.scalar_type() == torch::kInt && block_table.is_contiguous() && block_table.size(0) == S && block_table.size(1) == max_pages, "block_table: int32 [S, max_pages]");
+  TORCH_CHECK(logits.scalar_type() == torch::kFloat && logits.size(0) == S && logits.is_contiguous(), "logits: fp32 [S, max_context_len]");
+  auto st = at::cuda::getCurrentCUDAStream();
+  k_paged_mqa_logits_v5d<<<dim3((S + V5_WARPS - 1) / V5_WARPS, (int)max_pages), V5_WARPS * 32, 0, st>>>(
+      static_cast<const uint8_t*>(q.data_ptr()), sfq.data_ptr<uint8_t>(), kv_cache.data_ptr<uint8_t>(),
+      reinterpret_cast<const __nv_bfloat16*>(w.data_ptr()), context_lens.data_ptr<int>(), block_table.data_ptr<int>(),
+      logits.data_ptr<float>(), S, H, (int)max_pages, max_ctx);
+}
 """
 
 
@@ -413,13 +538,14 @@ def _fp32_weights_variant(cpp: str, cuda: str) -> tuple[str, str]:
         t = t.replace('"weights: bf16 [S, H]"', '"weights: fp32 [S, H]"')
         t = t.replace("reinterpret_cast<const __nv_bfloat16*>(w.data_ptr())", "w.data_ptr<float>()")
         for name in ("mma_e4m3_e4m3_v5", "k_mqa_logits_v5", "launch_v5", "fp8_mqa_logits_sm120_v5", "k_paged_mqa_logits_v5",
-                     "fp8_paged_mqa_logits_sm120_v5", "k_paged_mqa_logits_v5h", "fp8_paged_mqa_logits_sm120_v5h"):
+                     "fp8_paged_mqa_logits_sm120_v5", "k_paged_mqa_logits_v5h", "fp8_paged_mqa_logits_sm120_v5h",
+                     "k_paged_mqa_logits_v5d", "fp8_paged_mqa_logits_sm120_v5d"):
             t = re.sub(r"\b" + name + r"\b", name + "f", t)
         return t
 
     cuda_f = conv(cuda).replace("constexpr int V5_PAGE = 64, V5_WARPS = 8, V5_ENTRY = 132, V5_HALF = 32;", "")
-    assert cuda_f.count("const float* __restrict__ w") == 3 and "__bfloat162float(w[" not in cuda_f
-    assert cuda_f.count('"weights: fp32 [S, H]"') == 3
+    assert cuda_f.count("const float* __restrict__ w") == 4 and "__bfloat162float(w[" not in cuda_f
+    assert cuda_f.count('"weights: fp32 [S, H]"') == 4
     return conv(cpp), cuda_f
 
 
@@ -427,10 +553,10 @@ CPP_V5F, CUDA_V5F = _fp32_weights_variant(CPP_V5, CUDA_V5)
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_mqa_logits_v5g", cpp_sources=base.CPP + CPP_V5 + CPP_V5F,
+    return load_inline(name="sm120fp4_fp8_mqa_logits_v5i", cpp_sources=base.CPP + CPP_V5 + CPP_V5F,
                        cuda_sources=base.CUDA + CUDA_V5 + CUDA_V5F,
-                       functions=["fp8_mqa_logits_sm120_v5", "fp8_paged_mqa_logits_sm120_v5", "fp8_paged_mqa_logits_sm120_v5h",
-                                  "fp8_mqa_logits_sm120_v5f", "fp8_paged_mqa_logits_sm120_v5f", "fp8_paged_mqa_logits_sm120_v5hf"],
+                       functions=["fp8_mqa_logits_sm120_v5", "fp8_paged_mqa_logits_sm120_v5", "fp8_paged_mqa_logits_sm120_v5h", "fp8_paged_mqa_logits_sm120_v5d",
+                                  "fp8_mqa_logits_sm120_v5f", "fp8_paged_mqa_logits_sm120_v5f", "fp8_paged_mqa_logits_sm120_v5hf", "fp8_paged_mqa_logits_sm120_v5df"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
 
@@ -439,8 +565,11 @@ def flat_fn(mod, w: torch.Tensor):
     return mod.fp8_mqa_logits_sm120_v5f if w.dtype == torch.float32 else mod.fp8_mqa_logits_sm120_v5
 
 
-def paged_fn(mod, w: torch.Tensor, half: bool = False):
-    """The paged entry point: full-page staging (v5) or two halves of 32 rows (v5h), for the weights' dtype."""
+def paged_fn(mod, w: torch.Tensor, half: bool = False, double: bool = False):
+    """The paged entry point: full-page staging (v5), two halves of 32 rows (v5h), or the halves with the next one prefetched into
+    registers (v5d), for the weights' dtype."""
+    if double:
+        return mod.fp8_paged_mqa_logits_sm120_v5df if w.dtype == torch.float32 else mod.fp8_paged_mqa_logits_sm120_v5d
     if half:
         return mod.fp8_paged_mqa_logits_sm120_v5hf if w.dtype == torch.float32 else mod.fp8_paged_mqa_logits_sm120_v5h
     return mod.fp8_paged_mqa_logits_sm120_v5f if w.dtype == torch.float32 else mod.fp8_paged_mqa_logits_sm120_v5
@@ -533,7 +662,7 @@ def make_paged_fp8(k8, k_scale, S, ctx_lens, seed, dev):
     return kv_cache.contiguous(), block_table, max_pages
 
 
-def run_paged_case(mod, S, N, H, seed, dev, weights_fp32=False, half=False):
+def run_paged_case(mod, S, N, H, seed, dev, weights_fp32=False, half=False, double=False):
     q, kv, w, ks, ke = base.make_case(S, N, H, seed, dev, full_span=True)
     q8, sfq_packed = ref.per_token_cast_to_fp8(q.reshape(S * H, HEAD_DIM), use_ue8m0=True, gran_k=HEAD_DIM, use_packed_ue8m0=True)
     sfq_f = ref.unpack_ue8m0_from_int(sfq_packed)[:, :1]
@@ -550,7 +679,7 @@ def run_paged_case(mod, S, N, H, seed, dev, weights_fp32=False, half=False):
     kv_cache, block_table, max_pages = make_paged_fp8(k8, k_scale, S, ctx, seed, dev)
     max_ctx = int(ctx.max())
     out = torch.full((S, max_ctx), float("-inf"), device=dev, dtype=torch.float32)
-    paged_fn(mod, w, half)(q8, sfq_u8, kv_cache, w, ctx, block_table, out, max_pages)
+    paged_fn(mod, w, half, double)(q8, sfq_u8, kv_cache, w, ctx, block_table, out, max_pages)
     ks0 = torch.zeros(S, dtype=torch.int32, device=dev)
     flat = torch.full((S, max_ctx), float("-inf"), device=dev, dtype=torch.float32)
     launch_v5(mod, q8, sfq_u8, k8, k_scale, w, ks0, ctx, flat, span=(0, max_ctx))
@@ -560,7 +689,7 @@ def run_paged_case(mod, S, N, H, seed, dev, weights_fp32=False, half=False):
     untouched = bool(torch.equal(torch.isfinite(out), valid))
     exact = reference(q8, sfq_f, k8, k_scale, w, ks0, ctx, max_ctx)
     rel = float((out[valid] - exact[valid]).abs().max() / exact[valid].abs().max().clamp_min(1e-30))
-    res = {"S": S, "N": N, "H": H, "weights_fp32": weights_fp32, "half": half, "pages": int(kv_cache.shape[0]), "max_pages": max_pages, "bit_identical_to_flat_v5": same,
+    res = {"S": S, "N": N, "H": H, "weights_fp32": weights_fp32, "half": half, "double": double, "pages": int(kv_cache.shape[0]), "max_pages": max_pages, "bit_identical_to_flat_v5": same,
            "untouched_outside_context": untouched, "rel_max_err": rel, "pass": same and untouched and rel < 1e-5}
     return res, (q8, sfq_u8, kv_cache, w, ctx, block_table, out, max_pages)
 
@@ -572,12 +701,17 @@ def selftest_paged(mod, dev) -> int:
                                         (8, 512, 8, 37, False, True), (33, 2048, 8, 38, False, True), (64, 4096, 16, 39, False, True), (16, 1000, 8, 40, True, True), (5, 70, 8, 41, False, True)):
         r, _ = run_paged_case(mod, S, N, H, seed, dev, weights_fp32=f32, half=half)
         ok &= r["pass"]
+        if half:
+            r2, _ = run_paged_case(mod, S, N, H, seed, dev, weights_fp32=f32, half=False, double=True)
+            ok &= r2["pass"]
+            print(f"  double-buffered (v5d) S={S} N={N} H={H}: bit-identical to flat v5 {r2['bit_identical_to_flat_v5']} -> {'ok' if r2['pass'] else 'FAIL'}", flush=True)
+        ok &= r["pass"]
         print(f"  S={S} N={N} H={H} pages={r['pages']}: bit-identical to flat v5 {r['bit_identical_to_flat_v5']}, outside context untouched {r['untouched_outside_context']}, rel max err {r['rel_max_err']:.2e} -> {'ok' if r['pass'] else 'FAIL'}", flush=True)
     print("paged v5 selftest:", "ok" if ok else "FAIL")
     return 0 if ok else 1
 
 
-def bench_paged(mod, dev, out: Path | None, half: bool = False) -> int:
+def bench_paged(mod, dev, out: Path | None, half: bool = False, double: bool = False) -> int:
     if out is not None and out.exists():
         print(f"refusing to overwrite {out}", file=sys.stderr)
         return 2
@@ -599,14 +733,14 @@ def bench_paged(mod, dev, out: Path | None, half: bool = False) -> int:
         for _ in range(10):
             flush_buf.fill_(1)
             e0, e1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-            e0.record(); paged_fn(mod, w, half)(q8, sfq_u8, kv_cache, w, ctx, bt, out_full, max_pages); e1.record()
+            e0.record(); paged_fn(mod, w, half, double)(q8, sfq_u8, kv_cache, w, ctx, bt, out_full, max_pages); e1.record()
             torch.cuda.synchronize()
             times.append(e0.elapsed_time(e1) * 1000)
         med = statistics.median(times)
         rows.append({"S": S, "N": N, "H": H, "pages": int(kv_cache.shape[0]), "us_median": med, "us_min": min(times), "kv_rows_read": S * N,
                      "kv_GBps": S * N * 132 / med / 1e3, "TFLOPs": 2.0 * S * H * N * HEAD_DIM / med / 1e6})
         print(f"paged v5 S={S} N={N} H={H}: {med:.1f} us ({rows[-1]['kv_GBps']:.0f} GB/s of cache rows, {rows[-1]['TFLOPs']:.1f} TFLOP/s)", flush=True)
-    report = {"staging": "two halves of 32 rows (v5h)" if half else "the full page (v5)", "kernel": "fp8_paged_mqa_logits_sm120_v5: one 132-byte-entry page per warp per step (vLLM's fp8 indexer cache layout), staged with 4-byte loads, v5's fold",
+    report = {"staging": "two halves with the next prefetched into registers (v5d)" if double else ("two halves of 32 rows (v5h)" if half else "the full page (v5)"), "kernel": "fp8_paged_mqa_logits_sm120_v5: one 132-byte-entry page per warp per step (vLLM's fp8 indexer cache layout), staged with 4-byte loads, v5's fold",
               "device": props.name, "note": "cold L2 (256 MB fill before each launch); median of 10; every row reads the whole cache; the cache rate counts logical rows read (S x N) as the v3 and v4 reports did; the timed region holds the launch only", "rows": rows}
     if out is not None:
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -668,6 +802,7 @@ def main(argv=None) -> int:
     ap.add_argument("--bench-paged", action="store_true")
     ap.add_argument("--fp32-weights", action="store_true", help="time the fp32-weights variant (v5f) in --bench")
     ap.add_argument("--half", action="store_true", help="--bench-paged times the half-page staging (v5h)")
+    ap.add_argument("--double", action="store_true", help="--bench-paged times the register-prefetched halves (v5d)")
     ap.add_argument("--out-paged", type=Path)
     a = ap.parse_args(argv)
     dev = torch.device("cuda")
@@ -679,7 +814,7 @@ def main(argv=None) -> int:
     if a.bench:
         rc = rc or bench(mod, dev, a.out, weights_fp32=a.fp32_weights)
     if a.bench_paged:
-        rc = rc or bench_paged(mod, dev, a.out_paged, half=a.half)
+        rc = rc or bench_paged(mod, dev, a.out_paged, half=a.half, double=a.double)
     return rc
 
 

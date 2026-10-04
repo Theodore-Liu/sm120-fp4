@@ -191,7 +191,8 @@ def fp8_fp4_paged_mqa_logits(q, kv_cache: torch.Tensor, weights: torch.Tensor, c
     mod = build()
     sfq = torch.full((S, H), 127, dtype=torch.uint8, device=dev)
     w = _weights(weights, S, H)
-    v5.paged_fn(mod, w)(q8.reshape(S, H, HEAD_DIM).contiguous(), sfq, kv_cache.contiguous(), w, ctx, bt, out, max_pages)
+    # the half-page staging (v5h): two blocks per SM, 33.5 / 103.2 / 113.4 us against the full page's 33.6 / 115.5 / 124.9 on the bench shapes
+    v5.paged_fn(mod, w, half=True)(q8.reshape(S, H, HEAD_DIM).contiguous(), sfq, kv_cache.contiguous(), w, ctx, bt, out, max_pages)
     return out
 
 

@@ -227,6 +227,16 @@ The paged v4 reads 64-byte rows, half the bytes per page, and so stages 4.1 KB p
 
 Ten percent on the two large shapes, nothing on the small one (128 pages over 170 SMs: there is no second block to place). The gap to the paged v4 is now 1.44 to 1.52 times; the remaining lever 3g named, a two-page double buffer per warp so the next page's loads hide behind this page's MMAs, is the next kernel change. The adapter keeps the full-page kernel until the half-page form is the default after a wider shape sweep.
 
+### 3i. The register-prefetch arm, and why it lost (2026-10-04)
+
+`fp8_paged_mqa_logits_sm120_v5d` is the half-page kernel with the next half's nine 16-byte chunks loaded into registers while the current half is computed, shared memory unchanged at one half per warp. Bit-identical to the flat v5 on the five half-page shapes. Timed back to back with v5h on the idle GPU (`reports/fp8-paged-mqa-logits-v5d-rtx5090-20261004.json`, `reports/fp8-paged-mqa-logits-v5h-rerun-rtx5090-20261004.json`): 39.8 / 136.0 / 146.2 us against 33.5 / 103.2 / 113.4, slower on every shape. The cause, from Nsight Compute on the second shape (`reports/ncu-paged-v5d-v5h-rtx5090-20261004.txt`): the prefetch registers lift the kernel from 128 to 200 registers per thread, the block limit by registers falls from 2 to 1, and the occupancy goes back to 16.7 percent (one block per SM), which is exactly what the half-page form had bought back; the loads it hides cost more in residency than they save in latency. The arm stays in the file as a recorded negative; the adapter's paged call now uses v5h. A double buffer that keeps two blocks per SM would have to live in shared memory at 8.4 KB per warp, 67.6 KB per block, which is the full-page form's budget, so the next lever is not a buffer but the row width (two heads of q per MMA, or reading the 128-byte rows as two 64-byte halves to share the v4 path).
+
+| shape (S, N, H) | v5h, us | v5d, us | registers per thread, v5h / v5d | occupancy, v5h / v5d |
+|---|---:|---:|---|---|
+| 64, 8192, 8 | 33.5 | 39.8 | | |
+| 128, 16384, 8 | 103.2 | 136.0 | 128 / 200 | 33.3 / 16.7 % |
+| 32, 65536, 16 | 113.4 | 146.2 | | |
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's

@@ -96,8 +96,9 @@ closes it. Dates are when an item was added, not estimates.
    Paged v5 profile 2026-10-04 (wiring doc 3g): L2-resident, occupancy capped at one block per SM by the 67.6 KB staging; the
    lever is shared memory per warp. The half-page form (`fp8_paged_mqa_logits_sm120_v5h`: two 32-row halves per page, 33.8 KB per
    block) is in and bit-identical to the flat v5 on five shapes including a 70-row context; timed 2026-10-04 at 33.5 / 103.4 / 113.4 us
-   against the full page's 33.6 / 115.5 / 124.9 (wiring doc 3h): ten percent on the two large shapes. Next kernel change: a two-page
-   double buffer per warp.
+   against the full page's 33.6 / 115.5 / 124.9 (wiring doc 3h): ten percent on the two large shapes; the adapter's paged call now
+   uses it. The register-prefetch arm (v5d) lost, 39.8 / 136.0 / 146.2, because 200 registers per thread put the occupancy back to one
+   block per SM (wiring doc 3i); it stays as a recorded negative. Next lever: the row width, not a buffer.
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its
