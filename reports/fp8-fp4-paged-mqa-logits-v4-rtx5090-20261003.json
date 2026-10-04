@@ -1,0 +1,40 @@
+{
+ "kernel": "fp8_fp4_paged_mqa_logits_sm120_v4: v3's page staging with four UE8M0 bytes per cached row (sf_cache [pages, 64, 4]) and v4's per-block fold",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; every row reads the whole kv; the timed region holds the launch only",
+ "rows": [
+  {
+   "S": 64,
+   "N": 8192,
+   "H": 8,
+   "pages": 128,
+   "us_median": 23.296000435948372,
+   "us_min": 22.495999932289124,
+   "kv_rows_read": 524288,
+   "kv_GBps": 1530.373597735067,
+   "TFLOPs": 46.091251884726724
+  },
+  {
+   "S": 128,
+   "N": 16384,
+   "H": 8,
+   "pages": 256,
+   "us_median": 72.43200019001961,
+   "us_min": 72.25599884986877,
+   "kv_rows_read": 2097152,
+   "kv_GBps": 1968.8305669577478,
+   "TFLOPs": 59.29654413425688
+  },
+  {
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "pages": 1024,
+   "us_median": 74.52800124883652,
+   "us_min": 72.92799651622772,
+   "kv_rows_read": 2097152,
+   "kv_GBps": 1913.4598219515015,
+   "TFLOPs": 115.25781515754926
+  }
+ ]
+}

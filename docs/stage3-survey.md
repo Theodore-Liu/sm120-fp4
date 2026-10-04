@@ -266,7 +266,15 @@ The paged kernel reads 0.7 to 1.1 TB/s of kv rows, at or above the dense GEMM's 
 | 128 | 8192 | 8 | 29.3 | 29.5 | 73.2 |
 | 32 | 32768 | 16 | 31.5 | 33.6 | 136.5 |
 
-The per-block fold costs nothing measurable (v4 is level with or ahead of v2 on the three shapes). What the engine's call still needs on top of v4 is q's scale read from `weights` (an all-ones q scale is the engine's form and is what the adapter will pass) and the paged form's per-32 scales in the cache page layout.
+The per-block fold costs nothing measurable (v4 is level with or ahead of v2 on the three shapes). The paged form followed the same day (`fp8_fp4_paged_mqa_logits_sm120_v4`, same file, `reports/fp8-fp4-paged-mqa-logits-v4-rtx5090-20261003.json`): v3's page staging with the four scale bytes per cached row staged beside the page (`sf_cache` [pages, 64, 4], one 16-byte `cp.async` per lane for sixteen lanes) and v4's fold; bit-identical to the flat v4 on the same kv through random page permutations on four shapes (contexts drawn per row, cells outside each row's context untouched), within 1.1e-7 of the reference. Timing, every row reading the whole kv, cold L2, median of 10 (the kv rate counts logical rows read, S x N, as the v3 report did; rows share the kv, so above the HBM rate is the L2 serving repeats):
+
+| S | N | H | pages | us | kv rows GB/s | TFLOP/s |
+|---|---|---|---|---|---|---|
+| 64 | 8192 | 8 | 128 | 23.3 | 1530 | 46.1 |
+| 128 | 16384 | 8 | 256 | 72.4 | 1969 | 59.3 |
+| 32 | 65536 | 16 | 1024 | 74.5 | 1913 | 115.3 |
+
+What the engine's call still needs on top of v4 is q's scale read from `weights` (an all-ones q scale is the engine's form and is what the adapter will pass) and the `(data, scale)` pair and `schedule_metadata` conventions of the adapter.
 
 ### 2.3 einsum (FP8, not FP4)
 
