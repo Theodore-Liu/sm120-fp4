@@ -94,7 +94,9 @@ closes it. Dates are when an item was added, not estimates.
    contradicts the adapter. Next: step 3's two-GPU run (DeepSeek-V4-Flash NVFP4 at TP=2 on two RTX PRO 6000; the plan is
    `docs/stage3-step3-plan.md`), then the grouped GEMM.
    Paged v5 profile 2026-10-04 (wiring doc 3g): L2-resident, occupancy capped at one block per SM by the 67.6 KB staging; the
-   lever is shared memory per warp (half-page steps or a two-page double buffer), a kernel change queued behind step 3.
+   lever is shared memory per warp. The half-page form (`fp8_paged_mqa_logits_sm120_v5h`: two 32-row halves per page, 33.8 KB per
+   block) is in and bit-identical to the flat v5 on five shapes including a 70-row context; its timing waits for an idle GPU and
+   is recorded when taken (`--bench-paged --half --out-paged`).
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its
