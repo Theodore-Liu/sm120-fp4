@@ -93,6 +93,8 @@ closes it. Dates are when an item was added, not estimates.
    fp32 carrying q's scale and both softmax factors, k e4m3 with an fp32 row scale, V4's decode lengths compressed; nothing
    contradicts the adapter. Next: step 3's two-GPU run (DeepSeek-V4-Flash NVFP4 at TP=2 on two RTX PRO 6000; the plan is
    `docs/stage3-step3-plan.md`), then the grouped GEMM.
+   Paged v5 profile 2026-10-04 (wiring doc 3g): L2-resident, occupancy capped at one block per SM by the 67.6 KB staging; the
+   lever is shared memory per warp (half-page steps or a two-page double buffer), a kernel change queued behind step 3.
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its

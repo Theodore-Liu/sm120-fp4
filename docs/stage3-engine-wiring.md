@@ -191,6 +191,30 @@ carries q's per-token scale. What vLLM 0.28 does (`vllm/model_executor/models/de
 Nothing in the engine's operands contradicts the adapter; the two readings that remain (V4's `max_model_len` unit, and the
 compressed lengths' arrival through `seq_lens`) are confirmed on the running engine, not from the source.
 
+### 3g. Where the paged v5's time goes (Nsight Compute, 2026-10-04)
+
+`reports/ncu-paged-v5-rtx5090-20261004.txt`: one launch of `k_paged_mqa_logits_v5` per bench shape (SpeedOfLight, MemoryWorkloadAnalysis,
+WarpStateStats, Occupancy), the lane-strided 16-byte staging, the GPU otherwise idle.
+
+| shape (S, N, H) | duration us | memory throughput | DRAM throughput | L2 hit | L1/TEX hit | compute throughput | warp cycles per issued instruction | occupancy, theoretical / achieved |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| 64, 8192, 8 | 37.4 | 49.2 % | 5.4 % | 91.4 % | 80.8 % | 36.0 % | 7.9 | 16.67 / 16.36 % |
+| 128, 16384, 8 | 133.5 | 54.6 % | 4.4 % | 94.4 % | 80.5 % | 40.0 % | 7.5 | 16.67 / 16.36 % |
+| 32, 65536, 16 | 141.0 | 54.4 % | 3.8 % | 85.0 % | 76.8 % | 37.5 % | 8.0 | 16.67 / 16.24 % |
+
+(The durations under the profiler are longer than the bench's 33.6 / 115.5 / 123.7 us; the profiler serialises and replays.) What the
+numbers say: the cache rows come from L2 (hit 85 to 94 percent; DRAM under 6 percent of its bandwidth), so the kernel is not
+DRAM-bound at these sizes; neither the memory pipes (49 to 55 percent) nor the SM (36 to 40 percent) is near its ceiling; and the
+occupancy is pinned at 16.7 percent, one block of 8 warps per SM, by shared memory: **Block Limit Shared Mem = 1** against 3 by
+registers and 6 by warps. The block stages 8 pages at once, 8 x (64 x 128 + 64 x 4) = 67.6 KB, and a second block does not fit. With
+eight warps per SM and 7.5 to 8 cycles per issued instruction, the SM idles between loads it cannot overlap.
+
+The lever this points at is shared memory per warp, not the load width: staging half a page per step (32 rows, 4.2 KB per warp, 33.8 KB
+per block) would let two blocks share an SM, and a two-page double buffer per warp would cost the same as today while hiding the
+next page's loads behind this page's MMAs. Either is a kernel change for a later turn; this section records the reading, not a fix.
+The paged v4 reads 64-byte rows, half the bytes per page, and so stages 4.1 KB per warp: its two blocks per SM is where its 1.44 to
+1.66 times advantage comes from, as much as from the bytes.
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's
