@@ -84,7 +84,7 @@ closes it. Dates are when an item was added, not estimates.
    `sm120fp4/kernels/` with shims in `scripts/`. Step 1 closed the same day at the kernel level: the engine's own top-k kernels
    over our logits select the same index sets as over the reference on every row (`tests/test_indexer_topk.py`, 6 tests; the
    indexer function itself reads the engine's forward context and is first called by step 3's run). The paged staging moved to
-   16-byte lane-strided loads the same day: 33.5 / 115.6 / 123.7 us against 62.4 / 234.2 / 240.7, now 1.44 to 1.66 times the paged
+   16-byte lane-strided loads the same day: 33.6 / 115.5 / 123.7 us against 62.4 / 234.2 / 240.7, now 1.44 to 1.66 times the paged
    v4 (wiring doc 3e; a first 16-byte form with a lone 33rd load per group on lane 0 was slower and is recorded there). Open before
    step 3: vLLM #53635 says DeepSeek-V4's indexer cache uses 2-state pages on SM12x, not the 64-row pages the adapter accepts
    (wiring doc 3e); read the pinned engine's geometry and add a page variant if needed. Next: that reading, the v5f-against-v5

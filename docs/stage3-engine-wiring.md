@@ -137,7 +137,7 @@ Two 16-byte forms were tried. The first grouped four rows (528 bytes, 33 aligned
 trip inner loop in which lane 0 alone fetched each group's 33rd chunk; it was bit-identical and slower, 78.6 / 296.3 / 308.0 us, because
 that lone load serialised one memory latency per group on one lane while the other 31 waited. The second reads the page as 528
 contiguous 16-byte chunks lane-strided (17 passes, the last one for 16 lanes), scattering each 4-byte word to its row; bit-identical to
-the flat v5 through random page permutations on six shapes, and 33.5 / 115.6 / 123.7 us, 1.86 to 2.03 times faster than the 4-byte
+the flat v5 through random page permutations on six shapes, and 33.6 / 115.5 / 123.7 us (the saved report; a first run printed 33.5 / 115.6 / 123.7), 1.86 to 2.03 times faster than the 4-byte
 form and 1.44 to 1.66 times the paged v4's 23.3 / 72.4 / 74.5 us (`reports/fp8-paged-mqa-logits-v5-stage16-rtx5090-20261004.json`,
 GPU idle before and after, 3.0 GB in use by the desktop). The remaining gap to v4 is the row width: a 128-byte e4m3 row is twice the
 bytes of v4's 64-byte e2m1 row, so the kernel reads twice the cache bytes per logit. The fp32-weights variant's cost against the bf16
