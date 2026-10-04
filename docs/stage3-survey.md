@@ -258,6 +258,16 @@ A sweep of every tile at every shape (groups 1 and 4) read the rule from data: t
 | 128 | 8192 | 16 | 513327 | 31.5 | 66.8 | 1060 |
 
 The paged kernel reads 0.7 to 1.1 TB/s of kv rows, at or above the dense GEMM's best (897 GB/s), because the page staging is one 16-byte `cp.async` per lane per chunk and every page is read exactly once per row; what is left is the per-row A-fragment reload per page and the block-table gather. Both MQA-logits forms DeepGEMM ships for SM100 now exist for SM120, correct against its test reference. What remains in stage 3 is the einsum site, which is FP8 and last.
+**v4, the engine's k format (2026-10-03, `scripts/fp8_fp4_mqa_logits_v4_sm120.py`, `reports/fp8-fp4-mqa-logits-v4-rtx5090-20261003.json`).** vLLM's indexer hands DeepGEMM an MXFP4 k with one UE8M0 scale per 32 columns ([N, 4] for D = 128; `docs/stage3-engine-wiring.md` 3b), where v2 took one per row. v4 is v2's kernel with the k scale folded per 32-column block: each of the four k32 MMA steps is one block, its partial product scaled by that block's UE8M0 before joining a per-column fp32 accumulator, four folds per n8 tile instead of one. Against DeepGEMM's test reference (torch.einsum on the dequantised operands) with independent block scales the relative error is at most 1.7e-7 on five shapes; with the four block scales of every row equal (v2's recipe repeated) v4 is bit-identical to v2 on all three shapes tried (0 of 181,424 elements differ), as the power-of-two fold predicts. Timing, cold L2, median of 10, same codes for both:
+
+| S | N | H | v4 (us) | v2 (us) | v4 TFLOP/s |
+|---|---|---|---|---|---|
+| 32 | 4096 | 8 | 9.0 | 13.1 | 30.0 |
+| 128 | 8192 | 8 | 29.3 | 29.5 | 73.2 |
+| 32 | 32768 | 16 | 31.5 | 33.6 | 136.5 |
+
+The per-block fold costs nothing measurable (v4 is level with or ahead of v2 on the three shapes). What the engine's call still needs on top of v4 is q's scale read from `weights` (an all-ones q scale is the engine's form and is what the adapter will pass) and the paged form's per-32 scales in the cache page layout.
+
 ### 2.3 einsum (FP8, not FP4)
 
 Confirmed in the checkout: `csrc/apis/einsum.hpp` has `einsum` (BF16; `"bmk,bnk->mn"`, `"bhr,hdr->bhd"`,

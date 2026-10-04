@@ -1,0 +1,103 @@
+{
+ "kernel": "fp8_fp4_mqa_logits_sm120_v4: v2's kernel with the k UE8M0 scale per 32 columns ([N, 4]), four folds per n8 tile; the engine's MXFP4 k format",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; the timed region holds the launch only (span and plan computed outside); v2 timed on the same codes with the row scale",
+ "rows": [
+  {
+   "kernel": "v4",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 8.960000239312649,
+   "us_min": 8.799999952316284,
+   "TFLOPs": 29.959313485530952,
+   "kv_bytes": 278528,
+   "kv_GBps": 31.085713455445934
+  },
+  {
+   "kernel": "v2 (one scale per row, same codes)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 13.07199988514185,
+   "us_min": 12.992000207304955,
+   "TFLOPs": 20.535148283248866,
+   "kv_bytes": 278528,
+   "kv_GBps": 21.30722172944523
+  },
+  {
+   "kernel": "v4",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 29.32799980044365,
+   "us_min": 27.23200060427189,
+   "TFLOPs": 73.2229835860649,
+   "kv_bytes": 557056,
+   "kv_GBps": 18.99399903813329
+  },
+  {
+   "kernel": "v2 (one scale per row, same codes)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 29.5200003311038,
+   "us_min": 29.37600016593933,
+   "TFLOPs": 72.7467352274146,
+   "kv_bytes": 557056,
+   "kv_GBps": 18.870460492951178
+  },
+  {
+   "kernel": "v4",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 31.456001102924347,
+   "us_min": 30.719999223947525,
+   "TFLOPs": 136.53888432756676,
+   "kv_bytes": 2228224,
+   "kv_GBps": 70.83621318263657
+  },
+  {
+   "kernel": "v2 (one scale per row, same codes)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 33.55199843645096,
+   "us_min": 31.520001590251923,
+   "TFLOPs": 128.00928398154485,
+   "kv_bytes": 2228224,
+   "kv_GBps": 66.41106651874581
+  }
+ ]
+}

@@ -64,6 +64,10 @@ closes it. Dates are when an item was added, not estimates.
    Second reading 2026-10-03 (wiring doc 3b): the engine's k operand is MXFP4 with a UE8M0 scale per 32 along the head, or e4m3 with an
    fp32 row scale; ours is e2m1 with one UE8M0 scale per 128-wide row. The adapter therefore waits on a kernel variant (step 0: the
    per-32 scale fold, q's scale read from `weights`), which is the next piece of work on this item.
+   Step 0 done 2026-10-03: `scripts/fp8_fp4_mqa_logits_v4_sm120.py` (k scale per 32 columns; at most 1.7e-7 against the reference; bit-identical
+   to v2 where the block scales coincide; level with or ahead of v2 on three shapes, `reports/fp8-fp4-mqa-logits-v4-rtx5090-20261003.json`).
+   Next: the paged form with per-32 scales (v3's page layout), then the adapter with vLLM's calling convention and the unit test
+   through `vllm.utils.deep_gemm` (step 1).
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its
