@@ -89,8 +89,10 @@ closes it. Dates are when an item was added, not estimates.
    engine declares block 64 for the V3.2 indexer backend and 256 for V4's, the same 132-byte rows; the adapter now accepts any
    multiple of 64 and maps a block to consecutive 64-row pages (tested bit for bit with 256-row blocks against the flat call;
    wiring doc 3e). v5f (fp32 weights) costs nothing measurable against v5 (9.9 / 33.5 / 37.6 us against 11.0 / 33.5 / 37.6).
-   Next: step 3's two-GPU run (DeepSeek-V4-Flash NVFP4 at TP=2 on two RTX PRO 6000; read `seq_lens`' units for the compressed
-   indexer positions on the engine first), then the grouped GEMM.
+   The engine's operands were read against the adapter's assumptions (wiring doc 3f): q one e4m3 group per (token, head), weights
+   fp32 carrying q's scale and both softmax factors, k e4m3 with an fp32 row scale, V4's decode lengths compressed; nothing
+   contradicts the adapter. Next: step 3's two-GPU run (DeepSeek-V4-Flash NVFP4 at TP=2 on two RTX PRO 6000; the plan is
+   `docs/stage3-step3-plan.md`), then the grouped GEMM.
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its

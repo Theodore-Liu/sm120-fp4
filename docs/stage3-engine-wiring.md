@@ -165,6 +165,32 @@ sparse-MLA fallback for SM12x) is the engine-side context for the same machines.
 bf16 weights 11.0 / 33.5 / 37.6 us, v5f with fp32 weights 9.9 / 33.5 / 37.6 us. The weights are read once per (row, head) and the
 two kernels are the same bytes otherwise, so the fp32 operand costs nothing measurable; the adapter's default stands.
 
+### 3f. The engine's operands against the adapter's assumptions (read from the pinned source, 2026-10-04)
+
+The adapter assumes q arrives as e4m3 [M, H, 128] with a UE8M0 scale of one per (row, head) and `weights` as fp32 [M, H] that already
+carries q's per-token scale. What vLLM 0.28 does (`vllm/model_executor/models/deepseek_v2.py`, class `Indexer`, and
+`vllm/model_executor/layers/sparse_attn_indexer.py`):
+
+- **q.** `per_token_group_quant_fp8(q.view(-1, head_dim), quant_block_size=128, use_ue8m0=scale_fmt is not None)`: one e4m3 group of
+  128 per (token, head), one scale per group, so one scale per (row, head), which is the shape our UE8M0-of-one assumption needs. The
+  fused CUDA path (`fused_indexer_q_rope_quant`) does the rotation, the quantisation and the fold in one kernel and returns `q_fp8`
+  and `weights_out` of dtype fp32.
+- **weights.** `weights = weights * q_scale * softmax_scale * n_head_scale` with `softmax_scale = head_dim ** -0.5` and
+  `n_head_scale = n_head ** -0.5`; the fused kernel writes the same product as fp32. So the operand is fp32 and carries q's scale and
+  both softmax factors; the adapter passes it to the fp32-weights kernel as it is (3d). Under `use_fp4_cache` a `q_scale` tensor
+  travels separately and `weights` carries no q scale; that path raises `NotImplementedError` in the adapter, by design (3c).
+- **k.** Quantised at cache insertion (`indexer_k_quant_and_cache`), e4m3 with an fp32 row scale in the 132-byte row the prefill
+  gather (`cp_gather_indexer_k_quant_cache`) hands over as `k_quant` [N, 128] and `k_scale` viewed fp32 [N]: the flat call's `kv`
+  pair as the adapter reads it.
+- **decode lengths on V4.** The metadata builder carries `compress_ratio` from the MLA cache spec (1 for V3.2, the model's
+  `compress_ratios` for V4), writes the compressed slot mapping, and fills an `expanded_seq_lens_buffer` of compressed lengths for the
+  decode path; the block table indexes 256-row blocks of compressed positions. The adapter is agnostic to the unit (it takes the
+  lengths and the table as given), which is what 3e's remap needs; whether `max_model_len` is passed in compressed or raw units on
+  V4 is the one thing left to read on the engine at step 3 (it only sizes the output).
+
+Nothing in the engine's operands contradicts the adapter; the two readings that remain (V4's `max_model_len` unit, and the
+compressed lengths' arrival through `seq_lens`) are confirmed on the running engine, not from the source.
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's
