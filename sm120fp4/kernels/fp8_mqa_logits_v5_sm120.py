@@ -512,7 +512,7 @@ def selftest(mod, dev) -> int:
     return 0 if ok else 1
 
 
-def bench(mod, dev, out: Path | None) -> int:
+def bench(mod, dev, out: Path | None, weights_fp32: bool = False) -> int:
     if out is not None and out.exists():
         print(f"refusing to overwrite {out}", file=sys.stderr)
         return 2
@@ -520,7 +520,7 @@ def bench(mod, dev, out: Path | None) -> int:
     flush_buf = torch.empty(256 << 20, dtype=torch.uint8, device=dev)
     rows = []
     for (S, N, H) in ((32, 4096, 8), (128, 8192, 8), (32, 32768, 16)):
-        r, args = run_case(mod, S, N, H, 100 + S, dev, full_span=True, unit_q_scale=True)
+        r, args = run_case(mod, S, N, H, 100 + S, dev, full_span=True, unit_q_scale=True, weights_fp32=weights_fp32)
         q8, sfq_u8, k8, k_scale, w, ks, ke, out_t = args
         span = base.span_of(ks, ke)
         plan = plan_v5(S, span[1] - span[0])
@@ -536,7 +536,7 @@ def bench(mod, dev, out: Path | None) -> int:
         rows.append({"S": S, "N": N, "H": H, "plan": list(plan), "us_median": med, "us_min": min(times), "TFLOPs": 2.0 * S * H * N * HEAD_DIM / med / 1e6,
                      "k_bytes": kbytes, "k_GBps": kbytes / med / 1e3})
         print(f"v5 S={S} N={N} H={H}: {med:.1f} us ({rows[-1]['TFLOPs']:.1f} TFLOP/s, k read at {rows[-1]['k_GBps']:.0f} GB/s)", flush=True)
-    report = {"kernel": "fp8_mqa_logits_sm120_v5: v2's structure with e4m3 k rows (128 B) and an fp32 scale per row, the fp8 indexer cache vLLM runs on SM120",
+    report = {"weights": "fp32 (the v5f variant)" if weights_fp32 else "bf16 (v5)", "kernel": "fp8_mqa_logits_sm120_v5: v2's structure with e4m3 k rows (128 B) and an fp32 scale per row, the fp8 indexer cache vLLM runs on SM120",
               "device": props.name, "note": "cold L2 (256 MB fill before each launch); median of 10; q's scale folded into weights (the engine's form); the timed region holds the launch only", "rows": rows}
     if out is not None:
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -551,6 +551,7 @@ def main(argv=None) -> int:
     ap.add_argument("--bench", action="store_true")
     ap.add_argument("--out", type=Path)
     ap.add_argument("--bench-paged", action="store_true")
+    ap.add_argument("--fp32-weights", action="store_true", help="time the fp32-weights variant (v5f) in --bench")
     ap.add_argument("--out-paged", type=Path)
     a = ap.parse_args(argv)
     dev = torch.device("cuda")
@@ -560,7 +561,7 @@ def main(argv=None) -> int:
     if a.selftest:
         rc = selftest(mod, dev) or selftest_paged(mod, dev)
     if a.bench:
-        rc = rc or bench(mod, dev, a.out)
+        rc = rc or bench(mod, dev, a.out, weights_fp32=a.fp32_weights)
     if a.bench_paged:
         rc = rc or bench_paged(mod, dev, a.out_paged)
     return rc

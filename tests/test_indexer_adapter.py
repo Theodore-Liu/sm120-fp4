@@ -129,6 +129,46 @@ def test_paged_matches_flat(B, next_n, N, H, seed, two_d):
     assert not torch.isfinite(out[:, N:]).any()
 
 
+def _paged_blocks(k8, k_scale, S, ctx, seed, block):
+    """A paged cache with `block` rows per block (a multiple of 64) in a random block permutation; every row of the batch reads
+    positions [0, ctx[i]) of the same flat k. The 256-row form is DeepSeek-V4's indexer backend geometry."""
+    g = torch.Generator().manual_seed(seed)
+    N = k8.shape[0]
+    nb = -(-N // block)
+    pad = nb * block - N
+    k_flat = torch.cat([k8, torch.zeros(pad, 128, dtype=k8.dtype, device=DEV)]) if pad else k8
+    s_flat = torch.cat([k_scale, torch.zeros(pad, dtype=k_scale.dtype, device=DEV)]) if pad else k_scale
+    rows = torch.cat([k_flat.view(torch.uint8), s_flat.contiguous().view(torch.uint8).view(-1, 4)], dim=1)
+    perm = torch.randperm(nb, generator=g).to(DEV)
+    cache = torch.empty(nb, block, 1, 132, dtype=torch.uint8, device=DEV)
+    cache[perm] = rows.view(nb, block, 1, 132)
+    max_blocks = -(-int(ctx.max()) // block)
+    table = perm[:max_blocks].unsqueeze(0).repeat(S, 1).to(torch.int32).contiguous()
+    return cache, table
+
+
+@pytest.mark.parametrize("B,next_n,N,H,seed", [(3, 1, 2000, 8, 61), (2, 2, 4096, 16, 62), (4, 1, 700, 8, 63)])
+def test_paged_256_row_blocks(B, next_n, N, H, seed):
+    """DeepSeek-V4's indexer backend declares a 256-row block: the adapter must read it as it reads the 64-row form, and both must
+    equal the flat call on the same rows."""
+    S = B * next_n
+    q8, k8, k_scale, w32, _, _ = _case(S, N, H, seed, full_span=True)
+    g = torch.Generator().manual_seed(seed)
+    ctx = torch.randint(1, N + 1, (S,), generator=g).to(torch.int32).to(DEV)
+    seq_lens = ctx.reshape(B, next_n)
+    qq = (q8.reshape(B, next_n, H, 128), None)
+    outs = []
+    for block in (64, 256):
+        cache, table = _paged_blocks(k8, k_scale, S, ctx, seed + block, block)
+        meta = indexer.get_paged_mqa_logits_metadata(seq_lens, block, 170)
+        outs.append(indexer.fp8_fp4_paged_mqa_logits(qq, cache, w32, seq_lens, table[::next_n], meta, N + 64, clean_logits=False))
+    ks0 = torch.zeros(S, dtype=torch.int32, device=DEV)
+    flat = indexer.fp8_fp4_mqa_logits((q8, None), (k8, k_scale), w32, ks0, ctx, clean_logits=False)
+    assert torch.equal(outs[0][:, :N], flat), "64-row blocks against the flat call"
+    assert torch.equal(outs[1][:, :N], flat), "256-row blocks against the flat call"
+    assert not torch.isfinite(outs[1][:, N:]).any()
+
+
 def test_through_vllm_wrapper():
     pytest.importorskip("vllm")
     import vllm.utils.deep_gemm as dg

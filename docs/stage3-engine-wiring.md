@@ -146,11 +146,24 @@ form is not yet timed.
 **A risk for the end-to-end run.** vLLM issue #53635 (open, read 2026-10-04) reports that on SM12x with DeepGEMM present the indexer's
 decode paged MQA-logits path fails for DeepSeek-V4: the kernel is templated for pages of 32 or 64 states, while V4's compressed
 indexer cache uses 2 states per page (128 tokens per state) after the KV-cache layout standardisation of PR #51718; the proposed fixes
-are a kernel that takes the smaller geometry, the short-row decode path of PR #41834, or a non-DeepGEMM fallback. Our adapter checks
-for the [num_blocks, 64, 1, 132] layout and refuses anything else, so on V4 it would refuse rather than corrupt; before step 3 the
-V4 indexer cache's actual page geometry on the pinned vLLM has to be read from the source and, if it is the 2-state form, the paged
-kernel needs a variant for it. PR #54929 (a portable Triton sparse-MLA fallback for SM12x) is the engine-side context for the same
-machines.
+are a kernel that takes the smaller geometry, the short-row decode path of PR #41834, or a non-DeepGEMM fallback. What the pinned engine
+declares (vLLM 0.28 as installed, `vllm/v1/attention/backends/mla/indexer.py`, read 2026-10-04): `DeepseekV32IndexerBackend`
+supports a kernel block size of 64 on CUDA and `DeepseekV4IndexerBackend` one of 256; both give the cache the shape
+(num_blocks, block_size, head_size) with one kv head, and `sparse_attn_indexer.kv_cache_as_quant_view` views it as
+[num_blocks, block_size, 1, head_width] (132 bytes per row on the fp8 path). V4's positions reach the cache through
+`compressor_utils.get_compressed_slot_mapping` (the model's `compress_ratios`), so the block table indexes blocks of 256 compressed
+positions; the issue's "2 states per page" is DeepGEMM's kernel template against that geometry, not a different byte layout. Our
+paged kernel reads 64-row pages, and a 256-row block is four consecutive 64-row pages of the same bytes, so the adapter now
+accepts any block size that is a multiple of 64 and rewrites the block table (block b becomes pages 4b to 4b + 3) over the cache
+viewed as [num_blocks * 4, 64, 1, 132]; `tests/test_indexer_adapter.py::test_paged_256_row_blocks` builds the 256-row cache in a
+random block permutation and checks the result bit for bit against the 64-row form and the flat call on three shapes. Whether the
+compressed positions' lengths are what `seq_lens` carries on V4 is read at step 3, on the engine. PR #54929 (a portable Triton
+sparse-MLA fallback for SM12x) is the engine-side context for the same machines.
+
+**The fp32-weights variant's cost.** Timed back to back on the idle GPU, the same three flat shapes, cold L2, median of 10
+(`reports/fp8-mqa-logits-v5-bf16w-rerun-rtx5090-20261004.json`, `reports/fp8-mqa-logits-v5f-fp32w-rtx5090-20261004.json`): v5 with
+bf16 weights 11.0 / 33.5 / 37.6 us, v5f with fp32 weights 9.9 / 33.5 / 37.6 us. The weights are read once per (row, head) and the
+two kernels are the same bytes otherwise, so the fp32 operand costs nothing measurable; the adapter's default stands.
 
 ## 4. The order of work (adoption item 2)
 

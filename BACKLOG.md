@@ -85,10 +85,12 @@ closes it. Dates are when an item was added, not estimates.
    over our logits select the same index sets as over the reference on every row (`tests/test_indexer_topk.py`, 6 tests; the
    indexer function itself reads the engine's forward context and is first called by step 3's run). The paged staging moved to
    16-byte lane-strided loads the same day: 33.6 / 115.5 / 123.7 us against 62.4 / 234.2 / 240.7, now 1.44 to 1.66 times the paged
-   v4 (wiring doc 3e; a first 16-byte form with a lone 33rd load per group on lane 0 was slower and is recorded there). Open before
-   step 3: vLLM #53635 says DeepSeek-V4's indexer cache uses 2-state pages on SM12x, not the 64-row pages the adapter accepts
-   (wiring doc 3e); read the pinned engine's geometry and add a page variant if needed. Next: that reading, the v5f-against-v5
-   timing, then step 3's two-GPU run.
+   v4 (wiring doc 3e; a first 16-byte form with a lone 33rd load per group on lane 0 was slower and is recorded there). The pinned
+   engine declares block 64 for the V3.2 indexer backend and 256 for V4's, the same 132-byte rows; the adapter now accepts any
+   multiple of 64 and maps a block to consecutive 64-row pages (tested bit for bit with 256-row blocks against the flat call;
+   wiring doc 3e). v5f (fp32 weights) costs nothing measurable against v5 (9.9 / 33.5 / 37.6 us against 11.0 / 33.5 / 37.6).
+   Next: step 3's two-GPU run (DeepSeek-V4-Flash NVFP4 at TP=2 on two RTX PRO 6000; read `seq_lens`' units for the compressed
+   indexer positions on the engine first), then the grouped GEMM.
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its

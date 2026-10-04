@@ -144,7 +144,8 @@ def fp8_fp4_paged_mqa_logits(q, kv_cache: torch.Tensor, weights: torch.Tensor, c
                              block_tables: torch.Tensor, schedule_metadata: torch.Tensor, max_model_len: int,
                              clean_logits: bool, indices: torch.Tensor | None = None) -> torch.Tensor:
     """``vllm.utils.deep_gemm.fp8_fp4_paged_mqa_logits`` for the FP8 path: q = (e4m3 [B, next_n, H, 128], None), the cache
-    [num_blocks, 64, 1, 132] uint8, weights fp32 [B * next_n, H], context_lens int32 [B] or [B, next_n], block_tables int32
+    [num_blocks, block, 1, 132] uint8 with block a multiple of 64 (64 on the V3.2 indexer backend, 256 on V4's; a block is
+    consecutive 64-row pages), weights fp32 [B * next_n, H], context_lens int32 [B] or [B, next_n], block_tables int32
     [B, max_blocks]; returns fp32 [B * next_n, max_model_len], row (b, j) holding positions [0, context_lens[b, j]) and -inf
     beyond. ``schedule_metadata`` is ignored (see ``get_paged_mqa_logits_metadata``); ``indices`` (vLLM's varlen row map)
     is not served: the engine takes that branch only with its own packing kernel, which the SM120 path does not use."""
@@ -156,8 +157,9 @@ def fp8_fp4_paged_mqa_logits(q, kv_cache: torch.Tensor, weights: torch.Tensor, c
     B, next_n, H, _ = q8.shape
     S = B * next_n
     dev = q8.device
-    if kv_cache.dtype != torch.uint8 or kv_cache.dim() != 4 or kv_cache.shape[1] != PAGE or kv_cache.shape[3] != ENTRY:
-        raise ValueError(f"kv_cache: expected uint8 [num_blocks, {PAGE}, 1, {ENTRY}], got {kv_cache.dtype} {tuple(kv_cache.shape)}")
+    if kv_cache.dtype != torch.uint8 or kv_cache.dim() != 4 or kv_cache.shape[1] % PAGE or kv_cache.shape[2] != 1 or kv_cache.shape[3] != ENTRY:
+        raise ValueError(f"kv_cache: expected uint8 [num_blocks, k * {PAGE}, 1, {ENTRY}], got {kv_cache.dtype} {tuple(kv_cache.shape)}")
+    sub = kv_cache.shape[1] // PAGE          # 64-row pages per engine block: 1 on the V3.2 indexer backend (block 64), 4 on V4 (block 256)
     if context_lens.dim() == 2:
         if tuple(context_lens.shape) != (B, next_n):
             raise ValueError(f"context_lens: expected [{B}, {next_n}], got {tuple(context_lens.shape)}")
@@ -176,9 +178,15 @@ def fp8_fp4_paged_mqa_logits(q, kv_cache: torch.Tensor, weights: torch.Tensor, c
     if max_ctx > max_model_len:
         raise ValueError(f"context length {max_ctx} exceeds max_model_len {max_model_len}")
     max_pages = -(-max_ctx // PAGE)
-    if block_tables.shape[0] != B or block_tables.shape[1] < max_pages:
-        raise ValueError(f"block_tables: expected [{B}, >= {max_pages}], got {tuple(block_tables.shape)}")
-    bt = block_tables[:, :max_pages].to(torch.int32).repeat_interleave(next_n, dim=0).contiguous()   # [S, max_pages]
+    max_blocks = -(-max_pages // sub)
+    if block_tables.shape[0] != B or block_tables.shape[1] < max_blocks:
+        raise ValueError(f"block_tables: expected [{B}, >= {max_blocks}], got {tuple(block_tables.shape)}")
+    bt = block_tables[:, :max_blocks].to(torch.int32)
+    if sub > 1:
+        # an engine block of sub * 64 rows is sub consecutive 64-row pages of the cache viewed as [num_blocks * sub, 64, 1, 132]
+        bt = (bt.unsqueeze(2) * sub + torch.arange(sub, dtype=torch.int32, device=dev)).reshape(B, max_blocks * sub)[:, :max_pages]
+        kv_cache = kv_cache.reshape(kv_cache.shape[0] * sub, PAGE, 1, ENTRY)
+    bt = bt.repeat_interleave(next_n, dim=0).contiguous()   # [S, max_pages]
     v5 = _load_v5()
     mod = build()
     sfq = torch.full((S, H), 127, dtype=torch.uint8, device=dev)
