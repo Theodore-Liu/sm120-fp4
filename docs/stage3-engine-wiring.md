@@ -52,8 +52,23 @@ checkpoint that exercises the indexer: the models that call `fp8_fp4_mqa_logits`
 DeepSeek-V4 (284B and up); Kimi-K3 calls `fp8_fp4_mega_moe` (SM100 only). So "a model a PRO 6000 can hold" reads as "two PRO
 6000 at TP=2 with the 0731 or V4.1 NVFP4 checkpoint", and the end-to-end measurement is a two-GPU pod.
 
+## 3b. The operand formats, read against our kernels (2026-10-03, second pass)
+
+vLLM's indexer hands the kernel one of two operand pairs (`vllm/utils/deep_gemm.py:510-577`, `sparse_attn_indexer.py:253-272`): the FP8
+path is q `[M, H, D]` e4m3 with no q scale (the per-token scale is folded into `weights`) and k `[N, D]` e4m3 with one fp32 scale per
+row; the MXFP4 path is q packed uint8 with a block-scale tensor and k `[N, D/2]` packed e2m1 with `[N, D/32]` UE8M0 scales, one per
+32 along the head. Our `fp8_fp4_mqa_logits_sm120.py` v2 and v3 take q e4m3 with one UE8M0 scale per (row, head) and k packed e2m1 with
+one UE8M0 scale per row over the whole 128-wide head (`quantize_inputs`, DeepGEMM's test recipe with `gran_k = D`). So neither of the
+engine's pairs is our kernels' pair as they stand: the FP8-k path needs an e4m3 B operand with an fp32 row scale (the instruction form the
+einsum kernel already uses), and the MXFP4-k path needs the scale fold at every 32 columns instead of once per row (four folds per k32
+step group instead of one). The q side differs too: vLLM folds q's scale into `weights`, our v2 folds it per (row, head) after the MMA.
+Both are kernel variants, not adapter work, and they come before any adapter can be checked bit for bit against the engine's call.
+
 ## 4. The order of work (adoption item 2)
 
+0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's
+   UE8M0 scale per 32 along the head (the MXFP4 layout) and q's scale taken from `weights`; and an FP8-k form with the fp32 row scale.
+   Each bit-identical to the current form on inputs where the layouts coincide, and checked against DeepGEMM's test reference.
 1. **Unit wiring, on the RTX 5090, no model.** A `sm120fp4.indexer` module exposing `fp8_fp4_mqa_logits` and
    `fp8_fp4_paged_mqa_logits` with vLLM's calling convention (the `(data, scale)` q pair, FP8 q first, 2-D `seq_lens`,
    `block_table`, a `schedule_metadata` our scheduler ignores, `clean_logits`, `indices`), bound into
