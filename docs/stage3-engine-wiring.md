@@ -64,6 +64,26 @@ einsum kernel already uses), and the MXFP4-k path needs the scale fold at every 
 step group instead of one). The q side differs too: vLLM folds q's scale into `weights`, our v2 folds it per (row, head) after the MMA.
 Both are kernel variants, not adapter work, and they come before any adapter can be checked bit for bit against the engine's call.
 
+## 3c. Which k format the engine uses on SM120 (read 2026-10-04)
+
+`vllm/v1/attention/backends/mla/indexer.py` (`dsa_indexer_uses_fp4`, lines 48 to 63): the indexer's k cache is fp8 by default and the
+MXFP4 cache is refused outside datacenter Blackwell ("indexer_kv_dtype='mxfp4' requires Blackwell datacenter GPUs (sm_10x ...); sm_120
+(consumer Blackwell) and earlier architectures are not supported"). So on an RTX 5090 or PRO 6000 the kernel the engine calls is the
+FP8-k one: q e4m3 with its scale in `weights`, k `[N, 128]` e4m3 with one fp32 scale per row, the paged cache 132 bytes per entry
+(128 e4m3 + the 4-byte scale). v4's MXFP4 k format is the datacenter path; the SM120 path needs the FP8-k form, which is
+`scripts/fp8_mqa_logits_v5_sm120.py` (2026-10-04): v2's structure with 128-byte e4m3 k rows, the `e4m3.e4m3` instruction form the
+einsum kernel uses, and the fp32 row scale folded once; within 4.5e-7 of the dequantised reference on six shapes, two of them with
+q's scale folded into `weights` as the engine does. Timing, cold L2, median of 10 (`reports/fp8-mqa-logits-v5-rtx5090-20261004.json`):
+
+| S | N | H | us | TFLOP/s |
+|---|---|---|---|---|
+| 32 | 4096 | 8 | 10.5 | 25.5 |
+| 128 | 8192 | 8 | 33.5 | 64.0 |
+| 32 | 32768 | 16 | 37.5 | 114.4 |
+
+The adapter therefore targets v5 (flat) and a paged v5 (the 132-byte entry layout) first; v4 serves the MXFP4 path if vLLM's gate is
+ever relaxed, which is an upstream change this repository does not propose yet.
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's

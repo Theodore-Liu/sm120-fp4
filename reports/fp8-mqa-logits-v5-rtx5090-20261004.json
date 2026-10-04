@@ -1,0 +1,52 @@
+{
+ "kernel": "fp8_mqa_logits_sm120_v5: v2's structure with e4m3 k rows (128 B) and an fp32 scale per row, the fp8 indexer cache vLLM runs on SM120",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; q's scale folded into weights (the engine's form); the timed region holds the launch only",
+ "rows": [
+  {
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 10.528000071644783,
+   "us_min": 8.927999995648861,
+   "TFLOPs": 25.497288580286124,
+   "k_bytes": 540672,
+   "k_GBps": 51.35562275082044
+  },
+  {
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 33.535998314619064,
+   "us_min": 33.40800106525421,
+   "TFLOPs": 64.03517879066285,
+   "k_bytes": 1081344,
+   "k_GBps": 32.24427642962455
+  },
+  {
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 37.53599897027016,
+   "us_min": 36.86400130391121,
+   "TFLOPs": 114.42261865474173,
+   "k_bytes": 4325376,
+   "k_GBps": 115.23273973408438
+  }
+ ]
+}
