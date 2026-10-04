@@ -92,6 +92,37 @@ The paged v5 followed the same day (`fp8_paged_mqa_logits_sm120_v5`, same file, 
 The adapter therefore targets v5 (flat) and the paged v5 first; v4 serves the MXFP4 path if vLLM's gate is
 ever relaxed, which is an upstream change this repository does not propose yet.
 
+### 3d. The weights operand, and the adapter (step 1, 2026-10-04)
+
+`sm120fp4/indexer.py` serves the three entry points vLLM binds in `vllm/utils/deep_gemm.py` (`fp8_fp4_mqa_logits`,
+`fp8_fp4_paged_mqa_logits`, `get_paged_mqa_logits_metadata`) with the v5 kernel, behind `SM120FP4_INDEXER=1`; the plugin's
+`register()` binds them, so a stock vLLM 0.28 with the plugin installed takes them in place of DeepGEMM's `_missing`. What the
+adapter does beyond calling the kernel: it expands the flat kernel's compacted logits ([M, max(ke - ks)]) to the engine's [M, N] at
+absolute columns with -inf outside each row's span (the engine's `top_k_per_row_prefill` reads [ks, ke) only); in decode it flattens
+the engine's [B, next_n, H, 128] q, its 1-D or 2-D `seq_lens` and its one block-table row per request to the kernel's one row per
+query, allocates the [B * next_n, max_model_len] output the engine sizes and lets the kernel write positions [0, ctx) of each row;
+the schedule metadata is an empty int32 tensor (v5 schedules by (row, page) in its grid). The MXFP4-q pair and the varlen `indices`
+form raise `NotImplementedError` by design (Section 3c: vLLM refuses the MXFP4 indexer cache on SM120; the varlen branch is taken
+only with vLLM's own packing kernel).
+
+**The weights operand.** The engine folds q's per-token scale into `weights` and passes them as fp32; the measured kernel reads
+`weights` as bf16. Converting the engine's fp32 weights to bf16 costs 1.2e-3 to 2.8e-3 relative on the logits against an
+fp32-weights reference over five shapes (M 7 to 64, N 300 to 8192, H 8 to 32), against the kernel's own bar of 1e-5
+(`reports/indexer-adapter-weights-precision-rtx5090-20261004.json`; the first version of that measurement was vacuous because its
+"fp32" weights were bf16 values times a power of two, which bf16 holds exactly, and was replaced by weights with full fp32
+mantissas). So the kernel gained an fp32-weights variant (`fp8_mqa_logits_sm120_v5f`, `fp8_paged_mqa_logits_sm120_v5f`), derived
+from the same source by text (the pointer type, the one read, the check, and every name suffixed `f`); it reads the engine's
+operand as it is and lands within 3.0e-7 of the fp32 reference on the same five shapes. The adapter defaults to it
+(`SM120FP4_INDEXER_WEIGHTS=fp32`); `bf16` selects the measured kernel. The variant's cost against the bf16 form is not yet timed
+(the weights are read once per (row, head) and the difference is one conversion per read); it is timed with the paged staging work.
+
+**Test** (`tests/test_indexer_adapter.py`, 9 tests on the RTX 5090, vLLM 0.28 venv): the flat call against the kernel module's
+reference at absolute columns on four shapes (1e-5 bar); the two-mode precision record above; the paged call against the flat call
+on the same rows through random page permutations, with 1-D and 2-D `seq_lens`, `next_n` of 1 and 2 and a block table with spare
+columns, bit for bit; and both calls through `vllm.utils.deep_gemm`'s own wrappers after `register(force=True)`, equal to the direct
+calls. What this does not yet test: `sparse_attn_indexer.py`'s own code path end to end (its top-k over our logits), which needs
+the indexer module's buffers and metadata constructed as the engine constructs them; that is the remaining piece of step 1.
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's
@@ -104,6 +135,8 @@ ever relaxed, which is an upstream change this repository does not propose yet.
    `SM120FP4_INDEXER=1`. Test: `sparse_attn_indexer.py`'s own code path on synthetic q, kv and block tables against the
    reference the paper's selftests use (DeepGEMM's test reference), bit for bit with our v2/v3, and vLLM's `is_deep_gemm_supported`
    left as the engine has it. Closes when the engine's indexer function, called as the engine calls it, returns our logits.
+   **State 2026-10-04: the adapter, its binding and its test through `vllm.utils.deep_gemm`'s wrappers are in (Section 3d);
+   the fp32-weights kernel variant the engine's operand needs is in; the `sparse_attn_indexer.py` end-to-end call remains.**
 2. **The q-side formats.** vLLM's indexer quantises q to FP8 e4m3 per token (default) or MXFP4; our kernels take FP8 q. The
    MXFP4-q path (`use_fp4=True`) needs an FP4 x FP4 instruction form (`kind::f8f6f4` with e2m1 on both operands) that the
    repository has not measured; FP8 q is the default and is what step 1 wires.

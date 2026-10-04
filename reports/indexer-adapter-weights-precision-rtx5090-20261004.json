@@ -1,0 +1,110 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "engine-form operands (q's UE8M0 per-token scale folded into fp32 weights with full mantissas); weights_mode bf16 converts them for the measured kernel, fp32 passes them to the f variant; rel_max_err is max |diff| / max |ref| over the valid logits",
+ "rows": [
+  {
+   "weights_mode": "bf16",
+   "M": 16,
+   "N": 512,
+   "H": 8,
+   "seed": 11,
+   "rel_max_err_vs_fp32_weights": 0.0017786493990570307,
+   "rel_max_err_vs_bf16_weights": 2.4308573642883857e-07,
+   "fp32_vs_bf16_reference": 0.0017786493990570307
+  },
+  {
+   "weights_mode": "bf16",
+   "M": 33,
+   "N": 2048,
+   "H": 8,
+   "seed": 12,
+   "rel_max_err_vs_fp32_weights": 0.0027711116708815098,
+   "rel_max_err_vs_bf16_weights": 1.910366762558624e-07,
+   "fp32_vs_bf16_reference": 0.0027711964212358
+  },
+  {
+   "weights_mode": "bf16",
+   "M": 64,
+   "N": 4096,
+   "H": 16,
+   "seed": 13,
+   "rel_max_err_vs_fp32_weights": 0.0013008503010496497,
+   "rel_max_err_vs_bf16_weights": 2.6043733214464737e-07,
+   "fp32_vs_bf16_reference": 0.0013007852248847485
+  },
+  {
+   "weights_mode": "bf16",
+   "M": 48,
+   "N": 8192,
+   "H": 8,
+   "seed": 14,
+   "rel_max_err_vs_fp32_weights": 0.0027156048454344273,
+   "rel_max_err_vs_bf16_weights": 2.2282299028120178e-07,
+   "fp32_vs_bf16_reference": 0.0027156048454344273
+  },
+  {
+   "weights_mode": "bf16",
+   "M": 7,
+   "N": 300,
+   "H": 32,
+   "seed": 15,
+   "rel_max_err_vs_fp32_weights": 0.0012329213786870241,
+   "rel_max_err_vs_bf16_weights": 1.4099680356594035e-07,
+   "fp32_vs_bf16_reference": 0.0012329213786870241
+  },
+  {
+   "weights_mode": "fp32",
+   "M": 16,
+   "N": 512,
+   "H": 8,
+   "seed": 11,
+   "rel_max_err_vs_fp32_weights": 3.0432354947151907e-07,
+   "rel_max_err_vs_bf16_weights": 0.001775923534296453,
+   "fp32_vs_bf16_reference": 0.0017786493990570307
+  },
+  {
+   "weights_mode": "fp32",
+   "M": 33,
+   "N": 2048,
+   "H": 8,
+   "seed": 12,
+   "rel_max_err_vs_fp32_weights": 1.9079534752108884e-07,
+   "rel_max_err_vs_bf16_weights": 0.002774701686576009,
+   "fp32_vs_bf16_reference": 0.0027711964212358
+  },
+  {
+   "weights_mode": "fp32",
+   "M": 64,
+   "N": 4096,
+   "H": 16,
+   "seed": 13,
+   "rel_max_err_vs_fp32_weights": 2.605217730433651e-07,
+   "rel_max_err_vs_bf16_weights": 0.0013003635685890913,
+   "fp32_vs_bf16_reference": 0.0013007852248847485
+  },
+  {
+   "weights_mode": "fp32",
+   "M": 48,
+   "N": 8192,
+   "H": 8,
+   "seed": 14,
+   "rel_max_err_vs_fp32_weights": 2.2261488652475236e-07,
+   "rel_max_err_vs_bf16_weights": 0.002718217670917511,
+   "fp32_vs_bf16_reference": 0.0027156048454344273
+  },
+  {
+   "weights_mode": "fp32",
+   "M": 7,
+   "N": 300,
+   "H": 32,
+   "seed": 15,
+   "rel_max_err_vs_fp32_weights": 1.4116747593106993e-07,
+   "rel_max_err_vs_bf16_weights": 0.0012314660707488656,
+   "fp32_vs_bf16_reference": 0.0012329213786870241
+  }
+ ],
+ "worst_rel_max_err_vs_fp32_weights": {
+  "bf16": 0.0027711116708815098,
+  "fp32": 3.0432354947151907e-07
+ }
+}

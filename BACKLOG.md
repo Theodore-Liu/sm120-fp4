@@ -76,8 +76,13 @@ closes it. Dates are when an item was added, not estimates.
    reference, 10.5 / 33.5 / 37.5 us on the three shapes, `reports/fp8-mqa-logits-v5-rtx5090-20261004.json`). The paged v5 in the
    132-byte entry layout landed 2026-10-04 (bit-identical to the flat v5 through page permutations; 62 to 241 us on the three decode
    shapes, three times the paged v4 because the 132-byte rows are staged with 4-byte loads; `reports/fp8-paged-mqa-logits-v5-rtx5090-20261004.json`).
-   Next: the adapter `sm120fp4/indexer.py` against v5 (flat and paged), its unit test through `vllm.utils.deep_gemm`, and then the
-   paged staging.
+   Step 1 landed 2026-10-04: `sm120fp4/indexer.py` serves vLLM's three indexer entry points with v5 (flat logits expanded to the
+   engine's [M, N]; decode batch flattened to one row per query; empty schedule metadata), bound by the plugin's `register()` under
+   `SM120FP4_INDEXER=1`; the engine's fp32 `weights` cost 1.2e-3 to 2.8e-3 relative when read as bf16, so v5 gained an fp32-weights
+   variant (within 3.0e-7) that the adapter uses by default (wiring doc 3d; `tests/test_indexer_adapter.py`, 9 tests, through
+   `vllm.utils.deep_gemm`'s own wrappers). The three MQA-logits kernel modules and `ue8m0_reference.py` moved into
+   `sm120fp4/kernels/` with shims in `scripts/`. Next: `sparse_attn_indexer.py`'s own code path end to end on synthetic buffers
+   (closes step 1), then the paged staging's 4-byte loads, then step 3's two-GPU run.
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
    scheduled task that polls), with the result badge in the README. Nobody depends on a kernel library whose tests only its

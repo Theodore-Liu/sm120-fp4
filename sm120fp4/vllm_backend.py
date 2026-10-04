@@ -187,10 +187,15 @@ def _log(msg: str) -> None:
 
 def register() -> bool:
     """The ``vllm.general_plugins`` entry point. Re-registers ``modelopt_fp4`` with :class:`SM120Fp4Config` when
-    ``SM120FP4_MOE=1``; returns whether it did."""
-    if not enabled():
-        return False
-    v = _vllm()
-    v.register(METHOD_NAME)(classes().Config)
-    _log(f"{METHOD_NAME} now resolves to SM120Fp4Config ({ENV}=1); routed-experts layers the kernels fit run on them")
-    return True
+    ``SM120FP4_MOE=1``, and binds the sparse-attention indexer's fp8 MQA logits to the v5 kernel when ``SM120FP4_INDEXER=1``
+    (sm120fp4.indexer); returns whether either happened. The two flags are independent."""
+    did = False
+    if enabled():
+        v = _vllm()
+        v.register(METHOD_NAME)(classes().Config)
+        _log(f"{METHOD_NAME} now resolves to SM120Fp4Config ({ENV}=1); routed-experts layers the kernels fit run on them")
+        did = True
+    from sm120fp4 import indexer
+    if indexer.enabled():
+        did = indexer.register() or did
+    return did
