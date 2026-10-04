@@ -86,6 +86,8 @@ and the RTX PRO 6000 only (the tables below).
   `scripts/vllm_model_compare.py` and `scripts/vllm_decode_throughput.py` measure it inside the engine.
 - `docs/stage3-survey.md`, `scripts/ue8m0_reference.py`, `scripts/fp8_fp4_gemm_sm120.py`, `scripts/fp8_fp4_mqa_logits_sm120.py`,
   `scripts/fp8_einsum_sm120.py`, `scripts/probe_f8f6f4*.py`: stage 3, the FP4 kernels DeepGEMM routes to `tcgen05` and SM120 lacks.
+- `docs/stage3-engine-wiring.md`: where vLLM 0.28 calls the stage-3 kernels (file and line, inputs, our kernel, the gap), what runs
+  DeepSeek-V4-Flash on consumer Blackwell today, and the order of work for adoption item 2.
 - `scripts/plugin_install_test.py` (`run-plugin-install-test.cmd`, `run-plugin-noneditable-test.cmd`): the clean-venv check that a pip
   install of this repository, editable or as a wheel, registers the vLLM plugin on a stock vLLM 0.28 and compiles its kernels from
   site-packages (adoption item 1); reports `reports/plugin-install-test-20261003.json` and `plugin-install-test-noneditable-20261003.json`.
@@ -250,7 +252,7 @@ full model answers 300 of 300 retrieval items as stock does and the engine decod
 concurrent sequences than on vLLM's own W4A4 path. Of the stage's gate, the RTX PRO 6000 reproduction and the engine
 integration are met; the 8-to-16-token margin over FlashInfer's path at the layer level is not (the layer is level there)
 and stays in `BACKLOG.md`. Stage 3 is in progress: the survey, the UE8M0 reference, the measured operand convention and
-the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel is correct against DeepGEMM's reference in both its forms (flat, 18 to 147 TFLOP/s; paged, 0.7 to 1.1 TB/s of kv), and the FP8 einsum has a correct v0 and a tiled v1 (faster only at B 128), as the section above states. See `PLAN.md` for the stage gates. Of the three adoption items (`BACKLOG.md`), the first is done: the stage-2 backend installs as a vLLM plugin from a wheel, with the kernels packaged, on a stock vLLM 0.28 (the Install section above). Next, in order: one stage-3 kernel wired into an engine on a model an SM120 card can hold, and a minimal CI on an SM120 runner. The upstream issue or PR waits until the project is essentially complete.
+the first kernel at 2.1 times its byte floor on the widest shape, with the one-block planner as its default and the split-K reduce as the 2048-wide shapes' remaining cost; the MQA-logits kernel is correct against DeepGEMM's reference in both its forms (flat, 18 to 147 TFLOP/s; paged, 0.7 to 1.1 TB/s of kv), and the FP8 einsum has a correct v0 and a tiled v1 (faster only at B 128), as the section above states. See `PLAN.md` for the stage gates. Of the three adoption items (`BACKLOG.md`), the first is done: the stage-2 backend installs as a vLLM plugin from a wheel, with the kernels packaged, on a stock vLLM 0.28 (the Install section above). Next, in order: one stage-3 kernel wired into an engine (`docs/stage3-engine-wiring.md` names the five call sites in vLLM 0.28 and the order: the sparse-attention indexer first, unit-wired on the RTX 5090, then end to end on two RTX PRO 6000 with DeepSeek-V4-Flash NVFP4), and a minimal CI on an SM120 runner. The upstream issue or PR waits until the project is essentially complete.
 
 ## License
 
