@@ -1,0 +1,437 @@
+{
+ "date": "2026-10-04",
+ "commit": "f033af8383d8012dc7f08736fc262d052e1ec156",
+ "gpu": {
+  "device": "NVIDIA GeForce RTX 5090",
+  "driver": "610.47",
+  "utilization_pct": 10,
+  "memory_used_mb": 2744
+ },
+ "torch": "2.13.0+cu130",
+ "cuda": "13.0",
+ "python": "3.12.14",
+ "checkout": "/home/jingze/ci/sm120-fp4",
+ "outcome": "passed",
+ "pytest_rc": 0,
+ "pytest_tail": "ernal()\n  \n  {\"engineId\":4,\"smVersion\":1200,\"knobChoices\":{\"CUDNN_KNOB_TYPE_SPLIT_K_SLC\":-1,\"CUDNN_KNOB_TYPE_KERNEL_CFG\":-1}}\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_ARCH_MISMATCH; Reason: FORT_NATIVE_9X engine is only supported since Hopper architecture at: !(900 <= this->getDeviceProp()->deviceVer && this->getDeviceProp()->deviceVer < 1000)\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_ARCH_MISMATCH; Reason: initial_compatibility_check()\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: (CUDNN_STATUS_NOT_INITIALIZED == status) || (CUDNN_STATUS_NOT_SUPPORTED == ((status) / 1000 * 1000))\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: ptr->isSupported()\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: finalize_internal()\n  \n  {\"engineId\":10,\"smVersion\":1200,\"knobChoices\":{\"CUDNN_KNOB_TYPE_SPLIT_K_SLC\":-1,\"CUDNN_KNOB_TYPE_KERNEL_CFG\":-1}}\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_LAYOUT; Reason: a_scale_layout != \"RowMajor\" || b_scale_layout != \"ColumnMajor\"\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_LAYOUT; Reason: check_block_scale_matmul_support_fort(node)\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_LAYOUT; Reason: check_node_support_fort(node_ptr)\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_LAYOUT; Reason: check_for_support()\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: (CUDNN_STATUS_NOT_INITIALIZED == status) || (CUDNN_STATUS_NOT_SUPPORTED == ((status) / 1000 * 1000))\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: ptr->isSupported()\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: finalize_internal()\n  \n  {\"engineId\":7,\"smVersion\":1200,\"knobChoices\":{\"CUDNN_KNOB_TYPE_SPLIT_K_SLC\":-1,\"CUDNN_KNOB_TYPE_KERNEL_CFG\":-1}}\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_LAYOUT; Reason: port_scale.tensor->getReordering() != CUDNN_TENSOR_REORDERING_NONE\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_LAYOUT; Reason: check_block_scale_dequantize_support_fort(node)\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_LAYOUT; Reason: check_node_support_fort(node_ptr)\n  Warning: CUDNN_STATUS_NOT_SUPPORTED_LAYOUT; Reason: check_for_support()\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: (CUDNN_STATUS_NOT_INITIALIZED == status) || (CUDNN_STATUS_NOT_SUPPORTED == ((status) / 1000 * 1000))\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: ptr->isSupported()\n  Warning: CUDNN_STATUS_NOT_SUPPORTED; Reason: finalize_internal()\n  \n  ))\n    return self.forward(inputs, **kwargs)\n\ntests/test_mm_fp4.py::test_mm_fp4_matches_reference[128-256-512-b12x]\ntests/test_mm_fp4.py::test_mm_fp4_matches_reference[16-4096-4096-b12x]\ntests/test_mm_fp4.py::test_mm_fp4_matches_reference[512-512-1024-b12x]\n  /home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/dense_blockscaled_gemm_sm120_b12x.py:2310: DeprecationWarning: Migrated to examples/CuTeDSL/helpers/static_persistent_tile_scheduler.py (BSD-3). The wheel copy will be removed in a future release.\n    tile_sched_params = utils.PersistentTileSchedulerParams(\n\ntests/test_mm_fp4.py: 84 warnings\n  /home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/nvidia_cutlass_dsl/dsl_packages/cutlass/_mlir_helpers/op.py:294: DeprecationWarning: FastDivmodDivisor is deprecated in favor of cute.FastDivmodDivisorV2 / cute.fast_divmod_create_divisor_v2. V2 additionally carries the scalar divisor across kernel boundaries (2 MLIR values per object instead of 1), so '.divisor' is readable inside kernels; arithmetic (divmod, //, %) is unchanged.\n    res_or_list = opFunc(*args, **kwargs, loc=loc)\n\ntests/test_mm_fp4.py: 39 warnings\n  /home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/nvidia_cutlass_dsl/dsl_packages/cutlass/utils/static_persistent_tile_scheduler.py:292: DeprecationWarning: Migrated to examples/CuTeDSL/helpers/static_persistent_tile_scheduler.py (BSD-3). The wheel copy will be removed in a future release.\n    new_params = PersistentTileSchedulerParams(*(tuple(obj_list)), loc=self._loc)\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n67 passed, 15 skipped, 145 warnings in 11.31s\n",
+ "summary": {
+  "tests": 82,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 15,
+  "time_s": 11.304,
+  "passed": 67
+ },
+ "tests": [
+  {
+   "name": "tests.test_indexer_adapter::test_flat_matches_reference[16-512-8-1]",
+   "outcome": "passed",
+   "time_s": 1.065
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_flat_matches_reference[33-2048-8-2]",
+   "outcome": "passed",
+   "time_s": 0.018
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_flat_matches_reference[64-4096-16-3]",
+   "outcome": "passed",
+   "time_s": 0.032
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_flat_matches_reference[7-300-32-4]",
+   "outcome": "passed",
+   "time_s": 0.008
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_weights_precision_recorded",
+   "outcome": "passed",
+   "time_s": 0.25
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_paged_matches_flat[4-1-1000-8-21-False]",
+   "outcome": "passed",
+   "time_s": 0.017
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_paged_matches_flat[3-2-2048-8-22-True]",
+   "outcome": "passed",
+   "time_s": 0.006
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_paged_matches_flat[8-1-4096-16-23-True]",
+   "outcome": "passed",
+   "time_s": 0.007
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_paged_256_row_blocks[3-1-2000-8-61]",
+   "outcome": "passed",
+   "time_s": 0.006
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_paged_256_row_blocks[2-2-4096-16-62]",
+   "outcome": "passed",
+   "time_s": 0.007
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_paged_256_row_blocks[4-1-700-8-63]",
+   "outcome": "passed",
+   "time_s": 0.006
+  },
+  {
+   "name": "tests.test_indexer_adapter::test_through_vllm_wrapper",
+   "outcome": "passed",
+   "time_s": 3.193
+  },
+  {
+   "name": "tests.test_indexer_topk::test_prefill_topk_matches_reference[16-4096-8-41-2048]",
+   "outcome": "passed",
+   "time_s": 0.166
+  },
+  {
+   "name": "tests.test_indexer_topk::test_prefill_topk_matches_reference[33-3000-8-42-512]",
+   "outcome": "passed",
+   "time_s": 0.02
+  },
+  {
+   "name": "tests.test_indexer_topk::test_prefill_topk_matches_reference[8-8192-16-43-2048]",
+   "outcome": "passed",
+   "time_s": 0.016
+  },
+  {
+   "name": "tests.test_indexer_topk::test_decode_topk_matches_reference[4-1-4096-8-51-2048]",
+   "outcome": "passed",
+   "time_s": 0.01
+  },
+  {
+   "name": "tests.test_indexer_topk::test_decode_topk_matches_reference[3-2-3000-8-52-512]",
+   "outcome": "passed",
+   "time_s": 0.009
+  },
+  {
+   "name": "tests.test_indexer_topk::test_decode_topk_matches_reference[2-2-8192-16-53-2048]",
+   "outcome": "passed",
+   "time_s": 0.009
+  },
+  {
+   "name": "tests.test_layouts::test_round_trip_and_padding[128-4]",
+   "outcome": "passed",
+   "time_s": 0.002
+  },
+  {
+   "name": "tests.test_layouts::test_round_trip_and_padding[256-32]",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts::test_round_trip_and_padding[100-5]",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts::test_round_trip_and_padding[1-1]",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts::test_round_trip_and_padding[129-9]",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts::test_round_trip_and_padding[1024-256]",
+   "outcome": "passed",
+   "time_s": 0.005
+  },
+  {
+   "name": "tests.test_layouts::test_worked_example_matches_cudnn_formula",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts::test_matches_flashinfer_block_scale_interleave",
+   "outcome": "passed",
+   "time_s": 0.127
+  },
+  {
+   "name": "tests.test_layouts::test_matches_flashinfer_quantize_swizzled_vs_linear",
+   "outcome": "passed",
+   "time_s": 0.008
+  },
+  {
+   "name": "tests.test_layouts_8x4::test_round_trip_and_padding[8-4]",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts_8x4::test_round_trip_and_padding[16-8]",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts_8x4::test_round_trip_and_padding[9-5]",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts_8x4::test_round_trip_and_padding[130-12]",
+   "outcome": "passed",
+   "time_s": 0.001
+  },
+  {
+   "name": "tests.test_layouts_8x4::test_8x4_matches_flashinfer_one_hot",
+   "outcome": "passed",
+   "time_s": 0.051
+  },
+  {
+   "name": "tests.test_layouts_8x4::test_8x4_flag_without_swizzle_is_row_major",
+   "outcome": "passed",
+   "time_s": 0.002
+  },
+  {
+   "name": "tests.test_layouts_8x4::test_8x4_bulk_matches_flashinfer",
+   "outcome": "passed",
+   "time_s": 0.002
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[128-256-512-cutlass]",
+   "outcome": "passed",
+   "time_s": 0.068
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[128-256-512-cudnn]",
+   "outcome": "skipped",
+   "time_s": 0.126
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[128-256-512-trtllm]",
+   "outcome": "skipped",
+   "time_s": 0.004
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[128-256-512-b12x]",
+   "outcome": "passed",
+   "time_s": 0.703
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[128-256-512-cute-dsl]",
+   "outcome": "skipped",
+   "time_s": 0.005
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[128-256-512-auto]",
+   "outcome": "passed",
+   "time_s": 0.006
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[16-4096-4096-cutlass]",
+   "outcome": "passed",
+   "time_s": 0.121
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[16-4096-4096-cudnn]",
+   "outcome": "skipped",
+   "time_s": 0.078
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[16-4096-4096-trtllm]",
+   "outcome": "skipped",
+   "time_s": 0.073
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[16-4096-4096-b12x]",
+   "outcome": "passed",
+   "time_s": 0.425
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[16-4096-4096-cute-dsl]",
+   "outcome": "skipped",
+   "time_s": 0.101
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[16-4096-4096-auto]",
+   "outcome": "passed",
+   "time_s": 0.075
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[1-1024-2048-cutlass]",
+   "outcome": "passed",
+   "time_s": 0.01
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[1-1024-2048-cudnn]",
+   "outcome": "skipped",
+   "time_s": 0.015
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[1-1024-2048-trtllm]",
+   "outcome": "skipped",
+   "time_s": 0.012
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[1-1024-2048-b12x]",
+   "outcome": "passed",
+   "time_s": 0.011
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[1-1024-2048-cute-dsl]",
+   "outcome": "skipped",
+   "time_s": 0.009
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[1-1024-2048-auto]",
+   "outcome": "passed",
+   "time_s": 0.01
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[512-512-1024-cutlass]",
+   "outcome": "passed",
+   "time_s": 0.009
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[512-512-1024-cudnn]",
+   "outcome": "skipped",
+   "time_s": 0.011
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[512-512-1024-trtllm]",
+   "outcome": "skipped",
+   "time_s": 0.006
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[512-512-1024-b12x]",
+   "outcome": "passed",
+   "time_s": 0.403
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[512-512-1024-cute-dsl]",
+   "outcome": "skipped",
+   "time_s": 0.006
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_matches_reference[512-512-1024-auto]",
+   "outcome": "passed",
+   "time_s": 0.008
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_graph_replay_is_stable[cutlass]",
+   "outcome": "passed",
+   "time_s": 0.072
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_graph_replay_is_stable[cudnn]",
+   "outcome": "skipped",
+   "time_s": 0.027
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_graph_replay_is_stable[trtllm]",
+   "outcome": "skipped",
+   "time_s": 0.016
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_graph_replay_is_stable[b12x]",
+   "outcome": "passed",
+   "time_s": 0.048
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_graph_replay_is_stable[cute-dsl]",
+   "outcome": "skipped",
+   "time_s": 0.022
+  },
+  {
+   "name": "tests.test_mm_fp4::test_mm_fp4_graph_replay_is_stable[auto]",
+   "outcome": "passed",
+   "time_s": 0.05
+  },
+  {
+   "name": "tests.test_mxfp4::test_reference_round_trip_error_is_bounded",
+   "outcome": "passed",
+   "time_s": 0.003
+  },
+  {
+   "name": "tests.test_mxfp4::test_matches_flashinfer_scales_and_codes",
+   "outcome": "passed",
+   "time_s": 0.03
+  },
+  {
+   "name": "tests.test_quantize::test_reference_round_trip_error_is_bounded_by_one_grid_unit_per_block",
+   "outcome": "passed",
+   "time_s": 0.002
+  },
+  {
+   "name": "tests.test_quantize::test_matches_flashinfer_values",
+   "outcome": "passed",
+   "time_s": 0.011
+  },
+  {
+   "name": "tests.test_quantize::test_flashinfer_dequant_agrees_with_reference",
+   "outcome": "passed",
+   "time_s": 0.005
+  },
+  {
+   "name": "tests.test_vllm_backend::test_layout_rotation_matches_the_loader",
+   "outcome": "passed",
+   "time_s": 0.454
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[1-random]",
+   "outcome": "passed",
+   "time_s": 0.211
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[1-fixed8]",
+   "outcome": "passed",
+   "time_s": 0.009
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[2-random]",
+   "outcome": "passed",
+   "time_s": 0.02
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[2-fixed8]",
+   "outcome": "passed",
+   "time_s": 0.016
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[4-random]",
+   "outcome": "passed",
+   "time_s": 0.03
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[4-fixed8]",
+   "outcome": "passed",
+   "time_s": 0.027
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[8-random]",
+   "outcome": "passed",
+   "time_s": 0.056
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[8-fixed8]",
+   "outcome": "passed",
+   "time_s": 0.052
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[16-random]",
+   "outcome": "passed",
+   "time_s": 0.108
+  },
+  {
+   "name": "tests.test_vllm_backend::test_forward_is_bit_identical_to_the_direct_kernel_calls[16-fixed8]",
+   "outcome": "passed",
+   "time_s": 0.101
+  },
+  {
+   "name": "tests.test_vllm_backend::test_long_batch_equals_its_slices",
+   "outcome": "passed",
+   "time_s": 0.004
+  },
+  {
+   "name": "tests.test_vllm_backend::test_vllm_classes_if_vllm_is_installed",
+   "outcome": "passed",
+   "time_s": 2.508
+  }
+ ]
+}
