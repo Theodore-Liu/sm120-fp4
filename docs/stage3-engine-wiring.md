@@ -81,7 +81,15 @@ q's scale folded into `weights` as the engine does. Timing, cold L2, median of 1
 | 128 | 8192 | 8 | 33.5 | 64.0 |
 | 32 | 32768 | 16 | 37.5 | 114.4 |
 
-The adapter therefore targets v5 (flat) and a paged v5 (the 132-byte entry layout) first; v4 serves the MXFP4 path if vLLM's gate is
+The paged v5 followed the same day (`fp8_paged_mqa_logits_sm120_v5`, same file, `reports/fp8-paged-mqa-logits-v5-rtx5090-20261004.json`): one 132-byte-entry page per warp per step in vLLM's own cache layout (`[num_blocks, 64, 1, 132]`), bit-identical to the flat v5 through random page permutations on four shapes, within 2.9e-7 of the reference. It is about three times slower than the paged v4 on the same shapes (62.4 / 234.2 / 240.7 us against 23.3 / 72.4 / 74.5): a 132-byte row stride has no 16-byte alignment, so the page is staged with 4-byte loads instead of `cp.async` 16-byte chunks, and the e4m3 rows are twice the bytes of the packed e2m1 ones. The staging is the next thing to fix (two 16-byte chunks per 33-word row with a 4-byte remainder, or a 16-byte-aligned copy of the page) once the adapter proves the layout is read right.
+
+| S | N | H | pages | us | cache rows GB/s | TFLOP/s |
+|---|---|---|---|---|---|---|
+| 64 | 8192 | 8 | 128 | 62.4 | 1108 | 17.2 |
+| 128 | 16384 | 8 | 256 | 234.2 | 1182 | 18.3 |
+| 32 | 65536 | 16 | 1024 | 240.7 | 1150 | 35.7 |
+
+The adapter therefore targets v5 (flat) and the paged v5 first; v4 serves the MXFP4 path if vLLM's gate is
 ever relaxed, which is an upstream change this repository does not propose yet.
 
 ## 4. The order of work (adoption item 2)
