@@ -1,0 +1,61 @@
+{
+ "kernel": "fp4_fp4_paged_mqa_logits_sm120_v6: the paged v4's staging at an 80-byte row stride with v6's block-scaled k64 inner product",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; random context lengths per row (seeded); paged v4 timed on the same k codes and pages",
+ "rows": [
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 11.008000001311302,
+   "us_min": 10.495999827980995
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 13.055999763309956,
+   "us_min": 12.799999676644802
+  },
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 45.80799862742424,
+   "us_min": 45.53600028157234
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 54.016001522541046,
+   "us_min": 53.69599908590317
+  },
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 43.98399963974953,
+   "us_min": 43.74400153756142
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 54.30399999022484,
+   "us_min": 53.98400127887726
+  }
+ ]
+}
