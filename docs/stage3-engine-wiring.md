@@ -312,7 +312,11 @@ Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx50
    measured (Nsight Compute Occupancy on S 64 N 32768 H 8, counters only; `reports/ncu-paged-v6f-occupancy-rtx5090-20261005.txt`): the prefetch
    works, long scoreboard falling from 5.91 to 1.69 and cycles per issued instruction from 11.7 to 7.0, but two buffers per warp leave the
    same 43 KB per block for half the warps, so theoretical occupancy halves (16.7 against 33.3 percent; achieved 10.5 against 20.6). The next
-   lever keeps the prefetch at v6e's occupancy: half-page buffers (two 32-row halves per warp, the same 43 KB for 8 warps). Closed; the paged v6e stays the paged form. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
+   lever keeps the prefetch at v6e's occupancy: half-page buffers (two 32-row halves per warp, the same 43 KB for 8 warps). Tried
+   (`fp4_fp4_paged_mqa_logits_sm120_v6g`): bit-identical to the paged v6e on four shapes, level on the smallest shape and slower on the two larger
+   (11.0 / 45.8 / 43.8 us against 11.0 / 43.8 / 40.0; `reports/fp4-fp4-paged-mqa-logits-v6g-rtx5090-20261005.json`). Not measured, so only a
+   candidate: each half reloads the q fragments, weights and scales, and each page gains a second wait point, while the overlap hides only the
+   second half's copy within one page. The paged v6e stays the paged form, and the next paged lever is measured before it is designed. Closed; the paged v6e stays the paged form. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
    on SM120 (Section 3c), so the adapter keeps raising `NotImplementedError` for the MXFP4-q pair until that gate moves.
 3. **End to end, two RTX PRO 6000 (RunPod), DeepSeek-V4-Flash-0731-NVFP4, TP=2**, on the vLLM nightly the public recipe pins or
    on 0.29 if PR #41834 has merged by then: the engine's path (the Triton fallback or FlashInfer's) against ours behind the flag,
