@@ -1,0 +1,299 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "arm1_container": "e2m1 code in bits 5:2 of its byte on both operands",
+ "arm2_packing_exact": true,
+ "arm3_exact_mapping": true,
+ "scale_a": {
+  "row0_block0": [
+   [
+    0,
+    0
+   ]
+  ],
+  "row0_block1": [
+   [
+    0,
+    1
+   ]
+  ],
+  "row1_block0": [
+   [
+    4,
+    0
+   ]
+  ],
+  "row1_block1": [
+   [
+    4,
+    1
+   ]
+  ],
+  "row2_block0": [
+   [
+    8,
+    0
+   ]
+  ],
+  "row2_block1": [
+   [
+    8,
+    1
+   ]
+  ],
+  "row3_block0": [
+   [
+    12,
+    0
+   ]
+  ],
+  "row3_block1": [
+   [
+    12,
+    1
+   ]
+  ],
+  "row4_block0": [
+   [
+    16,
+    0
+   ]
+  ],
+  "row4_block1": [
+   [
+    16,
+    1
+   ]
+  ],
+  "row5_block0": [
+   [
+    20,
+    0
+   ]
+  ],
+  "row5_block1": [
+   [
+    20,
+    1
+   ]
+  ],
+  "row6_block0": [
+   [
+    24,
+    0
+   ]
+  ],
+  "row6_block1": [
+   [
+    24,
+    1
+   ]
+  ],
+  "row7_block0": [
+   [
+    28,
+    0
+   ]
+  ],
+  "row7_block1": [
+   [
+    28,
+    1
+   ]
+  ],
+  "row8_block0": [
+   [
+    1,
+    0
+   ]
+  ],
+  "row8_block1": [
+   [
+    1,
+    1
+   ]
+  ],
+  "row9_block0": [
+   [
+    5,
+    0
+   ]
+  ],
+  "row9_block1": [
+   [
+    5,
+    1
+   ]
+  ],
+  "row10_block0": [
+   [
+    9,
+    0
+   ]
+  ],
+  "row10_block1": [
+   [
+    9,
+    1
+   ]
+  ],
+  "row11_block0": [
+   [
+    13,
+    0
+   ]
+  ],
+  "row11_block1": [
+   [
+    13,
+    1
+   ]
+  ],
+  "row12_block0": [
+   [
+    17,
+    0
+   ]
+  ],
+  "row12_block1": [
+   [
+    17,
+    1
+   ]
+  ],
+  "row13_block0": [
+   [
+    21,
+    0
+   ]
+  ],
+  "row13_block1": [
+   [
+    21,
+    1
+   ]
+  ],
+  "row14_block0": [
+   [
+    25,
+    0
+   ]
+  ],
+  "row14_block1": [
+   [
+    25,
+    1
+   ]
+  ],
+  "row15_block0": [
+   [
+    29,
+    0
+   ]
+  ],
+  "row15_block1": [
+   [
+    29,
+    1
+   ]
+  ]
+ },
+ "scale_b": {
+  "col0_block0": [
+   [
+    0,
+    0
+   ]
+  ],
+  "col0_block1": [
+   [
+    0,
+    1
+   ]
+  ],
+  "col1_block0": [
+   [
+    4,
+    0
+   ]
+  ],
+  "col1_block1": [
+   [
+    4,
+    1
+   ]
+  ],
+  "col2_block0": [
+   [
+    8,
+    0
+   ]
+  ],
+  "col2_block1": [
+   [
+    8,
+    1
+   ]
+  ],
+  "col3_block0": [
+   [
+    12,
+    0
+   ]
+  ],
+  "col3_block1": [
+   [
+    12,
+    1
+   ]
+  ],
+  "col4_block0": [
+   [
+    16,
+    0
+   ]
+  ],
+  "col4_block1": [
+   [
+    16,
+    1
+   ]
+  ],
+  "col5_block0": [
+   [
+    20,
+    0
+   ]
+  ],
+  "col5_block1": [
+   [
+    20,
+    1
+   ]
+  ],
+  "col6_block0": [
+   [
+    24,
+    0
+   ]
+  ],
+  "col6_block1": [
+   [
+    24,
+    1
+   ]
+  ],
+  "col7_block0": [
+   [
+    28,
+    0
+   ]
+  ],
+  "col7_block1": [
+   [
+    28,
+    1
+   ]
+  ]
+ },
+ "selectors": "byte-id 0 and thread-id 0 for both operands"
+}

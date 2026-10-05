@@ -262,6 +262,16 @@ Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx50
 2. **The q-side formats.** vLLM's indexer quantises q to FP8 e4m3 per token (default) or MXFP4; our kernels take FP8 q. The
    MXFP4-q path (`use_fp4=True`) needs an FP4 x FP4 instruction form (`kind::f8f6f4` with e2m1 on both operands) that the
    repository has not measured; FP8 q is the default and is what step 1 wires.
+   **State 2026-10-04: both FP4 x FP4 forms measured on the RTX 5090 (`scripts/probe_f4f4.py`,
+   `reports/probe-f4f4-rtx5090-20261004.json`), exact against the fp32 product of the dequantised operands.** (a) `kind::f8f6f4`
+   with e2m1 on both operands, k = 32, one value per byte: the container is bits 5:2 on both operands, as for e4m3 x e2m1.
+   (b) `kind::mxf4.block_scale.scale_vec::2X ... .ue8m0`, k = 64, two values per byte, eight consecutive k per register
+   (a0/a1 rows g and g+8 at k 8t..8t+7, a2/a3 at k 32+8t..; b0/b1 column g likewise). With byte-id and thread-id 0, row g's two
+   scales come from lane 4g's scale-a register and row g+8's from lane 4g+1's, byte 0 for k 0..31 and byte 1 for k 32..63; column
+   g's from lane 4g's scale-b register, same bytes; every (row or column, block) is reached by exactly one byte and no setting
+   changes C partially. The nibble order within a byte cannot be read by any dot product when both operands share it, so the probe
+   does not and need not decide it: q and k come packed by the same convention. Form (b) reads q at half the bytes of form (a) and
+   takes vLLM's per-32 UE8M0 scales directly, so it is the form an MXFP4-q kernel would use; no such kernel is written yet.
 3. **End to end, two RTX PRO 6000 (RunPod), DeepSeek-V4-Flash-0731-NVFP4, TP=2**, on the vLLM nightly the public recipe pins or
    on 0.29 if PR #41834 has merged by then: the engine's path (the Triton fallback or FlashInfer's) against ours behind the flag,
    same prompts, the 300-item slate for answers and decode tokens per second and prefill tokens per second at a long context
