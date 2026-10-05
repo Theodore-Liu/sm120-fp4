@@ -191,8 +191,9 @@ def fp8_fp4_paged_mqa_logits(q, kv_cache: torch.Tensor, weights: torch.Tensor, c
     mod = build()
     sfq = torch.full((S, H), 127, dtype=torch.uint8, device=dev)
     w = _weights(weights, S, H)
-    # the half-page staging (v5h): two blocks per SM, 33.5 / 103.2 / 113.4 us against the full page's 33.6 / 115.5 / 124.9 on the bench shapes
-    v5.paged_fn(mod, w, half=True)(q8.reshape(S, H, HEAD_DIM).contiguous(), sfq, kv_cache.contiguous(), w, ctx, bt, out, max_pages)
+    # raw-row staging (v5r): straight 16-byte copies of the 132-byte rows, read at a 33-word stride; 21.2 / 62.4 / 72.5 us against the
+    # half-page scatter's 33.2 / 103.4 / 113.4 on the bench shapes (reports/fp8-paged-mqa-logits-v5r-rtx5090-20261004.json)
+    v5.paged_fn(mod, w, raw=True)(q8.reshape(S, H, HEAD_DIM).contiguous(), sfq, kv_cache.contiguous(), w, ctx, bt, out, max_pages)
     return out
 
 

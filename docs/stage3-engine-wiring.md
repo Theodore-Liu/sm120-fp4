@@ -237,6 +237,10 @@ Ten percent on the two large shapes, nothing on the small one (128 pages over 17
 | 128, 16384, 8 | 103.2 | 136.0 | 128 / 200 | 33.3 / 16.7 % |
 | 32, 65536, 16 | 113.4 | 146.2 | | |
 
+### 3j. Raw-row staging (2026-10-04)
+
+The paged kernel's remaining cost was the staging scatter, not the row width (`docs/stage3-paged-v5-row-width.md`): staging each 32-row half as raw 132-byte rows with straight 16-byte copies and reading at a 33-word stride (`fp8_paged_mqa_logits_sm120_v5r`) runs 21.2 / 62.4 / 72.5 us against the half-page scatter's 33.2 / 103.4 / 113.4 back to back, ahead of the paged v4's 23.3 / 72.4 / 74.5. Bit-identical to the flat v5; the adapter's paged call uses it, and the 18 adapter and top-k tests pass.
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's
