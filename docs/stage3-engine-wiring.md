@@ -308,10 +308,11 @@ Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx50
    of warps active against 31.0 (many paged blocks exit at once on short contexts). The lever is a warp that walks several pages with the next
    page's copy in flight while it computes the current one. Tried (2026-10-05, `fp4_fp4_paged_mqa_logits_sm120_v6f`, G pages per warp, two
    buffers, 4 warps per block): bit-identical to the paged v6e at G = 2, 4 and 8 on four shapes, and slower or level at every G (10.9 / 43.8 /
-   40.3 us for v6e against 11.0 to 15.4 / 45.8 to 54.0 / 43.8 to 49.9; `reports/fp4-fp4-paged-mqa-logits-v6f-rtx5090-20261005.json`). The likely
-   cause, computed from the shared-memory sizes and not measured: two buffers double each warp's shared memory, so an SM holds 8 resident
-   warps instead of v6e's 16, and the grid has G times fewer blocks; v6e hides its page wait across blocks, which the prefetch does not repay.
-   Closed; the paged v6e stays the paged form. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
+   40.3 us for v6e against 11.0 to 15.4 / 45.8 to 54.0 / 43.8 to 49.9; `reports/fp4-fp4-paged-mqa-logits-v6f-rtx5090-20261005.json`). The cause,
+   measured (Nsight Compute Occupancy on S 64 N 32768 H 8, counters only; `reports/ncu-paged-v6f-occupancy-rtx5090-20261005.txt`): the prefetch
+   works, long scoreboard falling from 5.91 to 1.69 and cycles per issued instruction from 11.7 to 7.0, but two buffers per warp leave the
+   same 43 KB per block for half the warps, so theoretical occupancy halves (16.7 against 33.3 percent; achieved 10.5 against 20.6). The next
+   lever keeps the prefetch at v6e's occupancy: half-page buffers (two 32-row halves per warp, the same 43 KB for 8 warps). Closed; the paged v6e stays the paged form. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
    on SM120 (Section 3c), so the adapter keeps raising `NotImplementedError` for the MXFP4-q pair until that gate moves.
 3. **End to end, two RTX PRO 6000 (RunPod), DeepSeek-V4-Flash-0731-NVFP4, TP=2**, on the vLLM nightly the public recipe pins or
    on 0.29 if PR #41834 has merged by then: the engine's path (the Triton fallback or FlashInfer's) against ours behind the flag,

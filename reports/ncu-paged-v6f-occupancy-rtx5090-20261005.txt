@@ -1,0 +1,447 @@
+==PROF== Connected to process 760 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 3 passes
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 3 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 3 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 3 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 3 passes
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 3 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 3 passes
+==PROF== Disconnected from process 760
+[760] python3.12@127.0.0.1
+  void k_paged_mqa_logits_v6<0>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------ ----------- ------------
+    Metric Name                                                              Metric Unit Metric Value
+    ------------------------------------------------------------------------ ----------- ------------
+    sm__warps_active.avg.pct_of_peak_sustained_active                                  %        20.62
+    smsp__average_warp_latency_per_inst_issued.ratio                               cycle        11.00
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio        inst         4.96
+    ------------------------------------------------------------------------ ----------- ------------
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   256
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   4080
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread              48
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           43.01
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread         1044480
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                                  12
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            5
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        20.62
+    Achieved Active Warps Per SM           warp         9.90
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 38.14%                                                                                    
+          The difference between calculated theoretical (33.3%) and measured achieved occupancy (20.6%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6<1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------ ----------- ------------
+    Metric Name                                                              Metric Unit Metric Value
+    ------------------------------------------------------------------------ ----------- ------------
+    sm__warps_active.avg.pct_of_peak_sustained_active                                  %        20.71
+    smsp__average_warp_latency_per_inst_issued.ratio                               cycle        12.01
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio        inst         6.12
+    ------------------------------------------------------------------------ ----------- ------------
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   256
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   4080
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread              54
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           43.01
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread         1044480
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                                  12
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        20.71
+    Achieved Active Warps Per SM           warp         9.94
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 37.87%                                                                                    
+          The difference between calculated theoretical (33.3%) and measured achieved occupancy (20.7%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6f<2>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 255, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------ ----------- ------------
+    Metric Name                                                              Metric Unit Metric Value
+    ------------------------------------------------------------------------ ----------- ------------
+    sm__warps_active.avg.pct_of_peak_sustained_active                                  %        10.61
+    smsp__average_warp_latency_per_inst_issued.ratio                               cycle         7.80
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio        inst         2.45
+    ------------------------------------------------------------------------ ----------- ------------
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   128
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   4080
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread              66
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           43.01
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread          522240
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                                  12
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            7
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        10.61
+    Achieved Active Warps Per SM           warp         5.09
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6f<4>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 128, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------ ----------- ------------
+    Metric Name                                                              Metric Unit Metric Value
+    ------------------------------------------------------------------------ ----------- ------------
+    sm__warps_active.avg.pct_of_peak_sustained_active                                  %        10.46
+    smsp__average_warp_latency_per_inst_issued.ratio                               cycle         6.92
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio        inst         1.63
+    ------------------------------------------------------------------------ ----------- ------------
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   128
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   2048
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread              66
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           43.01
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread          262144
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                                6.02
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            7
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        10.46
+    Achieved Active Warps Per SM           warp         5.02
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6f<8>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 64, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------ ----------- ------------
+    Metric Name                                                              Metric Unit Metric Value
+    ------------------------------------------------------------------------ ----------- ------------
+    sm__warps_active.avg.pct_of_peak_sustained_active                                  %        10.22
+    smsp__average_warp_latency_per_inst_issued.ratio                               cycle         6.45
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio        inst         1.13
+    ------------------------------------------------------------------------ ----------- ------------
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   128
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   1024
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread              66
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           43.01
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread          131072
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                                3.01
+    -------------------------------- --------------- ---------------
+
+    OPT   Est. Speedup: 25%                                                                                             
+          A wave of thread blocks is defined as the maximum number of blocks that can be executed in parallel on the    
+          target GPU. The number of blocks in a wave depends on the number of multiprocessors and the theoretical       
+          occupancy of the kernel. This kernel launch results in 3 full waves and a partial wave of 4 thread blocks.    
+          Under the assumption of a uniform execution duration of all thread blocks, this partial wave may account for  
+          up to 25.0% of the total runtime of this kernel. Try launching a grid with no partial wave. The overall       
+          impact of this tail effect also lessens with the number of full waves executed for a grid. See the Hardware   
+          Model (https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#metrics-hw-model) description for     
+          more details on launch configurations.                                                                        
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            7
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        10.22
+    Achieved Active Warps Per SM           warp         4.91
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6<1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------ ----------- ------------
+    Metric Name                                                              Metric Unit Metric Value
+    ------------------------------------------------------------------------ ----------- ------------
+    sm__warps_active.avg.pct_of_peak_sustained_active                                  %        20.55
+    smsp__average_warp_latency_per_inst_issued.ratio                               cycle        11.68
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio        inst         5.91
+    ------------------------------------------------------------------------ ----------- ------------
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   256
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   4080
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread              54
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           43.01
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread         1044480
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                                  12
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        20.55
+    Achieved Active Warps Per SM           warp         9.86
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 38.36%                                                                                    
+          The difference between calculated theoretical (33.3%) and measured achieved occupancy (20.5%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6f<4>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 128, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------ ----------- ------------
+    Metric Name                                                              Metric Unit Metric Value
+    ------------------------------------------------------------------------ ----------- ------------
+    sm__warps_active.avg.pct_of_peak_sustained_active                                  %        10.47
+    smsp__average_warp_latency_per_inst_issued.ratio                               cycle         7.01
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio        inst         1.69
+    ------------------------------------------------------------------------ ----------- ------------
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   128
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   2048
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread              66
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           43.01
+    # SMs                                         SM             170
+    Stack Size                                                  1024
+    Threads                                   thread          262144
+    # TPCs                                                        85
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                                6.02
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            7
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        10.47
+    Achieved Active Warps Per SM           warp         5.03
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the required amount of      
+          shared memory.                                                                                                
+

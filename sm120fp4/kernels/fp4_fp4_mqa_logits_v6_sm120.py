@@ -756,6 +756,7 @@ def main(argv=None) -> int:
         q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages, kv4, sfkv_u8 = args
         torch.cuda.synchronize()
         mod.fp4_fp4_paged_mqa_logits_sm120_v6e(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages)
+        mod.fp4_fp4_paged_mqa_logits_sm120_v6f(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages, 4)
         flat = torch.full_like(out_t, float("-inf"))
         launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, torch.zeros_like(ctx), ctx, flat, span=(0, int(ctx.max())), packed=True)
         torch.cuda.synchronize()
