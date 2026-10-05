@@ -219,7 +219,8 @@ done on the RTX 5090:
   indexer shapes, 1.29 to 1.65 times v4 on the same k codes (`reports/fp4-fp4-mqa-logits-v6-rtx5090-20261005.json`); its paged form
   (`sf_cache` [pages, 64, 4], rows staged at an 80-byte stride) is bit-identical to it through random page permutations and 1.18 to 1.23
   times the paged v4 (`reports/fp4-fp4-paged-mqa-logits-v6-rtx5090-20261005.json`); the same stride on the flat kernel (v6s) removes its
-  bank conflicts (1.57 million to 481) without changing its time, so the flat kernel is not shared-load bound; `--selftest`, `--bench`,
+  bank conflicts (1.57 million to 481) without changing its time, so the flat kernel is not shared-load bound; its stall counters spread
+  over shuffles, fixed-latency waits and the shared-memory queue, which points at the per-tile epilogue as the next lever; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
