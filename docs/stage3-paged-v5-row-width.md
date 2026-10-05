@@ -16,17 +16,18 @@ per byte it is already level with or ahead of v4; the gap is the bytes. The prof
 and that neither DRAM nor the SM is near its ceiling; v5h at two blocks per SM (33 percent occupancy, 128 registers per thread) is where the
 shared-memory lever ends: the register double buffer (v5d) lost because it cost the second block (200 registers).
 
-## Lever 1: two q heads per MMA tile
+## Lever 1, withdrawn: two q heads per MMA tile is already how the kernel works
 
-Today one MMA tile is 16 query rows x 8 kv columns x 32 k, and the kernel runs the H heads of one query row as separate tiles with the same
-B fragment (the k row) re-read from shared memory for each head. For the indexer's shapes H is 8 or 16, so the same kv row is read 8 or 16
-times from shared memory per query row; the shared-memory traffic, not the global bytes, sets the pipe at 49 to 55 percent. Putting two
-heads of the same query row into the 16-row A fragment (8 rows of head a, 8 of head b, as the fragment already does for `ha` and `hb` in
-pairs) halves the B re-reads per head pair; a second step, four heads per tile with the k32 steps split across them, would need the
-accumulator laid out per head and costs registers (the budget is 128 to keep two blocks). Expected: a reduction of the shared-memory
-reads by up to half with no change in global bytes; whether it moves the time depends on whether the pipe at 55 percent is the limiter or
-the latency chain is, which the warp-state section of the profile (7.5 to 8 cycles per issued instruction at 8 warps per SM) suggests
-it partly is. Cheap to try (a fragment rearrangement, no layout change), and bit-exact by construction.
+The first version of this page proposed putting two heads of a query row into one MMA tile so that each kv row's B fragment is read once per
+head pair. Reading the kernel again (`k_paged_mqa_logits_v5h`, the head loop), the A fragment already holds sixteen heads of one query row:
+rows `g` and `g + 8` of the m16 tile are heads `h0 + g` and `h0 + g + 8`, so each 8-column slice of the staged page is read from shared memory
+once per sixteen heads, not once per head. The lever is in place; the page's premise was wrong, and nothing is gained by building it.
+
+What the reading does show: with H = 8 (the first two bench shapes) only eight of the tile's sixteen rows carry a head, so half of every MMA
+is padding; with H = 16 (the third shape) the tile is full. Filling the H = 8 tile would take two query rows per tile, which only works when the
+two rows read the same pages (two draft positions of one request under speculative decoding, `next_n = 2`, share a block table; two
+requests do not). The H = 16 shape's gap to v4 (1.52) is no smaller than the H = 8 shapes' (1.43, 1.44), so the padding is not where the gap
+is; the gap is the bytes, as the table above says.
 
 ## Lever 2: read the 128-byte row as two 64-byte halves on the v4 path
 
@@ -39,6 +40,6 @@ the profile does not separate that cost, so the expected gain is unknown and wou
 
 ## What this page does not decide
 
-Which lever to try first: lever 1 is cheaper and bit-exact; lever 2 changes the staging and is the one that could reach v4's shape. Both
+Lever 2 is the one left, and it changes the staging; the `next_n = 2` row pairing is a narrower variant for speculative decoding only. Both
 are kernel changes queued behind adoption item 2's step 3 (the two-GPU run), which does not depend on them: the adapter serves the engine
 with v5h today, and the indexer is a small share of a decode step on these models until the context is long.

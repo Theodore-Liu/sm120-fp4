@@ -99,7 +99,8 @@ closes it. Dates are when an item was added, not estimates.
    against the full page's 33.6 / 115.5 / 124.9 (wiring doc 3h): ten percent on the two large shapes; the adapter's paged call now
    uses it. The register-prefetch arm (v5d) lost, 39.8 / 136.0 / 146.2, because 200 registers per thread put the occupancy back to one
    block per SM (wiring doc 3i); it stays as a recorded negative. The row-width levers are written up in `docs/stage3-paged-v5-row-width.md`
-   (two q heads per MMA tile, cheap and bit-exact; the row as two 64-byte halves on the v4 path), queued behind step 3. The adapter's
+   (the two-heads-per-tile lever was withdrawn on rereading: the A fragment already holds sixteen heads; the row as two 64-byte
+   halves on the v4 path remains), queued behind step 3. The adapter's
    paged default (v5h) is covered by the 64-row and 256-row block tests already (18 passing).
 6. **Adoption 3: minimal CI** (third). The selftests (`fp8_fp4_gemm_sm120.py`, `fp8_fp4_mqa_logits_sm120.py`,
    `fp8_einsum_sm120.py`, `tests/test_vllm_backend.py`) run on every push on a self-hosted SM120 runner (this machine's WSL, as a
