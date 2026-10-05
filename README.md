@@ -91,6 +91,7 @@ and the RTX PRO 6000 only (the tables below).
 - `sm120fp4/indexer.py`: vLLM's sparse-attention indexer entry points (`fp8_fp4_mqa_logits`, `fp8_fp4_paged_mqa_logits`,
   `get_paged_mqa_logits_metadata`) served by the v5 kernel behind `SM120FP4_INDEXER=1` (adoption item 2, step 1; `docs/stage3-engine-wiring.md` 3d).
   `tests/test_indexer_adapter.py` and `tests/test_indexer_topk.py` are its tests (against the kernel's reference, through vLLM's wrappers, and under the engine's top-k kernels).
+- `docs/stage3-paged-v5-row-width.md`: what the paged v5's remaining gap to the paged v4 is made of (the e4m3 row's bytes, 132 against 68) and the two levers that could close it (two q heads per MMA tile; the row as two 64-byte halves on the v4 path); a design, no kernel.
 - `docs/ci-plan.md`: the plan for a minimal CI on an SM120 runner (adoption item 3); a plan, not a run.
 - `docs/stage3-step3-plan.md`: the plan for the two-GPU end-to-end run (host, software, the two measurements, the order on the pod); a plan, not a run.
 - `docs/stage3-engine-wiring.md`: where vLLM 0.28 calls the stage-3 kernels (file and line, inputs, our kernel, the gap), what runs
