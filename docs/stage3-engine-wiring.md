@@ -241,6 +241,8 @@ Ten percent on the two large shapes, nothing on the small one (128 pages over 17
 
 The paged kernel's remaining cost was the staging scatter, not the row width (`docs/stage3-paged-v5-row-width.md`): staging each 32-row half as raw 132-byte rows with straight 16-byte copies and reading at a 33-word stride (`fp8_paged_mqa_logits_sm120_v5r`) runs 21.2 / 62.4 / 72.5 us against the half-page scatter's 33.2 / 103.4 / 113.4 back to back, ahead of the paged v4's 23.3 / 72.4 / 74.5. Bit-identical to the flat v5; the adapter's paged call uses it, and the 18 adapter and top-k tests pass.
 
+Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx5090-20261004.txt`, counters only; the GPU was running another job, so no duration from that profile is used): the occupancy is the same as v5h's (33.3 percent theoretical, two blocks per SM), but the kernel executes 33.3 million instructions against v5h's 74.4 million, takes 6.3 million shared-load bank conflicts against 15.6 million, and uses 68 registers per thread against 128. The scatter's divide, branch and split stores were the cost, and the 33-word read stride removes most of the fragment-read conflicts. The flat v5 (prefill) does not have the scatter: its k is a contiguous [N, 128] tensor staged with 16-byte `cp.async` copies and its scales sit in their own array, so there is no flat counterpart of this change to make.
+
 ## 4. The order of work (adoption item 2)
 
 0. **The kernel variants the engine's formats need** (found on the second reading, Section 3b): v4 of the MQA-logits kernel with k's
