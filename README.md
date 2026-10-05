@@ -220,7 +220,8 @@ done on the RTX 5090:
   (`sf_cache` [pages, 64, 4], rows staged at an 80-byte stride) is bit-identical to it through random page permutations and 1.18 to 1.23
   times the paged v4 (`reports/fp4-fp4-paged-mqa-logits-v6-rtx5090-20261005.json`); the same stride on the flat kernel (v6s) removes its
   bank conflicts (1.57 million to 481) without changing its time, so the flat kernel is not shared-load bound; its stall counters spread
-  over shuffles, fixed-latency waits and the shared-memory queue, which points at the per-tile epilogue as the next lever; `--selftest`, `--bench`,
+  over shuffles, fixed-latency waits and the shared-memory queue, which points at the per-tile epilogue; the packed epilogue (v6e, one butterfly
+  for both column values) is bit-identical and runs 6.9 / 15.1 / 17.2 us, 1.11 to 1.14 times v6 on the two larger shapes; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
@@ -279,7 +280,7 @@ einsum site, being FP8, stays last; the adoption items below come before its nex
 
 ## Status
 
-<!-- ci-status -->CI 2026-10-04: passed on ceaec0a, 67 passed, 0 failed, 15 skipped in 11 s on NVIDIA GeForce RTX 5090 (driver 610.47, torch 2.13.0+cu130).
+<!-- ci-status -->CI 2026-10-05: passed on 65ba8ae, 67 passed, 0 failed, 15 skipped in 12 s on NVIDIA GeForce RTX 5090 (driver 610.47, torch 2.13.0+cu130).
 
 Stage 1 complete. Stage 2: the W4A16 decode layer is ahead of Marlin on seven of the eight measured rows of a real NVFP4
 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8

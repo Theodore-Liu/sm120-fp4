@@ -45,6 +45,9 @@ void fp4_fp4_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch::Tens
 void fp4_fp4_mqa_logits_sm120_v6s(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
                                   torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
                                   int64_t rows, int64_t kvseg, int64_t group);
+void fp4_fp4_mqa_logits_sm120_v6e(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
+                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
+                                  int64_t rows, int64_t kvseg, int64_t group);
 void fp4_fp4_paged_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv_cache, torch::Tensor sf_cache,
                                        torch::Tensor w, torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits,
                                        int64_t max_pages);
@@ -61,7 +64,7 @@ __device__ __forceinline__ void mma_mxf4(float* c, const uint32_t* a, const uint
 
 // v6: v4's staging (kv rows and their four UE8M0 bytes, double-buffered cp.async per KVSEG segment), q packed e2m1 [S, H, 64] with
 // UE8M0 [S, H, 4]; two k64 block-scaled MMAs per n8 tile accumulate the whole head, then relu, weight, shuffle as in v2 and v4.
-template <int ROWS, int KVSEG, int STRIDE>
+template <int ROWS, int KVSEG, int STRIDE, bool PACK>
 __global__ void __launch_bounds__(V1_WARPS * 32)
 k_mqa_logits_v6(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, const uint8_t* __restrict__ kv,
                 const uint8_t* __restrict__ sfkv, const __nv_bfloat16* __restrict__ w, const int* __restrict__ ks,
@@ -142,13 +145,27 @@ k_mqa_logits_v6(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, 
           }
           float v0 = fmaxf(acc[0], 0.f) * wa + fmaxf(acc[2], 0.f) * wb;
           float v1 = fmaxf(acc[1], 0.f) * wa + fmaxf(acc[3], 0.f) * wb;
-          for (int m = 4; m < 32; m <<= 1) {
-            v0 += __shfl_xor_sync(0xffffffffu, v0, m);
-            v1 += __shfl_xor_sync(0xffffffffu, v1, m);
-          }
-          if (g == 0) {
-            if (in0) { if (h0 == 0) out[c0 - k_start] = v0; else out[c0 - k_start] += v0; }
-            if (in1) { if (h0 == 0) out[c1 - k_start] = v1; else out[c1 - k_start] += v1; }
+          if (PACK) {
+            // one butterfly for both values: after the xor-4 exchange even g keeps the v0 sum, odd g the v1 sum
+            const bool odd = (g & 1) != 0;
+            const float send = odd ? v0 : v1;
+            float keep = odd ? v1 : v0;
+            keep += __shfl_xor_sync(0xffffffffu, send, 4);
+            keep += __shfl_xor_sync(0xffffffffu, keep, 8);
+            keep += __shfl_xor_sync(0xffffffffu, keep, 16);
+            if (g < 2) {
+              const int c = odd ? c1 : c0;
+              if (odd ? in1 : in0) { if (h0 == 0) out[c - k_start] = keep; else out[c - k_start] += keep; }
+            }
+          } else {
+            for (int m = 4; m < 32; m <<= 1) {
+              v0 += __shfl_xor_sync(0xffffffffu, v0, m);
+              v1 += __shfl_xor_sync(0xffffffffu, v1, m);
+            }
+            if (g == 0) {
+              if (in0) { if (h0 == 0) out[c0 - k_start] = v0; else out[c0 - k_start] += v0; }
+              if (in1) { if (h0 == 0) out[c1 - k_start] = v1; else out[c1 - k_start] += v1; }
+            }
           }
         }
       }
@@ -157,16 +174,16 @@ k_mqa_logits_v6(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, 
   }
 }
 
-template <int ROWS, int KVSEG, int STRIDE>
+template <int ROWS, int KVSEG, int STRIDE, bool PACK>
 static void launch_v6(const uint8_t* pq, const uint8_t* psq, const uint8_t* pkv, const uint8_t* psk, const __nv_bfloat16* pw,
                       const int* pks, const int* pke, float* pl, int S, int H, int N, int max_k, int kv_lo, int kv_hi, int group,
                       cudaStream_t st) {
   const int nsegs = (kv_hi - kv_lo + KVSEG - 1) / KVSEG;
   const dim3 grid((S + ROWS - 1) / ROWS, (nsegs + group - 1) / group);
-  k_mqa_logits_v6<ROWS, KVSEG, STRIDE><<<grid, V1_WARPS * 32, 0, st>>>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, kv_lo, kv_hi, group);
+  k_mqa_logits_v6<ROWS, KVSEG, STRIDE, PACK><<<grid, V1_WARPS * 32, 0, st>>>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, kv_lo, kv_hi, group);
 }
 
-template <int STR>
+template <int STR, bool PK>
 static void mqa_logits_v6_impl(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
                                  int64_t rows, int64_t kvseg, int64_t group) {
@@ -189,23 +206,29 @@ static void mqa_logits_v6_impl(torch::Tensor q, torch::Tensor sfq, torch::Tensor
   float* pl = logits.data_ptr<float>();
   const int* pks = ks.data_ptr<int>();
   const int* pke = ke.data_ptr<int>();
-  if (rows == 16 && kvseg == 256) launch_v6<16, 256, STR>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
-  else if (rows == 16 && kvseg == 64) launch_v6<16, 64, STR>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
-  else if (rows == 8 && kvseg == 256) launch_v6<8, 256, STR>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
-  else if (rows == 8 && kvseg == 64) launch_v6<8, 64, STR>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  if (rows == 16 && kvseg == 256) launch_v6<16, 256, STR, PK>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 16 && kvseg == 64) launch_v6<16, 64, STR, PK>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 8 && kvseg == 256) launch_v6<8, 256, STR, PK>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 8 && kvseg == 64) launch_v6<8, 64, STR, PK>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
   else TORCH_CHECK(false, "rows in {16, 8}, kvseg in {256, 64}");
 }
 
 void fp4_fp4_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
                                  int64_t rows, int64_t kvseg, int64_t group) {
-  mqa_logits_v6_impl<64>(q, sfq, kv, sfkv, w, ks, ke, logits, kv_lo, kv_hi, rows, kvseg, group);
+  mqa_logits_v6_impl<64, false>(q, sfq, kv, sfkv, w, ks, ke, logits, kv_lo, kv_hi, rows, kvseg, group);
+}
+// v6e: v6 with the packed epilogue (one butterfly for both column values, 3 shuffles per tile instead of 6)
+void fp4_fp4_mqa_logits_sm120_v6e(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
+                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
+                                  int64_t rows, int64_t kvseg, int64_t group) {
+  mqa_logits_v6_impl<64, true>(q, sfq, kv, sfkv, w, ks, ke, logits, kv_lo, kv_hi, rows, kvseg, group);
 }
 // v6s: the same kernel with the staged rows at an 80-byte stride (rows g and g+2 of a B-fragment load no longer share a bank)
 void fp4_fp4_mqa_logits_sm120_v6s(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
                                   torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
                                   int64_t rows, int64_t kvseg, int64_t group) {
-  mqa_logits_v6_impl<80>(q, sfq, kv, sfkv, w, ks, ke, logits, kv_lo, kv_hi, rows, kvseg, group);
+  mqa_logits_v6_impl<80, false>(q, sfq, kv, sfkv, w, ks, ke, logits, kv_lo, kv_hi, rows, kvseg, group);
 }
 
 // paged v6: one page of V3_PAGE kv rows per warp per grid step (v3/v4's grid: x = row groups of V3_WARPS, y = page index). The page's rows
@@ -313,7 +336,7 @@ void fp4_fp4_paged_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch
 def build(verbose: bool = False):
     return load_inline(name="sm120fp4_fp4_fp4_mqa_logits_v6", cpp_sources=base.CPP + v4.CPP_V4 + CPP_V6,
                        cuda_sources=base.CUDA + v4.CUDA_V4 + CUDA_V6,
-                       functions=["fp8_fp4_mqa_logits_sm120_v4", "fp4_fp4_mqa_logits_sm120_v6", "fp4_fp4_mqa_logits_sm120_v6s", "fp8_fp4_paged_mqa_logits_sm120_v4",
+                       functions=["fp8_fp4_mqa_logits_sm120_v4", "fp4_fp4_mqa_logits_sm120_v6", "fp4_fp4_mqa_logits_sm120_v6s", "fp4_fp4_mqa_logits_sm120_v6e", "fp8_fp4_paged_mqa_logits_sm120_v4",
                                   "fp4_fp4_paged_mqa_logits_sm120_v6"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
@@ -347,10 +370,10 @@ def make_case(S, N, H, seed, dev, full_span=False):
     return q * mult, kv, w, ks, ke
 
 
-def launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, plan=None, span=None, padded=False):
+def launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, plan=None, span=None, padded=False, packed=False):
     lo, hi = span or base.span_of(ks, ke)
     rows, kvseg, group = plan or base.plan_v2(q4.shape[0], hi - lo, v4.sm_count())
-    fn = mod.fp4_fp4_mqa_logits_sm120_v6s if padded else mod.fp4_fp4_mqa_logits_sm120_v6
+    fn = mod.fp4_fp4_mqa_logits_sm120_v6e if packed else (mod.fp4_fp4_mqa_logits_sm120_v6s if padded else mod.fp4_fp4_mqa_logits_sm120_v6)
     fn(q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, lo, hi, rows, kvseg, group)
 
 
@@ -384,6 +407,16 @@ def selftest(mod, dev) -> int:
         print(f"  S={S} N={N} H={H}: rel max err {r['rel_max_err']:.2e}, outside span untouched {r['untouched_outside_span']}, "
               f"rows with unequal block scales q {r['q_rows_with_unequal_block_scales']} of {S * H}, k {r['k_rows_with_unequal_block_scales']} of {N} "
               f"-> {'ok' if r['pass'] else 'FAIL'}", flush=True)
+    print("v6e (packed epilogue) against v6, bit for bit")
+    for (S, N, H, seed) in ((16, 512, 8, 41), (64, 4096, 8, 42), (8, 256, 32, 43), (48, 2048, 8, 44), (32, 1000, 16, 45)):
+        _, args = run_case(mod, S, N, H, seed, dev)
+        q4_, sfq_, kv4_, sfkv_, w_, ks_, ke_, out_ = args
+        o2 = torch.full_like(out_, float("-inf"))
+        launch_v6(mod, q4_, sfq_, kv4_, sfkv_, w_, ks_, ke_, o2, packed=True)
+        torch.cuda.synchronize()
+        same = bool(torch.equal(out_, o2))
+        ok &= same
+        print(f"  S={S} N={N} H={H}: bit-identical {same}", flush=True)
     print("v6s (80-byte row stride) against v6, bit for bit")
     for (S, N, H, seed) in ((16, 512, 8, 31), (64, 4096, 8, 32), (8, 256, 32, 33)):
         _, args = run_case(mod, S, N, H, seed, dev)
@@ -435,6 +468,7 @@ def bench(mod, dev, out: Path | None) -> int:
         plan = base.plan_v2(S, span[1] - span[0], v4.sm_count())
         for label, fn in (("v6 (MXFP4 q)", lambda: launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, plan, span)),
                           ("v6s (80-byte row stride)", lambda: launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, plan, span, padded=True)),
+                          ("v6e (packed epilogue)", lambda: launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, plan, span, packed=True)),
                           ("v4 (e4m3 q, same k codes)", lambda: v4.launch_v4(mod, q8, sfq8_u8, kv4, sfkv_u8, w, ks, ke, out_t, plan, span))):
             times = []
             for _ in range(10):
@@ -554,6 +588,7 @@ def main(argv=None) -> int:
         torch.cuda.synchronize()
         launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t)
         launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, padded=True)
+        launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, packed=True)
         # v4 on the same k codes with an e4m3 q holding the dequantised MXFP4 q, for a side-by-side profile
         S_, H_, _ = q4.shape
         qf = ref.cast_back_from_fp4(q4.reshape(S_ * H_, HEAD_DIM // 2), torch.pow(2.0, sfq_u8.reshape(-1, NBLK).float() - 127), gran_k=BLOCK)

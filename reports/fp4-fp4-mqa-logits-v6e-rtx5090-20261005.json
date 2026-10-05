@@ -1,0 +1,175 @@
+{
+ "kernel": "fp4_fp4_mqa_logits_sm120_v6: v4's staging with MXFP4 q and k, two kind::mxf4.block_scale k64 MMAs per n8 tile, scales applied by the MMA",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; launch only in the timed region; v4 timed on the same k codes",
+ "rows": [
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 6.87999976798892,
+   "us_min": 6.175999995321035,
+   "TFLOPs": 39.01678271109388
+  },
+  {
+   "kernel": "v6s (80-byte row stride)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 6.87999976798892,
+   "us_min": 6.624000146985054,
+   "TFLOPs": 39.01678271109388
+  },
+  {
+   "kernel": "v6e (packed epilogue)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 6.912000011652708,
+   "us_min": 6.688000168651342,
+   "TFLOPs": 38.83614808267559
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 8.895999751985073,
+   "us_min": 8.671999908983707,
+   "TFLOPs": 30.174849762119287
+  },
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 17.152000218629837,
+   "us_min": 16.383999958634377,
+   "TFLOPs": 125.20310288169694
+  },
+  {
+   "kernel": "v6s (80-byte row stride)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 17.152000218629837,
+   "us_min": 16.863999888300896,
+   "TFLOPs": 125.20310288169694
+  },
+  {
+   "kernel": "v6e (packed epilogue)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 15.104000456631184,
+   "us_min": 15.039999969303608,
+   "TFLOPs": 142.1797923117236
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 28.4000001847744,
+   "us_min": 27.39199995994568,
+   "TFLOPs": 75.61562091648483
+  },
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 19.05599981546402,
+   "us_min": 16.992000862956047,
+   "TFLOPs": 225.38661511292716
+  },
+  {
+   "kernel": "v6s (80-byte row stride)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 19.200000911951065,
+   "us_min": 18.432000651955605,
+   "TFLOPs": 223.69620270833386
+  },
+  {
+   "kernel": "v6e (packed epilogue)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 17.152000218629837,
+   "us_min": 17.055999487638474,
+   "TFLOPs": 250.40620576339387
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 31.39200061559677,
+   "us_min": 30.719999223947525,
+   "TFLOPs": 136.81725317838115
+  }
+ ]
+}
