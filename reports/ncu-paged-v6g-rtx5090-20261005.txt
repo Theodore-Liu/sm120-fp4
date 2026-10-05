@@ -1,0 +1,131 @@
+==PROF== Connected to process 492 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 4 passes
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 4 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 4 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 4 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 4 passes
+==PROF== Profiling "k_paged_mqa_logits_v6g": 0%....50%....100% - 4 passes
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 4 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 4 passes
+==PROF== Disconnected from process 492
+[492] python3.12@127.0.0.1
+  void k_paged_mqa_logits_v6<0>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                                             us        49.44
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             370365
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.58
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        10.89
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                 inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         4.94
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.18
+    smsp__inst_executed.sum                                                          inst     16352742
+    ------------------------------------------------------------------------- ----------- ------------
+
+  void k_paged_mqa_logits_v6<1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                                             us        45.34
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             370365
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.64
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        11.88
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                 inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         5.85
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.04
+    smsp__inst_executed.sum                                                          inst     14010899
+    ------------------------------------------------------------------------- ----------- ------------
+
+  void k_paged_mqa_logits_v6f<2>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 255, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                                             us        57.18
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             354045
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        10.60
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         7.70
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                 inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         2.34
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.11
+    smsp__inst_executed.sum                                                          inst     14098615
+    ------------------------------------------------------------------------- ----------- ------------
+
+  void k_paged_mqa_logits_v6f<4>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 128, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                                             us        53.63
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             345917
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        10.52
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         7.01
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                 inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         1.66
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.11
+    smsp__inst_executed.sum                                                          inst     13548077
+    ------------------------------------------------------------------------- ----------- ------------
+
+  void k_paged_mqa_logits_v6f<8>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 64, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                                             us        50.21
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             341821
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        10.24
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         6.38
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                 inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         1.09
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.14
+    smsp__inst_executed.sum                                                          inst     13272357
+    ------------------------------------------------------------------------- ----------- ------------
+
+  k_paged_mqa_logits_v6g(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                                             us        48.26
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             547569
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.38
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        10.36
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                 inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         4.15
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.25
+    smsp__inst_executed.sum                                                          inst     16741229
+    ------------------------------------------------------------------------- ----------- ------------
+
+  void k_paged_mqa_logits_v6<1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                                             us        45.47
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             370365
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.76
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        11.69
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                 inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         5.84
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.12
+    smsp__inst_executed.sum                                                          inst     14010899
+    ------------------------------------------------------------------------- ----------- ------------
+
+  void k_paged_mqa_logits_v6f<4>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 128, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                                             us        53.31
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             345917
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        10.50
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         7.00
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                 inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         1.67
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.11
+    smsp__inst_executed.sum                                                          inst     13548077
+    ------------------------------------------------------------------------- ----------- ------------
+
