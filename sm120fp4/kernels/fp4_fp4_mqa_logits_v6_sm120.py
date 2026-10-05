@@ -16,6 +16,7 @@ kernels use), and the output outside each row's [ks, ke) span left untouched.
     ~/mlsys-5090-runtime/vllm028/.venv/bin/python sm120fp4/kernels/fp4_fp4_mqa_logits_v6_sm120.py --selftest
     ~/mlsys-5090-runtime/vllm028/.venv/bin/python sm120fp4/kernels/fp4_fp4_mqa_logits_v6_sm120.py --bench --out reports/fp4-fp4-mqa-logits-v6-rtx5090-<date>.json
     ~/mlsys-5090-runtime/vllm028/.venv/bin/python sm120fp4/kernels/fp4_fp4_mqa_logits_v6_sm120.py --bench-paged --out-paged reports/fp4-fp4-paged-mqa-logits-v6-rtx5090-<date>.json
+    ncu --kernel-name regex:k_mqa_logits_v6 --metrics l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum,smsp__inst_executed.sum <python> sm120fp4/kernels/fp4_fp4_mqa_logits_v6_sm120.py --ncu-shape
 """
 from __future__ import annotations
 
@@ -41,6 +42,9 @@ CPP_V6 = r"""
 void fp4_fp4_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
                                  int64_t rows, int64_t kvseg, int64_t group);
+void fp4_fp4_mqa_logits_sm120_v6s(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
+                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
+                                  int64_t rows, int64_t kvseg, int64_t group);
 void fp4_fp4_paged_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv_cache, torch::Tensor sf_cache,
                                        torch::Tensor w, torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits,
                                        int64_t max_pages);
@@ -57,13 +61,13 @@ __device__ __forceinline__ void mma_mxf4(float* c, const uint32_t* a, const uint
 
 // v6: v4's staging (kv rows and their four UE8M0 bytes, double-buffered cp.async per KVSEG segment), q packed e2m1 [S, H, 64] with
 // UE8M0 [S, H, 4]; two k64 block-scaled MMAs per n8 tile accumulate the whole head, then relu, weight, shuffle as in v2 and v4.
-template <int ROWS, int KVSEG>
+template <int ROWS, int KVSEG, int STRIDE>
 __global__ void __launch_bounds__(V1_WARPS * 32)
 k_mqa_logits_v6(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, const uint8_t* __restrict__ kv,
                 const uint8_t* __restrict__ sfkv, const __nv_bfloat16* __restrict__ w, const int* __restrict__ ks,
                 const int* __restrict__ ke, float* __restrict__ logits, int S, int H, int N, int max_k, int kv_lo, int kv_hi, int group) {
   constexpr int RPW = ROWS >= V1_WARPS ? ROWS / V1_WARPS : 1;
-  __shared__ __align__(16) uint8_t s_kv[2][KVSEG * 64];
+  __shared__ __align__(16) uint8_t s_kv[2][KVSEG * STRIDE];
   __shared__ __align__(16) uint8_t s_sf[2][KVSEG * 4];
   const int row0 = blockIdx.x * ROWS;
   const int tid = threadIdx.x, warp = tid >> 5, lane = tid & 31, g = lane >> 2, t = lane & 3;
@@ -75,8 +79,8 @@ k_mqa_logits_v6(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, 
     const int seg0 = kv_lo + seg * KVSEG, seg1 = min(N, min(kv_hi, seg0 + KVSEG));
     for (int c = tid; c < KVSEG * 4; c += V1_WARPS * 32) {
       const int r = c >> 2, part = c & 3;
-      if (seg0 + r < seg1) cp_async_16(s_kv[buf] + r * 64 + part * 16, kv + (size_t)(seg0 + r) * 64 + part * 16);
-      else *reinterpret_cast<uint4*>(s_kv[buf] + r * 64 + part * 16) = make_uint4(0u, 0u, 0u, 0u);
+      if (seg0 + r < seg1) cp_async_16(s_kv[buf] + r * STRIDE + part * 16, kv + (size_t)(seg0 + r) * 64 + part * 16);
+      else *reinterpret_cast<uint4*>(s_kv[buf] + r * STRIDE + part * 16) = make_uint4(0u, 0u, 0u, 0u);
     }
     for (int r = tid; r < KVSEG; r += V1_WARPS * 32)
       *reinterpret_cast<uint32_t*>(s_sf[buf] + r * 4) = (seg0 + r < seg1) ? *reinterpret_cast<const uint32_t*>(sfkv + (size_t)(seg0 + r) * 4) : 0x7F7F7F7Fu;
@@ -122,7 +126,7 @@ k_mqa_logits_v6(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, 
         for (int n0 = seg0 + tile0; n0 < n_hi; n0 += 8) {
           const int col = n0 + g;
           const bool has_col = col >= n_lo && col < n_hi;
-          const uint8_t* brow = skv + (size_t)(has_col ? (col - seg0) : 0) * 64;
+          const uint8_t* brow = skv + (size_t)(has_col ? (col - seg0) : 0) * STRIDE;
           const uint8_t* bsf = ssf + (size_t)(has_col ? (col - seg0) : 0) * 4;
           const int c0 = n0 + 2 * t, c1 = c0 + 1;
           const bool in0 = c0 >= n_lo && c0 < n_hi, in1 = c1 >= n_lo && c1 < n_hi;
@@ -153,16 +157,17 @@ k_mqa_logits_v6(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, 
   }
 }
 
-template <int ROWS, int KVSEG>
+template <int ROWS, int KVSEG, int STRIDE>
 static void launch_v6(const uint8_t* pq, const uint8_t* psq, const uint8_t* pkv, const uint8_t* psk, const __nv_bfloat16* pw,
                       const int* pks, const int* pke, float* pl, int S, int H, int N, int max_k, int kv_lo, int kv_hi, int group,
                       cudaStream_t st) {
   const int nsegs = (kv_hi - kv_lo + KVSEG - 1) / KVSEG;
   const dim3 grid((S + ROWS - 1) / ROWS, (nsegs + group - 1) / group);
-  k_mqa_logits_v6<ROWS, KVSEG><<<grid, V1_WARPS * 32, 0, st>>>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, kv_lo, kv_hi, group);
+  k_mqa_logits_v6<ROWS, KVSEG, STRIDE><<<grid, V1_WARPS * 32, 0, st>>>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, kv_lo, kv_hi, group);
 }
 
-void fp4_fp4_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
+template <int STR>
+static void mqa_logits_v6_impl(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
                                  int64_t rows, int64_t kvseg, int64_t group) {
   const int S = (int)q.size(0), H = (int)q.size(1), N = (int)kv.size(0), max_k = (int)logits.size(1);
@@ -184,11 +189,23 @@ void fp4_fp4_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch::Tens
   float* pl = logits.data_ptr<float>();
   const int* pks = ks.data_ptr<int>();
   const int* pke = ke.data_ptr<int>();
-  if (rows == 16 && kvseg == 256) launch_v6<16, 256>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
-  else if (rows == 16 && kvseg == 64) launch_v6<16, 64>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
-  else if (rows == 8 && kvseg == 256) launch_v6<8, 256>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
-  else if (rows == 8 && kvseg == 64) launch_v6<8, 64>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  if (rows == 16 && kvseg == 256) launch_v6<16, 256, STR>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 16 && kvseg == 64) launch_v6<16, 64, STR>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 8 && kvseg == 256) launch_v6<8, 256, STR>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
+  else if (rows == 8 && kvseg == 64) launch_v6<8, 64, STR>(pq, psq, pkv, psk, pw, pks, pke, pl, S, H, N, max_k, (int)kv_lo, (int)kv_hi, (int)group, st);
   else TORCH_CHECK(false, "rows in {16, 8}, kvseg in {256, 64}");
+}
+
+void fp4_fp4_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
+                                 torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
+                                 int64_t rows, int64_t kvseg, int64_t group) {
+  mqa_logits_v6_impl<64>(q, sfq, kv, sfkv, w, ks, ke, logits, kv_lo, kv_hi, rows, kvseg, group);
+}
+// v6s: the same kernel with the staged rows at an 80-byte stride (rows g and g+2 of a B-fragment load no longer share a bank)
+void fp4_fp4_mqa_logits_sm120_v6s(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv, torch::Tensor sfkv, torch::Tensor w,
+                                  torch::Tensor ks, torch::Tensor ke, torch::Tensor logits, int64_t kv_lo, int64_t kv_hi,
+                                  int64_t rows, int64_t kvseg, int64_t group) {
+  mqa_logits_v6_impl<80>(q, sfq, kv, sfkv, w, ks, ke, logits, kv_lo, kv_hi, rows, kvseg, group);
 }
 
 // paged v6: one page of V3_PAGE kv rows per warp per grid step (v3/v4's grid: x = row groups of V3_WARPS, y = page index). The page's rows
@@ -296,7 +313,7 @@ void fp4_fp4_paged_mqa_logits_sm120_v6(torch::Tensor q, torch::Tensor sfq, torch
 def build(verbose: bool = False):
     return load_inline(name="sm120fp4_fp4_fp4_mqa_logits_v6", cpp_sources=base.CPP + v4.CPP_V4 + CPP_V6,
                        cuda_sources=base.CUDA + v4.CUDA_V4 + CUDA_V6,
-                       functions=["fp8_fp4_mqa_logits_sm120_v4", "fp4_fp4_mqa_logits_sm120_v6", "fp8_fp4_paged_mqa_logits_sm120_v4",
+                       functions=["fp8_fp4_mqa_logits_sm120_v4", "fp4_fp4_mqa_logits_sm120_v6", "fp4_fp4_mqa_logits_sm120_v6s", "fp8_fp4_paged_mqa_logits_sm120_v4",
                                   "fp4_fp4_paged_mqa_logits_sm120_v6"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
@@ -330,10 +347,11 @@ def make_case(S, N, H, seed, dev, full_span=False):
     return q * mult, kv, w, ks, ke
 
 
-def launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, plan=None, span=None):
+def launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, plan=None, span=None, padded=False):
     lo, hi = span or base.span_of(ks, ke)
     rows, kvseg, group = plan or base.plan_v2(q4.shape[0], hi - lo, v4.sm_count())
-    mod.fp4_fp4_mqa_logits_sm120_v6(q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, lo, hi, rows, kvseg, group)
+    fn = mod.fp4_fp4_mqa_logits_sm120_v6s if padded else mod.fp4_fp4_mqa_logits_sm120_v6
+    fn(q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out, lo, hi, rows, kvseg, group)
 
 
 def run_case(mod, S, N, H, seed, dev, full_span=False):
@@ -366,6 +384,16 @@ def selftest(mod, dev) -> int:
         print(f"  S={S} N={N} H={H}: rel max err {r['rel_max_err']:.2e}, outside span untouched {r['untouched_outside_span']}, "
               f"rows with unequal block scales q {r['q_rows_with_unequal_block_scales']} of {S * H}, k {r['k_rows_with_unequal_block_scales']} of {N} "
               f"-> {'ok' if r['pass'] else 'FAIL'}", flush=True)
+    print("v6s (80-byte row stride) against v6, bit for bit")
+    for (S, N, H, seed) in ((16, 512, 8, 31), (64, 4096, 8, 32), (8, 256, 32, 33)):
+        _, args = run_case(mod, S, N, H, seed, dev)
+        q4_, sfq_, kv4_, sfkv_, w_, ks_, ke_, out_ = args
+        o2 = torch.full_like(out_, float("-inf"))
+        launch_v6(mod, q4_, sfq_, kv4_, sfkv_, w_, ks_, ke_, o2, padded=True)
+        torch.cuda.synchronize()
+        same = bool(torch.equal(out_, o2))
+        ok &= same
+        print(f"  S={S} N={N} H={H}: bit-identical {same}", flush=True)
     # a fault check the selftest must be able to fail: swap the two scale bytes of every q block pair and expect a wrong answer
     q, kv, w, ks, ke = make_case(16, 512, 8, 21, dev)
     q4, sfq_u8, sfq_f = quantize_q_blocked(q)
@@ -406,6 +434,7 @@ def bench(mod, dev, out: Path | None) -> int:
         span = base.span_of(ks, ke)
         plan = base.plan_v2(S, span[1] - span[0], v4.sm_count())
         for label, fn in (("v6 (MXFP4 q)", lambda: launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, plan, span)),
+                          ("v6s (80-byte row stride)", lambda: launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, plan, span, padded=True)),
                           ("v4 (e4m3 q, same k codes)", lambda: v4.launch_v4(mod, q8, sfq8_u8, kv4, sfkv_u8, w, ks, ke, out_t, plan, span))):
             times = []
             for _ in range(10):
@@ -506,6 +535,7 @@ def main(argv=None) -> int:
     ap.add_argument("--bench", action="store_true")
     ap.add_argument("--out", type=Path)
     ap.add_argument("--bench-paged", action="store_true")
+    ap.add_argument("--ncu-shape", action="store_true", help="one launch of v6 and one of v6s on S 128 N 8192 H 8, for Nsight Compute")
     ap.add_argument("--out-paged", type=Path)
     a = ap.parse_args(argv)
     dev = torch.device("cuda")
@@ -518,6 +548,13 @@ def main(argv=None) -> int:
         rc = rc or bench(mod, dev, a.out)
     if a.bench_paged:
         rc = rc or bench_paged(mod, dev, a.out_paged)
+    if a.ncu_shape:
+        _, args = run_case(mod, 128, 8192, 8, 228, dev, full_span=True)
+        q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t = args
+        torch.cuda.synchronize()
+        launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t)
+        launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, padded=True)
+        torch.cuda.synchronize()
     return rc
 
 

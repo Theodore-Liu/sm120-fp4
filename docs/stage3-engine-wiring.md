@@ -283,7 +283,11 @@ Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx50
    bank on the B-fragment loads; at 80 the eight rows of a tile land on disjoint banks, by construction, not timed on its own) and v6's
    inner product; bit-identical to the flat v6 through random page permutations on four shapes, and 11.0 / 45.8 / 44.0 us against the
    paged v4's 13.1 / 54.0 / 54.3 us on the same k codes and pages, 1.18 to 1.23 times faster
-   (`reports/fp4-fp4-paged-mqa-logits-v6-rtx5090-20261005.json`). Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
+   (`reports/fp4-fp4-paged-mqa-logits-v6-rtx5090-20261005.json`). The same stride on the flat v6 (`fp4_fp4_mqa_logits_sm120_v6s`,
+   bit-identical to v6) removes its shared-load bank conflicts (Nsight Compute on S 128 N 8192 H 8: 1,573,560 to 481, shared-load
+   wavefronts 2.36 to 0.79 million, instructions equal; `reports/ncu-v6-v6s-rtx5090-20261005.txt`) and does not change its time
+   (6.9 / 17.2 / 19.2 us both, `reports/fp4-fp4-mqa-logits-v6s-rtx5090-20261005.json`): the flat v6 is not bound by shared loads, and
+   the larger buffer lowers active warps from 67 to 56 percent. v6 stays the flat default. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
    on SM120 (Section 3c), so the adapter keeps raising `NotImplementedError` for the MXFP4-q pair until that gate moves.
 3. **End to end, two RTX PRO 6000 (RunPod), DeepSeek-V4-Flash-0731-NVFP4, TP=2**, on the vLLM nightly the public recipe pins or
    on 0.29 if PR #41834 has merged by then: the engine's path (the Triton fallback or FlashInfer's) against ours behind the flag,

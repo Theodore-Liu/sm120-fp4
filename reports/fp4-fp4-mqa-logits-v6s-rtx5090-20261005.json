@@ -1,0 +1,133 @@
+{
+ "kernel": "fp4_fp4_mqa_logits_sm120_v6: v4's staging with MXFP4 q and k, two kind::mxf4.block_scale k64 MMAs per n8 tile, scales applied by the MMA",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; launch only in the timed region; v4 timed on the same k codes",
+ "rows": [
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 6.87999976798892,
+   "us_min": 6.752000190317631,
+   "TFLOPs": 39.01678271109388
+  },
+  {
+   "kernel": "v6s (80-byte row stride)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 6.87999976798892,
+   "us_min": 6.111999973654747,
+   "TFLOPs": 39.01678271109388
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 9.151999838650227,
+   "us_min": 8.1599997356534,
+   "TFLOPs": 29.330797719899213
+  },
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 17.152000218629837,
+   "us_min": 17.08799973130226,
+   "TFLOPs": 125.20310288169694
+  },
+  {
+   "kernel": "v6s (80-byte row stride)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 17.152000218629837,
+   "us_min": 16.992000862956047,
+   "TFLOPs": 125.20310288169694
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 28.256000019609928,
+   "us_min": 27.295999228954315,
+   "TFLOPs": 76.00097842970082
+  },
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 19.120000302791595,
+   "us_min": 17.152000218629837,
+   "TFLOPs": 224.63217719577744
+  },
+  {
+   "kernel": "v6s (80-byte row stride)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 19.200000911951065,
+   "us_min": 18.912000581622124,
+   "TFLOPs": 223.69620270833386
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 31.456001102924347,
+   "us_min": 29.600000008940697,
+   "TFLOPs": 136.53888432756676
+  }
+ ]
+}

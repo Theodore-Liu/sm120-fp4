@@ -1,0 +1,39 @@
+==PROF== Connected to process 865 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_mqa_logits_v6": 0%....50%....100% - 1 pass
+==PROF== Profiling "k_mqa_logits_v6": 0%....50%....100% - 1 pass
+==PROF== Profiling "k_mqa_logits_v6": 0%....50%....100% - 1 pass
+==PROF== Disconnected from process 865
+[865] python3.12@127.0.0.1
+  void k_mqa_logits_v6<16, 64, 64>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int, int, int, int) (8, 128, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    -------------------------------------------------------- ----------- ------------
+    Metric Name                                              Metric Unit Metric Value
+    -------------------------------------------------------- ----------- ------------
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                  1573560
+    l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum                      2359992
+    sm__warps_active.avg.pct_of_peak_sustained_active                  %        67.17
+    smsp__inst_executed.sum                                         inst     13842432
+    -------------------------------------------------------- ----------- ------------
+
+  void k_mqa_logits_v6<16, 64, 64>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int, int, int, int) (8, 128, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    -------------------------------------------------------- ----------- ------------
+    Metric Name                                              Metric Unit Metric Value
+    -------------------------------------------------------- ----------- ------------
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                  1573503
+    l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum                      2359935
+    sm__warps_active.avg.pct_of_peak_sustained_active                  %        66.34
+    smsp__inst_executed.sum                                         inst     13842432
+    -------------------------------------------------------- ----------- ------------
+
+  void k_mqa_logits_v6<16, 64, 80>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int, int, int, int) (8, 128, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    -------------------------------------------------------- ----------- ------------
+    Metric Name                                              Metric Unit Metric Value
+    -------------------------------------------------------- ----------- ------------
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                      481
+    l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum                       786913
+    sm__warps_active.avg.pct_of_peak_sustained_active                  %        56.13
+    smsp__inst_executed.sum                                         inst     13850624
+    -------------------------------------------------------- ----------- ------------
+
