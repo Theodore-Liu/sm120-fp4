@@ -38,6 +38,10 @@ scale instead of v4's UE8M0: a new kernel with v4's staging shape and v5's arith
 so it would recover only what v4's staging shape (64-byte rows, 16-byte aligned, no 132-byte scatter) saves over v5h's 132-byte scatter;
 the profile does not separate that cost, so the expected gain is unknown and would be measured, not predicted.
 
+## Lever 2's first form: raw-row staging (v5r, 2026-10-04, untimed)
+
+The cheap form of lever 2 does not change the cache bytes (they are vLLM's 132-byte rows) but removes the staging scatter: `fp8_paged_mqa_logits_sm120_v5r` copies each 32-row half as 264 straight 16-byte chunks into a 4224-byte shared buffer and reads the B fragments and the scales at a 132-byte (33-word) row stride, so no per-word divide and no split of codes from scales; a 33-word stride puts the eight `g` rows of a fragment read on distinct banks. Shared memory per block is unchanged (8 x 4224 bytes). Bit-identical to the flat v5 on the five half-page selftest shapes. It has not been timed: the GPU was running another job when it was written, and the timing is taken idle against v5h's 33.5 / 103.2 / 113.4 us before anything is claimed.
+
 ## What this page does not decide
 
 Lever 2 is the one left, and it changes the staging; the `next_n = 2` row pairing is a narrower variant for speculative decoding only. Both
