@@ -1,0 +1,88 @@
+{
+ "kernel": "fp4_fp4_paged_mqa_logits_sm120_v6: the paged v4's staging at an 80-byte row stride with v6's block-scaled k64 inner product",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; random context lengths per row (seeded); paged v4 timed on the same k codes and pages",
+ "rows": [
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 11.008000001311302,
+   "us_min": 10.784000158309937
+  },
+  {
+   "kernel": "paged v6e (packed epilogue)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 11.008000001311302,
+   "us_min": 9.472000412642956
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 13.055999763309956,
+   "us_min": 12.83199992030859
+  },
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 45.80799862742424,
+   "us_min": 45.184001326560974
+  },
+  {
+   "kernel": "paged v6e (packed epilogue)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 43.64800080657005,
+   "us_min": 40.95999896526337
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 53.90400066971779,
+   "us_min": 51.96800082921982
+  },
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 43.776001781225204,
+   "us_min": 42.97599941492081
+  },
+  {
+   "kernel": "paged v6e (packed epilogue)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 41.600000113248825,
+   "us_min": 39.68000039458275
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 56.04799836874008,
+   "us_min": 54.016001522541046
+  }
+ ]
+}

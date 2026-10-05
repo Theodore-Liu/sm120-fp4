@@ -298,8 +298,10 @@ Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx50
    The lever, taken (2026-10-05, `fp4_fp4_mqa_logits_sm120_v6e`): the two column values of a tile are reduced over heads by one butterfly that
    keeps one value per lane after the first exchange (3 shuffles per tile instead of 6; lanes g = 0 and 1 write the two columns). Every add pairs
    the same operands as v6's tree, so v6e is bit-identical to v6 (five shapes), and it runs 6.9 / 15.1 / 17.2 us against v6's 6.9 / 17.2 / 19.1
-   (1.00, 1.14, 1.11 times; up to 250 TFLOP/s; `reports/fp4-fp4-mqa-logits-v6e-rtx5090-20261005.json`). v6e is the flat form to use; the paged
-   v6 still has the six-shuffle epilogue. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
+   (1.00, 1.14, 1.11 times; up to 250 TFLOP/s; `reports/fp4-fp4-mqa-logits-v6e-rtx5090-20261005.json`). v6e is the flat form to use. The paged
+   form with the same epilogue (`fp4_fp4_paged_mqa_logits_sm120_v6e`) is bit-identical to the paged v6 on four shapes and runs 11.0 / 43.6 /
+   41.6 us against 11.0 / 45.8 / 43.8 (1.00, 1.05, 1.05 times; `reports/fp4-fp4-paged-mqa-logits-v6e-rtx5090-20261005.json`): a smaller gain than
+   the flat kernel's, since the paged kernel stages one page per warp per step and spends more of its time there. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
    on SM120 (Section 3c), so the adapter keeps raising `NotImplementedError` for the MXFP4-q pair until that gate moves.
 3. **End to end, two RTX PRO 6000 (RunPod), DeepSeek-V4-Flash-0731-NVFP4, TP=2**, on the vLLM nightly the public recipe pins or
    on 0.29 if PR #41834 has merged by then: the engine's path (the Triton fallback or FlashInfer's) against ours behind the flag,
