@@ -301,7 +301,12 @@ Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx50
    (1.00, 1.14, 1.11 times; up to 250 TFLOP/s; `reports/fp4-fp4-mqa-logits-v6e-rtx5090-20261005.json`). v6e is the flat form to use. The paged
    form with the same epilogue (`fp4_fp4_paged_mqa_logits_sm120_v6e`) is bit-identical to the paged v6 on four shapes and runs 11.0 / 43.6 /
    41.6 us against 11.0 / 45.8 / 43.8 (1.00, 1.05, 1.05 times; `reports/fp4-fp4-paged-mqa-logits-v6e-rtx5090-20261005.json`): a smaller gain than
-   the flat kernel's, since the paged kernel stages one page per warp per step and spends more of its time there. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
+   the flat kernel's, since the paged kernel stages one page per warp per step and spends more of its time there. Nsight Compute on S 64 N 32768
+   H 8 (counters only, the GPU running another job; `reports/ncu-paged-v6e-rtx5090-20261005.txt`) says where: the paged v6e waits 5.92 of its 11.6
+   cycles per issued instruction on long scoreboard (the page it has just asked for: one cp.async group, then wait_group 0, nothing to overlap)
+   against the flat v6e's 1.19 of 10.4 (its segments are double-buffered; its largest stall is the block barrier, 3.15), and keeps 20.6 percent
+   of warps active against 31.0 (many paged blocks exit at once on short contexts). The lever is a warp that walks several pages with the next
+   page's copy in flight while it computes the current one. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
    on SM120 (Section 3c), so the adapter keeps raising `NotImplementedError` for the MXFP4-q pair until that gate moves.
 3. **End to end, two RTX PRO 6000 (RunPod), DeepSeek-V4-Flash-0731-NVFP4, TP=2**, on the vLLM nightly the public recipe pins or
    on 0.29 if PR #41834 has merged by then: the engine's path (the Triton fallback or FlashInfer's) against ours behind the flag,

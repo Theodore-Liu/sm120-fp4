@@ -1,0 +1,133 @@
+==PROF== Connected to process 677 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 13 passes
+==PROF== Profiling "k_mqa_logits_v6": 0%....50%....100% - 13 passes
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 13 passes
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 13 passes
+==PROF== Profiling "k_mqa_logits_v6": 0%....50%....100% - 13 passes
+==PROF== Disconnected from process 677
+[677] python3.12@127.0.0.1
+  void k_paged_mqa_logits_v6<0>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    --------------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                     Metric Unit Metric Value
+    --------------------------------------------------------------------------- --------------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                        %        11.44
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                                           10082
+    launch__registers_per_thread                                                register/thread           48
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                          %        30.26
+    sm__warps_active.avg.pct_of_peak_sustained_active                                         %        20.58
+    smsp__average_warp_latency_per_inst_issued.ratio                                      cycle        10.82
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                       inst            0
+    smsp__average_warps_issue_stalled_branch_resolving_per_issue_active.ratio              inst         0.39
+    smsp__average_warps_issue_stalled_dispatch_stall_per_issue_active.ratio                inst         0.05
+    smsp__average_warps_issue_stalled_lg_throttle_per_issue_active.ratio                   inst         0.14
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio               inst         4.99
+    smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio            inst         0.09
+    smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio                  inst         0.53
+    smsp__average_warps_issue_stalled_no_instruction_per_issue_active.ratio                inst         0.15
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio                  inst         0.27
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio              inst         1.18
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                          inst         2.19
+    smsp__inst_executed.sum                                                                inst     16352742
+    --------------------------------------------------------------------------- --------------- ------------
+
+  void k_mqa_logits_v6<16, 256, 64, 0>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int, int, int, int) (4, 128, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    --------------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                     Metric Unit Metric Value
+    --------------------------------------------------------------------------- --------------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                        %         9.63
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                                         1706691
+    launch__registers_per_thread                                                register/thread           54
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                          %        33.94
+    sm__warps_active.avg.pct_of_peak_sustained_active                                         %        31.31
+    smsp__average_warp_latency_per_inst_issued.ratio                                      cycle        10.09
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                       inst         3.03
+    smsp__average_warps_issue_stalled_branch_resolving_per_issue_active.ratio              inst         0.44
+    smsp__average_warps_issue_stalled_dispatch_stall_per_issue_active.ratio                inst         0.07
+    smsp__average_warps_issue_stalled_lg_throttle_per_issue_active.ratio                   inst         0.01
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio               inst         1.06
+    smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio            inst         0.07
+    smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio                  inst         0.15
+    smsp__average_warps_issue_stalled_no_instruction_per_issue_active.ratio                inst         0.19
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio                  inst         0.34
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio              inst         1.45
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                          inst         2.29
+    smsp__inst_executed.sum                                                                inst     13180870
+    --------------------------------------------------------------------------- --------------- ------------
+
+  void k_paged_mqa_logits_v6<1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    --------------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                     Metric Unit Metric Value
+    --------------------------------------------------------------------------- --------------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                        %         6.72
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                                            7221
+    launch__registers_per_thread                                                register/thread           54
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                          %        27.08
+    sm__warps_active.avg.pct_of_peak_sustained_active                                         %        20.58
+    smsp__average_warp_latency_per_inst_issued.ratio                                      cycle        11.60
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                       inst            0
+    smsp__average_warps_issue_stalled_branch_resolving_per_issue_active.ratio              inst         0.32
+    smsp__average_warps_issue_stalled_dispatch_stall_per_issue_active.ratio                inst         0.10
+    smsp__average_warps_issue_stalled_lg_throttle_per_issue_active.ratio                   inst         0.18
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio               inst         5.81
+    smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio            inst         0.12
+    smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio                  inst         0.62
+    smsp__average_warps_issue_stalled_no_instruction_per_issue_active.ratio                inst         0.14
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio                  inst         0.25
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio              inst         1.06
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                          inst         1.99
+    smsp__inst_executed.sum                                                                inst     14010899
+    --------------------------------------------------------------------------- --------------- ------------
+
+  void k_paged_mqa_logits_v6<1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    --------------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                     Metric Unit Metric Value
+    --------------------------------------------------------------------------- --------------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                        %         8.11
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                                            6988
+    launch__registers_per_thread                                                register/thread           54
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                          %        27.09
+    sm__warps_active.avg.pct_of_peak_sustained_active                                         %        20.62
+    smsp__average_warp_latency_per_inst_issued.ratio                                      cycle        11.64
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                       inst            0
+    smsp__average_warps_issue_stalled_branch_resolving_per_issue_active.ratio              inst         0.32
+    smsp__average_warps_issue_stalled_dispatch_stall_per_issue_active.ratio                inst         0.10
+    smsp__average_warps_issue_stalled_lg_throttle_per_issue_active.ratio                   inst         0.18
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio               inst         5.92
+    smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio            inst         0.12
+    smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio                  inst         0.60
+    smsp__average_warps_issue_stalled_no_instruction_per_issue_active.ratio                inst         0.14
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio                  inst         0.25
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio              inst         1.05
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                          inst         1.99
+    smsp__inst_executed.sum                                                                inst     14010899
+    --------------------------------------------------------------------------- --------------- ------------
+
+  void k_mqa_logits_v6<16, 256, 64, 1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int, int, int, int) (4, 128, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    --------------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                     Metric Unit Metric Value
+    --------------------------------------------------------------------------- --------------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                        %        11.53
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                                         1705158
+    launch__registers_per_thread                                                register/thread           53
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                          %        25.73
+    sm__warps_active.avg.pct_of_peak_sustained_active                                         %        31.03
+    smsp__average_warp_latency_per_inst_issued.ratio                                      cycle        10.40
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                       inst         3.15
+    smsp__average_warps_issue_stalled_branch_resolving_per_issue_active.ratio              inst         0.33
+    smsp__average_warps_issue_stalled_dispatch_stall_per_issue_active.ratio                inst         0.10
+    smsp__average_warps_issue_stalled_lg_throttle_per_issue_active.ratio                   inst         0.01
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio               inst         1.19
+    smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio            inst         0.08
+    smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio                  inst         0.11
+    smsp__average_warps_issue_stalled_no_instruction_per_issue_active.ratio                inst         0.17
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio                  inst         0.30
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio              inst         1.43
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                          inst         2.61
+    smsp__inst_executed.sum                                                                inst     12341371
+    --------------------------------------------------------------------------- --------------- ------------
+

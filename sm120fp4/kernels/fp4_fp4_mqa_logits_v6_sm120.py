@@ -607,6 +607,7 @@ def main(argv=None) -> int:
     ap.add_argument("--bench-paged", action="store_true")
     ap.add_argument("--ncu-shape", action="store_true", help="one launch of v6 and one of v6s on S 128 N 8192 H 8, for Nsight Compute")
     ap.add_argument("--out-paged", type=Path)
+    ap.add_argument("--ncu-paged", action="store_true", help="one launch of the paged v6e and one of the flat v6e on S 64 N 32768 H 8, for Nsight Compute")
     a = ap.parse_args(argv)
     dev = torch.device("cuda")
     base.SM_COUNT = v4.sm_count()
@@ -618,6 +619,15 @@ def main(argv=None) -> int:
         rc = rc or bench(mod, dev, a.out)
     if a.bench_paged:
         rc = rc or bench_paged(mod, dev, a.out_paged)
+    if a.ncu_paged:
+        # one launch each of the paged v6e and the flat v6e on the same kv (S 64, N 32768, H 8), for Nsight Compute
+        r_, args = run_paged_case(mod, 64, 32768, 8, 264, dev)
+        q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages, kv4, sfkv_u8 = args
+        torch.cuda.synchronize()
+        mod.fp4_fp4_paged_mqa_logits_sm120_v6e(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages)
+        flat = torch.full_like(out_t, float("-inf"))
+        launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, torch.zeros_like(ctx), ctx, flat, span=(0, int(ctx.max())), packed=True)
+        torch.cuda.synchronize()
     if a.ncu_shape:
         _, args = run_case(mod, 128, 8192, 8, 228, dev, full_span=True)
         q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t = args
