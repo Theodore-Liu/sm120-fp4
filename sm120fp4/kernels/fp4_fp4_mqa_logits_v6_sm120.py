@@ -554,6 +554,12 @@ def main(argv=None) -> int:
         torch.cuda.synchronize()
         launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t)
         launch_v6(mod, q4, sfq_u8, kv4, sfkv_u8, w, ks, ke, out_t, padded=True)
+        # v4 on the same k codes with an e4m3 q holding the dequantised MXFP4 q, for a side-by-side profile
+        S_, H_, _ = q4.shape
+        qf = ref.cast_back_from_fp4(q4.reshape(S_ * H_, HEAD_DIM // 2), torch.pow(2.0, sfq_u8.reshape(-1, NBLK).float() - 127), gran_k=BLOCK)
+        q8, sfq8_packed = ref.per_token_cast_to_fp8(qf, use_ue8m0=True, gran_k=HEAD_DIM, use_packed_ue8m0=True)
+        sfq8_u8 = (torch.round(torch.log2(ref.unpack_ue8m0_from_int(sfq8_packed)[:, :1])) + 127).clamp(0, 255).to(torch.uint8).reshape(S_, H_).contiguous()
+        v4.launch_v4(mod, q8.reshape(S_, H_, HEAD_DIM).contiguous(), sfq8_u8, kv4, sfkv_u8, w, ks, ke, out_t)
         torch.cuda.synchronize()
     return rc
 

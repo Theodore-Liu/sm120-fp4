@@ -63,7 +63,8 @@ closes it. Dates are when an item was added, not estimates.
    an FP4 x FP4 instruction form, measured 2026-10-04: `scripts/probe_f4f4.py`, both `kind::f8f6f4` e2m1 x e2m1 and the packed
    `kind::mxf4.block_scale` with its scale-register map, wiring doc step 2; the MXFP4-q kernel v6 on it is correct on five shapes
    and 1.29 to 1.65 times v4 (6.9 / 17.2 / 19.2 us), its paged form bit-identical to it and 1.18 to 1.23 times the paged v4; an 80-byte stride on the flat v6 removes its bank conflicts
-   and leaves its time unchanged (closed), not wired while vLLM refuses the MXFP4 indexer cache on SM120), (3) the two-GPU end-to-end run, (4) the grouped GEMM after step 3 has a number.
+   and leaves its time unchanged (closed); Nsight Compute puts the flat v6's remaining time in the per-tile epilogue (shuffle reduction and
+   predicated writes; no single stall reason above 2.4 of 13.1 cycles per issue), the next lever, not wired while vLLM refuses the MXFP4 indexer cache on SM120), (3) the two-GPU end-to-end run, (4) the grouped GEMM after step 3 has a number.
    Second reading 2026-10-03 (wiring doc 3b): the engine's k operand is MXFP4 with a UE8M0 scale per 32 along the head, or e4m3 with an
    fp32 row scale; ours is e2m1 with one UE8M0 scale per 128-wide row. The adapter therefore waits on a kernel variant (step 0: the
    per-32 scale fold, q's scale read from `weights`), which is the next piece of work on this item.
