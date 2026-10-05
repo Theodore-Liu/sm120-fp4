@@ -1,0 +1,91 @@
+{
+ "kernel": "fp4_fp4_mqa_logits_sm120_v6: v4's staging with MXFP4 q and k, two kind::mxf4.block_scale k64 MMAs per n8 tile, scales applied by the MMA",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; launch only in the timed region; v4 timed on the same k codes",
+ "rows": [
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 6.86399987898767,
+   "us_min": 6.335999816656113,
+   "TFLOPs": 39.10773029319894
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 4096,
+   "H": 8,
+   "plan": [
+    8,
+    64,
+    1
+   ],
+   "us_median": 8.927999995648861,
+   "us_min": 8.1599997356534,
+   "TFLOPs": 30.06669535515506
+  },
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 17.152000218629837,
+   "us_min": 16.896000131964684,
+   "TFLOPs": 125.20310288169694
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 128,
+   "N": 8192,
+   "H": 8,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 28.30400038510561,
+   "us_min": 27.103999629616737,
+   "TFLOPs": 75.87208941426063
+  },
+  {
+   "kernel": "v6 (MXFP4 q)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 19.18400079011917,
+   "us_min": 17.08799973130226,
+   "TFLOPs": 223.88277309768185
+  },
+  {
+   "kernel": "v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 32768,
+   "H": 16,
+   "plan": [
+    16,
+    64,
+    1
+   ],
+   "us_median": 31.328000128269196,
+   "us_min": 29.440000653266907,
+   "TFLOPs": 137.09675939781374
+  }
+ ]
+}

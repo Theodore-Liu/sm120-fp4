@@ -271,7 +271,15 @@ Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx50
    g's from lane 4g's scale-b register, same bytes; every (row or column, block) is reached by exactly one byte and no setting
    changes C partially. The nibble order within a byte cannot be read by any dot product when both operands share it, so the probe
    does not and need not decide it: q and k come packed by the same convention. Form (b) reads q at half the bytes of form (a) and
-   takes vLLM's per-32 UE8M0 scales directly, so it is the form an MXFP4-q kernel would use; no such kernel is written yet.
+   takes vLLM's per-32 UE8M0 scales directly, so it is the form an MXFP4-q kernel would use.
+   **The kernel exists (2026-10-05): `sm120fp4/kernels/fp4_fp4_mqa_logits_v6_sm120.py`, v4's staging with q packed e2m1 [S, H, 64]
+   and UE8M0 [S, H, 4], both operands loaded as raw packed words, two block-scaled k64 MMAs per n8 tile with the scales in the lanes
+   the probe mapped (no software fold).** Its selftest passes on five shapes with independent block scales on both operands (relative
+   error at most 7.9e-8 against the dequantised einsum reference), and a fault arm that swaps q's block scales is caught (0.88).
+   Timed on the idle GPU, cold L2, median of 10 (`reports/fp4-fp4-mqa-logits-v6-rtx5090-20261005.json`): 6.9 / 17.2 / 19.2 us against v4's
+   8.9 / 28.3 / 31.3 us on the same k codes (S 32 N 4096 H 8; S 128 N 8192 H 8; S 32 N 32768 H 16), 1.29 to 1.65 times faster, up to
+   224 TFLOP/s: q is half the bytes and the four per-block folds per tile are gone. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
+   on SM120 (Section 3c), so the adapter keeps raising `NotImplementedError` for the MXFP4-q pair until that gate moves.
 3. **End to end, two RTX PRO 6000 (RunPod), DeepSeek-V4-Flash-0731-NVFP4, TP=2**, on the vLLM nightly the public recipe pins or
    on 0.29 if PR #41834 has merged by then: the engine's path (the Triton fallback or FlashInfer's) against ours behind the flag,
    same prompts, the 300-item slate for answers and decode tokens per second and prefill tokens per second at a long context

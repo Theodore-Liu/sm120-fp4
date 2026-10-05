@@ -213,6 +213,10 @@ done on the RTX 5090:
   on both operands (bits 5:2 on both), and the packed `kind::mxf4.block_scale.scale_vec::2X` at k = 64 with the lane and byte each
   UE8M0 scale is read from; both exact on the RTX 5090. A probe that only uses unit scales cannot see a common permutation of k,
   so the scale arm is what pins the block layout.
+- `sm120fp4/kernels/fp4_fp4_mqa_logits_v6_sm120.py` — the indexer kernel with MXFP4 on both sides (q [S, H, 64] packed e2m1 with UE8M0
+  [S, H, 4], k as v4 takes it), two `kind::mxf4.block_scale` k64 MMAs per tile with the scales applied by the instruction; correct
+  against the dequantised reference on five shapes (at most 7.9e-8), with a fault arm the selftest must catch; 6.9 / 17.2 / 19.2 us on three
+  indexer shapes, 1.29 to 1.65 times v4 on the same k codes (`reports/fp4-fp4-mqa-logits-v6-rtx5090-20261005.json`); `--selftest`, `--bench`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
 - `scripts/fp8_fp4_mqa_logits_v4_sm120.py` — v4 of the indexer kernel in the engine's k format (one UE8M0 scale per 32 columns, the MXFP4 layout vLLM's indexer passes), compiled with v0 to v3 so it is checked bit for bit against v2 where the scales coincide, and its paged form (`sf_cache` [pages, 64, 4]) checked bit for bit against it through random page permutations; `--selftest`, `--bench`, `--bench-paged`.
