@@ -66,8 +66,8 @@ closes it. Dates are when an item was added, not estimates.
    and leaves its time unchanged (closed); Nsight Compute puts the flat v6's remaining time in the per-tile epilogue (shuffle reduction and
    predicated writes; no single stall reason above 2.4 of 13.1 cycles per issue); the packed epilogue v6e (3 shuffles per tile instead of 6) is
    bit-identical and 1.11 to 1.14 times v6 on the two larger shapes; in the paged v6 the same epilogue is bit-identical and 1.05 times on
-   the two larger shapes; the paged kernel's time is in waiting for its own page (long scoreboard 5.92 of 11.6 cycles per issue), so the next
-   lever is a warp that walks several pages double-buffered; not wired while vLLM refuses the MXFP4 indexer cache on SM120), (3) the two-GPU end-to-end run, (4) the grouped GEMM after step 3 has a number.
+   the two larger shapes; the paged kernel's time is in waiting for its own page (long scoreboard 5.92 of 11.6 cycles per issue), a warp that walks
+   several pages double-buffered (v6f) is bit-identical but slower or level at every group size (half the resident warps), closed; not wired while vLLM refuses the MXFP4 indexer cache on SM120), (3) the two-GPU end-to-end run, (4) the grouped GEMM after step 3 has a number.
    Second reading 2026-10-03 (wiring doc 3b): the engine's k operand is MXFP4 with a UE8M0 scale per 32 along the head, or e4m3 with an
    fp32 row scale; ours is e2m1 with one UE8M0 scale per 128-wide row. The adapter therefore waits on a kernel variant (step 0: the
    per-32 scale fold, q's scale read from `weights`), which is the next piece of work on this item.

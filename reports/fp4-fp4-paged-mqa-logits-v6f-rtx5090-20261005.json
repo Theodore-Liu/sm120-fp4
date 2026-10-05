@@ -1,0 +1,169 @@
+{
+ "kernel": "fp4_fp4_paged_mqa_logits_sm120_v6: the paged v4's staging at an 80-byte row stride with v6's block-scaled k64 inner product",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; random context lengths per row (seeded); paged v4 timed on the same k codes and pages",
+ "rows": [
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 11.008000001311302,
+   "us_min": 10.912000201642513
+  },
+  {
+   "kernel": "paged v6e (packed epilogue)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 10.879999957978725,
+   "us_min": 9.440000168979168
+  },
+  {
+   "kernel": "paged v6f G=2 (two pages per warp, prefetched)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 13.055999763309956,
+   "us_min": 11.935999616980553
+  },
+  {
+   "kernel": "paged v6f G=4",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 10.991999879479408,
+   "us_min": 10.751999914646149
+  },
+  {
+   "kernel": "paged v6f G=8",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 15.375999733805656,
+   "us_min": 14.816000126302242
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 13.055999763309956,
+   "us_min": 12.864000163972378
+  },
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 45.85599899291992,
+   "us_min": 45.66400125622749
+  },
+  {
+   "kernel": "paged v6e (packed epilogue)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 43.776001781225204,
+   "us_min": 43.007999658584595
+  },
+  {
+   "kernel": "paged v6f G=2 (two pages per warp, prefetched)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 54.016001522541046,
+   "us_min": 51.96800082921982
+  },
+  {
+   "kernel": "paged v6f G=4",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 47.85599932074547,
+   "us_min": 47.13600128889084
+  },
+  {
+   "kernel": "paged v6f G=8",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 45.791998505592346,
+   "us_min": 43.776001781225204
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 54.016001522541046,
+   "us_min": 53.50400134921074
+  },
+  {
+   "kernel": "paged v6 (MXFP4 q)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 43.776001781225204,
+   "us_min": 43.55200007557869
+  },
+  {
+   "kernel": "paged v6e (packed epilogue)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 40.31999967992306,
+   "us_min": 39.51999917626381
+  },
+  {
+   "kernel": "paged v6f G=2 (two pages per warp, prefetched)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 49.92000013589859,
+   "us_min": 49.75999891757965
+  },
+  {
+   "kernel": "paged v6f G=4",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 45.67999951541424,
+   "us_min": 43.616000562906265
+  },
+  {
+   "kernel": "paged v6f G=8",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 43.776001781225204,
+   "us_min": 43.007999658584595
+  },
+  {
+   "kernel": "paged v4 (e4m3 q, same k codes)",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 54.016001522541046,
+   "us_min": 53.727999329566956
+  }
+ ]
+}

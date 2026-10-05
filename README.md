@@ -222,7 +222,8 @@ done on the RTX 5090:
   bank conflicts (1.57 million to 481) without changing its time, so the flat kernel is not shared-load bound; its stall counters spread
   over shuffles, fixed-latency waits and the shared-memory queue, which points at the per-tile epilogue; the packed epilogue (v6e, one butterfly
   for both column values) is bit-identical and runs 6.9 / 15.1 / 17.2 us, 1.11 to 1.14 times v6 on the two larger shapes, and 1.05 times in the
-  paged form (11.0 / 43.6 / 41.6 us), where half of each issue cycle is spent waiting for the warp's own page; `--selftest`, `--bench`,
+  paged form (11.0 / 43.6 / 41.6 us), where half of each issue cycle is spent waiting for the warp's own page; walking several pages per
+  warp with a prefetch (v6f) is bit-identical but slower or level at every group size, closed; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
