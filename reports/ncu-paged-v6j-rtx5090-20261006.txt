@@ -1,0 +1,51 @@
+==PROF== Connected to process 717 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v6j": 0%....50%....100% - 10 passes
+==PROF== Disconnected from process 717
+[717] python3.12@127.0.0.1
+  k_paged_mqa_logits_v6j(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         7.65
+    gpu__time_duration.sum                                                             us        34.98
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        39.26
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        41.66
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        17.69
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         7.49
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         2.03
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.23
+    smsp__inst_executed.sum                                                          inst     14169165
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            4
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           32
+    Theoretical Occupancy                     %        66.67
+    Achieved Occupancy                        %        41.66
+    Achieved Active Warps Per SM           warp        20.00
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 37.51%                                                                                    
+          The difference between calculated theoretical (66.7%) and measured achieved occupancy (41.7%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 33.33%                                                                                    
+          The 8.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (66.7%) is limited by the number of required      
+          registers, and the required amount of shared memory.                                                          
+
