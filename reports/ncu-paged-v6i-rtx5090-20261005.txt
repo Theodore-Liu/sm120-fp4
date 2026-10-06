@@ -1,0 +1,465 @@
+==PROF== Connected to process 480 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6g": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6h": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6i": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6": 0%....50%....100% - 11 passes
+==PROF== Profiling "k_paged_mqa_logits_v6f": 0%....50%....100% - 11 passes
+==PROF== Disconnected from process 480
+[480] python3.12@127.0.0.1
+  void k_paged_mqa_logits_v6<0>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         3.06
+    gpu__time_duration.sum                                                             us        49.50
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        31.27
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.50
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        10.82
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         4.78
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.27
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.19
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.19
+    smsp__inst_executed.sum                                                          inst     16352742
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            5
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        20.50
+    Achieved Active Warps Per SM           warp         9.84
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 38.49%                                                                                    
+          The difference between calculated theoretical (33.3%) and measured achieved occupancy (20.5%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6<1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         4.62
+    gpu__time_duration.sum                                                             us        44.58
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        27.55
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.69
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        11.41
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         5.65
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.25
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.07
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.00
+    smsp__inst_executed.sum                                                          inst     14010899
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        20.69
+    Achieved Active Warps Per SM           warp         9.93
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 37.93%                                                                                    
+          The difference between calculated theoretical (33.3%) and measured achieved occupancy (20.7%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6f<2>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 255, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         7.34
+    gpu__time_duration.sum                                                             us        56.74
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        19.42
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        10.79
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         7.65
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         2.33
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.08
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.11
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.30
+    smsp__inst_executed.sum                                                          inst     14098615
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            7
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        10.79
+    Achieved Active Warps Per SM           warp         5.18
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6f<4>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 128, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         5.98
+    gpu__time_duration.sum                                                             us        52.96
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        20.60
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        10.35
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         6.97
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         1.64
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.09
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.11
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.32
+    smsp__inst_executed.sum                                                          inst     13548077
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            7
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        10.35
+    Achieved Active Warps Per SM           warp         4.97
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6f<8>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 64, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         6.05
+    gpu__time_duration.sum                                                             us        50.53
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        20.87
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        10.35
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         6.39
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         1.10
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.10
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.12
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.33
+    smsp__inst_executed.sum                                                          inst     13272357
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            7
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        10.35
+    Achieved Active Warps Per SM           warp         4.97
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  k_paged_mqa_logits_v6g(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         4.58
+    gpu__time_duration.sum                                                             us        48.35
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        30.05
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.04
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        10.22
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         4.00
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.26
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.25
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.27
+    smsp__inst_executed.sum                                                          inst     16741229
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        20.04
+    Achieved Active Warps Per SM           warp         9.62
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 39.87%                                                                                    
+          The difference between calculated theoretical (33.3%) and measured achieved occupancy (20.0%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  k_paged_mqa_logits_v6h(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         7.29
+    gpu__time_duration.sum                                                             us        43.94
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        30.10
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.00
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         9.85
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         3.70
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.26
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.20
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.03
+    smsp__inst_executed.sum                                                          inst     15588220
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        20.00
+    Achieved Active Warps Per SM           warp         9.60
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 40%                                                                                       
+          The difference between calculated theoretical (33.3%) and measured achieved occupancy (20.0%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  k_paged_mqa_logits_v6i(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         8.08
+    gpu__time_duration.sum                                                             us        36.32
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        41.13
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        41.57
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        13.08
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         4.39
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.76
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         2.07
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.19
+    smsp__inst_executed.sum                                                          inst     18833523
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            4
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           32
+    Theoretical Occupancy                     %        66.67
+    Achieved Occupancy                        %        41.57
+    Achieved Active Warps Per SM           warp        19.95
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 37.64%                                                                                    
+          The difference between calculated theoretical (66.7%) and measured achieved occupancy (41.6%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 33.33%                                                                                    
+          The 8.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (66.7%) is limited by the number of required      
+          registers, and the required amount of shared memory.                                                          
+
+  void k_paged_mqa_logits_v6<1>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         7.03
+    gpu__time_duration.sum                                                             us        44.54
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        27.55
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.80
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        11.58
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         5.77
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.26
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.04
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         1.99
+    smsp__inst_executed.sum                                                          inst     14010899
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        20.80
+    Achieved Active Warps Per SM           warp         9.98
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 37.6%                                                                                     
+          The difference between calculated theoretical (33.3%) and measured achieved occupancy (20.8%) can be the      
+          result of warp scheduling overheads or workload imbalances during the kernel execution. Load imbalances can   
+          occur between warps within a block as well as across blocks of the same kernel. See the CUDA Best Practices   
+          Guide (https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#occupancy) for more details on     
+          optimizing occupancy.                                                                                         
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
+  void k_paged_mqa_logits_v6f<4>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 128, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         4.94
+    gpu__time_duration.sum                                                             us        52.38
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        20.29
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        10.55
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle         6.95
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         1.63
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.09
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.11
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.32
+    smsp__inst_executed.sum                                                          inst     13548077
+    ------------------------------------------------------------------------- ----------- ------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            7
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block           12
+    Theoretical Active Warps per SM        warp            8
+    Theoretical Occupancy                     %        16.67
+    Achieved Occupancy                        %        10.55
+    Achieved Active Warps Per SM           warp         5.06
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 83.33%                                                                                    
+          The 2.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (16.7%) is limited by the required amount of      
+          shared memory.                                                                                                
+
