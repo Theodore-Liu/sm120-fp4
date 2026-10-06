@@ -255,6 +255,10 @@ done on the RTX 5090:
 - Staging the half-pages as raw 132-byte rows (v5r: straight 16-byte copies, a 33-word read stride, no scatter) runs 21.2 / 62.4 / 72.5 us against
   the half-page kernel's 33.2 / 103.4 / 113.4 back to back, ahead of the paged MXFP4 kernel's 23.3 / 72.4 / 74.5; the adapter's paged call uses it
   (`reports/fp8-paged-mqa-logits-v5r-rtx5090-20261004.json`; wiring doc 3j).
+- The fp4 path's quarter-page double buffers on the fp8 rows (v5s: raw rows in quarters of 16, cp.async double-buffered in v5r's 4.2 KB per
+  warp, q loaded once per head block) are bit-identical to the flat v5 on seven shapes (H 8 to 32, bf16 and fp32 weights,
+  `scripts/check_v5s_h32.py`) but not a win: over three alternating runs 21.3 to 22.5 / 70.4 to 70.6 / 67.9 to 68.0 us against v5r's
+  21.2 to 21.3 / 62.4 to 63.1 / 72.5, ahead only on the shape with two head blocks; v5r stays the paged form to use.
 - `scripts/fp8_einsum_sm120.py` — the FP8 einsum `bhr,hdr->bhd` for SM120 (DeepGEMM's `fp8_einsum` recipe: per-token x, per-block y): v0 (one warp per 16 x 8 tile) and v1 (y and x tiles staged in shared memory, 8 warps per 128 x 128 tile), both correct against torch.einsum on the dequantised operands and bit-identical to each other; `--selftest`, `--bench`.
   rounding - v0 (one warp per 16 x 8 tile, the convention check), v1 (32 x 128 tiles, 4-stage `cp.async`, bit-identical to
   v0) and v2 (split-K with a fixed-order reduce, bit-identical to v1 except one element one ulp off). Cold-L2 medians of 20

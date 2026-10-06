@@ -1,0 +1,26 @@
+==PROF== Connected to process 914 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+paged v5 S=64 N=8192 H=8: 322.8 us (214 GB/s of cache rows, 3.3 TFLOP/s)
+==PROF== Profiling "k_paged_mqa_logits_v5s": 0%....50%....100% - 4 passes
+paged v5 S=128 N=16384 H=8: 71.7 us (3861 GB/s of cache rows, 59.9 TFLOP/s)
+paged v5 S=32 N=65536 H=16: 67.7 us (4091 GB/s of cache rows, 126.9 TFLOP/s)
+==PROF== Disconnected from process 914
+[914] python3.12@127.0.0.1
+  k_paged_mqa_logits_v5s(const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (16, 256, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- --------------- ------------
+    Metric Name                                                                   Metric Unit Metric Value
+    ------------------------------------------------------------------------- --------------- ------------
+    dram__bytes_read.sum                                                                           (!) n/a
+    gpu__time_duration.sum                                                                 us        78.69
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                                       6326788
+    launch__occupancy_limit_registers                                                   block            3
+    launch__occupancy_limit_shared_mem                                                  block            2
+    launch__registers_per_thread                                              register/thread           65
+    lts__t_sector_hit_rate.pct                                                              %        97.95
+    sm__warps_active.avg.pct_of_peak_sustained_active                                       %        29.63
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                     inst            0
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio             inst         4.41
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio            inst         1.61
+    smsp__inst_executed.sum                                                              inst     33751040
+    ------------------------------------------------------------------------- --------------- ------------
+
