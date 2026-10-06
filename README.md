@@ -241,7 +241,7 @@ done on the RTX 5090:
   still ahead on the two larger ones; v6l writes the list out as packed (row, page) entries so a warp finds its pair with two
   independent loads instead of a binary search: 8.9 / 29.4 / 27.4 us in all three runs against v6k's 8.9 / 30.4 to 31.5 / 27.4 to 28.9
   (level, 1.03 to 1.07, level to 1.05), its list 5.0 to 6.8 us per batch against 2.8, so it pays only when the list is shared across
-  layers; `--selftest`, `--bench`,
+  layers; v6m, issuing the first copy before the q loads, compiles to the same schedule and times level; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
