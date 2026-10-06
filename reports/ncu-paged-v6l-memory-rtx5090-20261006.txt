@@ -1,0 +1,76 @@
+==PROF== Connected to process 468 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v6l": 0%....50%....100% - 34 passes
+==PROF== Disconnected from process 468
+[468] python3.12@127.0.0.1
+  k_paged_mqa_logits_v6l(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, const int *, float *, int, int, int, int) (4080, 1, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    --------------------------------------------------- ----------- ------------
+    Metric Name                                         Metric Unit Metric Value
+    --------------------------------------------------- ----------- ------------
+    gpu__time_duration.sum                                       us        30.56
+    l1tex__data_pipe_lsu_wavefronts_mem_shared.sum                       1921527
+    l1tex__t_bytes.sum.per_second                           Tbyte/s         4.18
+    l1tex__throughput.avg.pct_of_peak_sustained_elapsed           %        45.88
+    lts__cycles_elapsed.avg.per_second                          Ghz         2.10
+    lts__t_bytes.sum.peak_sustained                     Kbyte/cycle         3.07
+    lts__t_bytes.sum.per_second                             Tbyte/s         4.08
+    lts__t_sectors_srcunit_tex_op_read.sum                   sector      3596016
+    lts__throughput.avg.pct_of_peak_sustained_elapsed             %        78.17
+    smsp__inst_executed_op_ldgsts.sum                          inst       212949
+    --------------------------------------------------- ----------- ------------
+
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        13.97
+    SM Frequency                    Ghz         2.17
+    Elapsed Cycles                cycle        68294
+    Memory Throughput                 %        78.17
+    DRAM Throughput                   %        10.23
+    Duration                         us        30.56
+    L1/TEX Cache Throughput           %        52.00
+    L2 Cache Throughput               %        78.17
+    SM Active Cycles              cycle     58488.46
+    Compute (SM) Throughput           %        45.88
+    ----------------------- ----------- ------------
+
+    OPT   Memory is more heavily utilized than Compute: Look at the Memory Workload Analysis section to identify the L2 
+          bottleneck. Check memory replay (coalescing) metrics to make sure you're efficiently utilizing the bytes      
+          transferred. Also consider whether it is possible to do more work per memory access (kernel fusion) or        
+          whether there are values you can (re)compute.                                                                 
+
+    Section: Memory Workload Analysis
+    --------------------------------------- ----------- ------------
+    Metric Name                             Metric Unit Metric Value
+    --------------------------------------- ----------- ------------
+    Local Memory Spilling Requests                                 0
+    Local Memory Spilling Request Overhead            %            0
+    L2 Sector Promotion Misses                        %            0
+    Shared Memory Spilling Requests                                0
+    Shared Memory Spilling Request Overhead           %            0
+    Memory Throughput                           Gbyte/s       183.00
+    Mem Busy                                          %        78.17
+    Max Bandwidth                                     %        58.48
+    L1/TEX Hit Rate                                   %        22.79
+    L2 Persisting Size                            Mbyte        18.87
+    L2 Compression Success Rate                       %            0
+    L2 Compression Ratio                                           0
+    L2 Compression Input Sectors                 sector            0
+    L2 Hit Rate                                       %        96.10
+    Mem Pipes Busy                                    %        45.88
+    --------------------------------------- ----------- ------------
+
+    Section: Memory Workload Analysis Tables
+    OPT   Est. Speedup: 36.05%                                                                                          
+          The memory access pattern for global loads from L2 might not be optimal. On average, only 13.8 of the 32      
+          bytes transmitted per sector are utilized by each thread. This applies to the 81.3% of sectors missed in      
+          L1TEX. This could possibly be caused by a stride between threads. Check the Source Counters section for       
+          uncoalesced global loads.                                                                                     
+    ----- --------------------------------------------------------------------------------------------------------------
+    OPT   Est. Speedup: 21.38%                                                                                          
+          The memory access pattern for global stores to L1TEX might not be optimal. On average, only 17.1 of the 32    
+          bytes transmitted per sector are utilized by each thread. This could possibly be caused by a stride between   
+          threads. Check the Source Counters section for uncoalesced global stores.                                     
+
+==WARNING== No metrics to show for section(s): MemoryWorkloadAnalysis_Tables. Use --print-details option to change the part of the section that should be shown.

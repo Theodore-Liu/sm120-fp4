@@ -242,7 +242,10 @@ done on the RTX 5090:
   independent loads instead of a binary search: 8.9 / 29.4 / 27.4 us in all three runs against v6k's 8.9 / 30.4 to 31.5 / 27.4 to 28.9
   (level, 1.03 to 1.07, level to 1.05), its list 5.0 to 6.8 us per batch against 2.8, so it pays only when the list is shared across
   layers; v6m, issuing the first copy before the q loads, compiles to the same schedule and times level; v6n, storing each work item whole so a warp's first copy waits on one load, also times level (the
-  prologue stalls are hidden by other warps); `--selftest`, `--bench`,
+  prologue stalls are hidden by other warps); note that every paged timing here reads one flat k through per-row page permutations,
+  so the pages are L2-resident after the first reader: v6l runs at 78 percent of L2 throughput, an effective 2.53 TB/s, above DRAM
+  bandwidth (`reports/ncu-paged-v6l-memory-rtx5090-20261006.txt`); a batch with a cache per row will be DRAM-bound and is not yet
+  measured; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
