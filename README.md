@@ -246,8 +246,9 @@ done on the RTX 5090:
   so the pages are L2-resident after the first reader: v6l runs at 78 percent of L2 throughput, an effective 2.53 TB/s, above DRAM
   bandwidth (`reports/ncu-paged-v6l-memory-rtx5090-20261006.txt`); with a cache of its own per row (`--bench-paged-distinct`, outputs
   bit-identical to the shared-cache run) every variant from v6e to v6l times level, 15.2 to 17.2 / 78.6 to 80.6 / 72.0 to 72.4 us, at
-  about 950 GB/s of the rows' pages, so the v6i to v6l gains are L2-resident effects and the paged form's limit in an engine's batch is
-  the bytes in flight; `--selftest`, `--bench`,
+  about 950 GB/s of the rows' pages, so the v6i to v6l gains are L2-resident effects; Nsight Compute puts v6l there at 81 percent of
+  DRAM throughput (97 MB through DRAM against the 77 MB of live pages), so in an engine's batch the paged kernel is DRAM-bound near
+  the ceiling; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.

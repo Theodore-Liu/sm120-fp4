@@ -1,0 +1,29 @@
+==PROF== Connected to process 457 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+paged v6e  distinct cache S=32 N=8192 H=8: 36.7 us (282 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6j  distinct cache S=32 N=8192 H=8: 18.7 us (554 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6k  distinct cache S=32 N=8192 H=8: 35.5 us (291 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6l  distinct cache S=32 N=8192 H=8: 290.8 us (36 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6e  distinct cache S=64 N=32768 H=8: 81.9 us (942 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6j  distinct cache S=64 N=32768 H=8: 81.9 us (943 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6k  distinct cache S=64 N=32768 H=8: 83.7 us (922 GB/s of the rows' pages), bit-identical to the shared-cache run True
+==PROF== Profiling "k_paged_mqa_logits_v6l": 0%....50%....100% - 1 pass
+paged v6l  distinct cache S=64 N=32768 H=8: 84.0 us (919 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6e  distinct cache S=32 N=65536 H=16: 75.8 us (901 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6j  distinct cache S=32 N=65536 H=16: 74.2 us (921 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6k  distinct cache S=32 N=65536 H=16: 75.9 us (899 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6l  distinct cache S=32 N=65536 H=16: 75.8 us (901 GB/s of the rows' pages), bit-identical to the shared-cache run True
+==PROF== Disconnected from process 457
+[457] python3.12@127.0.0.1
+  k_paged_mqa_logits_v6l(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, const int *, float *, int, int, int, int) (4080, 1, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    --------------------------------------- ----------- ------------
+    Metric Name                             Metric Unit Metric Value
+    --------------------------------------- ----------- ------------
+    dram__bytes.sum                               Mbyte        97.19
+    dram__sectors_read.sum                                   (!) n/a
+    dram__sectors_write.sum                                  (!) n/a
+    gpu__time_duration.sum                           us        68.74
+    lts__t_sectors_srcunit_tex_op_read.sum       sector      3595172
+    lts__t_sectors_srcunit_tex_op_write.sum      sector       262851
+    --------------------------------------- ----------- ------------
+

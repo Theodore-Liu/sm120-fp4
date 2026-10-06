@@ -1,0 +1,31 @@
+==PROF== Connected to process 541 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+paged v6e  distinct cache S=32 N=8192 H=8: 24.0 us (431 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6j  distinct cache S=32 N=8192 H=8: 28.8 us (358 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6k  distinct cache S=32 N=8192 H=8: 20.7 us (499 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6l  distinct cache S=32 N=8192 H=8: 290.4 us (36 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6e  distinct cache S=64 N=32768 H=8: 79.9 us (966 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6j  distinct cache S=64 N=32768 H=8: 81.9 us (942 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6k  distinct cache S=64 N=32768 H=8: 83.9 us (920 GB/s of the rows' pages), bit-identical to the shared-cache run True
+==PROF== Profiling "k_paged_mqa_logits_v6l": 0%....50%....100% - 3 passes
+paged v6l  distinct cache S=64 N=32768 H=8: 83.0 us (930 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6e  distinct cache S=32 N=65536 H=16: 73.7 us (926 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6j  distinct cache S=32 N=65536 H=16: 73.7 us (926 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6k  distinct cache S=32 N=65536 H=16: 72.7 us (939 GB/s of the rows' pages), bit-identical to the shared-cache run True
+paged v6l  distinct cache S=32 N=65536 H=16: 73.6 us (927 GB/s of the rows' pages), bit-identical to the shared-cache run True
+==PROF== Disconnected from process 541
+[541] python3.12@127.0.0.1
+  k_paged_mqa_logits_v6l(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, const int *, float *, int, int, int, int) (4080, 1, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------ ----------- ------------
+    Metric Name                                                              Metric Unit Metric Value
+    ------------------------------------------------------------------------ ----------- ------------
+    dram__bytes_read.sum                                                                      (!) n/a
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                 %        81.41
+    gpu__time_duration.sum                                                            us        66.21
+    launch__grid_size                                                                            4080
+    lts__t_sector_hit_rate.pct                                                         %        36.14
+    sm__warps_active.avg.pct_of_peak_sustained_active                                  %        54.89
+    smsp__average_warp_latency_per_inst_issued.ratio                               cycle        44.24
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio        inst        26.95
+    ------------------------------------------------------------------------ ----------- ------------
+
