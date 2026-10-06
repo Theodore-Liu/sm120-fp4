@@ -233,7 +233,11 @@ done on the RTX 5090:
   the tail quarter alone on the masked path: bit-identical on seven shapes (H 8 to 32), 14.2 million instructions against v6i's 18.8 and
   v6e's 14.0, four blocks per SM kept (62 registers); over three runs 8.9 / 33.8 to 35.2 / 31.5 us against v6i's 8.9 / 35.5 to 35.6 / 33.5
   (level, 1.01 to 1.05, 1.06 times), the paged form to use; its occupancy gap is the grid: with the benchmark's context lengths a
-  non-empty block holds 4.2 to 4.9 live warps of 8 (`scripts/paged_grid_occupancy.py`); `--selftest`, `--bench`,
+  non-empty block holds 4.2 to 4.9 live warps of 8 (`scripts/paged_grid_occupancy.py`); v6k runs v6j's body over a compacted (row, page) work list (an inclusive
+  prefix sum of the rows' page counts, `fp4_fp4_paged_mqa_logits_sm120_v6k_meta`, computed once per batch; each warp finds its pair by binary
+  search): bit-identical on seven shapes, over three runs 8.9 / 30.8 to 31.3 / 27.4 to 27.5 us against v6j's 8.9 / 34.9 to 35.5 / 31.5
+  (level, 1.12 to 1.13, 1.15 times), the paged form to use when the work list is shared across layers; the work list itself costs 11.0 to
+  11.5 us per batch (five small launches), so a single call with the list computed inside it is slower than v6j; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
