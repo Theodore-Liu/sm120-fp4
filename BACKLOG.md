@@ -47,6 +47,14 @@ closes it. Dates are when an item was added, not estimates.
    128-R block, 8 warps x 128 columns x 128 b rows) is bit-identical to v0 and 1.33 times faster at B 128, where v0 re-read y eight
    times, but 7 to 9 percent slower at B 8 and 32 because its grid is 64 blocks (`reports/fp8-einsum-v1-rtx5090-20261003.json`);
    the next step there is a 64-column tile or a split over R. Adoption (items 4 to 6) now comes before further kernel tuning.
+   Done 2026-10-06: v2 is v1 with a 64-column d tile and a 64-row b chunk (8 warps x 8 columns, 36.9 KB of shared memory, so two blocks
+   per SM and twice v1's grid along d), each element's accumulation order unchanged: bit-identical to v0 on all seven selftest shapes;
+   over three runs 31.5 to 33.4 / 42.7 to 43.6 / 86.8 to 86.9 us at B 8 / 32 / 128 (H 8, D 1024, R 4096) against v1's 52.0 to 52.1 /
+   76.5 to 76.7 / 193.2 to 193.3 (1.56 to 1.79 times, and 2.23 times at B 128, where v2 reads y once per 64-row chunk but keeps
+   twice the blocks resident) and v0's 47.9 to 49.8 / 66.6 to 68.4 / 258.9 to 261.2 (`reports/fp8-einsum-v2-rtx5090-20261006-run1..3.json`);
+   the form to use at every measured batch; y, the weights, is shared across b rows by the operation itself, so its L2 reuse is real here.
+   The other benchmarks were checked for the shared-data problem the paged ones had: the flat indexer and the GEMMs read data every row
+   shares by definition, so only the paged benchmarks needed a cache per row.
 
 ## Ready, in order
 

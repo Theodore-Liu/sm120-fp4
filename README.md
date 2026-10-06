@@ -272,7 +272,7 @@ done on the RTX 5090:
   Those timings share one page permutation across rows (L2-resident); with a cache of its own per row (`--bench-paged-distinct`,
   outputs bit-identical) v5r and v5s tie at 58.1 / 203.5 to 204.4 / 203.5 to 206.6 us, the full-page v5 is 1.03 to 1.11 times
   slower, and all run at up to 1.36 TB/s of cache rows, near the DRAM ceiling.
-- `scripts/fp8_einsum_sm120.py` — the FP8 einsum `bhr,hdr->bhd` for SM120 (DeepGEMM's `fp8_einsum` recipe: per-token x, per-block y): v0 (one warp per 16 x 8 tile) and v1 (y and x tiles staged in shared memory, 8 warps per 128 x 128 tile), both correct against torch.einsum on the dequantised operands and bit-identical to each other; `--selftest`, `--bench`.
+- `scripts/fp8_einsum_sm120.py` — the FP8 einsum `bhr,hdr->bhd` for SM120 (DeepGEMM's `fp8_einsum` recipe: per-token x, per-block y): v0 (one warp per 16 x 8 tile), v1 (y and x tiles staged in shared memory, 8 warps per 128 x 128 tile) and v2 (64 x 64 tiles, two blocks per SM), all correct against torch.einsum on the dequantised operands and bit-identical to each other; v2 is the form to use: 31.5 / 42.7 / 86.8 us at B 8 / 32 / 128 (H 8, D 1024, R 4096) against v1's 52.0 / 76.5 / 193.2 (`reports/fp8-einsum-v2-rtx5090-20261006-run*.json`); `--selftest`, `--bench`.
   rounding - v0 (one warp per 16 x 8 tile, the convention check), v1 (32 x 128 tiles, 4-stage `cp.async`, bit-identical to
   v0) and v2 (split-K with a fixed-order reduce, bit-identical to v1 except one element one ulp off). Cold-L2 medians of 20
   launches on DeepSeek-V4-style decode shapes (`reports/fp8-fp4-gemm-v2-rtx5090-20261002.json`):

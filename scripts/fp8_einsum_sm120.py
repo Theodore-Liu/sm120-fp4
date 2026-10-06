@@ -41,6 +41,7 @@ CPP = r"""
 #include <torch/extension.h>
 void fp8_einsum_bhr_hdr_bhd_sm120_v0(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
 void fp8_einsum_bhr_hdr_bhd_sm120_v1(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
+void fp8_einsum_bhr_hdr_bhd_sm120_v2(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
 """
 
 CUDA = r"""
@@ -252,14 +253,132 @@ void fp8_einsum_bhr_hdr_bhd_sm120_v1(torch::Tensor x, torch::Tensor sfx, torch::
   k_einsum_v1<<<grid, 256, smem, st>>>(static_cast<const uint8_t*>(x.data_ptr()), sfx.data_ptr<uint8_t>(), static_cast<const uint8_t*>(y.data_ptr()),
                                        sfy.data_ptr<uint8_t>(), reinterpret_cast<__nv_bfloat16*>(z.data_ptr()), B, H, D, R);
 }
+
+// v2: v1's staging and accumulation order with a TN-column d tile and a TB-row b chunk (8 warps; warp w owns columns 8J w .. 8J w + 8J - 1, J = TN/64
+// n8 tiles). TN = TB = 64 halves v1's shared memory (36.9 KB), so two blocks fit an SM, and doubles the grid along d for the small batches where
+// v1's 64-block grid leaves SMs idle; bit-identical to v0 and v1 (each element's kb, k32 and scale order is unchanged).
+template <int TN, int TB>
+__global__ void __launch_bounds__(256)
+k_einsum_v2(const uint8_t* __restrict__ x, const uint8_t* __restrict__ sfx, const uint8_t* __restrict__ y,
+            const uint8_t* __restrict__ sfy, __nv_bfloat16* __restrict__ z, int B, int H, int D, int R) {
+  constexpr int YB = TN * V1_STRIDE, XB = TB * V1_STRIDE, J = TN / 64, MT = TB / 16;
+  static_assert(TN % 64 == 0 && TB % 16 == 0, "tile shape");
+  extern __shared__ __align__(16) uint8_t smem[];
+  uint8_t* ys[2] = {smem, smem + YB};
+  uint8_t* xs[2] = {smem + 2 * YB, smem + 2 * YB + XB};
+  const int lane = threadIdx.x & 31, w = threadIdx.x >> 5, g = lane >> 2, t = lane & 3;
+  const int h = blockIdx.z, d0 = blockIdx.x * TN, bbase = blockIdx.y * TB;
+  const int nb = min(TB, B - bbase), nmt = (nb + 15) >> 4;
+  const int nkb = R / 128, ndb = D / 128;
+  auto stage = [&](int kb, int buf) {
+    for (int c = threadIdx.x; c < TN * 8; c += 256) {
+      const int row = c >> 3, part = c & 7;
+      cp_async_16(ys[buf] + row * V1_STRIDE + part * 16, y + ((size_t)h * D + d0 + row) * R + (size_t)kb * 128 + part * 16, 16);
+    }
+    for (int c = threadIdx.x; c < TB * 8; c += 256) {
+      const int row = c >> 3, part = c & 7;
+      const bool has = row < nb;
+      const int brow = has ? bbase + row : bbase;  // a valid address; src_bytes 0 zero-fills
+      cp_async_16(xs[buf] + row * V1_STRIDE + part * 16, x + ((size_t)brow * H + h) * R + (size_t)kb * 128 + part * 16, has ? 16 : 0);
+    }
+  };
+  float acc[MT][J][4];
+  #pragma unroll
+  for (int m = 0; m < MT; ++m)
+    #pragma unroll
+    for (int j = 0; j < J; ++j)
+      #pragma unroll
+      for (int i = 0; i < 4; ++i) acc[m][j][i] = 0.f;
+  stage(0, 0);
+  cp_async_commit();
+  for (int kb = 0; kb < nkb; ++kb) {
+    const int buf = kb & 1;
+    if (kb + 1 < nkb) {
+      stage(kb + 1, buf ^ 1);
+      cp_async_commit();
+      cp_async_wait<1>();
+    } else {
+      cp_async_wait<0>();
+    }
+    __syncthreads();
+    const uint8_t* yt = ys[buf];
+    const uint8_t* xt = xs[buf];
+    const float sy = ue8m0_to_float(sfy[((size_t)h * ndb + (d0 >> 7)) * nkb + kb]);
+    #pragma unroll
+    for (int m = 0; m < MT; ++m) {
+      if (m >= nmt) break;
+      float part[J][4];
+      #pragma unroll
+      for (int j = 0; j < J; ++j) { part[j][0] = part[j][1] = part[j][2] = part[j][3] = 0.f; }
+      const uint8_t* xr0 = xt + (m * 16 + g) * V1_STRIDE;
+      const uint8_t* xr1 = xt + (m * 16 + g + 8) * V1_STRIDE;
+      #pragma unroll
+      for (int s = 0; s < 4; ++s) {
+        const int k0 = s * 32;
+        uint32_t af[4];
+        af[0] = *reinterpret_cast<const uint32_t*>(xr0 + k0 + 4 * t);
+        af[1] = *reinterpret_cast<const uint32_t*>(xr1 + k0 + 4 * t);
+        af[2] = *reinterpret_cast<const uint32_t*>(xr0 + k0 + 16 + 4 * t);
+        af[3] = *reinterpret_cast<const uint32_t*>(xr1 + k0 + 16 + 4 * t);
+        #pragma unroll
+        for (int j = 0; j < J; ++j) {
+          const uint8_t* yrow = yt + (w * 8 * J + j * 8 + g) * V1_STRIDE;
+          uint32_t bf[2];
+          bf[0] = *reinterpret_cast<const uint32_t*>(yrow + k0 + 4 * t);
+          bf[1] = *reinterpret_cast<const uint32_t*>(yrow + k0 + 16 + 4 * t);
+          mma_e4m3_e4m3(part[j], af, bf);
+        }
+      }
+      const int row0 = bbase + m * 16 + g, row1 = row0 + 8;
+      const float sx0 = row0 < B ? ue8m0_to_float(sfx[((size_t)row0 * H + h) * nkb + kb]) : 0.f;
+      const float sx1 = row1 < B ? ue8m0_to_float(sfx[((size_t)row1 * H + h) * nkb + kb]) : 0.f;
+      #pragma unroll
+      for (int j = 0; j < J; ++j) {
+        acc[m][j][0] += part[j][0] * (sx0 * sy);
+        acc[m][j][1] += part[j][1] * (sx0 * sy);
+        acc[m][j][2] += part[j][2] * (sx1 * sy);
+        acc[m][j][3] += part[j][3] * (sx1 * sy);
+      }
+    }
+    __syncthreads();
+  }
+  #pragma unroll
+  for (int m = 0; m < MT; ++m) {
+    if (m >= nmt) break;
+    const int row0 = bbase + m * 16 + g, row1 = row0 + 8;
+    #pragma unroll
+    for (int j = 0; j < J; ++j) {
+      const int c = d0 + w * 8 * J + j * 8 + 2 * t;
+      if (row0 < B) {
+        z[((size_t)row0 * H + h) * D + c] = __float2bfloat16(acc[m][j][0]);
+        z[((size_t)row0 * H + h) * D + c + 1] = __float2bfloat16(acc[m][j][1]);
+      }
+      if (row1 < B) {
+        z[((size_t)row1 * H + h) * D + c] = __float2bfloat16(acc[m][j][2]);
+        z[((size_t)row1 * H + h) * D + c + 1] = __float2bfloat16(acc[m][j][3]);
+      }
+    }
+  }
+}
+
+void fp8_einsum_bhr_hdr_bhd_sm120_v2(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z) {
+  check_args(x, sfx, y, sfy, z);
+  const int B = (int)x.size(0), H = (int)x.size(1), R = (int)x.size(2), D = (int)y.size(1);
+  TORCH_CHECK(D % 64 == 0, "D a multiple of 64");
+  auto st = at::cuda::getCurrentCUDAStream();
+  constexpr int smem = 2 * 64 * V1_STRIDE + 2 * 64 * V1_STRIDE;  // 36864
+  const dim3 grid(D / 64, (B + 63) / 64, H);
+  k_einsum_v2<64, 64><<<grid, 256, smem, st>>>(static_cast<const uint8_t*>(x.data_ptr()), sfx.data_ptr<uint8_t>(), static_cast<const uint8_t*>(y.data_ptr()),
+                                                sfy.data_ptr<uint8_t>(), reinterpret_cast<__nv_bfloat16*>(z.data_ptr()), B, H, D, R);
+}
 """
 
-KERNELS = ("v0", "v1")
+KERNELS = ("v0", "v1", "v2")
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_einsum_v1a", cpp_sources=CPP, cuda_sources=CUDA,
-                       functions=["fp8_einsum_bhr_hdr_bhd_sm120_v0", "fp8_einsum_bhr_hdr_bhd_sm120_v1"],
+    return load_inline(name="sm120fp4_fp8_einsum_v2a", cpp_sources=CPP, cuda_sources=CUDA,
+                       functions=["fp8_einsum_bhr_hdr_bhd_sm120_v0", "fp8_einsum_bhr_hdr_bhd_sm120_v1", "fp8_einsum_bhr_hdr_bhd_sm120_v2"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
 
@@ -375,7 +494,7 @@ def bench(mod, dev, out: Path | None, kernels=KERNELS) -> int:
                       "floor_us_at_1792": nbytes / 1792.0 / 1e3})
             rows.append(r)
             print(f"{kernel} B={B} H={H} D={D} R={R}: {med:.1f} us ({r['GBps']:.0f} GB/s, {r['TFLOPs']:.2f} TFLOP/s; floor {r['floor_us_at_1792']:.1f} us); rel Frobenius {r['rel_fro_err']:.1e}", flush=True)
-    report = {"kernel": "fp8_einsum_bhr_hdr_bhd_sm120 v0 (one warp per (h, 16 b rows, 8 d columns)) and v1 (one 8-warp block per (h, 128 d columns, 128 b rows); y and x tiles staged in shared memory per 128-R block, double-buffered cp.async)",
+    report = {"kernel": "fp8_einsum_bhr_hdr_bhd_sm120 v0 (one warp per (h, 16 b rows, 8 d columns)), v1 (one 8-warp block per (h, 128 d columns, 128 b rows); y and x tiles staged in shared memory per 128-R block, double-buffered cp.async) and v2 (v1 with 64 d columns and 64 b rows per block)",
               "device": props.name,
               "note": "cold L2 (256 MB fill before each launch); median of 10; bytes = x e4m3 + y e4m3 + scales + bf16 z; floor at 1792 GB/s; y (H x D x R bytes) dominates the bytes; timed region holds the launch only (no host sync inside)", "rows": rows}
     if out is not None:
