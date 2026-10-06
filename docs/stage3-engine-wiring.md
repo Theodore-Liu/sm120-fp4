@@ -327,7 +327,12 @@ Why, from Nsight Compute on the second bench shape (`reports/ncu-paged-v5r-rtx50
    percent of loads is gone), long scoreboard falls from 5.85 to 3.84 cycles per issue and cycles per issued instruction from 11.7 to 10.0,
    and 20.6 percent of warps are active in both. SM throughput is 30 percent and DRAM 7 percent, so the kernel is still latency-bound, and the
    limit left is occupancy: 5.4 KB of shared memory per warp allows two 8-warp blocks per SM, 33 percent theoretical. The next lever is a
-   smaller per-warp stage (quarter pages, double-buffered, 2.7 KB per warp) to double the resident warps. The paged v6e stays the paged form, and the next paged lever is measured before it is designed. Closed; the paged v6e stays the paged form. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
+   smaller per-warp stage (quarter pages, double-buffered, 2.7 KB per warp) to double the resident warps.
+   Taken (`fp4_fp4_paged_mqa_logits_sm120_v6i`): two 16-row buffers per warp, 21.5 KB per 8-warp block, so four blocks fit an SM instead of two;
+   q, weights and scales loaded once per head block and the quarters streamed through the buffers inside it (for H above 16 the quarters are
+   restaged per head block). Bit-identical to the paged v6e on the four selftest shapes and at H = 24 and 32 (`scripts/check_v6i_h32.py`), and over
+   three runs 8.9 / 35.6 / 33.5 us against v6e's 11.0 / 42.4 to 43.8 / 41.5 to 41.7, 1.19 to 1.24 times, and against the paged v4's 13.2 / 54.0 /
+   54.0 (`reports/fp4-fp4-paged-mqa-logits-v6i-rtx5090-20261005.json`). v6i is the paged form to use. The paged v6e stays the paged form, and the next paged lever is measured before it is designed. Closed; the paged v6e stays the paged form. Not wired: vLLM pairs the MXFP4 q with the MXFP4 k cache, which it refuses
    on SM120 (Section 3c), so the adapter keeps raising `NotImplementedError` for the MXFP4-q pair until that gate moves.
 3. **End to end, two RTX PRO 6000 (RunPod), DeepSeek-V4-Flash-0731-NVFP4, TP=2**, on the vLLM nightly the public recipe pins or
    on 0.29 if PR #41834 has merged by then: the engine's path (the Triton fallback or FlashInfer's) against ours behind the flag,
