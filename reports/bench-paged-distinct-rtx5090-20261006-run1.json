@@ -1,0 +1,151 @@
+{
+ "kernel": "fp4_fp4_paged_mqa_logits_sm120_v6*: the paged kernels with a cache of their own per row",
+ "device": "NVIDIA GeForce RTX 5090",
+ "note": "cold L2 (256 MB fill before each launch); median of 10; random context lengths per row (seeded); every row's pages copied to distinct physical pages, so no page is read twice; the rate counts each row's live rows once (64 bytes of codes and 4 of scales per row)",
+ "rows": [
+  {
+   "kernel": "paged v6e",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 17.184000462293625,
+   "us_min": 16.992000862956047,
+   "cache_bytes_read": 10332668,
+   "GBps": 601.2958404344021,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6j",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 17.152000218629837,
+   "us_min": 15.072000212967396,
+   "cache_bytes_read": 10332668,
+   "GBps": 602.4176695600235,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6k",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 17.152000218629837,
+   "us_min": 17.08799973130226,
+   "cache_bytes_read": 10332668,
+   "GBps": 602.4176695600235,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6l",
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "ctx_sum": 151951,
+   "us_median": 17.152000218629837,
+   "us_min": 15.104000456631184,
+   "cache_bytes_read": 10332668,
+   "GBps": 602.4176695600235,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6e",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 78.59200239181519,
+   "us_min": 77.82399654388428,
+   "cache_bytes_read": 77192308,
+   "GBps": 982.1903711673218,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6j",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 80.64000308513641,
+   "us_min": 78.43200117349625,
+   "cache_bytes_read": 77192308,
+   "GBps": 957.2458463140622,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6k",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 80.64000308513641,
+   "us_min": 78.59200239181519,
+   "cache_bytes_read": 77192308,
+   "GBps": 957.2458463140622,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6l",
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "ctx_sum": 1135181,
+   "us_median": 80.44800162315369,
+   "us_min": 78.5600021481514,
+   "cache_bytes_read": 77192308,
+   "GBps": 959.5304599559292,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6e",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 72.43200019001961,
+   "us_min": 72.35199958086014,
+   "cache_bytes_read": 68266492,
+   "GBps": 942.4907750843312,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6j",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 72.43200019001961,
+   "us_min": 70.36799937486649,
+   "cache_bytes_read": 68266492,
+   "GBps": 942.4907750843312,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6k",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 72.4480003118515,
+   "us_min": 70.39999961853027,
+   "cache_bytes_read": 68266492,
+   "GBps": 942.2826262443097,
+   "distinct_equals_shared": true
+  },
+  {
+   "kernel": "paged v6l",
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "ctx_sum": 1003919,
+   "us_median": 72.38399982452393,
+   "us_min": 71.68000191450119,
+   "cache_bytes_read": 68266492,
+   "GBps": 943.1157737275399,
+   "distinct_equals_shared": true
+  }
+ ]
+}

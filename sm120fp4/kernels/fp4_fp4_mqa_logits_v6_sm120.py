@@ -1773,12 +1773,76 @@ def bench_paged(mod, dev, out: Path | None) -> int:
     return 0
 
 
+def distinct_cache(kv_cache, sf_cache, block_table, seed):
+    """Every row's pages copied to physical pages of its own (values unchanged, addresses distinct, randomly placed): kv [S * max_pages, 64, 64],
+    sf [S * max_pages, 64, 4], block table [S, max_pages]."""
+    S, max_pages = block_table.shape
+    g = torch.Generator().manual_seed(seed)
+    perm = torch.randperm(S * max_pages, generator=g).to(block_table.device)
+    src = block_table.reshape(-1).long()
+    kv_d = torch.empty((S * max_pages,) + tuple(kv_cache.shape[1:]), dtype=kv_cache.dtype, device=kv_cache.device)
+    sf_d = torch.empty((S * max_pages,) + tuple(sf_cache.shape[1:]), dtype=sf_cache.dtype, device=sf_cache.device)
+    kv_d[perm] = kv_cache[src]
+    sf_d[perm] = sf_cache[src]
+    return kv_d.contiguous(), sf_d.contiguous(), perm.view(S, max_pages).to(torch.int32).contiguous()
+
+
+def bench_paged_distinct(mod, dev, out: Path | None) -> int:
+    """The paged kernels with a cache of their own per row: no page is read by two rows, so after a cold L2 the read comes from DRAM, as in an
+    engine's batch. Before timing, each kernel's output on the distinct cache must equal its output on the shared cache bit for bit."""
+    if out is not None and out.exists():
+        print(f"refusing to overwrite {out}", file=sys.stderr)
+        return 2
+    props = torch.cuda.get_device_properties(0)
+    flush_buf = torch.empty(256 << 20, dtype=torch.uint8, device=dev)
+    rows, ok = [], True
+    for (S, N, H) in ((32, 8192, 8), (64, 32768, 8), (32, 65536, 16)):
+        r, args = run_paged_case(mod, S, N, H, 200 + S, dev)
+        q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages, kv4, sfkv_u8 = args
+        kv_d, sf_d, bt_d = distinct_cache(kv_cache, sf_cache, block_table, 900 + S)
+        offs_k = mod.fp4_fp4_paged_mqa_logits_sm120_v6k_meta(ctx, max_pages)
+        meta_l = mod.fp4_fp4_paged_mqa_logits_sm120_v6l_meta(ctx, max_pages)
+        kernels = (("paged v6e", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6e(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages)),
+                   ("paged v6j", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6j(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages)),
+                   ("paged v6k", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6k(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages, offs_k)),
+                   ("paged v6l", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6l(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages, meta_l)))
+        logical = int(sum(min(int(c), max_pages * 64) for c in ctx.tolist())) * (64 + 4)
+        for label, fn in kernels:
+            o_sh = torch.full_like(out_t, float("-inf")); fn(kv_cache, sf_cache, block_table, o_sh)
+            o_d = torch.full_like(out_t, float("-inf")); fn(kv_d, sf_d, bt_d, o_d)
+            torch.cuda.synchronize()
+            same = bool(torch.equal(o_sh, o_d))
+            ok &= same
+            times = []
+            for _ in range(10):
+                flush_buf.fill_(1)
+                e0, e1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+                e0.record(); fn(kv_d, sf_d, bt_d, out_t); e1.record()
+                torch.cuda.synchronize()
+                times.append(e0.elapsed_time(e1) * 1000)
+            med = statistics.median(times)
+            rows.append({"kernel": label, "S": S, "N": N, "H": H, "ctx_sum": int(ctx.sum()), "us_median": med, "us_min": min(times),
+                         "cache_bytes_read": logical, "GBps": logical / med / 1e3, "distinct_equals_shared": same})
+            print(f"{label:10s} distinct cache S={S} N={N} H={H}: {med:.1f} us ({logical / med / 1e3:.0f} GB/s of the rows' pages), "
+                  f"bit-identical to the shared-cache run {same}", flush=True)
+    report = {"kernel": "fp4_fp4_paged_mqa_logits_sm120_v6*: the paged kernels with a cache of their own per row",
+              "device": props.name, "note": ("cold L2 (256 MB fill before each launch); median of 10; random context lengths per row (seeded); every row's pages "
+                                             "copied to distinct physical pages, so no page is read twice; the rate counts each row's live rows once (64 "
+                                             "bytes of codes and 4 of scales per row)"), "rows": rows}
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=1), encoding="utf-8")
+        print("->", out)
+    return 0 if ok else 1
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--bench", action="store_true")
     ap.add_argument("--out", type=Path)
     ap.add_argument("--bench-paged", action="store_true")
+    ap.add_argument("--bench-paged-distinct", action="store_true", help="the paged kernels with a cache of their own per row (DRAM-bound)")
     ap.add_argument("--ncu-shape", action="store_true", help="one launch of v6 and one of v6s on S 128 N 8192 H 8, for Nsight Compute")
     ap.add_argument("--out-paged", type=Path)
     ap.add_argument("--ncu-paged", action="store_true", help="one launch of the paged v6e and one of the flat v6e on S 64 N 32768 H 8, for Nsight Compute")
@@ -1793,6 +1857,8 @@ def main(argv=None) -> int:
         rc = rc or bench(mod, dev, a.out)
     if a.bench_paged:
         rc = rc or bench_paged(mod, dev, a.out_paged)
+    if a.bench_paged_distinct:
+        rc = rc or bench_paged_distinct(mod, dev, a.out_paged)
     if a.ncu_paged:
         # one launch each of the paged v6e and the flat v6e on the same kv (S 64, N 32768, H 8), for Nsight Compute
         r_, args = run_paged_case(mod, 64, 32768, 8, 264, dev)
