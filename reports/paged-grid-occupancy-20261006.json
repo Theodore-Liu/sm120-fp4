@@ -1,0 +1,80 @@
+{
+ "note": "How full the paged indexer's (row block, page) grid is under the benchmark's context lengths, computed on the CPU from the lengths alone.",
+ "rows": [
+  {
+   "S": 32,
+   "N": 8192,
+   "H": 8,
+   "max_pages": 127,
+   "blocks": 508,
+   "empty_blocks": 15,
+   "empty_share": 0.02952755905511811,
+   "live_warps": 2392,
+   "warps_launched": 4064,
+   "live_share_of_launched": 0.5885826771653543,
+   "mean_live_per_nonempty_block": 4.851926977687627,
+   "est_achieved_over_theoretical": 0.6064908722109533,
+   "live_warps_histogram": {
+    "0": 15,
+    "1": 34,
+    "2": 53,
+    "3": 73,
+    "4": 44,
+    "5": 68,
+    "6": 74,
+    "7": 103,
+    "8": 44
+   }
+  },
+  {
+   "S": 64,
+   "N": 32768,
+   "H": 8,
+   "max_pages": 510,
+   "blocks": 4080,
+   "empty_blocks": 329,
+   "empty_share": 0.08063725490196079,
+   "live_warps": 17775,
+   "warps_launched": 32640,
+   "live_share_of_launched": 0.5445772058823529,
+   "mean_live_per_nonempty_block": 4.738736336976806,
+   "est_achieved_over_theoretical": 0.5923420421221007,
+   "live_warps_histogram": {
+    "0": 329,
+    "1": 201,
+    "2": 441,
+    "3": 673,
+    "4": 363,
+    "5": 714,
+    "6": 381,
+    "7": 459,
+    "8": 519
+   }
+  },
+  {
+   "S": 32,
+   "N": 65536,
+   "H": 16,
+   "max_pages": 991,
+   "blocks": 3964,
+   "empty_blocks": 184,
+   "empty_share": 0.04641775983854692,
+   "live_warps": 15704,
+   "warps_launched": 31712,
+   "live_share_of_launched": 0.4952068617558022,
+   "mean_live_per_nonempty_block": 4.154497354497354,
+   "est_achieved_over_theoretical": 0.5193121693121693,
+   "live_warps_histogram": {
+    "0": 184,
+    "1": 730,
+    "2": 501,
+    "3": 415,
+    "4": 386,
+    "5": 419,
+    "6": 498,
+    "7": 548,
+    "8": 283
+   }
+  }
+ ]
+}
