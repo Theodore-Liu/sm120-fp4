@@ -969,6 +969,63 @@ def bench_paged(mod, dev, out: Path | None, half: bool = False, double: bool = F
     return 0
 
 
+def bench_paged_distinct(mod, dev, out: Path | None) -> int:
+    """bench_paged's shapes with every row's pages copied to physical pages of its own (values unchanged), so no page is read by two rows and the
+    read comes from DRAM after the cold-L2 fill, as in an engine's batch; each kernel's output on the distinct cache must equal its output on the
+    shared cache bit for bit before it is timed."""
+    if out is not None and out.exists():
+        print(f"refusing to overwrite {out}", file=sys.stderr)
+        return 2
+    props = torch.cuda.get_device_properties(0)
+    flush_buf = torch.empty(256 << 20, dtype=torch.uint8, device=dev)
+    rows, ok = [], True
+    for (S, N, H) in ((64, 8192, 8), (128, 16384, 8), (32, 65536, 16)):
+        q, kv, w, ks, ke = base.make_case(S, N, H, 400 + S, dev, full_span=True)
+        q8, sfq_packed = ref.per_token_cast_to_fp8(q.reshape(S * H, HEAD_DIM), use_ue8m0=True, gran_k=HEAD_DIM, use_packed_ue8m0=True)
+        sfq_f = ref.unpack_ue8m0_from_int(sfq_packed)[:, :1]
+        w = (w.float() * sfq_f.reshape(S, H)).to(torch.bfloat16)
+        sfq_u8 = torch.full((S, H), 127, dtype=torch.uint8, device=dev)
+        q8 = q8.reshape(S, H, HEAD_DIM).contiguous()
+        k8, k_scale = quantize_k_fp8(kv)
+        ctx = torch.full((S,), N, dtype=torch.int32, device=dev)
+        kv_cache, bt, max_pages = make_paged_fp8(k8, k_scale, S, ctx, 400 + S, dev)
+        g = torch.Generator().manual_seed(900 + S)
+        perm = torch.randperm(S * max_pages, generator=g).to(dev)
+        kv_d = torch.empty((S * max_pages,) + tuple(kv_cache.shape[1:]), dtype=kv_cache.dtype, device=dev)
+        kv_d[perm] = kv_cache[bt.reshape(-1).long()]
+        kv_d = kv_d.contiguous()
+        bt_d = perm.view(S, max_pages).to(torch.int32).contiguous()
+        out_full = torch.full((S, N), float("-inf"), device=dev, dtype=torch.float32)
+        for label, flags in (("paged v5 (full page)", {}), ("paged v5h (halves)", {"half": True}), ("paged v5r (raw-row halves)", {"raw": True}),
+                             ("paged v5s (raw-row quarters, double-buffered)", {"quarter": True})):
+            fn = paged_fn(mod, w, **flags)
+            o_sh = torch.full_like(out_full, float("-inf")); fn(q8, sfq_u8, kv_cache, w, ctx, bt, o_sh, max_pages)
+            o_d = torch.full_like(out_full, float("-inf")); fn(q8, sfq_u8, kv_d, w, ctx, bt_d, o_d, max_pages)
+            torch.cuda.synchronize()
+            same = bool(torch.equal(o_sh, o_d))
+            ok &= same
+            times = []
+            for _ in range(10):
+                flush_buf.fill_(1)
+                e0, e1 = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+                e0.record(); fn(q8, sfq_u8, kv_d, w, ctx, bt_d, out_full, max_pages); e1.record()
+                torch.cuda.synchronize()
+                times.append(e0.elapsed_time(e1) * 1000)
+            med = statistics.median(times)
+            rows.append({"kernel": label, "S": S, "N": N, "H": H, "us_median": med, "us_min": min(times), "cache_bytes": S * N * 132,
+                         "GBps": S * N * 132 / med / 1e3, "distinct_equals_shared": same})
+            print(f"{label:46s} distinct cache S={S} N={N} H={H}: {med:.1f} us ({S * N * 132 / med / 1e3:.0f} GB/s of cache rows), "
+                  f"bit-identical to the shared-cache run {same}", flush=True)
+    report = {"kernel": "fp8_paged_mqa_logits_sm120_v5*: the paged fp8 kernels with a cache of their own per row", "device": props.name,
+              "note": ("cold L2 (256 MB fill before each launch); median of 10; every row reads its whole context (ctx = N) from pages of its own, so "
+                       "no page is read twice; the rate counts the 132-byte cache rows each row reads"), "rows": rows}
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(report, indent=1), encoding="utf-8")
+        print("->", out)
+    return 0 if ok else 1
+
+
 def selftest(mod, dev) -> int:
     ok = True
     print("v5 (e4m3 k with an fp32 scale per row) against torch.einsum on the dequantised operands")
@@ -1025,6 +1082,7 @@ def main(argv=None) -> int:
     ap.add_argument("--double", action="store_true", help="--bench-paged times the register-prefetched halves (v5d)")
     ap.add_argument("--raw", action="store_true", help="--bench-paged times the raw-row staging (v5r)")
     ap.add_argument("--quarter", action="store_true", help="--bench-paged times the raw-row quarters double-buffered with cp.async (v5s)")
+    ap.add_argument("--bench-paged-distinct", action="store_true", help="the paged kernels with a cache of their own per row (DRAM-bound)")
     ap.add_argument("--out-paged", type=Path)
     a = ap.parse_args(argv)
     dev = torch.device("cuda")
@@ -1037,6 +1095,8 @@ def main(argv=None) -> int:
         rc = rc or bench(mod, dev, a.out, weights_fp32=a.fp32_weights)
     if a.bench_paged:
         rc = rc or bench_paged(mod, dev, a.out_paged, half=a.half, double=a.double, raw=a.raw, quarter=a.quarter)
+    if a.bench_paged_distinct:
+        rc = rc or bench_paged_distinct(mod, dev, a.out_paged)
     return rc
 
 
