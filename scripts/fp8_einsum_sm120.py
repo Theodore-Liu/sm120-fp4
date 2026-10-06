@@ -42,6 +42,7 @@ CPP = r"""
 void fp8_einsum_bhr_hdr_bhd_sm120_v0(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
 void fp8_einsum_bhr_hdr_bhd_sm120_v1(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
 void fp8_einsum_bhr_hdr_bhd_sm120_v2(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
+void fp8_einsum_bhr_hdr_bhd_sm120_v3(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
 """
 
 CUDA = r"""
@@ -371,14 +372,25 @@ void fp8_einsum_bhr_hdr_bhd_sm120_v2(torch::Tensor x, torch::Tensor sfx, torch::
   k_einsum_v2<64, 64><<<grid, 256, smem, st>>>(static_cast<const uint8_t*>(x.data_ptr()), sfx.data_ptr<uint8_t>(), static_cast<const uint8_t*>(y.data_ptr()),
                                                 sfy.data_ptr<uint8_t>(), reinterpret_cast<__nv_bfloat16*>(z.data_ptr()), B, H, D, R);
 }
+
+void fp8_einsum_bhr_hdr_bhd_sm120_v3(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z) {
+  check_args(x, sfx, y, sfy, z);
+  const int B = (int)x.size(0), H = (int)x.size(1), R = (int)x.size(2), D = (int)y.size(1);
+  TORCH_CHECK(D % 64 == 0, "D a multiple of 64");
+  auto st = at::cuda::getCurrentCUDAStream();
+  constexpr int smem = 2 * 64 * V1_STRIDE + 2 * 32 * V1_STRIDE;  // 27648
+  const dim3 grid(D / 64, (B + 31) / 32, H);
+  k_einsum_v2<64, 32><<<grid, 256, smem, st>>>(static_cast<const uint8_t*>(x.data_ptr()), sfx.data_ptr<uint8_t>(), static_cast<const uint8_t*>(y.data_ptr()),
+                                                sfy.data_ptr<uint8_t>(), reinterpret_cast<__nv_bfloat16*>(z.data_ptr()), B, H, D, R);
+}
 """
 
-KERNELS = ("v0", "v1", "v2")
+KERNELS = ("v0", "v1", "v2", "v3")
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_einsum_v2a", cpp_sources=CPP, cuda_sources=CUDA,
-                       functions=["fp8_einsum_bhr_hdr_bhd_sm120_v0", "fp8_einsum_bhr_hdr_bhd_sm120_v1", "fp8_einsum_bhr_hdr_bhd_sm120_v2"],
+    return load_inline(name="sm120fp4_fp8_einsum_v3a", cpp_sources=CPP, cuda_sources=CUDA,
+                       functions=["fp8_einsum_bhr_hdr_bhd_sm120_v0", "fp8_einsum_bhr_hdr_bhd_sm120_v1", "fp8_einsum_bhr_hdr_bhd_sm120_v2", "fp8_einsum_bhr_hdr_bhd_sm120_v3"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
 
@@ -494,7 +506,7 @@ def bench(mod, dev, out: Path | None, kernels=KERNELS) -> int:
                       "floor_us_at_1792": nbytes / 1792.0 / 1e3})
             rows.append(r)
             print(f"{kernel} B={B} H={H} D={D} R={R}: {med:.1f} us ({r['GBps']:.0f} GB/s, {r['TFLOPs']:.2f} TFLOP/s; floor {r['floor_us_at_1792']:.1f} us); rel Frobenius {r['rel_fro_err']:.1e}", flush=True)
-    report = {"kernel": "fp8_einsum_bhr_hdr_bhd_sm120 v0 (one warp per (h, 16 b rows, 8 d columns)), v1 (one 8-warp block per (h, 128 d columns, 128 b rows); y and x tiles staged in shared memory per 128-R block, double-buffered cp.async) and v2 (v1 with 64 d columns and 64 b rows per block)",
+    report = {"kernel": "fp8_einsum_bhr_hdr_bhd_sm120 v0 (one warp per (h, 16 b rows, 8 d columns)), v1 (one 8-warp block per (h, 128 d columns, 128 b rows); y and x tiles staged in shared memory per 128-R block, double-buffered cp.async) v2 (v1 with 64 d columns and 64 b rows per block) and v3 (v2 at 32 b rows per block)",
               "device": props.name,
               "note": "cold L2 (256 MB fill before each launch); median of 10; bytes = x e4m3 + y e4m3 + scales + bf16 z; floor at 1792 GB/s; y (H x D x R bytes) dominates the bytes; timed region holds the launch only (no host sync inside)", "rows": rows}
     if out is not None:

@@ -61,6 +61,11 @@ closes it. Dates are when an item was added, not estimates.
    per SM leave about half the SMs with one block (theoretical occupancy 33 percent, achieved 27), DRAM throughput 25 percent, L2 hit
    82 percent, long scoreboard 4.19 cycles per issue from the per-kb x scale read inside the compute loop; next, measured one at a time:
    a 32-row b chunk at large B (twice the blocks, y read four times from L2) and the x scales read ahead of the k32 steps.
+   The 32-row chunk first (v3, 2026-10-06: v2's template at TB 32, 27.6 KB; bit-identical, 20 tests pass): over three runs 31.5 to 32.4 /
+   41.7 to 42.7 / 93.2 to 94.0 us at B 8 / 32 / 128 against v2's 33.6 to 34.0 / 41.7 to 42.7 / 87.5 to 87.6 in the same runs
+   (reports/fp8-einsum-v3-rtx5090-20261006-run1..3.json): 1.04 to 1.08 times at B 8, level at B 32, 1.07 times slower at B 128, so
+   balancing the grid at B 128 costs more in re-read y than it gains; v2 stays the default, v3 kept for the measurement; next the
+   x scales read ahead of the k32 steps, on v2.
 
 ## Ready, in order
 
