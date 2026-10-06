@@ -230,7 +230,9 @@ done on the RTX 5090:
   on the others, and its remaining limit is occupancy set by 5.4 KB of shared memory per warp; quarter-page double buffers (v6i, 2.7 KB per warp,
   four blocks per SM) are bit-identical and 1.19 to 1.24 times v6e over three runs, 8.9 / 35.6 / 33.5 us against the paged v4's 13.2 / 54.0 / 54.0,
   the paged form to use (Nsight Compute: achieved occupancy 41.6 percent against 66.7 theoretical, registers and shared memory now both
-  capping it at four blocks, and 34 percent more instructions than v6e); `--selftest`, `--bench`,
+  capping it at four blocks, and 34 percent more instructions than v6e); v6j keeps v6i's buffers and runs a full quarter's two tiles unrolled without column masks,
+  the tail quarter alone on the masked path: bit-identical on seven shapes (H 8 to 32), 14.2 million instructions against v6i's 18.8 and
+  v6e's 14.0, four blocks per SM kept (62 registers), not yet timed; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.

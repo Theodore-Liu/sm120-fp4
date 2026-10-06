@@ -1,0 +1,70 @@
+==PROF== Connected to process 1183 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v6i": 0%....50%....100% - 3 passes
+==PROF== Profiling "k_paged_mqa_logits_v6j": 0%....50%....100% - 3 passes
+==PROF== Disconnected from process 1183
+[1183] python3.12@127.0.0.1
+  k_paged_mqa_logits_v6i(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ---------------------------------- --------------- ------------------------------
+    Metric Name                            Metric Unit                   Metric Value
+    ---------------------------------- --------------- ------------------------------
+    launch__occupancy_limit_registers            block                       4 (0: 4)
+    launch__occupancy_limit_shared_mem           block                       4 (0: 4)
+    launch__registers_per_thread       register/thread                     51 (0: 51)
+    sass__inst_executed_per_opcode                          18833523 (ISETP: 1768951;
+                                                                 IMAD: 1665381; IADD:
+                                                         1632673; LDS: 1490439; PRMT:
+                                                          1135456; BRA: 1082418; MOV:
+                                                          958495; NOP: 709762; BSYNC:
+                                                              585571; UIADD3: 585503;
+                                                          FMNMX: 567728; LEA: 514973;
+                                                           SHF: 458538; SHFL: 425796;
+                                                          FADD: 425796; BSSY: 372656;
+                                                           CS2R: 337189; S2R: 316572;
+                                                            SEL: 301639; LDG: 299265;
+                                                                LOP3: 299031; VIMNMX:
+                                                          283932; OMMA: 283864; FSEL:
+                                                          283864; FMUL: 283864; FFMA:
+                                                              283864; LDGSTS: 212949;
+                                                          LDCU: 207480; UMOV: 195291;
+                                                               LDC: 154038; WARPSYNC:
+                                                           141932; STG: 141932; EXIT:
+                                                                 100830; S2UR: 83055;
+                                                            LDGDEPBAR: 70983; DEPBAR:
+                                                            70983; USHF: 65280; ULEA:
+                                                                 17775; PLOP3: 17775)
+    smsp__inst_executed.sum                       inst                       18833523
+    ---------------------------------- --------------- ------------------------------
+
+  k_paged_mqa_logits_v6j(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ---------------------------------- --------------- ------------------------------
+    Metric Name                            Metric Unit                   Metric Value
+    ---------------------------------- --------------- ------------------------------
+    launch__occupancy_limit_registers            block                       4 (0: 4)
+    launch__occupancy_limit_shared_mem           block                       4 (0: 4)
+    launch__registers_per_thread       register/thread                     62 (0: 62)
+    sass__inst_executed_per_opcode                      14169165 (LDS: 1224165; PRMT:
+                                                         1135456; MOV: 1065082; IADD:
+                                                         959135; IMAD: 938141; ISETP:
+                                                          829153; BRA: 710043; FMNMX:
+                                                              567728; UIADD3: 496808;
+                                                         FADD: 496716; BSYNC: 479101;
+                                                           NOP: 461389; SHFL: 425796;
+                                                            LEA: 390690; LDG: 370185;
+                                                          BSSY: 283961; OMMA: 283864;
+                                                          FSEL: 283864; FMUL: 283864;
+                                                          FFMA: 283864; LOP3: 245706;
+                                                           SHF: 227931; LDCU: 225255;
+                                                         LDGSTS: 212949; STG: 212852;
+                                                           UMOV: 159741; LDC: 136380;
+                                                          USHF: 100830; EXIT: 100830;
+                                                             VIMNMX: 88758; WARPSYNC:
+                                                                 71012; IADD3: 71012;
+                                                            LDGDEPBAR: 70983; DEPBAR:
+                                                             70983; S2R: 68190; S2UR:
+                                                             65280; CS2R: 35734; SEL:
+                                                                 17959; PLOP3: 17775)
+    smsp__inst_executed.sum                       inst                       14169165
+    ---------------------------------- --------------- ------------------------------
+
