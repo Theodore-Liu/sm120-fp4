@@ -70,7 +70,8 @@ closes it. Dates are when an item was added, not estimates.
    several pages double-buffered (v6f) is bit-identical but slower or level at every group size: measured, the prefetch cuts the page wait from 5.91 to
    1.69 cycles per issue but halves occupancy (16.7 against 33.3 percent); half-page double buffers at v6e's occupancy (v6g) are bit-identical
    but slower on the two larger shapes (45.8 / 43.8 against 43.8 / 40.0 us): measured, the reloads of q, weights and scales per half add 19
-   percent instructions and 48 percent global load requests, outweighing the shorter wait; closed; the next paged lever is measured first; not wired while vLLM refuses the MXFP4 indexer cache on SM120), (3) the two-GPU end-to-end run, (4) the grouped GEMM after step 3 has a number.
+   percent instructions and 48 percent global load requests, outweighing the shorter wait; closed; v6h loads them once per head block and keeps
+   the overlap: bit-identical, 1.04 times v6e on S 64 N 32768 H 8 in three of three runs, level on the other two shapes; the next paged lever is measured first; not wired while vLLM refuses the MXFP4 indexer cache on SM120), (3) the two-GPU end-to-end run, (4) the grouped GEMM after step 3 has a number.
    Second reading 2026-10-03 (wiring doc 3b): the engine's k operand is MXFP4 with a UE8M0 scale per 32 along the head, or e4m3 with an
    fp32 row scale; ours is e2m1 with one UE8M0 scale per 128-wide row. The adapter therefore waits on a kernel variant (step 0: the
    per-32 scale fold, q's scale read from `weights`), which is the next piece of work on this item.

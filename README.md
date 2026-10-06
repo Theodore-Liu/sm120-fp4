@@ -226,7 +226,8 @@ done on the RTX 5090:
   warp with a prefetch (v6f) is bit-identical but slower or level at every group size: the prefetch works (page wait 5.91 to 1.69 cycles per
   issue) but the second buffer halves occupancy (16.7 against 33.3 percent); half-page double buffers at v6e's occupancy (v6g) are
   bit-identical and slower on the two larger shapes (the per-half reloads add 19 percent instructions and 48 percent global load requests),
-  so the paged v6e stays the paged form; `--selftest`, `--bench`,
+  and v6h, loading them once per head block while keeping the overlap, is bit-identical and 1.04 times v6e on one of three shapes in three runs, level
+  on the others; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
