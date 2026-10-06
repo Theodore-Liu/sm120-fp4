@@ -1,0 +1,23 @@
+==PROF== Connected to process 492 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_paged_mqa_logits_v6h": 0%....50%....100% - 11 passes
+==PROF== Disconnected from process 492
+[492] python3.12@127.0.0.1
+  k_paged_mqa_logits_v6h(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, float *, int, int, int, int) (8, 510, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    ------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                               Metric Unit Metric Value
+    ------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                  %         7.20
+    gpu__time_duration.sum                                                             us        43.39
+    l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum                                             387945
+    sm__throughput.avg.pct_of_peak_sustained_elapsed                                    %        29.71
+    sm__warps_active.avg.pct_of_peak_sustained_active                                   %        20.63
+    smsp__average_warp_latency_per_inst_issued.ratio                                cycle        10.00
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio         inst         3.84
+    smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio            inst         0.67
+    smsp__average_warps_issue_stalled_not_selected_per_issue_active.ratio            inst         0.27
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio        inst         1.20
+    smsp__average_warps_issue_stalled_wait_per_issue_active.ratio                    inst         2.03
+    smsp__inst_executed.sum                                                          inst     15588220
+    ------------------------------------------------------------------------- ----------- ------------
+
