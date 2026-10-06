@@ -55,6 +55,12 @@ closes it. Dates are when an item was added, not estimates.
    the form to use at every measured batch; y, the weights, is shared across b rows by the operation itself, so its L2 reuse is real here.
    The other benchmarks were checked for the shared-data problem the paged ones had: the flat indexer and the GEMMs read data every row
    shares by definition, so only the paged benchmarks needed a cache per row.
+   The einsum had no pytest test, so the nightly CI never ran it: tests/test_einsum.py (2026-10-06) checks v0, v1 and v2 on five shapes
+   (B 1 to 200, including B not a multiple of 16 or 64) against torch.einsum on the dequantised operands and v1 and v2 bit for bit
+   against v0; 15 pass. Nsight Compute on v2 at B 128 (reports/ncu-einsum-v2-b128-rtx5090-20261006.txt): 256 blocks on 170 SMs at two
+   per SM leave about half the SMs with one block (theoretical occupancy 33 percent, achieved 27), DRAM throughput 25 percent, L2 hit
+   82 percent, long scoreboard 4.19 cycles per issue from the per-kb x scale read inside the compute loop; next, measured one at a time:
+   a 32-row b chunk at large B (twice the blocks, y read four times from L2) and the x scales read ahead of the k32 steps.
 
 ## Ready, in order
 

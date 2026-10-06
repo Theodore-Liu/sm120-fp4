@@ -1,0 +1,74 @@
+==PROF== Connected to process 609 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+v0 B=8 H=8 D=1024 R=4096: 50.7 us (669 GB/s, 10.58 TFLOP/s; floor 18.9 us); rel Frobenius 1.7e-03
+v1 B=8 H=8 D=1024 R=4096: 55.0 us (618 GB/s, 9.77 TFLOP/s; floor 18.9 us); rel Frobenius 1.7e-03
+v2 B=8 H=8 D=1024 R=4096: 319.1 us (106 GB/s, 1.68 TFLOP/s; floor 18.9 us); rel Frobenius 1.7e-03
+v0 B=32 H=8 D=1024 R=4096: 73.7 us (477 GB/s, 29.13 TFLOP/s; floor 19.6 us); rel Frobenius 1.7e-03
+v1 B=32 H=8 D=1024 R=4096: 77.8 us (451 GB/s, 27.59 TFLOP/s; floor 19.6 us); rel Frobenius 1.7e-03
+v2 B=32 H=8 D=1024 R=4096: 314.5 us (112 GB/s, 6.83 TFLOP/s; floor 19.6 us); rel Frobenius 1.7e-03
+v0 B=128 H=8 D=1024 R=4096: 258.4 us (154 GB/s, 33.24 TFLOP/s; floor 22.3 us); rel Frobenius 1.7e-03
+v1 B=128 H=8 D=1024 R=4096: 196.7 us (203 GB/s, 43.67 TFLOP/s; floor 22.3 us); rel Frobenius 1.7e-03
+==PROF== Profiling "k_einsum_v2": 0%....50%....100% - 11 passes
+v2 B=128 H=8 D=1024 R=4096: 88.3 us (452 GB/s, 97.33 TFLOP/s; floor 22.3 us); rel Frobenius 1.7e-03
+==PROF== Disconnected from process 609
+[609] python3.12@127.0.0.1
+  void k_einsum_v2<64, 64>(const unsigned char *, const unsigned char *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, int, int, int, int) (16, 2, 8)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Command line profiler metrics
+    --------------------------------------------------------------------------- ----------- ------------
+    Metric Name                                                                 Metric Unit Metric Value
+    --------------------------------------------------------------------------- ----------- ------------
+    dram__throughput.avg.pct_of_peak_sustained_elapsed                                    %        25.35
+    gpu__time_duration.sum                                                               us        97.66
+    launch__grid_size                                                                                256
+    lts__t_sector_hit_rate.pct                                                            %        81.73
+    sm__pipe_tensor_op_hmma_cycles_active.avg.pct_of_peak_sustained_active                       (!) n/a
+    smsp__average_warps_issue_stalled_barrier_per_issue_active.ratio                   inst         0.88
+    smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio           inst         4.19
+    smsp__average_warps_issue_stalled_math_pipe_throttle_per_issue_active.ratio        inst         0.69
+    smsp__average_warps_issue_stalled_mio_throttle_per_issue_active.ratio              inst         0.24
+    smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio          inst         0.30
+    smsp__inst_executed.sum                                                            inst     27062272
+    --------------------------------------------------------------------------- ----------- ------------
+
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        13.98
+    SM Frequency                    Ghz         2.07
+    Elapsed Cycles                cycle       205787
+    Memory Throughput                 %        39.87
+    DRAM Throughput                   %        25.35
+    Duration                         us        97.66
+    L1/TEX Cache Throughput           %        56.72
+    L2 Cache Throughput               %        39.33
+    SM Active Cycles              cycle    142097.20
+    Compute (SM) Throughput           %        39.87
+    ----------------------- ----------- ------------
+
+    OPT   This kernel grid is too small to fill the available resources on this device, resulting in only 0.75 full     
+          waves across all SMs. Look at Launch Statistics for more details.                                             
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           24
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            4
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        27.15
+    Achieved Active Warps Per SM           warp        13.03
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 66.67%                                                                                    
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the required amount of      
+          shared memory.                                                                                                
+
