@@ -238,7 +238,10 @@ done on the RTX 5090:
   search): bit-identical on seven shapes, over three runs 8.9 / 30.8 to 31.3 / 27.4 to 27.5 us against v6j's 8.9 / 34.9 to 35.5 / 31.5
   (level, 1.12 to 1.13, 1.15 times), the paged form to use when the work list is shared across layers; the work list itself, one single-block
   scan launch, costs 2.8 us per batch (3.0 to 4.3 on a first call), so with the list counted once v6k is level on the smallest shape and
-  still ahead on the two larger ones; `--selftest`, `--bench`,
+  still ahead on the two larger ones; v6l writes the list out as packed (row, page) entries so a warp finds its pair with two
+  independent loads instead of a binary search: 8.9 / 29.4 / 27.4 us in all three runs against v6k's 8.9 / 30.4 to 31.5 / 27.4 to 28.9
+  (level, 1.03 to 1.07, level to 1.05), its list 5.0 to 6.8 us per batch against 2.8, so it pays only when the list is shared across
+  layers; `--selftest`, `--bench`,
   `--bench-paged`, `--ncu-shape`.
 - `scripts/fp8_fp4_gemm_sm120.py`: the GEMM in three versions, every one correct against the reference to bf16 output
 - `scripts/fp8_fp4_mqa_logits_sm120.py` — the FP8 x FP4 MQA-logits (indexer) kernel for SM120: v0 (one warp per query row), v1 (sixteen query rows x a 256-row kv segment per block, kv staged in shared memory) v2 (a tile rule, segment groups, a double-buffer arm) and v3 (the paged form: block tables and context lengths), all bit-identical and correct against DeepGEMM's test reference; `--selftest`, `--bench`.
@@ -301,7 +304,7 @@ einsum site, being FP8, stays last; the adoption items below come before its nex
 
 ## Status
 
-<!-- ci-status -->CI 2026-10-05: passed on 65ba8ae, 67 passed, 0 failed, 15 skipped in 12 s on NVIDIA GeForce RTX 5090 (driver 610.47, torch 2.13.0+cu130).
+<!-- ci-status -->CI 2026-10-06: passed on a4ee384, 67 passed, 0 failed, 15 skipped in 12 s on NVIDIA GeForce RTX 5090 (driver 610.47, torch 2.13.0+cu130).
 
 Stage 1 complete. Stage 2: the W4A16 decode layer is ahead of Marlin on seven of the eight measured rows of a real NVFP4
 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8

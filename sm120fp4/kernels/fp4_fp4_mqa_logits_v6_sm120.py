@@ -73,6 +73,10 @@ void fp4_fp4_paged_mqa_logits_sm120_v6k(torch::Tensor q, torch::Tensor sfq, torc
                                         torch::Tensor w, torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits,
                                         int64_t max_pages, torch::Tensor page_offs);
 torch::Tensor fp4_fp4_paged_mqa_logits_sm120_v6k_meta(torch::Tensor context_lens, int64_t max_pages);
+void fp4_fp4_paged_mqa_logits_sm120_v6l(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv_cache, torch::Tensor sf_cache,
+                                        torch::Tensor w, torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits,
+                                        int64_t max_pages, torch::Tensor meta);
+torch::Tensor fp4_fp4_paged_mqa_logits_sm120_v6l_meta(torch::Tensor context_lens, int64_t max_pages);
 """
 
 CUDA_V6 = r"""
@@ -1109,6 +1113,129 @@ torch::Tensor fp4_fp4_paged_mqa_logits_sm120_v6k_meta(torch::Tensor context_lens
     k_v6k_meta<<<1, 1024, 0, at::cuda::getCurrentCUDAStream()>>>(context_lens.data_ptr<int>(), offs.data_ptr<int>(), S, (int)max_pages);
   return offs;
 }
+// paged v6l: v6k with the work list written out, one packed (row << 16 | page) entry per live pair after the prefix sum, so a warp reads
+// its pair and the live total with two independent loads instead of a dependent binary search over the prefix sum.
+__global__ void __launch_bounds__(V3_WARPS * 32)
+k_paged_mqa_logits_v6l(const uint8_t* __restrict__ q, const uint8_t* __restrict__ sfq, const uint8_t* __restrict__ kv_cache,
+                       const uint8_t* __restrict__ sf_cache, const __nv_bfloat16* __restrict__ w, const int* __restrict__ ctx,
+                       const int* __restrict__ block_table, const int* __restrict__ meta, float* __restrict__ logits,
+                       int S, int H, int max_pages, int max_ctx) {
+  constexpr int QR = V3_PAGE / 4;
+  static_assert(QR * 4 == 64, "staging assumes two 16-byte copies per lane per quarter");
+  __shared__ __align__(16) uint8_t s_kv[V3_WARPS][2][QR * V6P_STRIDE];
+  __shared__ __align__(16) uint8_t s_sf[V3_WARPS][2][QR * 4];
+  const int tid = threadIdx.x, warp = tid >> 5, lane = tid & 31, g = lane >> 2, t = lane & 3;
+  const int wi = blockIdx.x * V3_WARPS + warp;
+  const int total = meta[S - 1];
+  const int packed = meta[S + wi];              // in bounds for every warp of the grid (the list has S x max_pages + 8 entries)
+  if (wi >= total) return;
+  const int i = packed >> 16, p = packed & 0xffff;
+  const int len = ctx[i];
+  const int pos0 = p * V3_PAGE;
+  if (pos0 >= len) return;
+  const int n_valid = min(V3_PAGE, len - pos0);
+  const int page = block_table[(size_t)i * max_pages + p];
+  const int nq = (n_valid + QR - 1) / QR;
+  const uint8_t* kv_page = kv_cache + (size_t)page * V3_PAGE * 64;
+  const uint8_t* sf_page = sf_cache + (size_t)page * V3_PAGE * 4;
+  const int r0 = lane >> 2, part = lane & 3;
+  const int dst0 = r0 * V6P_STRIDE + part * 16, dst1 = (r0 + 8) * V6P_STRIDE + part * 16;
+  const int src0 = r0 * 64 + part * 16, src1 = (r0 + 8) * 64 + part * 16;
+  auto stage = [&](int qi, int buf) {
+    const uint8_t* src = kv_page + qi * QR * 64;
+    cp_async_16(s_kv[warp][buf] + dst0, src + src0);
+    cp_async_16(s_kv[warp][buf] + dst1, src + src1);
+    if (lane < 4) cp_async_16(s_sf[warp][buf] + lane * 16, sf_page + qi * QR * 4 + lane * 16);
+    asm volatile("cp.async.commit_group;\n");
+  };
+  const uint8_t* qrow = q + (size_t)i * H * 64;
+  float* out = logits + (size_t)i * max_ctx + pos0;
+  for (int h0 = 0; h0 < H; h0 += 16) {
+    const int ha = h0 + g, hb = h0 + g + 8;
+    const bool has_a = ha < H, has_b = hb < H;
+    const float wa = has_a ? __bfloat162float(w[(size_t)i * H + ha]) : 0.f;
+    const float wb = has_b ? __bfloat162float(w[(size_t)i * H + hb]) : 0.f;
+    uint32_t af[2][4];
+    uint32_t sa[2];
+#pragma unroll
+    for (int st = 0; st < 2; ++st) {
+      const int b0 = st * 32;
+      af[st][0] = has_a ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)ha * 64 + b0 + 4 * t) : 0u;
+      af[st][1] = has_b ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)hb * 64 + b0 + 4 * t) : 0u;
+      af[st][2] = has_a ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)ha * 64 + b0 + 16 + 4 * t) : 0u;
+      af[st][3] = has_b ? *reinterpret_cast<const uint32_t*>(qrow + (size_t)hb * 64 + b0 + 16 + 4 * t) : 0u;
+      const int hs = (t == 0) ? ha : hb;
+      const bool hv = (t == 0) ? has_a : has_b;
+      sa[st] = (t < 2 && hv) ? (uint32_t)sfq[((size_t)i * H + hs) * 4 + 2 * st] | ((uint32_t)sfq[((size_t)i * H + hs) * 4 + 2 * st + 1] << 8)
+                             : 0x7F7Fu;
+    }
+    const bool first = (h0 == 0);
+    stage(0, 0);
+    for (int qi = 0; qi < nq; ++qi) {
+      const int buf = qi & 1;
+      if (qi + 1 < nq) { stage(qi + 1, buf ^ 1); asm volatile("cp.async.wait_group 1;\n"); }
+      else { asm volatile("cp.async.wait_group 0;\n"); }
+      __syncwarp();
+      const uint8_t* skv = s_kv[warp][buf];
+      const uint8_t* ssf = s_sf[warp][buf];
+      const int base = qi * QR;
+      const int n_here = n_valid - base;
+      if (n_here >= QR) {
+        v6j_tile<true>(skv, ssf, 0, QR, base, g, t, af, sa, wa, wb, first, out);
+        v6j_tile<true>(skv, ssf, 8, QR, base, g, t, af, sa, wa, wb, first, out);
+      } else {
+        for (int n0 = 0; n0 < n_here; n0 += 8) v6j_tile<false>(skv, ssf, n0, n_here, base, g, t, af, sa, wa, wb, first, out);
+      }
+      __syncwarp();   // this buffer is refilled two quarters from now; every lane is past it
+    }
+  }
+}
+
+void fp4_fp4_paged_mqa_logits_sm120_v6l(torch::Tensor q, torch::Tensor sfq, torch::Tensor kv_cache, torch::Tensor sf_cache,
+                                        torch::Tensor w, torch::Tensor context_lens, torch::Tensor block_table, torch::Tensor logits,
+                                        int64_t max_pages, torch::Tensor meta) {
+  const int S = (int)q.size(0), H = (int)q.size(1), max_ctx = (int)logits.size(1);
+  TORCH_CHECK(q.scalar_type() == torch::kInt8 && q.is_contiguous() && q.dim() == 3 && q.size(2) == 64, "q: packed e2m1 int8 [S, H, 64]");
+  TORCH_CHECK(sfq.scalar_type() == torch::kUInt8 && sfq.numel() == (int64_t)S * H * 4 && sfq.is_contiguous(), "sfq: uint8 UE8M0 [S, H, 4]");
+  TORCH_CHECK(kv_cache.scalar_type() == torch::kInt8 && kv_cache.is_contiguous() && kv_cache.dim() == 3 && kv_cache.size(1) == 64 && kv_cache.size(2) == 64,
+              "kv_cache: packed e2m1 int8 [num_blocks, 64, 64]");
+  TORCH_CHECK(sf_cache.scalar_type() == torch::kUInt8 && sf_cache.is_contiguous() && sf_cache.dim() == 3 && sf_cache.size(0) == kv_cache.size(0) && sf_cache.size(1) == 64 && sf_cache.size(2) == 4,
+              "sf_cache: uint8 UE8M0 [num_blocks, 64, 4]");
+  TORCH_CHECK(w.scalar_type() == torch::kBFloat16 && w.size(0) == S && w.size(1) == H && w.is_contiguous(), "weights: bf16 [S, H]");
+  TORCH_CHECK(context_lens.scalar_type() == torch::kInt && context_lens.numel() == S && context_lens.is_contiguous(), "context_lens: int32 [S]");
+  TORCH_CHECK(block_table.scalar_type() == torch::kInt && block_table.is_contiguous() && block_table.size(0) == S && block_table.size(1) == max_pages, "block_table: int32 [S, max_pages]");
+  TORCH_CHECK(logits.scalar_type() == torch::kFloat && logits.size(0) == S && logits.is_contiguous(), "logits: fp32 [S, max_context_len]");
+  TORCH_CHECK(S >= 1, "at least one row");
+  TORCH_CHECK(meta.scalar_type() == torch::kInt && meta.is_contiguous() && meta.numel() == (int64_t)S + (int64_t)S * max_pages + 8,
+              "meta: int32 [S + S x max_pages + 8], from fp4_fp4_paged_mqa_logits_sm120_v6l_meta");
+  const int64_t blocks = ((int64_t)S * max_pages + V3_WARPS - 1) / V3_WARPS;
+  TORCH_CHECK(blocks < (int64_t)INT32_MAX, "grid too large");
+  auto st = at::cuda::getCurrentCUDAStream();
+  k_paged_mqa_logits_v6l<<<dim3((unsigned)blocks), V3_WARPS * 32, 0, st>>>(
+      reinterpret_cast<const uint8_t*>(q.data_ptr<int8_t>()), sfq.data_ptr<uint8_t>(), reinterpret_cast<const uint8_t*>(kv_cache.data_ptr<int8_t>()),
+      sf_cache.data_ptr<uint8_t>(), reinterpret_cast<const __nv_bfloat16*>(w.data_ptr()), context_lens.data_ptr<int>(),
+      block_table.data_ptr<int>(), meta.data_ptr<int>(), logits.data_ptr<float>(), S, H, (int)max_pages, max_ctx);
+}
+
+// v6l's metadata: v6k's one-block scan into meta[0:S], then one block per row writes that row's packed entries at meta[S + offset].
+__global__ void k_v6l_fill(int* __restrict__ meta, int S) {
+  const int i = blockIdx.x;
+  const int start = i > 0 ? meta[i - 1] : 0, np = meta[i] - start;
+  for (int p = threadIdx.x; p < np; p += blockDim.x) meta[S + start + p] = (i << 16) | p;
+}
+
+torch::Tensor fp4_fp4_paged_mqa_logits_sm120_v6l_meta(torch::Tensor context_lens, int64_t max_pages) {
+  TORCH_CHECK(context_lens.scalar_type() == torch::kInt && context_lens.is_contiguous() && context_lens.is_cuda(), "context_lens: int32 [S] on the GPU");
+  const int S = (int)context_lens.numel();
+  TORCH_CHECK(S < 32768 && max_pages < 65536, "packed entries hold a row below 2^15 and a page below 2^16");
+  auto meta = torch::empty({(int64_t)S + (int64_t)S * max_pages + 8}, context_lens.options());
+  if (S > 0) {
+    auto st = at::cuda::getCurrentCUDAStream();
+    k_v6k_meta<<<1, 1024, 0, st>>>(context_lens.data_ptr<int>(), meta.data_ptr<int>(), S, (int)max_pages);
+    k_v6l_fill<<<S, 256, 0, st>>>(meta.data_ptr<int>(), S);
+  }
+  return meta;
+}
 """
 
 
@@ -1118,7 +1245,7 @@ def build(verbose: bool = False):
                        functions=["fp8_fp4_mqa_logits_sm120_v4", "fp4_fp4_mqa_logits_sm120_v6", "fp4_fp4_mqa_logits_sm120_v6s", "fp4_fp4_mqa_logits_sm120_v6e", "fp8_fp4_paged_mqa_logits_sm120_v4",
                                   "fp4_fp4_paged_mqa_logits_sm120_v6", "fp4_fp4_paged_mqa_logits_sm120_v6e",
                                   "fp4_fp4_paged_mqa_logits_sm120_v6f", "fp4_fp4_paged_mqa_logits_sm120_v6g",
-                                  "fp4_fp4_paged_mqa_logits_sm120_v6h", "fp4_fp4_paged_mqa_logits_sm120_v6i", "fp4_fp4_paged_mqa_logits_sm120_v6j", "fp4_fp4_paged_mqa_logits_sm120_v6k", "fp4_fp4_paged_mqa_logits_sm120_v6k_meta"],
+                                  "fp4_fp4_paged_mqa_logits_sm120_v6h", "fp4_fp4_paged_mqa_logits_sm120_v6i", "fp4_fp4_paged_mqa_logits_sm120_v6j", "fp4_fp4_paged_mqa_logits_sm120_v6k", "fp4_fp4_paged_mqa_logits_sm120_v6k_meta", "fp4_fp4_paged_mqa_logits_sm120_v6l", "fp4_fp4_paged_mqa_logits_sm120_v6l_meta"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
 
@@ -1322,8 +1449,13 @@ def run_paged_case(mod, S, N, H, seed, dev):
                                            mod.fp4_fp4_paged_mqa_logits_sm120_v6k_meta(ctx, max_pages))
     torch.cuda.synchronize()
     same_k = bool(torch.equal(ok_, oe))
-    res = {"S": S, "N": N, "H": H, "pages": int(kv_cache.shape[0]), "max_pages": max_pages, "bit_identical_to_flat_v6": same, "paged_v6e_bit_identical": same_e, "paged_v6f_bit_identical_g248": same_f, "paged_v6g_bit_identical": same_g, "paged_v6h_bit_identical": same_h, "paged_v6i_bit_identical": same_i, "paged_v6j_bit_identical": same_j, "paged_v6k_bit_identical": same_k,
-           "untouched_outside_context": untouched, "rel_max_err": rel, "pass": same and same_e and same_f and same_g and same_h and same_i and same_j and same_k and untouched and rel < 1e-5}
+    ol_ = torch.full((S, max_ctx), float("-inf"), device=dev, dtype=torch.float32)
+    mod.fp4_fp4_paged_mqa_logits_sm120_v6l(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, ol_, max_pages,
+                                           mod.fp4_fp4_paged_mqa_logits_sm120_v6l_meta(ctx, max_pages))
+    torch.cuda.synchronize()
+    same_l = bool(torch.equal(ol_, oe))
+    res = {"S": S, "N": N, "H": H, "pages": int(kv_cache.shape[0]), "max_pages": max_pages, "bit_identical_to_flat_v6": same, "paged_v6e_bit_identical": same_e, "paged_v6f_bit_identical_g248": same_f, "paged_v6g_bit_identical": same_g, "paged_v6h_bit_identical": same_h, "paged_v6i_bit_identical": same_i, "paged_v6j_bit_identical": same_j, "paged_v6k_bit_identical": same_k, "paged_v6l_bit_identical": same_l,
+           "untouched_outside_context": untouched, "rel_max_err": rel, "pass": same and same_e and same_f and same_g and same_h and same_i and same_j and same_k and same_l and untouched and rel < 1e-5}
     return res, (q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out, max_pages, kv4, sfkv_u8)
 
 
@@ -1343,7 +1475,7 @@ def selftest_paged(mod, dev) -> int:
         r, _ = run_paged_case(mod, S, N, H, seed, dev)
         ok &= r["pass"]
         print(f"  S={S} N={N} H={H} pages={r['pages']}: bit-identical to flat v6 {r['bit_identical_to_flat_v6']}, outside context untouched "
-              f"{r['untouched_outside_context']}, rel max err {r['rel_max_err']:.2e}, paged v6e bit-identical {r['paged_v6e_bit_identical']}, v6f (G 2/4/8) {r['paged_v6f_bit_identical_g248']}, v6g {r['paged_v6g_bit_identical']}, v6h {r['paged_v6h_bit_identical']}, v6i {r['paged_v6i_bit_identical']}, v6j {r['paged_v6j_bit_identical']}, v6k {r['paged_v6k_bit_identical']} -> {'ok' if r['pass'] else 'FAIL'}", flush=True)
+              f"{r['untouched_outside_context']}, rel max err {r['rel_max_err']:.2e}, paged v6e bit-identical {r['paged_v6e_bit_identical']}, v6f (G 2/4/8) {r['paged_v6f_bit_identical_g248']}, v6g {r['paged_v6g_bit_identical']}, v6h {r['paged_v6h_bit_identical']}, v6i {r['paged_v6i_bit_identical']}, v6j {r['paged_v6j_bit_identical']}, v6k {r['paged_v6k_bit_identical']}, v6l {r['paged_v6l_bit_identical']} -> {'ok' if r['pass'] else 'FAIL'}", flush=True)
     print("paged v6 selftest:", "ok" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -1364,8 +1496,11 @@ def bench_paged(mod, dev, out: Path | None) -> int:
         sfq8_u8 = (torch.round(torch.log2(ref.unpack_ue8m0_from_int(sfq8_packed)[:, :1])) + 127).clamp(0, 255).to(torch.uint8).reshape(S_, H_).contiguous()
         q8 = q8.reshape(S_, H_, HEAD_DIM).contiguous()
         offs_k = mod.fp4_fp4_paged_mqa_logits_sm120_v6k_meta(ctx, max_pages)
+        meta_l = mod.fp4_fp4_paged_mqa_logits_sm120_v6l_meta(ctx, max_pages)
         for label, fn in (("paged v6 (MXFP4 q)", lambda: mod.fp4_fp4_paged_mqa_logits_sm120_v6(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages)),
                           ("paged v6e (packed epilogue)", lambda: mod.fp4_fp4_paged_mqa_logits_sm120_v6e(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages)),
+                          ("paged v6l (v6k, packed list entries)", lambda: mod.fp4_fp4_paged_mqa_logits_sm120_v6l(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages, meta_l)),
+                          ("paged v6l work list (once per batch)", lambda: mod.fp4_fp4_paged_mqa_logits_sm120_v6l_meta(ctx, max_pages)),
                           ("paged v6k (v6j over a compacted (row, page) list)", lambda: mod.fp4_fp4_paged_mqa_logits_sm120_v6k(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages, offs_k)),
                           ("paged v6k work list (once per batch)", lambda: mod.fp4_fp4_paged_mqa_logits_sm120_v6k_meta(ctx, max_pages)),
                           ("paged v6j (v6i, full quarters unmasked)", lambda: mod.fp4_fp4_paged_mqa_logits_sm120_v6j(q4, sfq_u8, kv_cache, sf_cache, w, ctx, block_table, out_t, max_pages)),

@@ -1,4 +1,4 @@
-"""Bit-identity of the paged v6i, v6j and v6k against the paged v6e at H = 24 and 32, where both restage their quarters per head block (and v6j adds into
+"""Bit-identity of the paged v6i, v6j, v6k and v6l against the paged v6e at H = 24 and 32, where both restage their quarters per head block (and v6j adds into
 the logits after the first) (the path the module selftest, H <= 16, does
 not reach). Prints one line per case and exits non-zero on any mismatch.
 
@@ -21,8 +21,8 @@ mod = v6.build()
 ok = True
 for (S, N, H, seed) in ((8, 512, 32, 51), (16, 2048, 32, 52), (5, 700, 24, 53)):
     r, _ = v6.run_paged_case(mod, S, N, H, seed, dev)
-    good = r["paged_v6i_bit_identical"] and r["paged_v6j_bit_identical"] and r["paged_v6k_bit_identical"] and r["paged_v6e_bit_identical"]
+    good = r["paged_v6i_bit_identical"] and r["paged_v6j_bit_identical"] and r["paged_v6k_bit_identical"] and r["paged_v6l_bit_identical"] and r["paged_v6e_bit_identical"]
     ok &= good
-    print(f"S={S} N={N} H={H}: v6i bit-identical to v6e {r['paged_v6i_bit_identical']}, v6j {r['paged_v6j_bit_identical']}, v6k {r['paged_v6k_bit_identical']}, v6e to flat {r['bit_identical_to_flat_v6']} -> {'ok' if good else 'FAIL'}")
-print("v6i, v6j and v6k H > 16 check:", "ok" if ok else "FAIL")
+    print(f"S={S} N={N} H={H}: v6i bit-identical to v6e {r['paged_v6i_bit_identical']}, v6j {r['paged_v6j_bit_identical']}, v6k {r['paged_v6k_bit_identical']}, v6l {r['paged_v6l_bit_identical']}, v6e to flat {r['bit_identical_to_flat_v6']} -> {'ok' if good else 'FAIL'}")
+print("v6i, v6j, v6k and v6l H > 16 check:", "ok" if ok else "FAIL")
 sys.exit(0 if ok else 1)
