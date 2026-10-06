@@ -1071,10 +1071,43 @@ void fp4_fp4_paged_mqa_logits_sm120_v6k(torch::Tensor q, torch::Tensor sfq, torc
 }
 // v6k's work list: the inclusive prefix sum of each row's page count (clamped to max_pages as v6j's grid clamps it). Computed once per batch and
 // shared by every layer's call, as an engine computes its paged-attention schedule once per step.
+// One block of 1024 threads walks the rows in chunks of 1024: a warp-shuffle inclusive scan per warp, a scan of the 32 warp totals, and a running
+// carry between chunks, so the list costs one launch.
+__global__ void __launch_bounds__(1024) k_v6k_meta(const int* __restrict__ ctx, int* __restrict__ offs, int S, int max_pages) {
+  __shared__ int warp_tot[32];
+  __shared__ int carry;
+  const int tid = threadIdx.x, lane = tid & 31, wid = tid >> 5;
+  if (tid == 0) carry = 0;
+  __syncthreads();
+  for (int base = 0; base < S; base += 1024) {
+    const int i = base + tid;
+    int v = 0;
+    if (i < S) { const int c = ctx[i]; v = c > 0 ? min((c + V3_PAGE - 1) / V3_PAGE, max_pages) : 0; }
+#pragma unroll
+    for (int o = 1; o < 32; o <<= 1) { const int n = __shfl_up_sync(0xffffffffu, v, o); if (lane >= o) v += n; }
+    if (lane == 31) warp_tot[wid] = v;
+    __syncthreads();
+    if (wid == 0) {
+      int x = warp_tot[lane];
+#pragma unroll
+      for (int o = 1; o < 32; o <<= 1) { const int n = __shfl_up_sync(0xffffffffu, x, o); if (lane >= o) x += n; }
+      warp_tot[lane] = x;                       // inclusive over warps
+    }
+    __syncthreads();
+    if (i < S) offs[i] = carry + (wid > 0 ? warp_tot[wid - 1] : 0) + v;
+    __syncthreads();
+    if (tid == 0) carry += warp_tot[31];
+    __syncthreads();
+  }
+}
+
 torch::Tensor fp4_fp4_paged_mqa_logits_sm120_v6k_meta(torch::Tensor context_lens, int64_t max_pages) {
-  TORCH_CHECK(context_lens.scalar_type() == torch::kInt && context_lens.is_contiguous(), "context_lens: int32 [S]");
-  auto pages = at::clamp(at::floor_divide(context_lens + (V3_PAGE - 1), V3_PAGE), 0, max_pages);
-  return at::cumsum(pages, 0, at::kInt).contiguous();
+  TORCH_CHECK(context_lens.scalar_type() == torch::kInt && context_lens.is_contiguous() && context_lens.is_cuda(), "context_lens: int32 [S] on the GPU");
+  const int S = (int)context_lens.numel();
+  auto offs = torch::empty({S}, context_lens.options());
+  if (S > 0)
+    k_v6k_meta<<<1, 1024, 0, at::cuda::getCurrentCUDAStream()>>>(context_lens.data_ptr<int>(), offs.data_ptr<int>(), S, (int)max_pages);
+  return offs;
 }
 """
 
@@ -1296,6 +1329,15 @@ def run_paged_case(mod, S, N, H, seed, dev):
 
 def selftest_paged(mod, dev) -> int:
     ok = True
+    print("v6k work list (one-block scan) against torch.cumsum of the clamped page counts, int32, element for element")
+    gm = torch.Generator().manual_seed(77)
+    for (S_m, N_m, mp) in ((1, 100, 2), (33, 5000, 79), (1024, 70000, 1094), (1025, 70000, 1094), (5000, 200000, 2000), (3000, 640, 4)):
+        c_m = torch.randint(0, N_m + 1, (S_m,), generator=gm).to(torch.int32)
+        want = torch.cumsum(((c_m + 63) // 64).clamp(0, mp), 0).to(torch.int32)
+        got = mod.fp4_fp4_paged_mqa_logits_sm120_v6k_meta(c_m.to(dev), mp).cpu()
+        same_m = bool(torch.equal(got, want))
+        ok &= same_m
+        print(f"  S={S_m} max_pages={mp}: equal {same_m}", flush=True)
     print("paged v6 (80-byte row stride) against the flat v6 on the same kv through random page permutations, and against the reference")
     for (S, N, H, seed) in ((8, 512, 8, 21), (33, 2048, 8, 22), (64, 4096, 16, 23), (16, 1000, 8, 24)):
         r, _ = run_paged_case(mod, S, N, H, seed, dev)
