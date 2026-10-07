@@ -179,8 +179,10 @@ closes it. Dates are when an item was added, not estimates.
    method, which still drops the input scales at load: next, keep them, enable the hand-off, and run the 300
    retrieval items through the engine with a prefill above 16 tokens.
    Done 2026-10-07 behind `SM120FP4_PREFILL=cutlass` (the method keeps the checkpoint's input scales and enables the
-   hand-off): inside vLLM 0.28 (`SM120FP4_MOE=1 SM120FP4_PREFILL=cutlass`, `scripts/vllm_model_compare.py`, the engine log shows the hand-off enabled on all 48 routed-experts layers and called) the full model answers all 300 retrieval items, on the same items as stock vLLM, two runs identical on all 350 sequences, and generates the 350 prompts in 13.6 and 13.6 s against 20.5 s on the slices the same day (reports/vllm-compare-sm120-prefill-cutlass-20261007*.json, vllm-compare-sm120-slices-20261007.json). Open: whether to make it the default; prefill then runs W4A4 (as stock
-   vLLM does) and decode W4A16.
+   hand-off): inside vLLM 0.28 (`SM120FP4_MOE=1 SM120FP4_PREFILL=cutlass`, `scripts/vllm_model_compare.py`, the engine log shows the hand-off enabled on all 48 routed-experts layers and called) the full model answers all 300 retrieval items, on the same items as stock vLLM, two runs identical on all 350 sequences, and generates the 350 prompts in 13.6 and 13.6 s against 20.5 s on the slices the same day (reports/vllm-compare-sm120-prefill-cutlass-20261007*.json, vllm-compare-sm120-slices-20261007.json). Made the default the same day (SM120FP4_PREFILL=slices keeps the slices; a checkpoint
+   without input scales falls back to them): the engine run with the defaults matches the explicit run on all 350
+   sequences (reports/vllm-compare-sm120-default-20261007.json). Prefill runs W4A4 as stock vLLM does, decode W4A16.
+   Item 8 closed by the hand-off; a prefill kernel of our own stays open only if a measurement asks for it.
 9. **Report the b12x W4A4 nondeterminism upstream** (2026-10-01). `reports/b12x-nondeterminism-rtx5090-2026-09-29.json`
    and `docs/stage2-baselines.md`: 20 identical calls, 20 outputs, 1.8 to 3.8% apart; the atomic scatter the source
    describes plus a lost or duplicated 8-column group in 2 of 100 calls. The issue text is drafted for the maintainer

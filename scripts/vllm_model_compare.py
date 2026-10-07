@@ -69,8 +69,8 @@ def run(a) -> int:
     import torch
     from vllm import LLM, SamplingParams
     mode = "sm120" if os.environ.get("SM120FP4_MOE") == "1" else "stock"
-    if mode == "sm120" and os.environ.get("SM120FP4_PREFILL") == "cutlass":
-        mode = "sm120-prefill-cutlass"
+    if mode == "sm120":
+        mode = "sm120-prefill-slices" if os.environ.get("SM120FP4_PREFILL") == "slices" else "sm120-prefill-cutlass"
     reg = None
     try:
         from vllm.model_executor.layers.quantization import get_quantization_config

@@ -37,7 +37,7 @@ from types import SimpleNamespace
 import torch
 
 ENV = "SM120FP4_MOE"
-PREFILL_ENV = "SM120FP4_PREFILL"  # "cutlass": batches above MAXM tokens go to FlashInfer's CUTLASS W4A4 MoE; unset: slices
+PREFILL_ENV = "SM120FP4_PREFILL"  # unset or "cutlass": batches above MAXM tokens go to FlashInfer's CUTLASS W4A4 MoE; "slices": slices of MAXM
 _HANDOFF = {"enabled": 0, "called": 0}  # per process: layers with the hand-off enabled, hand-off calls made
 METHOD_NAME = "modelopt_fp4"  # the name vLLM resolves ModelOpt NVFP4 checkpoints to; re-registered under the opt-in
 MAXM = 16  # the FC2 kernels take at most 16 tokens per call
@@ -53,7 +53,12 @@ def enabled() -> bool:
 
 
 def prefill_mode() -> str:
-    return "cutlass" if os.environ.get(PREFILL_ENV, "") == "cutlass" else "slices"
+    """"cutlass" (the default) or "slices" (SM120FP4_PREFILL=slices)."""
+    return "slices" if os.environ.get(PREFILL_ENV, "") == "slices" else "cutlass"
+
+
+def prefill_explicit() -> bool:
+    return os.environ.get(PREFILL_ENV, "") == "cutlass"
 
 
 def kernels() -> SimpleNamespace:
