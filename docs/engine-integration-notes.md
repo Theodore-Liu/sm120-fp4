@@ -62,6 +62,7 @@ kernels need, and the design chosen before any code is written. Line references 
   (each slice is a full MoE forward over its tokens), slow for prefill (the weights are re-read once per slice; a
   2,048-token prompt is 128 slices), stated in the README as a decode backend. Backlog item 5 (a prefill kernel or a
   documented hand-off) replaces this.
+  Measured 2026-10-07 (`scripts/real_ckpt_layer.py --prefill`): over three runs (reports/real-ckpt-layer0-prefill-rtx5090-20261007-run1..3.json) the backend's sliced path costs 298.8 to 299.7 / 599.8 to 601.3 / 1154.8 to 1156.6 us at 32 / 64 / 128 randomly routed tokens against Marlin's 217.9 to 218.9 / 242.4 to 242.7 / 254.9 to 255.7 on the whole batch, 1.37 / 2.47 / 4.53 times, bit-identical over 50 calls and at the decode rows' error (2.0e-3 against Marlin's 3.7e-3); each slice re-reads every routed expert's weights, so the cost grows with the slice count while Marlin's barely moves.
 - Alternative kept open: hand prefill to FlashInfer's CUTLASS W4A4 path, which reads the same codes but needs the
   128x4-swizzled scale layout (`sm120fp4.layouts.to_128x4`); that is a second copy of the scales only (1/16 of the
   codes), not of the codes, and is the direction if slicing proves too slow for first-token latency.

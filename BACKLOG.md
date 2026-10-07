@@ -165,6 +165,11 @@ closes it. Dates are when an item was added, not estimates.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
+   State 2026-10-07: the slicing fallback measured (`scripts/real_ckpt_layer.py --prefill`, the engine's own
+   `vllm_backend.Weights.forward`); over three runs (reports/real-ckpt-layer0-prefill-rtx5090-20261007-run1..3.json) the backend's sliced path costs 298.8 to 299.7 / 599.8 to 601.3 / 1154.8 to 1156.6 us at 32 / 64 / 128 randomly routed tokens against Marlin's 217.9 to 218.9 / 242.4 to 242.7 / 254.9 to 255.7 on the whole batch, 1.37 / 2.47 / 4.53 times, bit-identical over 50 calls and at the decode rows' error (2.0e-3 against Marlin's 3.7e-3); each slice re-reads every routed expert's weights, so the cost grows with the slice count while Marlin's barely moves; so slicing is no prefill path, and the hand-off is the
+   direction: Marlin needs a repacked second copy of the codes that does not fit beside the model
+   (`docs/engine-integration-notes.md`), FlashInfer's CUTLASS W4A4 needs only the 128x4 scales; next, that path
+   timed at 32, 64 and 128 tokens on the same weights.
 9. **Report the b12x W4A4 nondeterminism upstream** (2026-10-01). `reports/b12x-nondeterminism-rtx5090-2026-09-29.json`
    and `docs/stage2-baselines.md`: 20 identical calls, 20 outputs, 1.8 to 3.8% apart; the atomic scatter the source
    describes plus a lost or duplicated 8-column group in 2 of 100 calls. The issue text is drafted for the maintainer

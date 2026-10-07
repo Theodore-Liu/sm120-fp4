@@ -67,6 +67,8 @@ def main(argv=None) -> int:
                     help="where the layer uses the prefetch FC2, also time it with 8 warps x 1 group, 8 warps x 2 groups "
                          "and 4 warps x 2 groups in the same session (the single-kernel benches with activations warm "
                          "put one group ahead), on random and concentrated routing")
+    ap.add_argument("--prefill", action="store_true",
+                    help="also time the engine's path for 32, 64 and 128 tokens (vllm_backend.Weights.forward: slices of at most 16) beside Marlin")
     ap.add_argument("--fc1-sweep", action="store_true",
                     help="also time the layer with FC1 forced to the CUDA-core kernel and to the tensor-core kernel at "
                          "every token count (the choice up to 8 tokens was made on random routing), on random and "
@@ -319,6 +321,44 @@ def main(argv=None) -> int:
     report["marlin_available"] = have_marlin
     if not have_marlin:
         report["marlin_unavailable"] = marlin_unavailable
+    if a.prefill:
+        # the engine's path above 16 tokens, exactly as vLLM calls it: one Weights object, forward() slices the batch into
+        # runs of at most 16 tokens on the same resident weights; Marlin takes the whole batch in one call
+        from sm120fp4 import vllm_backend as vb
+        wb = vb.Weights(w["q1"], w["s1"].view(e_n, 2 * i, h // 16), alpha1, w["q2"], w["s2"].view(e_n, h, i // 16), alpha2, k)
+        for m in (32, 64, 128):
+            g = torch.Generator().manual_seed(2000 + m)
+            x = torch.randn(m, h, generator=g).to(device=dev, dtype=torch.bfloat16)
+            wts, ids = torch.topk(F.softmax(torch.randn(m, e_n, generator=g), dim=-1), k, dim=-1)
+            wts = (wts / wts.sum(-1, keepdim=True)).float().to(dev).contiguous()
+            ids = ids.to(torch.int32).to(dev).contiguous()
+            out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
+            outm = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
+
+            def sliced():
+                wb.forward(x, ids, wts, out)
+
+            def marlin_full():
+                fused_marlin_moe(x, mw13, mw2, None, None, ms13, ms2, wts, ids, qid, global_num_experts=e_n,
+                                 global_scale1=mg13, global_scale2=mg2, workspace=lay.workspace, output=outm)
+
+            sliced()
+            if have_marlin:
+                marlin_full()
+            torch.cuda.synchronize()
+            ref = bench.reference(x, w, ids, wts, i, act_quant=False)
+            first = out.clone()
+            stable = True
+            for _ in range(50):
+                sliced()
+                stable = stable and bool(torch.equal(out, first))
+            row = {"tokens": m, "path": "vllm_backend.Weights.forward, slices of at most 16", "slices": (m + 15) // 16,
+                   "rel_err": float((out.float() - ref).norm() / ref.norm()),
+                   "marlin_rel_err": float((outm.float() - ref).norm() / ref.norm()) if have_marlin else None,
+                   "bit_identical_50": stable, "layer_us": floor.graph_time(sliced),
+                   "marlin_us": floor.graph_time(marlin_full) if have_marlin else None}
+            print(json.dumps(row), flush=True)
+            report["rows"].append(row)
     args_out(a.out, report)
     return 0
 
