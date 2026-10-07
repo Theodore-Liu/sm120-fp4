@@ -43,6 +43,7 @@ void fp8_einsum_bhr_hdr_bhd_sm120_v0(torch::Tensor x, torch::Tensor sfx, torch::
 void fp8_einsum_bhr_hdr_bhd_sm120_v1(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
 void fp8_einsum_bhr_hdr_bhd_sm120_v2(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
 void fp8_einsum_bhr_hdr_bhd_sm120_v3(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
+void fp8_einsum_bhr_hdr_bhd_sm120_v4(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z);
 """
 
 CUDA = r"""
@@ -258,7 +259,7 @@ void fp8_einsum_bhr_hdr_bhd_sm120_v1(torch::Tensor x, torch::Tensor sfx, torch::
 // v2: v1's staging and accumulation order with a TN-column d tile and a TB-row b chunk (8 warps; warp w owns columns 8J w .. 8J w + 8J - 1, J = TN/64
 // n8 tiles). TN = TB = 64 halves v1's shared memory (36.9 KB), so two blocks fit an SM, and doubles the grid along d for the small batches where
 // v1's 64-block grid leaves SMs idle; bit-identical to v0 and v1 (each element's kb, k32 and scale order is unchanged).
-template <int TN, int TB>
+template <int TN, int TB, bool PRE = false>
 __global__ void __launch_bounds__(256)
 k_einsum_v2(const uint8_t* __restrict__ x, const uint8_t* __restrict__ sfx, const uint8_t* __restrict__ y,
             const uint8_t* __restrict__ sfy, __nv_bfloat16* __restrict__ z, int B, int H, int D, int R) {
@@ -294,6 +295,15 @@ k_einsum_v2(const uint8_t* __restrict__ x, const uint8_t* __restrict__ sfx, cons
   cp_async_commit();
   for (int kb = 0; kb < nkb; ++kb) {
     const int buf = kb & 1;
+    float pre0[MT], pre1[MT];                       // v4: this k block's x scales for every m tile, loaded before the copy wait
+    if constexpr (PRE) {
+      #pragma unroll
+      for (int m = 0; m < MT; ++m) {
+        const int r0 = bbase + m * 16 + g, r1 = r0 + 8;
+        pre0[m] = r0 < B ? ue8m0_to_float(sfx[((size_t)r0 * H + h) * nkb + kb]) : 0.f;
+        pre1[m] = r1 < B ? ue8m0_to_float(sfx[((size_t)r1 * H + h) * nkb + kb]) : 0.f;
+      }
+    }
     if (kb + 1 < nkb) {
       stage(kb + 1, buf ^ 1);
       cp_async_commit();
@@ -331,8 +341,8 @@ k_einsum_v2(const uint8_t* __restrict__ x, const uint8_t* __restrict__ sfx, cons
         }
       }
       const int row0 = bbase + m * 16 + g, row1 = row0 + 8;
-      const float sx0 = row0 < B ? ue8m0_to_float(sfx[((size_t)row0 * H + h) * nkb + kb]) : 0.f;
-      const float sx1 = row1 < B ? ue8m0_to_float(sfx[((size_t)row1 * H + h) * nkb + kb]) : 0.f;
+      const float sx0 = PRE ? pre0[m] : (row0 < B ? ue8m0_to_float(sfx[((size_t)row0 * H + h) * nkb + kb]) : 0.f);
+      const float sx1 = PRE ? pre1[m] : (row1 < B ? ue8m0_to_float(sfx[((size_t)row1 * H + h) * nkb + kb]) : 0.f);
       #pragma unroll
       for (int j = 0; j < J; ++j) {
         acc[m][j][0] += part[j][0] * (sx0 * sy);
@@ -383,14 +393,25 @@ void fp8_einsum_bhr_hdr_bhd_sm120_v3(torch::Tensor x, torch::Tensor sfx, torch::
   k_einsum_v2<64, 32><<<grid, 256, smem, st>>>(static_cast<const uint8_t*>(x.data_ptr()), sfx.data_ptr<uint8_t>(), static_cast<const uint8_t*>(y.data_ptr()),
                                                 sfy.data_ptr<uint8_t>(), reinterpret_cast<__nv_bfloat16*>(z.data_ptr()), B, H, D, R);
 }
+
+void fp8_einsum_bhr_hdr_bhd_sm120_v4(torch::Tensor x, torch::Tensor sfx, torch::Tensor y, torch::Tensor sfy, torch::Tensor z) {
+  check_args(x, sfx, y, sfy, z);
+  const int B = (int)x.size(0), H = (int)x.size(1), R = (int)x.size(2), D = (int)y.size(1);
+  TORCH_CHECK(D % 64 == 0, "D a multiple of 64");
+  auto st = at::cuda::getCurrentCUDAStream();
+  constexpr int smem = 2 * 64 * V1_STRIDE + 2 * 64 * V1_STRIDE;  // 36864
+  const dim3 grid(D / 64, (B + 63) / 64, H);
+  k_einsum_v2<64, 64, true><<<grid, 256, smem, st>>>(static_cast<const uint8_t*>(x.data_ptr()), sfx.data_ptr<uint8_t>(), static_cast<const uint8_t*>(y.data_ptr()),
+                                                      sfy.data_ptr<uint8_t>(), reinterpret_cast<__nv_bfloat16*>(z.data_ptr()), B, H, D, R);
+}
 """
 
-KERNELS = ("v0", "v1", "v2", "v3")
+KERNELS = ("v0", "v1", "v2", "v3", "v4")
 
 
 def build(verbose: bool = False):
-    return load_inline(name="sm120fp4_fp8_einsum_v3a", cpp_sources=CPP, cuda_sources=CUDA,
-                       functions=["fp8_einsum_bhr_hdr_bhd_sm120_v0", "fp8_einsum_bhr_hdr_bhd_sm120_v1", "fp8_einsum_bhr_hdr_bhd_sm120_v2", "fp8_einsum_bhr_hdr_bhd_sm120_v3"],
+    return load_inline(name="sm120fp4_fp8_einsum_v4a", cpp_sources=CPP, cuda_sources=CUDA,
+                       functions=["fp8_einsum_bhr_hdr_bhd_sm120_v0", "fp8_einsum_bhr_hdr_bhd_sm120_v1", "fp8_einsum_bhr_hdr_bhd_sm120_v2", "fp8_einsum_bhr_hdr_bhd_sm120_v3", "fp8_einsum_bhr_hdr_bhd_sm120_v4"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
 
@@ -506,7 +527,7 @@ def bench(mod, dev, out: Path | None, kernels=KERNELS) -> int:
                       "floor_us_at_1792": nbytes / 1792.0 / 1e3})
             rows.append(r)
             print(f"{kernel} B={B} H={H} D={D} R={R}: {med:.1f} us ({r['GBps']:.0f} GB/s, {r['TFLOPs']:.2f} TFLOP/s; floor {r['floor_us_at_1792']:.1f} us); rel Frobenius {r['rel_fro_err']:.1e}", flush=True)
-    report = {"kernel": "fp8_einsum_bhr_hdr_bhd_sm120 v0 (one warp per (h, 16 b rows, 8 d columns)), v1 (one 8-warp block per (h, 128 d columns, 128 b rows); y and x tiles staged in shared memory per 128-R block, double-buffered cp.async) v2 (v1 with 64 d columns and 64 b rows per block) and v3 (v2 at 32 b rows per block)",
+    report = {"kernel": "fp8_einsum_bhr_hdr_bhd_sm120 v0 (one warp per (h, 16 b rows, 8 d columns)), v1 (one 8-warp block per (h, 128 d columns, 128 b rows); y and x tiles staged in shared memory per 128-R block, double-buffered cp.async) v2 (v1 with 64 d columns and 64 b rows per block) v3 (v2 at 32 b rows per block) and v4 (v2 with the x scales loaded at the top of each k block)",
               "device": props.name,
               "note": "cold L2 (256 MB fill before each launch); median of 10; bytes = x e4m3 + y e4m3 + scales + bf16 z; floor at 1792 GB/s; y (H x D x R bytes) dominates the bytes; timed region holds the launch only (no host sync inside)", "rows": rows}
     if out is not None:

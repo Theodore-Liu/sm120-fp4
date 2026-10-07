@@ -27,7 +27,7 @@ def einsum(device):
     return mod, mod.build()
 
 
-@pytest.mark.parametrize("kernel", ("v0", "v1", "v2", "v3"))
+@pytest.mark.parametrize("kernel", ("v0", "v1", "v2", "v3", "v4"))
 @pytest.mark.parametrize("B,H,D,R,seed", [(1, 4, 128, 256, 1), (5, 8, 256, 512, 2), (33, 8, 512, 2048, 5), (8, 16, 1024, 4096, 6), (200, 4, 256, 1024, 7)])
 def test_einsum_matches_reference_and_v0(device, einsum, kernel, B, H, D, R, seed):
     mod, built = einsum

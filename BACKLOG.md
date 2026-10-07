@@ -66,6 +66,12 @@ closes it. Dates are when an item was added, not estimates.
    (reports/fp8-einsum-v3-rtx5090-20261006-run1..3.json): 1.04 to 1.08 times at B 8, level at B 32, 1.07 times slower at B 128, so
    balancing the grid at B 128 costs more in re-read y than it gains; v2 stays the default, v3 kept for the measurement; next the
    x scales read ahead of the k32 steps, on v2.
+   v4 (2026-10-06: v2 with every m tile's x scales for the k block loaded at the top of the k-block iteration; bit-identical, 25 tests
+   pass): over three runs 35.6 to 37.0 / 43.3 to 43.8 / 86.8 to 87.0 us against v2's 35.5 to 35.6 / 41.7 / 88.7 to 88.8 in the same
+   runs (reports/fp8-einsum-v4-rtx5090-20261006-run1..3.json): level, 1.04 to 1.05 times slower, 1.02 times faster; the scale
+   reads the profiler showed as long-scoreboard stalls are not what bounds the kernel, a recorded negative; v2 stays the default.
+   v2's own times drift between sessions (B 8: 31.5 to 34.0 earlier today, 35.5 to 35.6 here), so variants are compared within
+   one run only.
 
 ## Ready, in order
 
