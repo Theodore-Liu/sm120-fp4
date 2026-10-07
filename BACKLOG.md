@@ -170,6 +170,9 @@ closes it. Dates are when an item was added, not estimates.
    direction: Marlin needs a repacked second copy of the codes that does not fit beside the model
    (`docs/engine-integration-notes.md`), FlashInfer's CUTLASS W4A4 needs only the 128x4 scales; next, that path
    timed at 32, 64 and 128 tokens on the same weights.
+   Measured 2026-10-07: on the baseline bench's weights (scripts/bench_moe_baseline.py --tokens 32,64,128, CUDA graph, L2 flushed; reports/moe-baseline-prefill-rtx5090-20261007-run1..3.json), FlashInfer's CUTLASS W4A4 takes 256.6 to 257.6 / 284.4 to 286.5 / 292.6 to 294.7 us at 32 / 64 / 128 tokens and b12x W4A4 237.2 to 237.3 / 278.3 to 280.3 / 302.8 to 304.9, against Marlin's 220.9 / 249.6 to 250.5 / 254.9 to 255.2 in the same runs (1.14 to 1.16 and 1.07 to 1.19 times Marlin); Marlin here matches Marlin on the checkpoint's weights (217.9 to 218.9 / 242.4 to 242.7 / 254.9 to 255.7), so the ratios carry across the two benches; the W4A4 paths quantize the activations (normwise error against unquantized activations 0.157 to 0.158, W4A16's 0.0045 to 0.0046, on these weights); so a CUTLASS W4A4 hand-off would cost about 1.15 times Marlin at prefill against
+   the slicing fallback's 1.37 to 4.53; next, the hand-off wired in the backend (the 128x4 scale copy at load, the
+   CUTLASS call above 16 tokens) and checked on the 300 retrieval items.
 9. **Report the b12x W4A4 nondeterminism upstream** (2026-10-01). `reports/b12x-nondeterminism-rtx5090-2026-09-29.json`
    and `docs/stage2-baselines.md`: 20 identical calls, 20 outputs, 1.8 to 3.8% apart; the atomic scatter the source
    describes plus a lost or duplicated 8-column group in 2 of 100 calls. The issue text is drafted for the maintainer
