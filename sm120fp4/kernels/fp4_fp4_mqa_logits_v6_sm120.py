@@ -1805,7 +1805,11 @@ def bench_paged_distinct(mod, dev, out: Path | None) -> int:
         kernels = (("paged v6e", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6e(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages)),
                    ("paged v6j", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6j(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages)),
                    ("paged v6k", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6k(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages, offs_k)),
-                   ("paged v6l", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6l(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages, meta_l)))
+                   ("paged v6l", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6l(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages, meta_l)),
+                   # several pages of one row per warp: q, weights and scales read once per warp instead of once per page (about 13 percent of
+                   # the bytes at H 8 on the distinct cache), at the occupancy cost v6f measured on the shared cache
+                   ("paged v6f G=2", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6f(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages, 2)),
+                   ("paged v6f G=4", lambda kv, sf, bt, o: mod.fp4_fp4_paged_mqa_logits_sm120_v6f(q4, sfq_u8, kv, sf, w, ctx, bt, o, max_pages, 4)))
         logical = int(sum(min(int(c), max_pages * 64) for c in ctx.tolist())) * (64 + 4)
         for label, fn in kernels:
             o_sh = torch.full_like(out_t, float("-inf")); fn(kv_cache, sf_cache, block_table, o_sh)
