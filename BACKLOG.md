@@ -152,6 +152,11 @@ closes it. Dates are when an item was added, not estimates.
    tests without the shard) in 11 s on f033af8. The 15 skips are `tests/test_mm_fp4.py` on FlashInfer's `mm_fp4` backends (cuDNN, TensorRT-LLM, CuTe DSL), which the
    pinned FlashInfer 0.6.16.post3 declines on this device; that is stage 1's finding, not a CI defect, and the report now
    groups the skip reasons so a reader sees it. A self-hosted runner remains the step after.
+   Gap closed 2026-10-06: the item names the stage-3 selftests, but the nightly runs `pytest tests/` only, so until today none of
+   them ran in CI. tests/test_einsum.py (the einsum, v0 to v4, 25 cases) and tests/test_kernel_selftests.py (each module's own
+   `main(["--selftest"])`: the UE8M0 reference, the FP8xFP4 GEMM, the indexer v0 to v3, v4, the fp4 v6 family with its paged forms,
+   and the fp8 v5 family; 6 cases, 129 checks printed ok in one run, 4 s with the extensions cached) now carry them into the
+   suite the nightly runs.
 7. **Stage 2, 8 to 16 tokens against FlashInfer's `compute_120f` grouped path by a stated margin** (2026-10-02). The
    gate clause not met: at 16 tokens the layer is level with Marlin and FlashInfer W4A16. The remaining gap is FC2
    against its own byte floor (`docs/stage2-design.md`); the candidate is a tensor-core FC2 that keeps two blocks per
