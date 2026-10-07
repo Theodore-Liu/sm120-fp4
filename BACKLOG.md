@@ -157,6 +157,7 @@ closes it. Dates are when an item was added, not estimates.
    `main(["--selftest"])`: the UE8M0 reference, the FP8xFP4 GEMM, the indexer v0 to v3, v4, the fp4 v6 family with its paged forms,
    and the fp8 v5 family; 6 cases, 129 checks printed ok in one run, 4 s with the extensions cached) now carry them into the
    suite the nightly runs.
+   Fixed 2026-10-07: the nightly's commit had failed since 2026-10-06 (WSL's git has no author identity, `empty ident name`; it has no push credential either), so the 10-06 and 10-07 reports and the README line stayed staged while the task reported CI_RC=1; ci_nightly.py --stage-only now stages them and writes the message, and run-ci-nightly.cmd commits and pushes with the Windows git (absolute path). The 10-07 run itself passed: 98 passed (the einsum's 25 and the six selftest modules included), 15 skipped.
 7. **Stage 2, 8 to 16 tokens against FlashInfer's `compute_120f` grouped path by a stated margin** (2026-10-02). The
    gate clause not met: at 16 tokens the layer is level with Marlin and FlashInfer W4A16. The remaining gap is FC2
    against its own byte floor (`docs/stage2-design.md`); the candidate is a tensor-core FC2 that keeps two blocks per

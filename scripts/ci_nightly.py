@@ -12,7 +12,8 @@ Runs under WSL in the pinned vLLM 0.28 venv:
    committed and pushed from the working copy.
 
     ~/mlsys-5090-runtime/vllm028/.venv/bin/python scripts/ci_nightly.py            # run and write the report
-    ~/mlsys-5090-runtime/vllm028/.venv/bin/python scripts/ci_nightly.py --push     # the scheduled task's form
+    ~/mlsys-5090-runtime/vllm028/.venv/bin/python scripts/ci_nightly.py --stage-only   # the scheduled task's form: run-ci-nightly.cmd then
+                                                                                    # commits and pushes with the Windows git
 """
 from __future__ import annotations
 
@@ -107,6 +108,7 @@ def write_status(line: str) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--push", action="store_true", help="commit the report and the README line and push from the working copy")
+    ap.add_argument("--stage-only", action="store_true", help="stage the report and the README line and write the commit message to reports/ci/.commit_msg, for a git outside WSL to commit and push (the scheduled task's form)")
     ap.add_argument("--force", action="store_true", help="run even when the GPU reads busy (a hand run)")
     a = ap.parse_args()
     import torch
@@ -139,6 +141,11 @@ def main() -> int:
     write_status(line)
     print(line)
     print("->", out)
+    if a.stage_only:
+        rel = out.relative_to(WORK).as_posix()
+        sh(["git", "add", rel, "README.md"], cwd=WORK)
+        (rep_dir / ".commit_msg").write_text(f"CI {date}: {rec['outcome']} on {commit[:7]} ({gpu['device']})\n\nreports/ci/{date}.json written by scripts/ci_nightly.py; the README's CI status line updated.\n", encoding="utf-8")
+        print("staged; message in reports/ci/.commit_msg")
     if a.push:
         rel = out.relative_to(WORK).as_posix()
         sh(["git", "add", rel, "README.md"], cwd=WORK)
