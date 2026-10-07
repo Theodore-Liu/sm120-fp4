@@ -13,7 +13,7 @@ from vllm.model_executor.layers.fused_moe.fused_moe_method_base import FusedMoEM
 from vllm.model_executor.layers.fused_moe.routed_experts import RoutedExperts
 from vllm.model_executor.layers.quantization.modelopt import ModelOptNvFp4Config, ModelOptNvFp4FusedMoE
 
-from sm120fp4.vllm_backend import HIDDEN, INTERMEDIATES, Weights, _log, kernels, weights_from_vllm_layout
+from sm120fp4.vllm_backend import HIDDEN, INTERMEDIATES, Weights, _log, kernels, prefill_mode, weights_from_vllm_layout
 
 
 class ModelOptNvFp4FusedMoESM120(ModelOptNvFp4FusedMoE):
@@ -66,6 +66,12 @@ class ModelOptNvFp4FusedMoESM120(ModelOptNvFp4FusedMoE):
                                                 layer.w2_weight_scale.data, layer.w2_weight_scale_2.data,
                                                 int(layer.top_k))
         w = self.weights
+        # the CUTLASS W4A4 hand-off above MAXM tokens (SM120FP4_PREFILL=cutlass) needs the checkpoint's activation input scales, read
+        # here before they are dropped below
+        if prefill_mode() == "cutlass":
+            if getattr(layer, "w13_input_scale", None) is None or getattr(layer, "w2_input_scale", None) is None:
+                raise ValueError("SM120FP4_PREFILL=cutlass needs the checkpoint's w13_input_scale and w2_input_scale")
+            w.enable_cutlass_prefill(layer.w13_input_scale.data, layer.w2_input_scale.data)
         # Keep the parameters the engine may introspect, in the kernels' layout, as plain non-trainable parameters;
         # the activation scales of a W4A4 path are not used by W4A16 kernels.
         for name, t in (("w13_weight", w.q1), ("w13_weight_scale", w.s1.view(torch.float8_e4m3fn)),

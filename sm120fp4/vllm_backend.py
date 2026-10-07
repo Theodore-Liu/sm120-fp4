@@ -37,6 +37,8 @@ from types import SimpleNamespace
 import torch
 
 ENV = "SM120FP4_MOE"
+PREFILL_ENV = "SM120FP4_PREFILL"  # "cutlass": batches above MAXM tokens go to FlashInfer's CUTLASS W4A4 MoE; unset: slices
+_HANDOFF = {"enabled": 0, "called": 0}  # per process: layers with the hand-off enabled, hand-off calls made
 METHOD_NAME = "modelopt_fp4"  # the name vLLM resolves ModelOpt NVFP4 checkpoints to; re-registered under the opt-in
 MAXM = 16  # the FC2 kernels take at most 16 tokens per call
 HIDDEN = 2048  # scripts/fc1_w4a16.py and fc1_mma.py are specialised to this hidden size
@@ -48,6 +50,10 @@ _KERNELS: SimpleNamespace | None = None
 
 def enabled() -> bool:
     return os.environ.get(ENV, "") == "1"
+
+
+def prefill_mode() -> str:
+    return "cutlass" if os.environ.get(PREFILL_ENV, "") == "cutlass" else "slices"
 
 
 def kernels() -> SimpleNamespace:
@@ -129,6 +135,9 @@ class Weights:
             raise ValueError("the input scales must be finite and positive")
         self.cut_scales = [(1.0 / a1).reshape(()), cut_s1, (self.alpha1 * a1).contiguous(),
                            (1.0 / a2).reshape(()), cut_s2, (self.alpha2 * a2).contiguous()]
+        _HANDOFF["enabled"] += 1
+        if _HANDOFF["enabled"] == 1:
+            _log("CUTLASS W4A4 prefill hand-off enabled above %d tokens (first layer)" % MAXM)
 
     def forward(self, x: torch.Tensor, topk_ids: torch.Tensor, topk_weights: torch.Tensor, out: torch.Tensor | None = None,
                 pdl: bool | None = None) -> torch.Tensor:
@@ -148,6 +157,9 @@ class Weights:
             from flashinfer import fused_moe as fm
             fm.cutlass_fused_moe(x, ids, wts, self.q1.view(torch.long), self.q2.view(torch.long), torch.bfloat16,
                                  quant_scales=self.cut_scales, output=out)
+            _HANDOFF["called"] += 1
+            if _HANDOFF["called"] == 1:
+                _log(f"CUTLASS W4A4 prefill hand-off: first call, {m} tokens; {_HANDOFF['enabled']} layers enabled")
             return out
         for s in range(0, m, MAXM):
             e = min(m, s + MAXM)
