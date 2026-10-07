@@ -326,6 +326,14 @@ def main(argv=None) -> int:
         # runs of at most 16 tokens on the same resident weights; Marlin takes the whole batch in one call
         from sm120fp4 import vllm_backend as vb
         wb = vb.Weights(w["q1"], w["s1"].view(e_n, 2 * i, h // 16), alpha1, w["q2"], w["s2"].view(e_n, h, i // 16), alpha2, k)
+        # the CUTLASS W4A4 hand-off on the same codes, with the checkpoint's own activation input scales
+        wc = vb.Weights(w["q1"], w["s1"].view(e_n, 2 * i, h // 16), alpha1, w["q2"], w["s2"].view(e_n, h, i // 16), alpha2, k)
+        in1 = torch.tensor([float(fq.get_tensor(f"{pre}{ex}.gate_proj.input_scale").float()) for ex in range(e_n)])
+        in1u = torch.tensor([float(fq.get_tensor(f"{pre}{ex}.up_proj.input_scale").float()) for ex in range(e_n)])
+        in2 = torch.tensor([float(fq.get_tensor(f"{pre}{ex}.down_proj.input_scale").float()) for ex in range(e_n)])
+        report["cutlass_input_scales"] = {"fc1_max": float(torch.maximum(in1, in1u).max()), "fc1_min": float(torch.minimum(in1, in1u).min()),
+                                          "fc2_max": float(in2.max()), "fc2_min": float(in2.min())}
+        wc.enable_cutlass_prefill(torch.maximum(in1, in1u), in2)
         for m in (32, 64, 128):
             g = torch.Generator().manual_seed(2000 + m)
             x = torch.randn(m, h, generator=g).to(device=dev, dtype=torch.bfloat16)
@@ -337,6 +345,11 @@ def main(argv=None) -> int:
 
             def sliced():
                 wb.forward(x, ids, wts, out)
+
+            outc = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
+
+            def cutlass_full():
+                wc.forward(x, ids, wts, outc)
 
             def marlin_full():
                 fused_marlin_moe(x, mw13, mw2, None, None, ms13, ms2, wts, ids, qid, global_num_experts=e_n,
@@ -357,6 +370,15 @@ def main(argv=None) -> int:
                    "marlin_rel_err": float((outm.float() - ref).norm() / ref.norm()) if have_marlin else None,
                    "bit_identical_50": stable, "layer_us": floor.graph_time(sliced),
                    "marlin_us": floor.graph_time(marlin_full) if have_marlin else None}
+            cutlass_full()
+            torch.cuda.synchronize()
+            firstc = outc.clone()
+            stable_c = True
+            for _ in range(20):
+                cutlass_full()
+                stable_c = stable_c and bool(torch.equal(outc, firstc))
+            row.update({"cutlass_rel_err": float((firstc.float() - ref).norm() / ref.norm()), "cutlass_all_finite": bool(torch.isfinite(firstc).all()),
+                        "cutlass_bit_identical_20": stable_c, "cutlass_us": floor.graph_time(cutlass_full)})
             print(json.dumps(row), flush=True)
             report["rows"].append(row)
     args_out(a.out, report)

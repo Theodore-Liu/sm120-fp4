@@ -107,6 +107,28 @@ class Weights:
         self.act = torch.empty(pmax, self.I, dtype=torch.bfloat16, device=dev)
         self.scratch = torch.zeros(4 * MAXM * self.H, dtype=torch.float32, device=dev)
         self.counters = torch.zeros(self.H // 16, dtype=torch.int32, device=dev)
+        self.cut_scales = None  # set by enable_cutlass_prefill: the hand-off above MAXM tokens
+
+    def enable_cutlass_prefill(self, a1_scale: torch.Tensor, a2_scale: torch.Tensor) -> None:
+        """Above MAXM tokens, hand the batch to FlashInfer's CUTLASS W4A4 MoE on the same codes, instead of slices of MAXM: the slices
+        re-read every routed expert's weights once per slice (1.37 / 2.47 / 4.53 times Marlin at 32 / 64 / 128 tokens on the checkpoint's
+        layer 0, reports/real-ckpt-layer0-prefill-rtx5090-20261007-run1..3.json), the CUTLASS path reads them once (about 1.15 times Marlin,
+        reports/moe-baseline-prefill-rtx5090-20261007-run1..3.json). It needs a second copy of the block scales in the per-expert 128x4
+        layout (1/16 of the codes' bytes) and the activations' global scales: the checkpoint's input scales of FC1 and FC2, the largest over
+        the experts, folded into the per-expert alphas as FlashInfer's NVFP4 MoE expects (alpha = weight_scale_2 x input_scale, activation
+        global scale = 1 / input_scale). FC1's rows stay [up ; gate], the order the kernels and FlashInfer's CUTLASS path share."""
+        from .layouts import to_128x4
+        e, i, h = self.E, self.I, self.H
+        s1 = self.s1.view(e, 2 * i, h // 16)
+        s2 = self.s2.view(e, h, i // 16)
+        cut_s1 = torch.stack([to_128x4(s1[x]) for x in range(e)]).contiguous().view(torch.int32)
+        cut_s2 = torch.stack([to_128x4(s2[x]) for x in range(e)]).contiguous().view(torch.int32)
+        a1 = a1_scale.float().max().to(self.alpha1.device)
+        a2 = a2_scale.float().max().to(self.alpha2.device)
+        if not (torch.isfinite(a1) and torch.isfinite(a2) and float(a1) > 0 and float(a2) > 0):
+            raise ValueError("the input scales must be finite and positive")
+        self.cut_scales = [(1.0 / a1).reshape(()), cut_s1, (self.alpha1 * a1).contiguous(),
+                           (1.0 / a2).reshape(()), cut_s2, (self.alpha2 * a2).contiguous()]
 
     def forward(self, x: torch.Tensor, topk_ids: torch.Tensor, topk_weights: torch.Tensor, out: torch.Tensor | None = None,
                 pdl: bool | None = None) -> torch.Tensor:
@@ -122,6 +144,11 @@ class Weights:
         wts = topk_weights.to(torch.float32).contiguous()
         if out is None:
             out = torch.empty_like(x)
+        if m > MAXM and self.cut_scales is not None:
+            from flashinfer import fused_moe as fm
+            fm.cutlass_fused_moe(x, ids, wts, self.q1.view(torch.long), self.q2.view(torch.long), torch.bfloat16,
+                                 quant_scales=self.cut_scales, output=out)
+            return out
         for s in range(0, m, MAXM):
             e = min(m, s + MAXM)
             self._slice(k, x[s:e], ids[s:e], wts[s:e], out[s:e], pdl)
