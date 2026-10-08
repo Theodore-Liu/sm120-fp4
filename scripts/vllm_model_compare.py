@@ -71,6 +71,8 @@ def run(a) -> int:
     mode = "sm120" if os.environ.get("SM120FP4_MOE") == "1" else "stock"
     if mode == "sm120":
         mode = "sm120-prefill-slices" if os.environ.get("SM120FP4_PREFILL") == "slices" else "sm120-prefill-cutlass"
+    if os.environ.get("SM120FP4_INDEXER") == "1":
+        mode += "+indexer"
     reg = None
     try:
         from vllm.model_executor.layers.quantization import get_quantization_config
@@ -79,7 +81,7 @@ def run(a) -> int:
         reg = f"unavailable: {type(exc).__name__}"
     t0 = time.time()
     llm = LLM(model=a.model, max_model_len=a.max_model_len, gpu_memory_utilization=a.gpu_mem, max_num_seqs=BATCH,
-              enforce_eager=a.enforce_eager, seed=0,
+              enforce_eager=a.enforce_eager, seed=0, tensor_parallel_size=a.tp,
               attention_config={"backend": a.attention_backend} if a.attention_backend else None)
     load_s = time.time() - t0
     ps = prompts()
@@ -100,7 +102,7 @@ def run(a) -> int:
     n_ret = sum(r["kind"] == "retrieval" for r in rows)
     report = {"model": a.model, "mode": mode, "modelopt_fp4_resolves_to": reg, "device": torch.cuda.get_device_name(0),
               "vllm": __import__("vllm").__version__, "torch": torch.__version__, "new_tokens": NEW_TOKENS, "batch": BATCH,
-              "max_model_len": a.max_model_len, "enforce_eager": a.enforce_eager, "attention_backend": a.attention_backend, "load_s": load_s, "generate_s": gen_s,
+              "max_model_len": a.max_model_len, "enforce_eager": a.enforce_eager, "tensor_parallel_size": a.tp, "attention_backend": a.attention_backend, "load_s": load_s, "generate_s": gen_s,
               "prompts": len(rows), "retrieval_correct": sum(bool(r["correct"]) for r in rows), "retrieval_items": n_ret,
               "rows": rows}
     a.out.parent.mkdir(parents=True, exist_ok=True)
@@ -146,6 +148,7 @@ def main(argv=None) -> int:
     r.add_argument("--model", default=MODEL)
     r.add_argument("--max-model-len", type=int, default=1024)
     r.add_argument("--gpu-mem", type=float, default=0.85)
+    r.add_argument("--tp", type=int, default=1, help="tensor_parallel_size (step 3 runs DeepSeek-V4-Flash at 2)")
     r.add_argument("--enforce-eager", action="store_true", help="no CUDA graphs (the plugin's kernels set PDL per call)")
     r.add_argument("--attention-backend", default="TRITON_ATTN",
                    help="vLLM attention backend (attention_config.backend); FLASHINFER is chosen by default on this host but its XQA "

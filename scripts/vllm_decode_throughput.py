@@ -53,7 +53,7 @@ def run(a) -> int:
         print(f"refusing to overwrite {a.out}", file=sys.stderr)
         return 2
     llm = LLM(model=a.model, max_model_len=512, gpu_memory_utilization=a.gpu_mem, max_num_seqs=max(CONCURRENCY),
-              enforce_eager=a.enforce_eager, seed=0, enable_prefix_caching=False,
+              enforce_eager=a.enforce_eager, seed=0, tensor_parallel_size=a.tp, enable_prefix_caching=False,
               attention_config={"backend": a.attention_backend} if a.attention_backend else None)
 
     def timed(ps, t_new):
@@ -79,7 +79,7 @@ def run(a) -> int:
                      "decode_tokens_per_s": dec, "decode_step_ms": 1000 * (ml - ms) / (T_LONG - T_SHORT)})
         print(f"{mode} N={n}: short {ms:.3f}s long {ml:.3f}s -> {dec:.1f} decode tok/s, {rows[-1]['decode_step_ms']:.2f} ms/step", flush=True)
     report = {"model": a.model, "mode": mode, "device": torch.cuda.get_device_name(0), "vllm": __import__("vllm").__version__,
-              "torch": torch.__version__, "attention_backend": a.attention_backend, "enforce_eager": a.enforce_eager,
+              "torch": torch.__version__, "attention_backend": a.attention_backend, "enforce_eager": a.enforce_eager, "tensor_parallel_size": a.tp,
               "t_short": T_SHORT, "t_long": T_LONG, "repeats": a.repeats, "prompt_words": 48, "rows": rows}
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps(report, indent=1), encoding="utf-8")
@@ -109,6 +109,7 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path)
     ap.add_argument("--model", default=MODEL)
     ap.add_argument("--gpu-mem", type=float, default=0.85)
+    ap.add_argument("--tp", type=int, default=1, help="tensor_parallel_size (step 3 runs DeepSeek-V4-Flash at 2)")
     ap.add_argument("--repeats", type=int, default=3)
     ap.add_argument("--enforce-eager", action="store_true")
     ap.add_argument("--attention-backend", default="TRITON_ATTN")

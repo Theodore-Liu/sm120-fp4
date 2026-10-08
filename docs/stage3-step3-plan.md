@@ -52,6 +52,9 @@ rate), then the measured pod attached to that volume.
    `sm_120a`).
 2. Serve with the fallback, run the 300 items and a 4k-prompt throughput point: the engine works on this build (the public record says
    it does at 96 percent memory utilisation with the FP8 KV cache).
+   The three engine scripts (`vllm_model_compare.py`, `vllm_prefill_latency.py`, `vllm_decode_throughput.py`) take `--tp 2` since
+   2026-10-08 and record `tensor_parallel_size` in their reports; the model comparison records `+indexer` in its mode when
+   `SM120FP4_INDEXER=1` is set, so the two 300-item runs are told apart by the report itself.
 3. Serve with `SM120FP4_INDEXER=1`, confirm the log line that the adapter bound, run the same 300 items.
 4. The throughput table, fallback and ours, paired.
 5. Harvest the report into `reports/` (the pod's log, the 300-item diff, the throughput JSON), commit, terminate the pod (the convention

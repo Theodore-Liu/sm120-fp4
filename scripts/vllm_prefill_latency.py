@@ -51,7 +51,7 @@ def run(a) -> int:
         print(f"refusing to overwrite {a.out}", file=sys.stderr)
         return 2
     llm = LLM(model=a.model, max_model_len=2048, gpu_memory_utilization=a.gpu_mem, max_num_seqs=16,
-              enforce_eager=a.enforce_eager, seed=0, enable_prefix_caching=False,
+              enforce_eager=a.enforce_eager, seed=0, tensor_parallel_size=a.tp, enable_prefix_caching=False,
               attention_config={"backend": a.attention_backend} if a.attention_backend else None)
     sp = SamplingParams(temperature=0.0, max_tokens=1, min_tokens=1, ignore_eos=True)
 
@@ -79,7 +79,7 @@ def run(a) -> int:
                      "median_wall_s": med, "prefill_tokens_per_s": total / med})
         print(f"{mode} N={n} L~{total // n}: {med:.3f}s -> {total / med:.0f} prefill tok/s", flush=True)
     report = {"model": a.model, "mode": mode, "device": torch.cuda.get_device_name(0), "vllm": __import__("vllm").__version__,
-              "torch": torch.__version__, "attention_backend": a.attention_backend, "enforce_eager": a.enforce_eager, "repeats": a.repeats,
+              "torch": torch.__version__, "attention_backend": a.attention_backend, "enforce_eager": a.enforce_eager, "tensor_parallel_size": a.tp, "repeats": a.repeats,
               "note": "wall time of generate() for N prompts with max_tokens=1: one prefill of the batch plus one decode step and the call overhead",
               "rows": rows}
     a.out.parent.mkdir(parents=True, exist_ok=True)
@@ -110,6 +110,7 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path)
     ap.add_argument("--model", default=MODEL)
     ap.add_argument("--gpu-mem", type=float, default=0.85)
+    ap.add_argument("--tp", type=int, default=1, help="tensor_parallel_size (step 3 runs DeepSeek-V4-Flash at 2)")
     ap.add_argument("--repeats", type=int, default=3)
     ap.add_argument("--enforce-eager", action="store_true")
     ap.add_argument("--attention-backend", default="TRITON_ATTN")
