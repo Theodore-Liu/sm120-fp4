@@ -194,6 +194,16 @@ closes it. Dates are when an item was added, not estimates.
    kernel's 16.4 us must then come from its other change, half as many column tiles walking the experts' routing (offsets, pairs, weights,
    alpha per expert per warp), which is the per-expert overhead the chain variant also targets. A recorded negative; the kernel stays as a
    measured form, not wired. The remaining lever for the 16-token row is that per-expert, per-warp routing work.
+   Measured 2026-10-08 (`scripts/fc2_cols32.py` gains `build(chain=True)`: the prefetch kernel's routing prefetch, Meta and load_meta verbatim, on the
+   32-column kernel; reports/fc2-cols32-chain-rtx5090-20261008.json, same session as the plain 32-column and the 16-column prefetch kernels, graph
+   replay, L2 flushed): bit-identical to the plain 32-column kernel at every G and shape (it changes only when loads are issued), and within the
+   timer's noise, 16 random tokens 87.8 against 93.4 (G 1), 72.4 against 75.5 (G 2), 74.5 against 72.4 (G 4) us; 8 tokens 45.8 against 47.9 (G 2),
+   47.9 against 45.9 (G 4); concentrated routing at 16 tokens 19.2 to 21.2 against 21.2 to 24.1. So loading the routing one expert ahead is worth at
+   most about 3 us where it helps and costs about 2 where it does not, on a kernel whose best row is 72.4 us against a 49.9 us read of its codes. The
+   per-expert routing loads are not the remaining 22 us either; with the activation re-read (fc2_xs) and the routing chain both measured and level,
+   what is left between the 32-column kernel and its read floor is the arithmetic and the warp reductions per pair, the instruction-bound part the
+   fc2_chain breakdown named (math-only 47.9 at 16 random tokens with every load removed, 35.6 with the activations made rather than read). The
+   option stays in the bench, off; the layer's choice is unchanged.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
