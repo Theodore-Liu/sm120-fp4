@@ -1,0 +1,50 @@
+==WARNING== Note: Running with uncontrolled GPU caches. Profiling results may be inconsistent.
+==WARNING== Note: Running with unmodified GPU clocks. If not controlled otherwise, profiling results may be inconsistent.
+==PROF== Connected to process 475 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_fc2_c32": 0%.
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+...50%....100% - 4 passes
+ran tokens=16 routing=random fc2 prefetch groups=1, cols32 groups=4
+==PROF== Disconnected from process 475
+[475] python3.12@127.0.0.1
+  void k_fc2_c32<2, 6>(const unsigned char *, const unsigned char *, const __nv_bfloat16 *, const int *, const int *, const int *, const float *, const float *, __nv_bfloat16 *, float *, int *, int, int, int, int, int) (64, 4, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Warning: Data collection happened without fixed GPU frequencies. Profiling results may be inconsistent.
+    Section: Command line profiler metrics
+    ------------------------------------------------------ ----------- ------------------------------
+    Metric Name                                            Metric Unit                   Metric Value
+    ------------------------------------------------------ ----------- ------------------------------
+    sass__inst_executed_per_opcode                                           19331712 (F2FP: 4231168;
+                                                                                HADD2: 4230144; FMUL:
+                                                                         3994752; LOP3: 1706112; SHF:
+                                                                          1169152; HMMA: 995328; LDG:
+                                                                          550464; PRMT: 497664; CS2R:
+                                                                         497664; IMAD: 312448; IADD3:
+                                                                          152960; ISETP: 131456; MOV:
+                                                                              92992; LDC: 84032; BRA:
+                                                                              68352; LEA: 66048; LDS:
+                                                                             64000; STS: 62208; IADD:
+                                                                           37120; FADD: 36864; BSYNC:
+                                                                             31808; NOP: 31104; FFMA:
+                                                                            29184; IABS: 26880; USHF:
+                                                                            24832; BSSY: 24256; LDCU:
+                                                                                  23552; S2UR: 18816;
+                                                                         WARPSYNC: 15424; S2R: 13888;
+                                                                             MUFU: 12416; I2F: 12416;
+                                                                              F2I: 12416; UMOV: 9536;
+                                                                               ULEA: 9536; BAR: 8192;
+                                                                             VIMNMX: 5184; STG: 5184;
+                                                                              SEL: 4352; FSETP: 4096;
+                                                                              FSEL: 4096; EXIT: 2624;
+                                                                          MEMBAR: 2560; ERRBAR: 2560;
+                                                                         CGAERRBAR: 2560; CCTL: 2560;
+                                                                         RET: 2048; I2FP: 2048; CALL:
+                                                                          2048; ACQBULK: 2048; PLOP3:
+                                                                         1024; POPC: 512; VOTEU: 256;
+                                                                          SHFL: 256; FLO: 256; ATOMG:
+                                                                                                 256)
+    sm__cycles_elapsed.avg                                       cycle                      150648.67
+    smsp__inst_executed.sum                                       inst                       19331712
+    smsp__sass_thread_inst_executed_op_fp32_pred_on.sum           inst                      129597440
+    smsp__sass_thread_inst_executed_op_integer_pred_on.sum        inst                      109420928
+    ------------------------------------------------------ ----------- ------------------------------
+

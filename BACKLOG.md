@@ -204,6 +204,19 @@ closes it. Dates are when an item was added, not estimates.
    what is left between the 32-column kernel and its read floor is the arithmetic and the warp reductions per pair, the instruction-bound part the
    fc2_chain breakdown named (math-only 47.9 at 16 random tokens with every load removed, 35.6 with the activations made rather than read). The
    option stays in the bench, off; the layer's choice is unchanged.
+   Measured 2026-10-08 with Nsight Compute on the 32-column kernel at 16 random tokens, four groups, in the layer's cache state
+   (reports/ncu-fc2-cols32-opcodes-16-random-rtx5090-20261008.txt; 19.33 million warp instructions over 147 thousand cycles): the decode of the
+   FP4 codes is where the instructions go, not the tensor cores. By opcode: F2FP 4.23 million (21.9 percent), HADD2 4.23 (21.9), FMUL 3.99 (20.7),
+   LOP3 1.71 (8.8), SHF 1.17 (6.0), HMMA 0.995 (5.1), LDG 0.55 (2.8), PRMT and CS2R 0.50 each, IMAD 0.31; everything else under 1 percent. The five
+   decode opcodes (the e2m1 conversion, the half-to-float widening, the scale multiply, the byte extraction and the bf16 pack) are 79 percent of
+   the instructions and the MMAs 5 percent, and the thread-level counts say the same (129.6 million fp32 against 109.4 million integer thread
+   instructions). So the per-pair cost the fc2_chain breakdown left unbroken is `decode_pairs`: for each 16-element code group it converts two
+   codes to f16x2, widens to two floats, multiplies each by the scale and packs the pair back to bf16x2, about four instructions per element
+   beside one MMA per 16 x 8 x 16 tile. The next kernel keeps the weights' scale in half2 and multiplies the converted f16x2 pair in one HMUL2,
+   or decodes through a 256-entry shared-memory table of byte to bf16x2 with the scale applied once per 16 (one LDS and one HMUL2 per pair),
+   either of which removes the widening and the two FMULs; the MMA then takes bf16, so the f16-to-bf16 pack stays unless the MMA is switched to
+   f16 inputs with f32 accumulation, which removes the pack as well and is the form to try first (the codes are exact in f16, the scales e4m3 are
+   exact in f16 above 2^-14 and clamp below). Judged, as before, by the 16-token layer row against Marlin.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
