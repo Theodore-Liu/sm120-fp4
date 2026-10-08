@@ -298,6 +298,11 @@ closes it. Dates are when an item was added, not estimates.
      different kernel design (an I-split over blocks), not a shape parameter. Not the first pick.
    Pick: Gemma-4-26B-A4B. The work is the kernel shape generalisation first (measurable on synthetic weights of that shape on
    the 5090 today), then the real-weights table.
+   Baseline at that shape 2026-10-08 (`scripts/bench_moe_baseline.py --hidden 2816 --inter 704`, 128 experts top-8, synthetic FP4
+   weights, cold-L2 graph replay, `reports/moe-baseline-gemma4-26b-a4b-shape-rtx5090-20261008.json`): every shipped backend takes
+   the shape. M=1: floor 14.9 us, marlin-w4a16 41.8, b12x-w4a16 41.8, b12x-nvfp4 52.2, cutlass-nvfp4 148.2; M=4: floor 56.0 us, marlin-w4a16 96.3, b12x-w4a16 96.0, b12x-nvfp4 119.4, cutlass-nvfp4 179.9; M=16: floor 153.1 us, marlin-w4a16 204.4, b12x-w4a16 208.6, b12x-nvfp4 236.4, cutlass-nvfp4 254.7 us. The W4A16
+   paths sit at 2.8 times the byte floor at one token and 1.3 times at sixteen, as at the Qwen shape; the layer's own number at
+   this shape waits on the MMA forms' shape generalisation (the step above).
 
 ## Closed
 
