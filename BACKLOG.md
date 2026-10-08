@@ -183,6 +183,7 @@ closes it. Dates are when an item was added, not estimates.
    without input scales falls back to them): the engine run with the defaults matches the explicit run on all 350
    sequences (reports/vllm-compare-sm120-default-20261007.json). Prefill runs W4A4 as stock vLLM does, decode W4A16.
    Item 8 closed by the hand-off; a prefill kernel of our own stays open only if a measurement asks for it.
+   Measured in the engine 2026-10-07: scripts/vllm_prefill_latency.py (a batch of N prompts of about L tokens, max_tokens=1, median of 3, one engine per mode, reports/vllm-prefill-{stock,sm120-cutlass,sm120-slices}-20261007.json): at N x L of 1x512, 1x1024, 4x512, 4x1024, 16x512 tokens the wall time of the call is stock 35 / 36 / 79 / 119 / 225 ms, the hand-off 30 / 33 / 69 / 98 / 156 ms and the slices 101 / 184 / 386 / 705 / 1458 ms, so the hand-off runs at 0.69 to 0.91 of stock's time and the slices at 2.9 to 6.5 times it (3.4 to 9.3 times the hand-off); the wall time holds one prefill plus one decode step and the call's overhead, and the decode step is faster on this backend (the README's decode table), so part of the gap to stock at the small shapes is the decode step, not prefill.
 9. **Report the b12x W4A4 nondeterminism upstream** (2026-10-01). `reports/b12x-nondeterminism-rtx5090-2026-09-29.json`
    and `docs/stage2-baselines.md`: 20 identical calls, 20 outputs, 1.8 to 3.8% apart; the atomic scatter the source
    describes plus a lost or duplicated 8-column group in 2 of 100 calls. The issue text is drafted for the maintainer

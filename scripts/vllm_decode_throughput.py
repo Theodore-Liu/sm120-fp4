@@ -17,8 +17,8 @@ wall times so a reader can recompute. One JSON per mode, never overwritten:
 
 What this measures and what it does not: the whole engine's decode step (attention, dense layers, sampling, scheduling)
 with only the 48 routed-experts layers differing between the two runs, so the ratio is the engine-level remainder of
-the per-layer gain in the README table. Prefill is differenced away; the plugin's 16-token slicing of prefill is not
-measured here (backlog item 5). Numbers are from the RTX 5090 with the desktop running, as every table in this
+the per-layer gain in the README table. Prefill is differenced away, so this script cannot see the prefill path (the
+CUTLASS hand-off above 16 tokens, the default since 2026-10-07, or the slices); scripts/vllm_prefill_latency.py measures that. Numbers are from the RTX 5090 with the desktop running, as every table in this
 repository states.
 """
 from __future__ import annotations

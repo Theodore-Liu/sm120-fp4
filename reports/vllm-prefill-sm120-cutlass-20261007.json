@@ -1,0 +1,109 @@
+{
+ "model": "nvidia/Qwen3-30B-A3B-NVFP4",
+ "mode": "sm120-prefill-cutlass",
+ "device": "NVIDIA GeForce RTX 5090",
+ "vllm": "0.28.0",
+ "torch": "2.13.0+cu130",
+ "attention_backend": "TRITON_ATTN",
+ "enforce_eager": false,
+ "repeats": 3,
+ "note": "wall time of generate() for N prompts with max_tokens=1: one prefill of the batch plus one decode step and the call overhead",
+ "rows": [
+  {
+   "concurrency": 1,
+   "prompt_words": 512,
+   "prompt_tokens": [
+    518
+   ],
+   "total_prompt_tokens": 518,
+   "wall_s": [
+    0.029774677939713,
+    0.029511942993849516,
+    0.03314729710109532
+   ],
+   "median_wall_s": 0.029774677939713,
+   "prefill_tokens_per_s": 17397.33343375982
+  },
+  {
+   "concurrency": 4,
+   "prompt_words": 512,
+   "prompt_tokens": [
+    518,
+    518,
+    518,
+    518
+   ],
+   "total_prompt_tokens": 2072,
+   "wall_s": [
+    0.06932176789268851,
+    0.07091032108291984,
+    0.06491162697784603
+   ],
+   "median_wall_s": 0.06932176789268851,
+   "prefill_tokens_per_s": 29889.60124628526
+  },
+  {
+   "concurrency": 16,
+   "prompt_words": 512,
+   "prompt_tokens": [
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518,
+    518
+   ],
+   "total_prompt_tokens": 8288,
+   "wall_s": [
+    0.15606079390272498,
+    0.1568305951077491,
+    0.1556736931670457
+   ],
+   "median_wall_s": 0.15606079390272498,
+   "prefill_tokens_per_s": 53107.508892759026
+  },
+  {
+   "concurrency": 1,
+   "prompt_words": 1024,
+   "prompt_tokens": [
+    1030
+   ],
+   "total_prompt_tokens": 1030,
+   "wall_s": [
+    0.03259031591005623,
+    0.033149174181744456,
+    0.03717612917535007
+   ],
+   "median_wall_s": 0.033149174181744456,
+   "prefill_tokens_per_s": 31071.66393807874
+  },
+  {
+   "concurrency": 4,
+   "prompt_words": 1024,
+   "prompt_tokens": [
+    1030,
+    1030,
+    1030,
+    1030
+   ],
+   "total_prompt_tokens": 4120,
+   "wall_s": [
+    0.09881881508044899,
+    0.09590367483906448,
+    0.09785250318236649
+   ],
+   "median_wall_s": 0.09785250318236649,
+   "prefill_tokens_per_s": 42104.18605563526
+  }
+ ]
+}
