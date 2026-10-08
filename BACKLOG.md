@@ -230,6 +230,17 @@ closes it. Dates are when an item was added, not estimates.
    kernel stays in the bench as a measured form, not wired, and the lever for the 16-token row is back on the memory side: bytes in flight per
    warp while the expert's codes stream, which the prefetch kernel's register double buffer and the 32-column kernel's two tiles are the two
    measured forms of.
+   Measured 2026-10-08 (`scripts/fc2_cols32.py` gains `build(prefetch=True)`: the next expert's two tiles of codes and scales loaded into a second
+   register buffer before this expert's arithmetic, the 16-column kernel's double buffer two tiles wide; reports/fc2-cols32-prefetch-rtx5090-20261008.json,
+   same session as the plain and chain forms): bit-identical to the plain 32-column kernel at every G and shape, and slower everywhere, 16 random
+   tokens 85.8 to 101.1 us against 72.4 to 92.9 (G 2, 4 and 1), 8 tokens 53.8 to 62.0 against 45.8 to 58.1, concentrated routing 25.3 against 23.3
+   to 25.3. The reason is in cuobjdump: the double-buffered kernel compiles to 255 registers for every template (the plain 32-column kernel 87 to
+   127, the 16-column prefetch kernel 163 to 239), the architectural cap, so at 256 threads a block only one block fits an SM where the plain kernel
+   fits two, and the bytes it adds in flight per warp are paid for by half the warps. So the two forms of 'more bytes in flight' do not stack:
+   two tiles per warp (32 columns) and the next expert's tiles per warp (prefetch) each fit the register file alone and not together. A recorded
+   negative; the option stays in the bench, off. The forms measured on this row now: 16 columns with prefetch (89.6), 32 columns (72.4), 32 columns
+   with the routing chain (72.4), 32 columns with the weight prefetch (85.8), activations shared across the block (90.8), f16 MMA with the scale
+   after (76.5); the 32-column kernel at four groups remains the layer's form and sits at 1.45 times the 49.9 us read of its codes.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.

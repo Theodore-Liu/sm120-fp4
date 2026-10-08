@@ -77,6 +77,15 @@ k_fc2_c32(const unsigned char* __restrict__ q2, const unsigned char* __restrict_
 
   const int stride = WARPS * G;
   int u = g * WARPS + warp;
+#ifdef C32_PREFETCH
+  // the first expert's two tiles now; each next expert's two tiles one round ahead (the prefetch kernel's register double buffer, two tiles wide)
+  uint4 pq[TILES][CH][2];
+  unsigned ps[TILES][CH][2];
+  if (u < U && experts[u] >= 0) {
+#pragma unroll
+    for (int j = 0; j < TILES; ++j) load_expert<CH>(q2, s2, (long long)experts[u] * H + n0 + 16 * j + gid, I, tig, pq[j], ps[j]);
+  }
+#endif
 #ifdef C32_CHAIN
   // the routing of the first expert now, of each next expert one round ahead (the prefetch kernel's chain option)
   Meta<NT> cur, nxt;
@@ -89,11 +98,31 @@ k_fc2_c32(const unsigned char* __restrict__ q2, const unsigned char* __restrict_
     const int en = un < U ? experts[un] : -1;
     if (en >= 0) load_meta<NT>(offsets, pairs, weights, alpha, un, en, gid, tig, top_k, nxt);
 #endif
+#ifdef C32_PREFETCH
+    const int un_ = u + stride;
+    const int en_ = un_ < U ? experts[un_] : -1;
+    uint4 nq[TILES][CH][2];
+    unsigned ns[TILES][CH][2];
+    if (en_ >= 0) {
+#pragma unroll
+      for (int j = 0; j < TILES; ++j) load_expert<CH>(q2, s2, (long long)en_ * H + n0 + 16 * j + gid, I, tig, nq[j], ns[j]);
+    } else {
+#pragma unroll
+      for (int j = 0; j < TILES; ++j)
+#pragma unroll
+        for (int ch = 0; ch < CH; ++ch) { nq[j][ch][0] = nq[j][ch][1] = make_uint4(0, 0, 0, 0); ns[j][ch][0] = ns[j][ch][1] = 0u; }
+    }
+#endif
     if (e >= 0) {                                   // a negative id is a padding slot from the GPU router
+#ifdef C32_PREFETCH
+      uint4 (&wq)[TILES][CH][2] = pq;
+      unsigned (&ws)[TILES][CH][2] = ps;
+#else
       uint4 wq[TILES][CH][2];
       unsigned ws[TILES][CH][2];
 #pragma unroll
       for (int j = 0; j < TILES; ++j) load_expert<CH>(q2, s2, (long long)e * H + n0 + 16 * j + gid, I, tig, wq[j], ws[j]);
+#endif
 #ifdef C32_CHAIN
       const int cnt = cur.cnt;
       int pr[NT];
@@ -180,6 +209,12 @@ k_fc2_c32(const unsigned char* __restrict__ q2, const unsigned char* __restrict_
 #endif
     }
     __syncwarp();                                   // the next expert may put a token in another lane
+#ifdef C32_PREFETCH
+#pragma unroll
+    for (int j = 0; j < TILES; ++j)
+#pragma unroll
+      for (int ch = 0; ch < CH; ++ch) { pq[j][ch][0] = nq[j][ch][0]; pq[j][ch][1] = nq[j][ch][1]; ps[j][ch][0] = ns[j][ch][0]; ps[j][ch][1] = ns[j][ch][1]; }
+#endif
 #ifdef C32_CHAIN
     cur = nxt;
 #endif
@@ -261,12 +296,12 @@ void fc2_c32(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tenso
 NAME = "sm120fp4_fc2_c32"
 
 
-def build(verbose: bool = False, one_block: bool = False, chain: bool = False):
+def build(verbose: bool = False, one_block: bool = False, chain: bool = False, prefetch: bool = False):
     """one_block: timing control - pad the kernel's shared memory so one block fits per SM, as for the prefetch kernel.
     chain: load each expert's routing (offsets, pair indices, token and weight x alpha per slot) one expert ahead, as the prefetch kernel's
     chain option does; it changes only when loads are issued, so the output must equal the plain 32-column kernel's bit for bit."""
-    return load_inline(name=NAME + ("_1blk" if one_block else "") + ("_chain" if chain else ""), cpp_sources=CPP,
-                       cuda_sources=("#define C32_ONE_BLOCK\n" if one_block else "") + ("#define C32_CHAIN\n" if chain else "") + CUDA,
+    return load_inline(name=NAME + ("_1blk" if one_block else "") + ("_chain" if chain else "") + ("_pf" if prefetch else ""), cpp_sources=CPP,
+                       cuda_sources=("#define C32_ONE_BLOCK\n" if one_block else "") + ("#define C32_CHAIN\n" if chain else "") + ("#define C32_PREFETCH\n" if prefetch else "") + CUDA,
                        functions=["fc2_c32", "fc2_c32_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"], verbose=verbose)
 
@@ -296,8 +331,8 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     if not a.check_only and a.out is None:
         ap.error("--out is required unless --check-only")
-    c32, c32c, pf, m1, fl = build(), build(chain=True), pfm.build(), fc1.build(), floor.build()
-    usage = {"cols32": resource_usage(NAME), "cols16_prefetch": resource_usage("sm120fp4_fc2_pf")}
+    c32, c32c, c32p, pf, m1, fl = build(), build(chain=True), build(prefetch=True), pfm.build(), fc1.build(), floor.build()
+    usage = {"cols32": resource_usage(NAME), "cols32_prefetch": resource_usage(NAME + "_pf"), "cols16_prefetch": resource_usage("sm120fp4_fc2_pf")}
     for k_, v_ in usage.items():
         for fn, r in v_.items():
             if "k_fc2" in fn:
@@ -331,6 +366,9 @@ def main(argv=None) -> int:
         for G in (1, 2, 4):
             variants[f"cols32_chain_g{G}"] = (lambda o, G=G: c32c.fc2_c32(q2, s2, act, experts, offsets, pairs, wf, alpha, o,
                                                                          scratch, counters, k, G))
+        for G in (1, 2, 4):
+            variants[f"cols32_prefetch_g{G}"] = (lambda o, G=G: c32p.fc2_c32(q2, s2, act, experts, offsets, pairs, wf, alpha, o,
+                                                                            scratch, counters, k, G))
         outs = {}
         for name, fn in variants.items():
             out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
@@ -344,7 +382,8 @@ def main(argv=None) -> int:
                 go()
                 stable = stable and bool(torch.equal(out, first))
             outs[name] = first
-            twin = name.replace("cols32_chain", "cols32") if name.startswith("cols32_chain") else name.replace("cols32", "cols16_prefetch")
+            twin = (name.replace("cols32_chain", "cols32") if name.startswith("cols32_chain") else
+                    name.replace("cols32_prefetch", "cols32") if name.startswith("cols32_prefetch") else name.replace("cols32", "cols16_prefetch"))
             same = bool(torch.equal(first, outs[twin])) if name.startswith("cols32") and twin in outs else None
             t = None if a.check_only else floor.graph_time(go)
             row[name] = {"rel_err_vs_fp32_moe": rel, "bit_identical_50": stable, "equals_cols16_same_groups": same, "us": t}
