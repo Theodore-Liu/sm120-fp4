@@ -173,6 +173,17 @@ closes it. Dates are when an item was added, not estimates.
    block in shared memory (16 tokens x 768 bf16 is 24 KB, under the 32-column FC2's budget with two blocks per SM) and read by every warp and
    expert from there, or a block covering more output columns so one fragment serves more weight rows. It is written only when the GPU is
    free to time it against the prefetch + split kernel on the same activations, and judged by the 16-token layer row.
+   Corrected again 2026-10-08, by arithmetic before any kernel was written: the activation block FC2 reads is per (token, expert) pair,
+   not per token (FC1 writes one SwiGLU row per pair; `act` has M x top_k rows), so at 16 tokens and top_k 8 it is 128 x 768 bf16 =
+   192 KB (256 KB at I = 1024), twice SM120's 99 KB of shared memory; staging it once per block is not possible, and the 24 KB above
+   was the per-token figure. Two bounds on what any staging can return: the activation traffic cost 27 us of v1's 105.2 at 16 tokens
+   (2026-09-29, docs/stage2-design.md's switch that keeps every multiply-add and drops only the loads), and the 32-column block, which
+   halves the re-read, gained 16.4 us alone at 16 random tokens (88.8 to 72.4) and 6.0 in the layer, losing on concentrated routing
+   (reports/fc2-cols32-rtx5090-2026-09-30.json, real-ckpt-layer0-cols32-rtx5090-2026-09-30.json), so the re-read is worth about that much. The
+   form that fits is per expert: a block's eight warps take the same expert and eight different 16-column slabs (128 output columns per
+   block, grid H / 128 x G over the experts), the expert's at most 16 pair rows (24 KB at I = 768) staged once in shared memory and read
+   by all eight warps, so the re-read falls eight times at the cost of a 16-block grid per G (G = 8 gives 128 blocks). Written only
+   when the GPU is free to time it against the prefetch + split kernel on the same activations, judged by the 16-token layer row.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
