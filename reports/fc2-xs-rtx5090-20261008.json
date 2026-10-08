@@ -1,0 +1,375 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "check_only": false,
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 1,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 14.879999682307243
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 15.104000456631184
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 16.127999871969223
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 13.279999606311321
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 13.088000006973743
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  },
+  {
+   "routing": "random",
+   "tokens": 2,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.247999742627144
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.247999742627144
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 22.23999984562397
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 25.567999109625816
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 19.231999292969704
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.47199958562851
+   },
+   "read_fc2_codes_us": 13.055999763309956
+  },
+  {
+   "routing": "random",
+   "tokens": 4,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 37.63199970126152
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 35.45600175857544
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 35.58399900794029
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 45.823998749256134
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 35.58399900794029
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 35.61599925160408
+   },
+   "read_fc2_codes_us": 21.247999742627144
+  },
+  {
+   "routing": "random",
+   "tokens": 8,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 54.016001522541046
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 51.96800082921982
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 49.92000013589859
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 62.33600154519081
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 51.96800082921982
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 54.016001522541046
+   },
+   "read_fc2_codes_us": 31.360000371932983
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 107.26399719715118
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 90.87999910116196
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 88.83199840784073
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 119.55200135707855
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 90.84799885749817
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.0023664168547838926,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 93.91999989748001
+   },
+   "read_fc2_codes_us": 47.87199944257736
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 1,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 15.104000456631184
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 15.104000456631184
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 15.839999541640282
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 15.104000456631184
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 15.104000456631184
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 4,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.002348319161683321,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 15.104000456631184
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.002348319161683321,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.002348319161683321,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.002348319161683321,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 19.200000911951065
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.002348319161683321,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 15.135999768972397
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.002348319161683321,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 8,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.002364157000556588,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.002364157000556588,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.002364157000556588,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.0023641076404601336,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 21.247999742627144
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.002364157000556588,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 17.152000218629837
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.002364157000556588,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 19.200000911951065
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "v1": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.247999742627144
+   },
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.056000143289566
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.247999742627144
+   },
+   "xs_g4": {
+    "rel_err_vs_fp32_moe": 0.00234212470240891,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 30.46399913728237
+   },
+   "xs_g8": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 27.295999228954315
+   },
+   "xs_g16": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 33.535998314619064
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  }
+ ]
+}

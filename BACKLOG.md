@@ -184,6 +184,16 @@ closes it. Dates are when an item was added, not estimates.
    block, grid H / 128 x G over the experts), the expert's at most 16 pair rows (24 KB at I = 768) staged once in shared memory and read
    by all eight warps, so the re-read falls eight times at the cost of a 16-block grid per G (G = 8 gives 128 blocks). Written only
    when the GPU is free to time it against the prefetch + split kernel on the same activations, judged by the 16-token layer row.
+   Measured 2026-10-08 (`sm120fp4/kernels/fc2_xs.py`, G = 4, 8, 16; reports/fc2-xs-rtx5090-20261008.json; same session as the prefetch kernel and the
+   read floor, graph replay, L2 flushed): correct and deterministic on every row (error equal to v1's, bit-identical over 50 replays), and level
+   with the prefetch kernel where it counts, 90.8 us at 16 random tokens against 90.9 (prefetch) and 88.8 (prefetch, two groups) with the
+   codes' read at 47.9; 52.0 against 52.0 at 8 tokens, 35.6 against 35.5 at 4; 2 us ahead at one token (13.1 to 13.3 against 15.1) and behind on
+   concentrated routing (fixed8 at 16 tokens 27.3 against 21.1; G = 4 is slower everywhere, too few blocks). So cutting the activation re-read eight
+   times buys nothing at 16 random tokens: the re-read is not the remaining cost, and the 27 us the no-load switch saved in v1 was the loads'
+   latency and instructions, not their bytes (the switch removed both; the staging keeps the instructions, from shared memory). The 32-column
+   kernel's 16.4 us must then come from its other change, half as many column tiles walking the experts' routing (offsets, pairs, weights,
+   alpha per expert per warp), which is the per-expert overhead the chain variant also targets. A recorded negative; the kernel stays as a
+   measured form, not wired. The remaining lever for the 16-token row is that per-expert, per-warp routing work.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
