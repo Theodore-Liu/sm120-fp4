@@ -166,10 +166,13 @@ closes it. Dates are when an item was added, not estimates.
    50.2 us read of its codes (1.7x; v1 was 105.1, 2.1x), and without the activation loads it is still 1.27x to 1.36x its read floor from 8
    tokens up, so the remaining gap is the per-pair arithmetic and the per-pair warp reductions, not the weight stream; the layer at 16 tokens
    is level with Marlin (164.2 against 167.7 us on the checkpoint's layer 0, reports/real-ckpt-layer0-prefill-rtx5090-20261007-run1.json).
-   The next kernel is the one both halves of the design doc point at: the tokens on the MMA's 8-column side, each activation tile loaded once
-   per block and reused across the weight rows the block streams (today each pair re-reads its activation column), with the one-group tile
-   and two blocks per SM (the 32-column FC2's occupancy, 121 registers and 17.4 KB of shared memory at 16 tokens). It is written only when
-   the GPU is free to time it against the prefetch + split kernel on the same activations, and judged by the 16-token layer row.
+   Corrected 2026-10-08 after reading fc2_mma_pf.py: the kernel is already an m16n8k16 MMA with the weights' 16 rows as A and the token pairs as
+   the 8 columns of B (NT tiles of 8 pairs), so the tokens are on the MMA's column side today. What it re-reads is the activation fragment:
+   every warp, for every expert it walks and every 128-wide chunk, loads its pairs' activation columns from global (L2-resident, the 16 x I
+   bf16 block) while the weights stream once. The next kernel keeps the MMA shape and stops that re-read: the activations staged once per
+   block in shared memory (16 tokens x 768 bf16 is 24 KB, under the 32-column FC2's budget with two blocks per SM) and read by every warp and
+   expert from there, or a block covering more output columns so one fragment serves more weight rows. It is written only when the GPU is
+   free to time it against the prefetch + split kernel on the same activations, and judged by the 16-token layer row.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
