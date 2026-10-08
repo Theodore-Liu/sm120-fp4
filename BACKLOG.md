@@ -162,6 +162,14 @@ closes it. Dates are when an item was added, not estimates.
    gate clause not met: at 16 tokens the layer is level with Marlin and FlashInfer W4A16. The remaining gap is FC2
    against its own byte floor (`docs/stage2-design.md`); the candidate is a tensor-core FC2 that keeps two blocks per
    SM with the one-group tile. Closes with the 16-token rows ahead of both by the margin the report states.
+   State 2026-10-07, from the measurements in docs/stage2-design.md: at 16 random tokens the prefetch + split FC2 takes 86.8 us against a
+   50.2 us read of its codes (1.7x; v1 was 105.1, 2.1x), and without the activation loads it is still 1.27x to 1.36x its read floor from 8
+   tokens up, so the remaining gap is the per-pair arithmetic and the per-pair warp reductions, not the weight stream; the layer at 16 tokens
+   is level with Marlin (164.2 against 167.7 us on the checkpoint's layer 0, reports/real-ckpt-layer0-prefill-rtx5090-20261007-run1.json).
+   The next kernel is the one both halves of the design doc point at: the tokens on the MMA's 8-column side, each activation tile loaded once
+   per block and reused across the weight rows the block streams (today each pair re-reads its activation column), with the one-group tile
+   and two blocks per SM (the 32-column FC2's occupancy, 121 registers and 17.4 KB of shared memory at 16 tokens). It is written only when
+   the GPU is free to time it against the prefetch + split kernel on the same activations, and judged by the 16-token layer row.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
