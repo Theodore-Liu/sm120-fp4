@@ -241,6 +241,16 @@ closes it. Dates are when an item was added, not estimates.
    negative; the option stays in the bench, off. The forms measured on this row now: 16 columns with prefetch (89.6), 32 columns (72.4), 32 columns
    with the routing chain (72.4), 32 columns with the weight prefetch (85.8), activations shared across the block (90.8), f16 MMA with the scale
    after (76.5); the 32-column kernel at four groups remains the layer's form and sits at 1.45 times the 49.9 us read of its codes.
+   State 2026-10-08, after the six forms: the three readings that said where the time was not are each measured, not inferred. Instructions are not the
+   limit (the f16 form removed 17 percent of them and the time did not move); the activation re-read is not (the shared form removed seven eighths of it
+   and the time did not move); the per-expert routing loads are not (the chain form hid them and gained at most 3 us). Two forms of more bytes in
+   flight exist and each fits the register file alone, so the remaining 22 us over the read floor at 16 random tokens is the latency the codes' loads
+   see with two tiles in flight per warp and two blocks per SM, which only a smaller per-warp footprint (fewer accumulator registers: the shared-memory
+   `part` sums could take the per-token accumulation, freeing the 64 fp32 accumulators each warp holds across its two tiles) or a different work
+   split (expert groups over warps rather than column tiles over warps) could change. Neither is measured. The layer at 16 tokens is level with Marlin
+   (164.2 against 167.7 us on the checkpoint's layer 0, reports/real-ckpt-layer0-prefill-rtx5090-20261007-run1.json) with the FC2 kernel at 72.4 us
+   against a 49.9 us read of its codes, so the gate clause of this item (the 16-token rows ahead of both baselines by a stated margin) is not met. The
+   item is left open with the two untried forms named; BACKLOG 8 (the prefill path above 16 tokens) is the next item the layer needs more.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.
