@@ -1,0 +1,84 @@
+==WARNING== Note: Running with uncontrolled GPU caches. Profiling results may be inconsistent.
+==WARNING== Note: Running with unmodified GPU clocks. If not controlled otherwise, profiling results may be inconsistent.
+==PROF== Connected to process 460 (/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/bin/python3.12)
+==PROF== Profiling "k_fc2_f16": 0%.
+==WARNING== Backing up device memory in system memory. Kernel replay might be slow. Consider using "--replay-mode application" to avoid memory save-and-restore.
+...50%....100% - 3 passes
+routing | tokens | variant | normwise vs fp32 MoE | bit-identical x50 | equals cols32 same G | us
+random  |      1 | cols16_prefetch_g2  |              0.00248 | True              | None                 | -
+random  |      1 | cols32_g2           |              0.00248 | True              | None                 | -
+random  |      1 | cols32_g4           |              0.00248 | True              | None                 | -
+random  |      1 | f16_g2              |              0.00248 | True              | False                | -
+random  |      1 | f16_g4              |              0.00248 | True              | False                | -
+random  |      2 | cols16_prefetch_g2  |              0.00225 | True              | None                 | -
+random  |      2 | cols32_g2           |              0.00225 | True              | None                 | -
+random  |      2 | cols32_g4           |              0.00225 | True              | None                 | -
+random  |      2 | f16_g2              |              0.00225 | True              | False                | -
+random  |      2 | f16_g4              |              0.00225 | True              | False                | -
+random  |      4 | cols16_prefetch_g2  |              0.00234 | True              | None                 | -
+random  |      4 | cols32_g2           |              0.00234 | True              | None                 | -
+random  |      4 | cols32_g4           |              0.00234 | True              | None                 | -
+random  |      4 | f16_g2              |              0.00234 | True              | False                | -
+random  |      4 | f16_g4              |              0.00234 | True              | False                | -
+random  |      8 | cols16_prefetch_g2  |              0.00236 | True              | None                 | -
+random  |      8 | cols32_g2           |              0.00236 | True              | None                 | -
+random  |      8 | cols32_g4           |              0.00236 | True              | None                 | -
+random  |      8 | f16_g2              |              0.00236 | True              | False                | -
+random  |      8 | f16_g4              |              0.00236 | True              | False                | -
+random  |     16 | cols16_prefetch_g2  |              0.00237 | True              | None                 | -
+random  |     16 | cols32_g2           |              0.00237 | True              | None                 | -
+random  |     16 | cols32_g4           |              0.00237 | True              | None                 | -
+random  |     16 | f16_g2              |              0.00237 | True              | False                | -
+random  |     16 | f16_g4              |              0.00237 | True              | False                | -
+fixed8  |      1 | cols16_prefetch_g2  |              0.00226 | True              | None                 | -
+fixed8  |      1 | cols32_g2           |              0.00226 | True              | None                 | -
+fixed8  |      1 | cols32_g4           |              0.00226 | True              | None                 | -
+fixed8  |      1 | f16_g2              |              0.00226 | True              | False                | -
+fixed8  |      1 | f16_g4              |              0.00226 | True              | False                | -
+fixed8  |     16 | cols16_prefetch_g2  |              0.00234 | True              | None                 | -
+fixed8  |     16 | cols32_g2           |              0.00234 | True              | None                 | -
+fixed8  |     16 | cols32_g4           |              0.00234 | True              | None                 | -
+fixed8  |     16 | f16_g2              |              0.00234 | True              | False                | -
+fixed8  |     16 | f16_g4              |              0.00234 | True              | False                | -
+==PROF== Disconnected from process 460
+[460] python3.12@127.0.0.1
+  void k_fc2_f16<2, 6>(const unsigned char *, const unsigned char *, const __half *, const int *, const int *, const int *, const float *, const float *, __nv_bfloat16 *, float *, int *, int, int, int, int, int) (64, 2, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Warning: Data collection happened without fixed GPU frequencies. Profiling results may be inconsistent.
+    Section: Command line profiler metrics
+    ------------------------------ ----------- ------------------------------
+    Metric Name                    Metric Unit                   Metric Value
+    ------------------------------ ----------- ------------------------------
+    sass__inst_executed_per_opcode                   15981824 (FFMA: 4010496;
+                                                         F2FP: 2987008; LOP3:
+                                                 2280448; SHF: 1533760; HMMA:
+                                                  995328; HADD2: 995328; LDG:
+                                                  795264; PRMT: 746496; CS2R:
+                                                 492480; IMAD: 247872; IADD3:
+                                                  132160; MOV: 108608; ISETP:
+                                                      99584; LDC: 62720; LEA:
+                                                      61952; NOP: 57024; BRA:
+                                                      46976; LDS: 46592; STS:
+                                                   45696; BSYNC: 27584; IADD:
+                                                    23744; IABS: 21760; BSSY:
+                                                    20160; FADD: 19456; LDCU:
+                                                      17408; WARPSYNC: 11392;
+                                                     MUFU: 10368; I2F: 10368;
+                                                     FMUL: 10368; F2I: 10368;
+                                                    USHF: 5632; VIMNMX: 5184;
+                                                 S2UR: 4224; BAR: 4096; UMOV:
+                                                  3200; STG: 3136; S2R: 2304;
+                                                       ULEA: 2176; SEL: 2176;
+                                                   UISETP: 2048; FSETP: 2048;
+                                                      FSEL: 2048; EXIT: 1600;
+                                                  MEMBAR: 1536; ERRBAR: 1536;
+                                                 CGAERRBAR: 1536; CCTL: 1536;
+                                                    ULOP3: 1024; UIMAD: 1024;
+                                                 RET: 1024; I2FP: 1024; CALL:
+                                                   1024; ACQBULK: 1024; POPC:
+                                                     256; VOTEU: 128; UIADD3:
+                                                    128; SHFL: 128; FLO: 128;
+                                                                  ATOMG: 128)
+    sm__cycles_elapsed.avg               cycle                      148266.73
+    smsp__inst_executed.sum               inst                       15981824
+    ------------------------------ ----------- ------------------------------
+

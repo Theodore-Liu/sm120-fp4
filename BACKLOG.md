@@ -217,6 +217,19 @@ closes it. Dates are when an item was added, not estimates.
    either of which removes the widening and the two FMULs; the MMA then takes bf16, so the f16-to-bf16 pack stays unless the MMA is switched to
    f16 inputs with f32 accumulation, which removes the pack as well and is the form to try first (the codes are exact in f16, the scales e4m3 are
    exact in f16 above 2^-14 and clamp below). Judged, as before, by the 16-token layer row against Marlin.
+   Measured 2026-10-08 (`sm120fp4/kernels/fc2_f16.py`: the 32-column shape with the codes fed to an f16 MMA straight from `cvt.rn.f16x2.e2m1x2`, the
+   activations read as f16, and the block scale applied after each MMA in fp32; the codes repacked once at load so that one MMA covers one scale
+   block, since a first form that scaled after an MMA spanning four lanes' scale blocks read a 28 percent error; reports/fc2-f16-rtx5090-20261008.json,
+   same session as the 32-column and 16-column kernels): the error against the fp32 reference equals the 32-column kernel's to five digits on
+   every row, the output is deterministic over 50 replays, and the time is level: 16 random tokens 76.5 us (G 2 and 4) against the 32-column
+   kernel's 74.5 and 70.6 and the read floor's 49.9; 8 tokens 45.8 to 47.9 against 45.8 to 45.9; concentrated routing 23.3 against 24.3 to 25.3. Nsight
+   Compute on the f16 kernel at 16 random tokens (reports/ncu-fc2-f16-opcodes-16-random-rtx5090-20261008.txt): 16.0 million warp instructions against the
+   32-column kernel's 19.3 million; by opcode FFMA 4.01 million, F2FP 2.99 (the e2m1 to f16x2 conversion itself), LOP3 2.28, SHF 1.53, HMMA 0.995, HADD2 0.995, LDG 0.80 (the 8-byte activation pieces), PRMT 0.75, CS2R 0.49, IMAD 0.25; the 32-column kernel's 4.23 million FMUL and 3.24 million of its HADD2 and F2FP are gone and 4.0 million FFMA stand in their place, 17 percent fewer instructions in all. So the decode's instructions were removed and the time did not move: the kernel is not
+   instruction-bound at this shape, and the 79 percent of instructions the decode held were being issued in the shadow of something else, the
+   loads' latency the earlier stall profiles (reports/ncu-fc2-stall-reasons-16-random-rtx5090-2026-10-01.csv) put first. A recorded level result; the
+   kernel stays in the bench as a measured form, not wired, and the lever for the 16-token row is back on the memory side: bytes in flight per
+   warp while the expert's codes stream, which the prefetch kernel's register double buffer and the 32-column kernel's two tiles are the two
+   measured forms of.
 8. **Prefill: a path for more than 16 tokens** (2026-10-02). Today the FC2 kernel takes at most 16 tokens, so the
    layer is a decode layer. Either a second FC2 kernel for 17 to 256 tokens or a documented hand-off to the engine's
    path, measured at 32, 64 and 128 tokens against FlashInfer and Marlin.

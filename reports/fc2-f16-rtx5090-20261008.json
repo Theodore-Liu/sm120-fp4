@@ -1,0 +1,266 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "check_only": false,
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 1,
+   "activations_not_exact_in_f16": 7,
+   "activations": 6144,
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 15.104000456631184
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 18.0479995906353
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.0024753042962402105,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 17.376000061631203
+   },
+   "f16_g2": {
+    "rel_err_vs_fp32_moe": 0.0024753124453127384,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 19.200000911951065
+   },
+   "f16_g4": {
+    "rel_err_vs_fp32_moe": 0.0024753124453127384,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 19.200000911951065
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  },
+  {
+   "routing": "random",
+   "tokens": 2,
+   "activations_not_exact_in_f16": 6,
+   "activations": 12288,
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 23.231999948620796
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 21.183999255299568
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.00225021131336689,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 20.35200037062168
+   },
+   "f16_g2": {
+    "rel_err_vs_fp32_moe": 0.0022507973480969667,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 21.247999742627144
+   },
+   "f16_g4": {
+    "rel_err_vs_fp32_moe": 0.0022507973480969667,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 20.959999412298203
+   },
+   "read_fc2_codes_us": 13.055999763309956
+  },
+  {
+   "routing": "random",
+   "tokens": 4,
+   "activations_not_exact_in_f16": 9,
+   "activations": 24576,
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 35.58399900794029
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 32.51200169324875
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.0023417328484356403,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 31.488001346588135
+   },
+   "f16_g2": {
+    "rel_err_vs_fp32_moe": 0.0023417396005243063,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 33.535998314619064
+   },
+   "f16_g4": {
+    "rel_err_vs_fp32_moe": 0.0023417396005243063,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 31.488001346588135
+   },
+   "read_fc2_codes_us": 21.247999742627144
+  },
+  {
+   "routing": "random",
+   "tokens": 8,
+   "activations_not_exact_in_f16": 22,
+   "activations": 49152,
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 51.90400034189224
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 45.85599899291992
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.0023646759800612926,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 45.823998749256134
+   },
+   "f16_g2": {
+    "rel_err_vs_fp32_moe": 0.0023646270856261253,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 47.87199944257736
+   },
+   "f16_g4": {
+    "rel_err_vs_fp32_moe": 0.0023646270856261253,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 45.823998749256134
+   },
+   "read_fc2_codes_us": 31.42400085926056
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "activations_not_exact_in_f16": 40,
+   "activations": 98304,
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 89.05600011348724
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 74.52800124883652
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.002366422675549984,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 70.592001080513
+   },
+   "f16_g2": {
+    "rel_err_vs_fp32_moe": 0.002366497181355953,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 76.54400169849396
+   },
+   "f16_g4": {
+    "rel_err_vs_fp32_moe": 0.002366496715694666,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 76.54400169849396
+   },
+   "read_fc2_codes_us": 49.8879998922348
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 1,
+   "activations_not_exact_in_f16": 4,
+   "activations": 6144,
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 16.127999871969223
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 18.783999606966972
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.0022597243078052998,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 18.17600056529045
+   },
+   "f16_g2": {
+    "rel_err_vs_fp32_moe": 0.0022597075439989567,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 19.200000911951065
+   },
+   "f16_g4": {
+    "rel_err_vs_fp32_moe": 0.0022597075439989567,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 19.039999693632126
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "activations_not_exact_in_f16": 43,
+   "activations": 98304,
+   "cols16_prefetch_g2": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 21.247999742627144
+   },
+   "cols32_g2": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 24.320000782608986
+   },
+   "cols32_g4": {
+    "rel_err_vs_fp32_moe": 0.002342149382457137,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": null,
+    "us": 25.34399926662445
+   },
+   "f16_g2": {
+    "rel_err_vs_fp32_moe": 0.002342033665627241,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 23.296000435948372
+   },
+   "f16_g4": {
+    "rel_err_vs_fp32_moe": 0.002342033665627241,
+    "bit_identical_50": true,
+    "equals_cols32_same_groups": false,
+    "us": 23.296000435948372
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  }
+ ],
+ "error_worse_than_cols32": []
+}
