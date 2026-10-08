@@ -279,6 +279,25 @@ closes it. Dates are when an item was added, not estimates.
    to review before anything is posted.
 10. **Stage 2 on a second checkpoint family** (2026-10-02). A Gemma-class or Mixtral-class NVFP4 MoE checkpoint through
    the same table, to show the layer is not tuned to one expert shape.
+   Survey 2026-10-08 (configs and `model.safetensors.index.json` read from the Hub, nothing downloaded):
+   - `bg-digitalservices/Gemma-4-26B-A4B-it-NVFP4` (community, ModelOpt NVFP4, group 16): 30 layers, hidden 2816, 128 routed experts,
+     `moe_intermediate_size` 704, top-8, 16.4 GB in three shards; layer 0's experts sit in shard 1 as one tensor per expert under
+     `model.language_model.layers.0.moe.experts.{e}.{gate,up,down}_proj` with `weight`, `weight_scale`, `weight_scale_2` and
+     `input_scale` (372 of 384 projections carry an input scale) plus one `per_expert_scale`. Fits the 5090. **Does not fit the
+     kernels as written**: the FC2 forms take `I == 768 || I == 1024` (fc2_f16, fc2_mma_pf, fc2_xs) or `I % 128 == 0` (fc2_mma),
+     and fc1_mma fixes `H == WARPS * 4 * 32 * CHUNKS`; 704 = 11 x 64 and 2816 = 22 x 128 break both. The W4A16 forms
+     (`I % 32 == 0`, `I <= 1024`, `H % 4 == 0`) take the shape. So this family costs a shape generalisation of the MMA forms
+     (an I tile of 64 and an H chunk count read from the shape) before the table can run; `real_ckpt_layer.py` also needs the
+     tensor prefix and the bf16 reference (`google/gemma-4-26B-A4B-it`) as parameters.
+   - `nvidia/GLM-5.3-Flash-NVFP4` (first party): hidden 4096, 288 routed experts plus one shared, `moe_intermediate_size` 2048,
+     top-8, 45 layers (first 3 dense); routed experts quantized, shared experts not. The expert intermediate (2048) is above every
+     form's `I <= 1024`, and the checkpoint does not fit one 5090; a layer-table run would need the PRO 6000 pod. Not the first pick.
+   - Mixtral-8x7B-Instruct NVFP4 (community ModelOpt quantizations, e.g. `josephdowling10/Mixtral-8x7B-Instruct-v0.1-NVFP4`, about
+     24.8 GB): 8 experts, hidden 4096, expert intermediate 14336, top-2. The intermediate is fourteen times every form's `I <= 1024`
+     and the eight wide experts are the opposite shape to the 128 narrow ones the layer was built for; a table there would be a
+     different kernel design (an I-split over blocks), not a shape parameter. Not the first pick.
+   Pick: Gemma-4-26B-A4B. The work is the kernel shape generalisation first (measurable on synthetic weights of that shape on
+   the 5090 today), then the real-weights table.
 
 ## Closed
 
