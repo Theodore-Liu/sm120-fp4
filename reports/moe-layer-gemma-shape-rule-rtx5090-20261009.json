@@ -1,0 +1,156 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "baseline": "reports/moe-baseline-gemma4-26b-a4b-shape-rtx5090-20261008.json",
+ "shape": {
+  "experts": 128,
+  "top_k": 8,
+  "hidden": 2816,
+  "inter": 704
+ },
+ "rule": {
+  "1": [
+   "cuda_core",
+   "cuda_core"
+  ],
+  "2": [
+   "cuda_core",
+   "cuda_core"
+  ],
+  "4": [
+   "cuda_core",
+   "cuda_core"
+  ],
+  "8": [
+   "tensor_core",
+   "prefetch"
+  ],
+  "16": [
+   "tensor_core",
+   "prefetch"
+  ]
+ },
+ "shape_swept": true,
+ "override": {
+  "fc1": "rule",
+  "fc2": "rule"
+ },
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 1,
+   "fc1": "cuda_core",
+   "fc2": "cuda_core",
+   "rel_err_vs_fp32_moe": 0.0023843555245548487,
+   "bit_identical_50": true,
+   "layer_us": 35.711999982595444,
+   "all_cuda_core_layer_us": 35.80800071358681,
+   "all_cuda_core_rel_err": 0.0023843555245548487,
+   "best_existing": "b12x-w4a16",
+   "best_existing_us": 41.760001331567764
+  },
+  {
+   "routing": "random",
+   "tokens": 2,
+   "fc1": "cuda_core",
+   "fc2": "cuda_core",
+   "rel_err_vs_fp32_moe": 0.002354188822209835,
+   "bit_identical_50": true,
+   "layer_us": 52.000001072883606,
+   "all_cuda_core_layer_us": 52.000001072883606,
+   "all_cuda_core_rel_err": 0.002354188822209835,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 58.14399942755699
+  },
+  {
+   "routing": "random",
+   "tokens": 4,
+   "fc1": "cuda_core",
+   "fc2": "cuda_core",
+   "rel_err_vs_fp32_moe": 0.0023222123272717,
+   "bit_identical_50": true,
+   "layer_us": 88.86399865150452,
+   "all_cuda_core_layer_us": 89.05600011348724,
+   "all_cuda_core_rel_err": 0.0023222123272717,
+   "best_existing": "b12x-w4a16",
+   "best_existing_us": 96.00000083446503
+  },
+  {
+   "routing": "random",
+   "tokens": 8,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err_vs_fp32_moe": 0.002318938495591283,
+   "bit_identical_50": true,
+   "layer_us": 150.33599734306335,
+   "all_cuda_core_layer_us": 154.40000593662262,
+   "all_cuda_core_rel_err": 0.0023196612019091845,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 149.24800395965576
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err_vs_fp32_moe": 0.002367052249610424,
+   "bit_identical_50": true,
+   "layer_us": 242.46400594711304,
+   "all_cuda_core_layer_us": 279.5200049877167,
+   "all_cuda_core_rel_err": 0.0023680576123297215,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 204.44799959659576
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 1,
+   "fc1": "cuda_core",
+   "fc2": "cuda_core",
+   "rel_err_vs_fp32_moe": 0.0023403591476380825,
+   "bit_identical_50": true,
+   "layer_us": 36.54399886727333,
+   "all_cuda_core_layer_us": 35.61599925160408,
+   "all_cuda_core_rel_err": 0.0023403591476380825,
+   "best_existing": null,
+   "best_existing_us": null
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 4,
+   "fc1": "cuda_core",
+   "fc2": "cuda_core",
+   "rel_err_vs_fp32_moe": 0.002345472341403365,
+   "bit_identical_50": true,
+   "layer_us": 60.19200012087822,
+   "all_cuda_core_layer_us": 60.19200012087822,
+   "all_cuda_core_rel_err": 0.002345472341403365,
+   "best_existing": null,
+   "best_existing_us": null
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 8,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err_vs_fp32_moe": 0.0023397032637149096,
+   "bit_identical_50": true,
+   "layer_us": 46.911999583244324,
+   "all_cuda_core_layer_us": 111.39199882745743,
+   "all_cuda_core_rel_err": 0.0023401323705911636,
+   "best_existing": null,
+   "best_existing_us": null
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "rel_err_vs_fp32_moe": 0.0023570191115140915,
+   "bit_identical_50": true,
+   "layer_us": 50.944000482559204,
+   "all_cuda_core_layer_us": 217.8879976272583,
+   "all_cuda_core_rel_err": 0.0023561823181807995,
+   "best_existing": null,
+   "best_existing_us": null
+  }
+ ]
+}

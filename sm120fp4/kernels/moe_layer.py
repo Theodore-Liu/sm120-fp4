@@ -38,8 +38,17 @@ fc2p = sys.modules["fc2_mma_pf"]
 moe = sys.modules["moe_w4a16"]
 
 
-def choice(m: int) -> tuple[str, str]:
-    """(FC1 kernel, FC2 kernel) for a batch of m tokens.
+SWEPT_SHAPES = {(2048, 768): "qwen", (2048, 1024): "qwen", (2816, 704): "gemma"}
+
+
+def choice(m: int, hidden: int = 2048, inter: int = 768) -> tuple[str, str]:
+    """(FC1 kernel, FC2 kernel) for a batch of m tokens at a shape.
+
+    Two shapes have been swept. At 2048 x 768 (the Qwen3-30B-A3B layer; 1024 shares the rule) the tensor-core kernels
+    take over from 2 tokens, as below. At 2816 x 704 (the Gemma-4-26B-A4B layer; reports/moe-layer-gemma-shape-fc1-*-fc2-*-
+    rtx5090-20261009.json) the CUDA-core pair leads by 4 to 5 us through 4 tokens on random routing and the tensor-core pair
+    from 8 (2 us at 8, 37 us at 16), so that shape switches at 8. Any other shape takes the Qwen rule, and the report says the
+    shape was not swept (shape_swept false).
 
     FC2 runs the prefetch kernel with one group per column tile up to 16 tokens: in the layer on real weights, with the
     activations FC1 leaves in L2, one group is 6 us faster than two at 8 and 16 random tokens and equal on 8 experts
@@ -50,8 +59,9 @@ def choice(m: int) -> tuple[str, str]:
     at 4 tokens and 30 us longer at 8 (reports/real-ckpt-layer0-fc1sweep-rtx5090-2026-10-01.json)."""
     if not 1 <= m <= 16:
         raise ValueError(f"the layer's kernels take 1 to 16 tokens, not {m}")
-    f1 = "cuda_core" if m == 1 else "tensor_core"
-    f2 = "cuda_core" if m == 1 else "prefetch"
+    cutoff = 8 if SWEPT_SHAPES.get((hidden, inter)) == "gemma" else 2
+    f1 = "cuda_core" if m < cutoff else "tensor_core"
+    f2 = "cuda_core" if m < cutoff else "prefetch"
     return f1, f2
 
 
@@ -105,7 +115,7 @@ def main(argv=None) -> int:
         out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
         out_cc = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
         wflat = wts.reshape(-1).contiguous()
-        f1, f2 = choice(m)
+        f1, f2 = choice(m, h, i)
         if a.fc1 != "rule":
             f1 = a.fc1
         if a.fc2 != "rule":
@@ -171,7 +181,7 @@ def main(argv=None) -> int:
         case("fixed8", m, fixed.repeat(m, 1).contiguous(), wts, x)
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "baseline": str(a.baseline), "shape": {"experts": e, "top_k": k, "hidden": h, "inter": i},
-                                 "rule": {str(m): choice(m) for m in (1, 2, 4, 8, 16)}, "override": {"fc1": a.fc1, "fc2": a.fc2}, "rows": rows}, indent=1) + "\n",
+                                 "rule": {str(m): choice(m, h, i) for m in (1, 2, 4, 8, 16)}, "shape_swept": (h, i) in SWEPT_SHAPES, "override": {"fc1": a.fc1, "fc2": a.fc2}, "rows": rows}, indent=1) + "\n",
                      encoding="utf-8")
     print(f"written {a.out}")
     return 0

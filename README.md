@@ -70,7 +70,7 @@ the switch on installs `sm120fp4.vllm_classes.SM120Fp4Config`; the five kernel m
 
 Limits. The kernels compile at first use (`torch.utils.cpp_extension.load_inline`), so a CUDA toolkit with `nvcc` is needed on the serving
 host and the first engine start takes a few minutes longer. The backend checks the shapes it was measured on (`sm120fp4/vllm_backend.py`:
-at most 16 tokens per call, hidden size 2048, intermediate size 768 or 1024, the Qwen3-30B-A3B-NVFP4 layer; the W4A16 FC1 kernel also takes any hidden size that is a multiple of 32 up to 4096, measured at 2816 x 704) and was measured on the RTX 5090
+at most 16 tokens per call, hidden size 2048, intermediate size 768 or 1024, the Qwen3-30B-A3B-NVFP4 layer; every kernel form also runs at 2816 x 704, the Gemma-4-26B-A4B layer, where the composed layer's kernel rule switches to tensor cores at 8 tokens instead of 2; see BACKLOG item 10) and was measured on the RTX 5090
 and the RTX PRO 6000 only (the tables below).
 
 ## Layout of the repository

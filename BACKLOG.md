@@ -356,6 +356,14 @@ closes it. Dates are when an item was added, not estimates.
    2 tokens) is therefore 4 to 5 us wrong at 2 and 4 tokens here and right from 8. A rule on tokens per touched expert rather
    than on batch size would cover both routings; it needs the router's counts on the host or a device-side selection, which the
    layer does not have. Not changed yet; recorded as the open item with its numbers.
+   Done 2026-10-09: `choice(m, hidden, inter)` takes the shape; the two swept shapes carry their own cutoffs (tensor cores from 2
+   tokens at 2048 x 768 and 1024, from 8 at 2816 x 704), any other shape takes the Qwen rule and the report says `shape_swept`
+   false; the callers that pass only m keep the Qwen rule. The Gemma-shape layer under its rule
+   (`reports/moe-layer-gemma-shape-rule-rtx5090-20261009.json`): 35.7 / 52.0 / 88.9 / 150.3 / 242.5 us at 1 / 2 / 4 / 8 / 16 tokens
+   against the best existing path 41.8 / 58.1 / 96.0 / 149.2 / 204.4, 1.17x / 1.12x / 1.08x / 0.99x / 0.84x (the Qwen rule read
+   1.11x / 1.00x / 1.01x / 0.99x / 0.84x here); eight fixed experts 36.5 / 60.2 / 46.9 / 50.9 at 1 / 4 / 8 / 16 (the cutoff at 8 costs
+   that routing 18 us at 4 tokens, where the tensor-core pair reads 42.0). A rule on tokens per touched expert would take both
+   routings; it stays the open item.
 
 ## Closed
 
