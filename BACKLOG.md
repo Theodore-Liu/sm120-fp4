@@ -392,6 +392,13 @@ closes it. Dates are when an item was added, not estimates.
    with 4 experts in flight per tile per group, where 8 warps x 1 group gives 176 blocks of 256: the second wave and the smaller block
    are what the 170 SMs want here. Next: let the layer build the FC2 module with a per-shape warp count (fc2p.build(warps=4) for the
    Gemma shape) and re-time the layer; the 16-token layer at 234.3 us has 133.9 of FC2 in it.
+   Done 2026-10-09: `moe_layer.py` builds the FC2 prefetch module with `fc2_warps(hidden, inter)` (4 at 2816 x 704, 8 elsewhere;
+   `--fc2-warps` overrides; the report records it). The Gemma-shape layer under its rule with the 4-warp FC2
+   (`reports/moe-layer-gemma-shape-rule3-rtx5090-20261009.json`): 36.9 / 54.0 / 90.9 / 138.0 / 215.8 us at 1 / 2 / 4 / 8 / 16 random
+   tokens against the best existing path 41.8 / 58.1 / 96.0 / 149.2 / 204.4, 1.13x / 1.08x / 1.06x / 1.08x / 0.95x (the 8-warp FC2 read
+   1.12x / 1.12x / 1.08x / 1.01x / 0.87x); eight fixed experts 37.6 / 60.1 / 43.8 / 45.9 at 1 / 4 / 8 / 16 (against 36.1 / 59.4 / 47.9 /
+   50.9). The 16-token gap to Marlin at this shape is now 11 us; the FC2 kernel's bytes (56 us at 16 tokens) against its 107 us leave
+   it the part to work on.
 
 ## Closed
 
