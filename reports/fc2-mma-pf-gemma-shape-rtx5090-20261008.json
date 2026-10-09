@@ -1,0 +1,159 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "check_only": false,
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 1,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.00238416506908834,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 19.487999379634857
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.00238416506908834,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.727999672293663
+   },
+   "read_fc2_codes_us": 9.184000082314014
+  },
+  {
+   "routing": "random",
+   "tokens": 2,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023547105956822634,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 29.472000896930695
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023547105956822634,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 33.56799855828285
+   },
+   "read_fc2_codes_us": 13.60000018030405
+  },
+  {
+   "routing": "random",
+   "tokens": 4,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.002322992542758584,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 52.480001002550125
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.002322992542758584,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 52.06400156021118
+   },
+   "read_fc2_codes_us": 23.520000278949738
+  },
+  {
+   "routing": "random",
+   "tokens": 8,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023192530497908592,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 82.46400207281113
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023192530497908592,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 81.11999928951263
+   },
+   "read_fc2_codes_us": 37.696000188589096
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023681691382080317,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 142.14399456977844
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023681691382080317,
+    "bit_identical_50": true,
+    "equals_v1": false,
+    "us": 133.69600474834442
+   },
+   "read_fc2_codes_us": 55.67999929189682
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 1,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023403612431138754,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 19.231999292969704
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023403612431138754,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.27999998629093
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 4,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023454471956938505,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 21.27999998629093
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023454471956938505,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 23.32800067961216
+   },
+   "read_fc2_codes_us": 8.960000239312649
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 8,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023397812619805336,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 22.752000018954277
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023397812619805336,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 24.480000138282776
+   },
+   "read_fc2_codes_us": 9.696000255644321
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "prefetch": {
+    "rel_err_vs_fp32_moe": 0.0023561657872051,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 27.583999559283257
+   },
+   "prefetch_split2": {
+    "rel_err_vs_fp32_moe": 0.0023561657872051,
+    "bit_identical_50": true,
+    "equals_v1": true,
+    "us": 29.472000896930695
+   },
+   "read_fc2_codes_us": 9.375999681651592
+  }
+ ]
+}

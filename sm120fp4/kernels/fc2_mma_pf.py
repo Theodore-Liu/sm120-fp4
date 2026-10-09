@@ -79,10 +79,15 @@ __device__ __forceinline__ void load_expert(const unsigned char* __restrict__ q2
     ws[ch][1] = sb[lane + 32 * (2 * ch + 1)];
     (void)k; (void)r1;
 #else
-    wq[ch][0] = __ldcs(reinterpret_cast<const uint4*>(q2 + r0 * (I / 2) + k / 2));
-    wq[ch][1] = __ldcs(reinterpret_cast<const uint4*>(q2 + r1 * (I / 2) + k / 2));
-    ws[ch][0] = *reinterpret_cast<const unsigned short*>(s2 + r0 * (I / 16) + k / 16);
-    ws[ch][1] = *reinterpret_cast<const unsigned short*>(s2 + r1 * (I / 16) + k / 16);
+    if (k < I) {
+      wq[ch][0] = __ldcs(reinterpret_cast<const uint4*>(q2 + r0 * (I / 2) + k / 2));
+      wq[ch][1] = __ldcs(reinterpret_cast<const uint4*>(q2 + r1 * (I / 2) + k / 2));
+      ws[ch][0] = *reinterpret_cast<const unsigned short*>(s2 + r0 * (I / 16) + k / 16);
+      ws[ch][1] = *reinterpret_cast<const unsigned short*>(s2 + r1 * (I / 16) + k / 16);
+    } else {                                   // a lane past I in the last chunk (I % 128 != 0): zero codes and scales, so its fragments add nothing
+      wq[ch][0] = wq[ch][1] = make_uint4(0u, 0u, 0u, 0u);
+      ws[ch][0] = ws[ch][1] = 0u;
+    }
 #endif
   }
 }
@@ -203,7 +208,7 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
                                      : make_uint4(0, 0, 0, 0);
             (void)av;
 #else
-            const uint4 q = valid[t] ? __ldg(av + v) : make_uint4(0, 0, 0, 0);
+            const uint4 q = (valid[t] && k < I) ? __ldg(av + v) : make_uint4(0, 0, 0, 0);
 #endif
             xb[t][4 * v] = q.x; xb[t][4 * v + 1] = q.y; xb[t][4 * v + 2] = q.z; xb[t][4 * v + 3] = q.w;
           }
@@ -332,15 +337,19 @@ void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor
             torch::Tensor pairs, torch::Tensor weights, torch::Tensor alpha, torch::Tensor out, torch::Tensor scratch,
             torch::Tensor counters, int64_t top_k, int64_t groups) {
   const int M = (int)out.size(0), H = (int)out.size(1), I = (int)act.size(1), U = (int)experts.numel();
-  TORCH_CHECK(M <= MAXM && H % COLS == 0 && (I == 768 || I == 1024), "shape");
+  TORCH_CHECK(M <= MAXM && H % COLS == 0 && I % 32 == 0 && I >= 128 && I <= 1024, "shape: intermediate a multiple of 32 between 128 and 1024");
   TORCH_CHECK(groups >= 1 && groups <= 4 && scratch.numel() >= groups * MAXM * H && counters.numel() >= H / COLS, "scratch");
   auto st = at::cuda::getCurrentCUDAStream();
   dim3 grid(H / COLS, (unsigned)groups);
 #define PF_ARGS grid, st, q2.data_ptr<uint8_t>(), s2.data_ptr<uint8_t>(), reinterpret_cast<const __nv_bfloat16*>(act.data_ptr()), \
     experts.data_ptr<int>(), offsets.data_ptr<int>(), pairs.data_ptr<int>(), weights.data_ptr<float>(), alpha.data_ptr<float>(), \
     reinterpret_cast<__nv_bfloat16*>(out.data_ptr()), scratch.data_ptr<float>(), counters.data_ptr<int>(), U, M, H, I, (int)top_k
-  if (I == 768) { if (M <= 8) launch<1, 6>(PF_ARGS); else launch<2, 6>(PF_ARGS); }
-  else          { if (M <= 8) launch<1, 8>(PF_ARGS); else launch<2, 8>(PF_ARGS); }
+  const int ch = (I + 127) / 128;            // chunks of 128 (four quad lanes x 32); the last may be partial
+#define PF_CH(NT, C) if (ch == C) { launch<NT, C>(PF_ARGS); launched = true; }
+  bool launched = false;
+  if (M <= 8) { PF_CH(1, 1) PF_CH(1, 2) PF_CH(1, 3) PF_CH(1, 4) PF_CH(1, 5) PF_CH(1, 6) PF_CH(1, 7) PF_CH(1, 8) }
+  else { PF_CH(2, 1) PF_CH(2, 2) PF_CH(2, 3) PF_CH(2, 4) PF_CH(2, 5) PF_CH(2, 6) PF_CH(2, 7) PF_CH(2, 8) }
+  TORCH_CHECK(launched, "chunk count");
   TORCH_CHECK(cudaGetLastError() == cudaSuccess, "launch");
 }
 """
@@ -378,12 +387,15 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path, help="JSON report, written into the repository")
     ap.add_argument("--check-only", action="store_true", help="correctness and determinism only, no timing")
     ap.add_argument("--ptxas", action="store_true", help="print register use and spills")
+    ap.add_argument("--hidden", type=int, default=2048, help="hidden size (a multiple of 16); 2816 for the Gemma-4-26B-A4B shape")
+    ap.add_argument("--inter", type=int, default=768, help="expert intermediate size (a multiple of 32, at most 1024); 704 for the Gemma-4-26B-A4B shape")
     a = ap.parse_args(argv)
     if not a.check_only and a.out is None:
         ap.error("--out is required unless --check-only")
     pf, v1, m1, fl = build(a.ptxas), fc2m.build(), fc1.build(), floor.build()
     dev = torch.device("cuda")
-    e, k, h, i = 128, 8, 2048, 768
+    e, k, h, i = 128, 8, a.hidden, a.inter
+    print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
     w = bench.build(e, h, i, dev)
     q1, s1, q2, s2 = (w[n].contiguous() for n in ("q1", "s1", "q2", "s2"))
     alpha = torch.ones(e, device=dev)
@@ -405,7 +417,9 @@ def main(argv=None) -> int:
         variants = {"v1": lambda o: v1.fc2_mma(q2, s2, act, experts, offsets, pairs, wf, alpha, o, k),
                     "prefetch": lambda o: pf.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 1),
                     "prefetch_split2": lambda o: pf.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 2)}
-        variants["v1"](o1)
+        if i % 128 != 0:
+            del variants["v1"]                 # v1 takes I in multiples of 128 only; the comparison column then reads against the prefetch kernel's own output
+        (variants.get("v1") or variants["prefetch"])(o1)
         torch.cuda.synchronize()
         for name, fn in variants.items():
             out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)

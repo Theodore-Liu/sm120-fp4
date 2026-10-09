@@ -325,6 +325,16 @@ closes it. Dates are when an item was added, not estimates.
    15.1 / 23.3 / 41.8 / 70.4 / 106.9; eight fixed experts with every token routed to all: 26.6 / 27.6 / 28.5 / 25.4 us at 1 / 4 / 8 / 16
    tokens (CUDA cores 22.6 / 35.5 / 64.3 / 123.7). The tensor-core form wins from eight tokens per expert as at the Qwen shape and
    trails by 4 us at one token. `fc2_mma_pf` (I in {768, 1024}) is the remaining refusal at this shape.
+   Done 2026-10-08 (FC2 prefetch MMA): `fc2_mma_pf` takes the chunk count from I (ceil(I / 128), 1 to 8; a lane whose 32-wide slice
+   starts at or past I loads zero codes, scales and activations) for I % 32 == 0 between 128 and 1024; the self-check takes
+   `--hidden --inter`, and drops the v1 column when I % 128 != 0 (v1 keeps its multiple-of-128 rule). At 2048 x 768 the correctness
+   rows are unchanged (bit-identical, equal to v1). At 2816 x 704 (`reports/fc2-mma-pf-gemma-shape-rtx5090-20261008.json`),
+   random routing: prefetch 19.5 / 29.5 / 52.5 / 82.5 / 142.1 us at 1 / 2 / 4 / 8 / 16 tokens, split-2 21.7 / 33.6 / 52.1 / 81.1 /
+   133.7, read floors 9.2 / 13.6 / 23.5 / 37.7 / 55.7; eight fixed experts: 19.2 / 21.3 / 22.8 / 27.6 us at 1 / 4 / 8 / 16 tokens
+   (floor about 9). The split-2 output differs from the single-group output in one element of 22528 or 45056 by one bf16 ulp at
+   8 and 16 tokens (a different summation order over the expert partials; the same one-element difference exists at 2048 x 768,
+   where the self-check compares both against v1 and so reports neither); each variant is bit-identical over 50 calls.
+   Every kernel form now runs at the Gemma shape; the MMA layer baseline against marlin at this shape is the next step.
 
 ## Closed
 
