@@ -406,6 +406,15 @@ closes it. Dates are when an item was added, not estimates.
    blocks of 256 threads), so the per-shape warp count stands: 8 at 2048 x 768, 4 at 2816 x 704. What changes between the shapes is
    the tile count against the 170 SMs (128 against 176) and the chunk count per lane (6 against 5.5); a rule from those two numbers
    rather than from the shape table is the cleaner form, once a third shape is measured.
+   Measured 2026-10-09 at the Gemma shape, the grid question closed (`scripts/fc2_pf_warps_sweep.py --warps 4 8 --groups 1 2 3 4`;
+   `reports/fc2-pf-groups-gemma-shape-rtx5090-20261009.json`): three and four groups per column tile (528 and 704 blocks) are
+   correct and deterministic (bit-identical over 50 replays; they differ from the one-group output in summation order at 8 and 16
+   random tokens, same normwise error) and do not beat two. Random routing at 4 / 8 / 16 tokens, 4 warps: 1 group 53.0 / 79.6 /
+   143.1 us, 2 groups 42.5 / 64.8 / 105.7, 3 groups 41.8 / 66.8 / 111.4, 4 groups 44.3 / 66.5 / 105.4; 8 warps 1 to 4 groups at 16
+   tokens 140.5 / 131.9 / 126.6 / 127.7; eight fixed experts at 16 tokens 4 x 2 at 23.7 against 4 x 1 at 30.5 and 8 x 1 at 27.4. The
+   read floor is 23.6 / 37.6 / 56.1 us, so the best form sits at 1.6 to 2.5x its bytes at every grid: the gap is in the kernel body
+   (one expert in flight per warp, the load-to-MMA chain serial per warp), not in wave quantisation. Next: two experts in flight per
+   warp (a second register buffer, the MMA of expert u overlapping the loads of u + 2), check-only first.
 
 ## Closed
 
