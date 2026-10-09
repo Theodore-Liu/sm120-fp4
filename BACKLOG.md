@@ -449,6 +449,16 @@ closes it. Dates are when an item was added, not estimates.
    (`reports/fc2-pf-decode-auto-warps-gemma-shape-rtx5090-20261009.json`). Next: wire `decode="auto"` into `moe_layer.py`'s FC2
    build and re-time the Gemma layer; read why NT 2 loses under the bf16 decode (the HMUL2 dependency chain against the doubled
    activation loads is the first suspect).
+   Wired 2026-10-09: `moe_layer.py` builds the FC2 prefetch module with `fc2_decode(hidden, inter)` ("auto" at 2816 x 704, "f32"
+   elsewhere; `--fc2-decode` overrides; the report records it). In the layer the kernel-level gain does not show at random
+   routing: the Gemma layer under its rule reads 35.6 / 53.1 / 88.9 / 138.0 / 215.8 us at 1 / 2 / 4 / 8 / 16 random tokens with
+   the auto decode against 35.6 / 53.2 / 89.1 / 138.0 / 215.8 with the shipped decode forced, in one session
+   (`reports/moe-layer-gemma-shape-rule4-rtx5090-20261009.json`, `...-rule4-f32decode-...`); on eight fixed experts 43.8 / 45.9
+   against 45.3 / 46.8 at 8 / 16. With the activations FC1 leaves in L2 and the weights streaming, the FC2 kernel in situ is not
+   on its decode instructions at random routing, so the 6 us the standalone kernel saves at 8 tokens is hidden behind whatever
+   the layer waits on there. The wiring stays (bit-identical, never slower, 1 to 1.5 us on fixed experts); the layer's Gemma
+   numbers in README are unchanged. The remaining FC2 question is therefore in situ: what the kernel waits on inside the layer
+   at 8 to 16 random tokens (an ncu read of the layer's FC2 launch, not of the standalone kernel).
 
 ## Closed
 

@@ -48,6 +48,15 @@ def fc2_warps(hidden: int = 2048, inter: int = 768) -> int:
     return 4 if SWEPT_SHAPES.get((hidden, inter)) == "gemma" else 8
 
 
+def fc2_decode(hidden: int = 2048, inter: int = 768) -> str:
+    """fc2_mma_pf.build's decode at a shape: "auto" at 2816 x 704, where the bf16 decode (the e2m1 pair converted straight to bf16x2,
+    one exact bf16x2 multiply) runs 4 warps x 2 groups at 17.2 / 23.3 / 37.7 / 58.1 / 105.2 us for 1 / 2 / 4 / 8 / 16 random tokens
+    against the shipped decode's 18.9 / 24.3 / 42.5 / 64.8 / 105.7, bit-identical (reports/fc2-pf-decode-auto-warps-gemma-shape-
+    rtx5090-20261009.json); "auto" takes it at one pair tile only, since at two the bf16 decode is slower (127.5 against 104.7 at
+    16 tokens). "f32", the shipped decode, elsewhere: the Qwen shape has not been swept under it."""
+    return "auto" if SWEPT_SHAPES.get((hidden, inter)) == "gemma" else "f32"
+
+
 def choice(m: int, hidden: int = 2048, inter: int = 768) -> tuple[str, str]:
     """(FC1 kernel, FC2 kernel) for a batch of m tokens at a shape.
 
@@ -95,9 +104,11 @@ def main(argv=None) -> int:
     ap.add_argument("--fc1", default="rule", choices=("rule", "cuda_core", "tensor_core"), help="override the FC1 kernel for every batch size (default: the rule, choice(m))")
     ap.add_argument("--fc2", default="rule", choices=("rule", "cuda_core", "prefetch", "prefetch_split2"), help="override the FC2 kernel for every batch size (default: the rule)")
     ap.add_argument("--fc2-warps", type=int, default=0, help="warps per block for the FC2 prefetch kernel (default 0: the shape's, fc2_warps())")
+    ap.add_argument("--fc2-decode", default="", choices=("", "f32", "bf16", "auto"), help="fc2_mma_pf.build's decode for the FC2 prefetch kernel (default: the shape's, fc2_decode())")
     a = ap.parse_args(argv)
     warps2 = a.fc2_warps or fc2_warps(a.hidden, a.inter)
-    mr, m1, m2, m1m, m2p = moe.build(), fc1.build(), fc2.build(), fc1m.build(), fc2p.build(warps=warps2)
+    decode2 = a.fc2_decode or fc2_decode(a.hidden, a.inter)
+    mr, m1, m2, m1m, m2p = moe.build(), fc1.build(), fc2.build(), fc1m.build(), fc2p.build(warps=warps2, decode=decode2)
     dev = torch.device("cuda")
     e, k, h, i = a.experts, a.topk, a.hidden, a.inter
     print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
@@ -194,7 +205,7 @@ def main(argv=None) -> int:
         case("fixed8", m, fixed.repeat(m, 1).contiguous(), wts, x)
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "baseline": str(a.baseline), "shape": {"experts": e, "top_k": k, "hidden": h, "inter": i},
-                                 "rule": {str(m): choice(m, h, i) for m in (1, 2, 4, 8, 16)}, "shape_swept": (h, i) in SWEPT_SHAPES, "fc2_warps": warps2, "override": {"fc1": a.fc1, "fc2": a.fc2}, "rows": rows}, indent=1) + "\n",
+                                 "rule": {str(m): choice(m, h, i) for m in (1, 2, 4, 8, 16)}, "shape_swept": (h, i) in SWEPT_SHAPES, "fc2_warps": warps2, "fc2_decode": decode2, "override": {"fc1": a.fc1, "fc2": a.fc2}, "rows": rows}, indent=1) + "\n",
                      encoding="utf-8")
     print(f"written {a.out}")
     return 0
