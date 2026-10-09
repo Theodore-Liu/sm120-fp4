@@ -17,7 +17,8 @@ at one token per expert, 105.2 at sixteen, bytes constant). This version moves t
   of a quad read 64 contiguous bytes of a row per load.
 
 Same layout and output as scripts/fc1_w4a16.py (codes [E, 2I, H/2], rows [up ; gate]; scales [E*2I, H/16] E4M3; act
-[pairs, I] bf16 with pair = token * top_k + j). H must be a multiple of 512 (four warps x four quad lanes x 32).
+[pairs, I] bf16 with pair = token * top_k + j). H must be a multiple of 128 and at most 3072: each warp's quarter is read in
+128-wide chunks (four quad lanes x 32), the chunk count a template parameter, and a lane whose chunk starts past the quarter idles.
 
     PYTHONPATH=. python scripts/fc1_mma.py
 """
@@ -60,7 +61,7 @@ CUDA = r"""
 
 constexpr int WARPS = 4;
 constexpr int ROWS = 16;              // intermediate channels per block (the MMA's M)
-constexpr int CHUNKS = 4;             // 16-byte code vectors per row per thread: H = WARPS * 4 * 32 * CHUNKS = 2048
+// CHUNKS (a template parameter): 16-byte code vectors per row per thread, ceil(H / (WARPS * 4 * 32)); 4 for H = 2048, 6 for 2816
 
 __device__ __forceinline__ float e4m3(unsigned b) {
   __nv_fp8_e4m3 v;
@@ -99,7 +100,7 @@ __device__ __forceinline__ void mma(float* c, unsigned a0, unsigned a1, unsigned
                : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(b0), "r"(b1));
 }
 
-template <int NT>   // 8-token tiles: 1 for up to 8 tokens per expert, 2 for up to 16
+template <int NT, int CHUNKS>   // NT 8-token tiles: 1 for up to 8 tokens per expert, 2 for up to 16; CHUNKS 128-wide k chunks per warp
 __global__ void __launch_bounds__(WARPS * 32)
 k_fc1_mma(const unsigned char* __restrict__ q1, const unsigned char* __restrict__ s1, const __nv_bfloat16* __restrict__ x,
           const int* __restrict__ experts, const int* __restrict__ offsets, const int* __restrict__ pairs,
@@ -116,7 +117,9 @@ k_fc1_mma(const unsigned char* __restrict__ q1, const unsigned char* __restrict_
   const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31, gid = lane >> 2, tig = lane & 3;
   // chunk ch of lane tig covers physical k in [warp*H/4 + ch*128 + tig*32, +32): in each load instruction the quad's four
   // lanes read 64 contiguous bytes of a row (whole 32-byte sectors), and weights and activations share the permutation
-  const int k0 = warp * (H / WARPS) + tig * 32;
+  const int quarter = H / WARPS;           // this warp's span of k; H % 128 == 0 checked on the host, so every lane's 32 k lie inside or outside it whole
+  const int k0 = warp * quarter + tig * 32;
+  const int kend = (warp + 1) * quarter;    // a lane whose chunk starts at or past kend idles in that chunk: zero codes, zero scales, zero activations
 
   // rows: [up gid, up gid+8, gate gid, gate gid+8]
   const long long base = (long long)e * 2 * I + c0;
@@ -143,8 +146,13 @@ k_fc1_mma(const unsigned char* __restrict__ q1, const unsigned char* __restrict_
 #pragma unroll
     for (int r = 0; r < 4; ++r) {
       const int k = k0 + ch * 128;
-      wqa[ch][r] = __ldcs(reinterpret_cast<const uint4*>(q1 + rows[r] * (H / 2) + k / 2));
-      wsa[ch][r] = *reinterpret_cast<const unsigned short*>(s1 + rows[r] * (H / 16) + k / 16);
+      if (k < kend) {
+        wqa[ch][r] = __ldcs(reinterpret_cast<const uint4*>(q1 + rows[r] * (H / 2) + k / 2));
+        wsa[ch][r] = *reinterpret_cast<const unsigned short*>(s1 + rows[r] * (H / 16) + k / 16);
+      } else {
+        wqa[ch][r] = make_uint4(0u, 0u, 0u, 0u);
+        wsa[ch][r] = 0u;
+      }
     }
 #pragma unroll
   for (int ch = 0; ch < CHUNKS; ++ch) {
@@ -157,7 +165,7 @@ k_fc1_mma(const unsigned char* __restrict__ q1, const unsigned char* __restrict_
       const uint4* xv = reinterpret_cast<const uint4*>(x + (long long)tok[t] * H + k);
 #pragma unroll
       for (int v = 0; v < 4; ++v) {
-        const uint4 q = valid[t] ? __ldg(xv + v) : make_uint4(0, 0, 0, 0);
+        const uint4 q = (valid[t] && k < kend) ? __ldg(xv + v) : make_uint4(0, 0, 0, 0);
         xb[t][4 * v] = q.x; xb[t][4 * v + 1] = q.y; xb[t][4 * v + 2] = q.z; xb[t][4 * v + 3] = q.w;
       }
     }
@@ -225,14 +233,18 @@ void fc1_mma_set_pdl(bool on) { g_pdl = on; }
 void fc1_mma(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tensor experts, torch::Tensor offsets,
              torch::Tensor pairs, torch::Tensor alpha, torch::Tensor act, int64_t inter, int64_t top_k) {
   const int H = (int)x.size(1), I = (int)inter, M = (int)x.size(0), U = (int)experts.numel();
-  TORCH_CHECK(H == WARPS * 4 * 32 * CHUNKS && I % ROWS == 0 && M <= 16, "shape");
+  TORCH_CHECK(H % (WARPS * 32) == 0 && H <= WARPS * 128 * 6 && I % ROWS == 0 && M <= 16, "shape: hidden a multiple of 128 and at most 3072, intermediate a multiple of 16, at most 16 tokens");
   auto st = at::cuda::getCurrentCUDAStream();
   const dim3 grid(U * (I / ROWS)), block(WARPS * 32);
+  const int chunks = (H / WARPS + 127) / 128;
 #define FC1M_ARGS q1.data_ptr<uint8_t>(), s1.data_ptr<uint8_t>(), reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()), \
     experts.data_ptr<int>(), offsets.data_ptr<int>(), pairs.data_ptr<int>(), alpha.data_ptr<float>(),                   \
     reinterpret_cast<__nv_bfloat16*>(act.data_ptr()), H, I, (int)top_k
-  if (M <= 8) pdl_launch(k_fc1_mma<1>, grid, block, st, FC1M_ARGS);
-  else pdl_launch(k_fc1_mma<2>, grid, block, st, FC1M_ARGS);
+#define FC1M_CH(NT, CH) if (chunks == CH) { pdl_launch(k_fc1_mma<NT, CH>, grid, block, st, FC1M_ARGS); return_after = true; }
+  bool return_after = false;
+  if (M <= 8) { FC1M_CH(1, 1) FC1M_CH(1, 2) FC1M_CH(1, 3) FC1M_CH(1, 4) FC1M_CH(1, 5) FC1M_CH(1, 6) }
+  else { FC1M_CH(2, 1) FC1M_CH(2, 2) FC1M_CH(2, 3) FC1M_CH(2, 4) FC1M_CH(2, 5) FC1M_CH(2, 6) }
+  TORCH_CHECK(return_after, "chunk count");
   TORCH_CHECK(cudaGetLastError() == cudaSuccess, "launch");
 }
 """
@@ -246,11 +258,14 @@ def build():
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=None, help="write every row to this JSON report")
+    ap.add_argument("--hidden", type=int, default=2048, help="hidden size (a multiple of 128, at most 3072); 2816 for the Gemma-4-26B-A4B shape")
+    ap.add_argument("--inter", type=int, default=768, help="expert intermediate size (a multiple of 16); 704 for the Gemma-4-26B-A4B shape")
     a = ap.parse_args(argv)
     rows = []
     mm, mc, fl = build(), fc1.build(), floor.build()
     dev = torch.device("cuda")
-    e, k, h, i = 128, 8, 2048, 768
+    e, k, h, i = 128, 8, a.hidden, a.inter
+    print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
     w = bench.build(e, h, i, dev)
     q1, s1 = w["q1"].contiguous(), w["s1"].contiguous()
     alpha = torch.ones(e, device=dev)

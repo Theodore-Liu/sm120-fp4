@@ -317,6 +317,14 @@ closes it. Dates are when an item was added, not estimates.
    78.8 / 113.9 / 166.5 (marlin), 1.00x at one token down to 0.59x at sixteen; normwise error 0.0023, bit-identical over 50 calls.
    The CUDA-core path keeps pace only at one token here, as at the Qwen shape; the MMA forms (`fc2_mma_pf`, `fc1_mma`) still refuse
    I = 704 and H = 2816 and are the next step.
+   Done 2026-10-08 (FC1 MMA): `fc1_mma` takes the chunk count as a template parameter (ceil(H / 512); a lane whose 128-wide chunk
+   starts past its warp's quarter loads zero codes, scales and activations, so its fragments add nothing to the fixed-order
+   reduction), dispatched for H % 128 == 0 and H <= 3072; the self-check takes `--hidden --inter`. At 2048 x 768 unchanged
+   (random routing 15.1 / 25.3 / 43.8 / 62.2 / 103.1 us at 1 / 2 / 4 / 8 / 16 tokens, bit-identical). At 2816 x 704, random routing:
+   25.4 / 33.6 / 56.7 / 90.9 / 138.0 us against the CUDA-core kernel's 21.3 / 31.5 / 54.5 / 88.9 / 160.5 and read floors of
+   15.1 / 23.3 / 41.8 / 70.4 / 106.9; eight fixed experts with every token routed to all: 26.6 / 27.6 / 28.5 / 25.4 us at 1 / 4 / 8 / 16
+   tokens (CUDA cores 22.6 / 35.5 / 64.3 / 123.7). The tensor-core form wins from eight tokens per expert as at the Qwen shape and
+   trails by 4 us at one token. `fc2_mma_pf` (I in {768, 1024}) is the remaining refusal at this shape.
 
 ## Closed
 
