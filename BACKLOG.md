@@ -459,6 +459,15 @@ closes it. Dates are when an item was added, not estimates.
    the layer waits on there. The wiring stays (bit-identical, never slower, 1 to 1.5 us on fixed experts); the layer's Gemma
    numbers in README are unchanged. The remaining FC2 question is therefore in situ: what the kernel waits on inside the layer
    at 8 to 16 random tokens (an ncu read of the layer's FC2 launch, not of the standalone kernel).
+   Read 2026-10-09 with the breakdown under the layer's own FC2 build (`scripts/moe_layer_breakdown.py` now builds FC2 with
+   `fc2_warps` / `fc2_decode` and records them; `reports/moe-layer-breakdown-gemma-shape-rule4-rtx5090-20261009.json`): at 8
+   random tokens router 4.9, FC1 90.9, FC2 59.1, layer 137.0 (PDL overlaps the pieces; their sum is 154.9), Marlin 148.3; at 16
+   router 5.9, FC1 139.0, FC2 106.2, layer 215.0, Marlin 205.6; on eight fixed experts at 16 FC1 25.3, FC2 27.4, layer 45.8,
+   Marlin 44.0. So the FC2 in situ matches the standalone kernel (59.1 / 106.2 against 58.1 / 105.2) and the decode gain did
+   land in it (the earlier breakdown's FC2 at 8 tokens read 83.2 under the 8-warp one-group build); what kept the layer at 138.0
+   is the PDL overlap, which already hid FC2's tail. The larger piece is now FC1: 90.9 against a 71.4 us read of its codes at 8
+   tokens and 139.0 against 108.3 at 16 (1.27x and 1.28x), where FC2 sits at 1.57x and 1.89x of its read. The 16-token gap to
+   Marlin (9 us) is FC1's and FC2's NT 2 instantiation together; FC1's tensor-core kernel at this shape is the next read.
 
 ## Closed
 

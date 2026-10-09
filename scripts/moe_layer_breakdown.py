@@ -41,7 +41,8 @@ def main(argv=None) -> int:
     ap.add_argument("--hidden", type=int, default=2048, help="hidden size; 2816 for the Gemma-4-26B-A4B shape")
     ap.add_argument("--inter", type=int, default=768, help="expert intermediate size; 704 for the Gemma-4-26B-A4B shape")
     a = ap.parse_args(argv)
-    mr, m1, m2, m1m, m2p, fl = moe.build(), fc1.build(), fc2.build(), fc1m.build(), fc2p.build(), floor.build()
+    warps2, decode2 = layer_mod.fc2_warps(a.hidden, a.inter), layer_mod.fc2_decode(a.hidden, a.inter)   # the layer's own FC2 build at this shape
+    mr, m1, m2, m1m, m2p, fl = moe.build(), fc1.build(), fc2.build(), fc1m.build(), fc2p.build(warps=warps2, decode=decode2), floor.build()
     dev = torch.device("cuda")
     e, k, h, i = 128, 8, a.hidden, a.inter
     print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
@@ -122,7 +123,7 @@ def main(argv=None) -> int:
     x = torch.randn(16, h, generator=torch.Generator().manual_seed(7)).to(device=dev, dtype=torch.bfloat16)
     case("fixed8", 16, fixed.repeat(16, 1).contiguous(), torch.full((16, k), 1.0 / k, device=dev), x)
     a.out.parent.mkdir(parents=True, exist_ok=True)
-    a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "rows": rows}, indent=1) + "\n", encoding="utf-8")
+    a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "shape": {"hidden": h, "inter": i}, "fc2_warps": warps2, "fc2_decode": decode2, "rows": rows}, indent=1) + "\n", encoding="utf-8")
     print(f"written {a.out}")
     return 0
 
