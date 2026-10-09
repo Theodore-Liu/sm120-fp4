@@ -303,6 +303,11 @@ closes it. Dates are when an item was added, not estimates.
    the shape. M=1: floor 14.9 us, marlin-w4a16 41.8, b12x-w4a16 41.8, b12x-nvfp4 52.2, cutlass-nvfp4 148.2; M=4: floor 56.0 us, marlin-w4a16 96.3, b12x-w4a16 96.0, b12x-nvfp4 119.4, cutlass-nvfp4 179.9; M=16: floor 153.1 us, marlin-w4a16 204.4, b12x-w4a16 208.6, b12x-nvfp4 236.4, cutlass-nvfp4 254.7 us. The W4A16
    paths sit at 2.8 times the byte floor at one token and 1.3 times at sixteen, as at the Qwen shape; the layer's own number at
    this shape waits on the MMA forms' shape generalisation (the step above).
+   Tried 2026-10-08: `sm120fp4/kernels/moe_w4a16.py` now takes `--experts --topk --hidden --inter` (defaults unchanged, the shape
+   recorded in its report). At `--hidden 2816 --inter 704` the CUDA-core layer refuses at FC1: `fc1_w4a16` is specialised to hidden
+   2048 (two iterations of 32 lanes x 32 values), so the W4A16 path needs the shape work as much as the MMA forms; 2816 is not a
+   multiple of 1024, so the FC1 loop over the hidden dimension has to take a count of 256-wide chunks (11 here) rather than of
+   1024-wide ones. No layer number at this shape yet.
 
 ## Closed
 
