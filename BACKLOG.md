@@ -435,6 +435,20 @@ closes it. Dates are when an item was added, not estimates.
    said. The lever is a decode with fewer instructions per fragment: a 16-entry lookup for the e2m1 nibble pairs (PRMT selects
    from two registers instead of F2FP + HADD2 per element), and the scale applied once per 8 x 8 fragment on the accumulator
    rather than per element before the MMA, which trades the FMUL per element for one per output.
+   Done 2026-10-09, the decode first: ptxas on sm_120a takes `cvt.rn.bf16x2.e2m1x2` directly (one `F2FP.BF16.E2M1.UNPACK_B`), and
+   the e2m1 value (one significand bit) times the e4m3 scale (three) has at most four, so a bf16x2 multiply (`HMUL2.BF16_V2`) is
+   exact: two instructions per pair against the shipped six, bit-identical output (`fc2_mma_pf.build(decode="bf16")`, the
+   `PF_DECODE_BF16` build; the NT 2, CH 6 census drops to 242 F2FP, 0 HADD2, 0 FMUL, 192 HMUL2, registers 172 / 164 against
+   171 / 161). Timed at the Gemma shape (`reports/fc2-mma-pf-decode-bf16-gemma-shape-rtx5090-20261009.json`,
+   `reports/fc2-pf-decode-bf16-warps-gemma-shape-rtx5090-20261009.json`): at 8 warps one group 45.9 / 72.4 / 135.9 us against
+   52.0 / 80.7 / 140.1 at 4 / 8 / 16 random tokens; at 4 warps two groups, the shape's shipped form, 37.7 / 58.1 at 4 / 8 against
+   41.8 / 64.3, but 127.5 against 104.7 at 16 tokens, twice back to back, so the bf16 decode loses at the two-tile instantiation
+   (NT 2) for a reason not yet read. `decode="auto"` (the `PF_DECODE_AUTO` build) takes the bf16 decode at NT 1 and the shipped
+   decode at NT 2, compile-time on the template: 4 warps x 2 groups 17.2 / 23.3 / 37.7 / 58.1 / 105.2 us at 1 / 2 / 4 / 8 / 16
+   random tokens against 18.9 / 24.3 / 42.5 / 64.8 / 105.7, bit-identical at every count
+   (`reports/fc2-pf-decode-auto-warps-gemma-shape-rtx5090-20261009.json`). Next: wire `decode="auto"` into `moe_layer.py`'s FC2
+   build and re-time the Gemma layer; read why NT 2 loses under the bf16 decode (the HMUL2 dependency chain against the doubled
+   activation loads is the first suspect).
 
 ## Closed
 

@@ -52,6 +52,31 @@ _V1 = fc2m.CUDA
 _HELPERS = _V1[: _V1.index("template <int NT>")]
 
 CUDA = _HELPERS + r"""
+#if defined(PF_DECODE_BF16) || defined(PF_DECODE_AUTO)
+// e2m1 pair -> bf16x2 in one conversion, scaled by one bf16x2 multiply. e2m1 carries one significand bit and e4m3 three, so the
+// product has at most four and the bf16 multiply is exact: the same bits the shipped path reaches through fp32.
+__device__ __forceinline__ unsigned fp4x2_bf16(unsigned byte) {
+  unsigned o;
+  unsigned short in = (unsigned short)byte;
+  asm("{ .reg .b8 lo, hi;\n mov.b16 {lo, hi}, %1;\n cvt.rn.bf16x2.e2m1x2 %0, lo; }\n" : "=r"(o) : "h"(in));
+  return o;
+}
+__device__ __forceinline__ unsigned bf16x2_broadcast(float s) {
+  __nv_bfloat162 v = __floats2bfloat162_rn(s, s);
+  return *reinterpret_cast<unsigned*>(&v);
+}
+__device__ __forceinline__ unsigned hmul2_bf16(unsigned a, unsigned b) {
+  __nv_bfloat162 x = *reinterpret_cast<__nv_bfloat162*>(&a), y = *reinterpret_cast<__nv_bfloat162*>(&b);
+  __nv_bfloat162 r = __hmul2(x, y);
+  return *reinterpret_cast<unsigned*>(&r);
+}
+__device__ __forceinline__ void decode_pairs_bf16(uint4 q, unsigned s01, unsigned* dst) {
+  const unsigned s0 = bf16x2_broadcast(e4m3(s01 & 0xff)), s1 = bf16x2_broadcast(e4m3((s01 >> 8) & 0xff));
+  const unsigned w[4] = {q.x, q.y, q.z, q.w};
+#pragma unroll
+  for (int j = 0; j < 16; ++j) dst[j] = hmul2_bf16(fp4x2_bf16((w[j >> 2] >> (8 * (j & 3))) & 0xff), j < 8 ? s0 : s1);
+}
+#endif
 template <int CH>
 __device__ __forceinline__ void load_expert(const unsigned char* __restrict__ q2, const unsigned char* __restrict__ s2,
                                             long long r0, int I, int tig, uint4 (&wq)[CH][2], unsigned (&ws)[CH][2]) {
@@ -245,8 +270,21 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
         c[0][0] += (acc == 0x9e3779b9u) ? 1.f : 0.f;
 #else
         unsigned a[2][16];
+#if defined(PF_DECODE_BF16)
+        decode_pairs_bf16(wq[ch][0], ws[ch][0], a[0]);
+        decode_pairs_bf16(wq[ch][1], ws[ch][1], a[1]);
+#elif defined(PF_DECODE_AUTO)
+        if constexpr (NT == 1) {                       // the bf16 decode wins at one pair tile (up to 8 tokens) and loses at two
+          decode_pairs_bf16(wq[ch][0], ws[ch][0], a[0]);
+          decode_pairs_bf16(wq[ch][1], ws[ch][1], a[1]);
+        } else {
+          decode_pairs(wq[ch][0], ws[ch][0], a[0]);
+          decode_pairs(wq[ch][1], ws[ch][1], a[1]);
+        }
+#else
         decode_pairs(wq[ch][0], ws[ch][0], a[0]);
         decode_pairs(wq[ch][1], ws[ch][1], a[1]);
+#endif
 #pragma unroll
         for (int s = 0; s < 8; ++s)
 #pragma unroll
@@ -385,7 +423,7 @@ void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor
 
 
 def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_blocks: int = 0, mode: str = "full",
-          chain: bool = False, no_act: bool = False, inflight: int = 1):
+          chain: bool = False, no_act: bool = False, inflight: int = 1, decode: str = "f32"):
     """skip_empty: skip the tensor-core work of a pair tile an expert does not fill (M > 8, fewer than 9 pairs).
     warps: warps per block (8 by default); min_blocks: __launch_bounds__'s minimum resident blocks per SM (0: unset).
     no_act: timing only, activations made from the pair index instead of read.
@@ -395,6 +433,7 @@ def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_b
     inflight: experts whose weights a warp holds ahead of the one it computes (1, the register double buffer; 2, a three-buffer ring)."""
     assert mode in ("full", "loads", "math", "loads_contig")
     assert inflight in (1, 2), inflight
+    assert decode in ("f32", "bf16", "auto"), decode   # bf16: PF_DECODE_BF16, the e2m1 pair converted straight to bf16x2 and scaled with one bf16x2 multiply; auto: bf16 at NT 1, f32 at NT 2
     src = CUDA
     if warps != 8:
         assert src.count("constexpr int WARPS = 8;") == 1
@@ -402,11 +441,11 @@ def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_b
     if min_blocks:
         assert src.count("__launch_bounds__(WARPS * 32)") == 1
         src = src.replace("__launch_bounds__(WARPS * 32)", f"__launch_bounds__(WARPS * 32, {min_blocks})")
-    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "") + ("" if mode == "full" else f"_{mode}") + ("_chain" if chain else "") + ("_noact" if no_act else "") + ("_if2" if inflight == 2 else "")
+    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "") + ("" if mode == "full" else f"_{mode}") + ("_chain" if chain else "") + ("_noact" if no_act else "") + ("_if2" if inflight == 2 else "") + ({"f32": "", "bf16": "_dbf", "auto": "_dauto"}[decode])
     return load_inline(name=name, cpp_sources=CPP, cuda_sources=src,
                        functions=["fc2_pf", "fc2_pf_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
-                       + (["-DPF_SKIP_EMPTY"] if skip_empty else []) + (["-DPF_CHAIN"] if chain else []) + (["-DPF_NO_ACT"] if no_act else []) + (["-DPF_INFLIGHT2"] if inflight == 2 else [])
+                       + (["-DPF_SKIP_EMPTY"] if skip_empty else []) + (["-DPF_CHAIN"] if chain else []) + (["-DPF_NO_ACT"] if no_act else []) + (["-DPF_INFLIGHT2"] if inflight == 2 else []) + ({"f32": [], "bf16": ["-DPF_DECODE_BF16"], "auto": ["-DPF_DECODE_AUTO"]}[decode])
                        + ({"full": [], "loads": ["-DPF_LOADS_ONLY"], "math": ["-DPF_MATH_ONLY"],
                            "loads_contig": ["-DPF_LOADS_ONLY", "-DPF_LOADS_CONTIG"]}[mode])
                        + (["-Xptxas=-v"] if verbose else []),
@@ -421,11 +460,13 @@ def main(argv=None) -> int:
     ap.add_argument("--hidden", type=int, default=2048, help="hidden size (a multiple of 16); 2816 for the Gemma-4-26B-A4B shape")
     ap.add_argument("--inter", type=int, default=768, help="expert intermediate size (a multiple of 32, at most 1024); 704 for the Gemma-4-26B-A4B shape")
     ap.add_argument("--inflight2", action="store_true", help="also build and run the two-ahead prefetch (PF_INFLIGHT2) as the inflight2 and inflight2_split2 variants")
+    ap.add_argument("--decode-bf16", action="store_true", help="also build and run the bf16 decode (PF_DECODE_BF16) as the decode_bf16 and decode_bf16_split2 variants")
     a = ap.parse_args(argv)
     if not a.check_only and a.out is None:
         ap.error("--out is required unless --check-only")
     pf, v1, m1, fl = build(a.ptxas), fc2m.build(), fc1.build(), floor.build()
     pf2 = build(a.ptxas, inflight=2) if a.inflight2 else None
+    pfd = build(a.ptxas, decode="bf16") if a.decode_bf16 else None
     dev = torch.device("cuda")
     e, k, h, i = 128, 8, a.hidden, a.inter
     print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
@@ -453,6 +494,9 @@ def main(argv=None) -> int:
         if pf2 is not None:
             variants["inflight2"] = lambda o: pf2.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 1)
             variants["inflight2_split2"] = lambda o: pf2.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 2)
+        if pfd is not None:
+            variants["decode_bf16"] = lambda o: pfd.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 1)
+            variants["decode_bf16_split2"] = lambda o: pfd.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 2)
         if i % 128 != 0:
             del variants["v1"]                 # v1 takes I in multiples of 128 only; the comparison column then reads against the prefetch kernel's own output
         (variants.get("v1") or variants["prefetch"])(o1)
