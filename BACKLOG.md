@@ -345,6 +345,17 @@ closes it. Dates are when an item was added, not estimates.
    tokens, where the all-CUDA-core layer is faster by 6 us at 2 and 4 tokens; and at sixteen tokens the layer trails marlin by 16
    percent at this shape (at the Qwen shape it led). A per-shape rule, or a rule on bytes per touched expert rather than on tokens, is
    the open item; the Gemma shape's smaller expert (704 x 2816 against 768 x 2048, 1.27x the bytes) shifts every crossover.
+   Measured 2026-10-09: `moe_layer.py --fc1 --fc2` override the rule for every row, and the four combinations at 2816 x 704
+   (`reports/moe-layer-gemma-shape-fc1-*-fc2-*-rtx5090-20261009.json`, random routing, 1 / 2 / 4 / 8 / 16 tokens):
+   CUDA-core + CUDA-core 36.6 / 52.0 / 90.6 / 154.4 / 281.4; tensor-core + prefetch 41.8 / 56.6 / 95.0 / 152.2 / 244.5;
+   CUDA-core + prefetch 37.6 / 56.1 / 93.0 / 158.2 / 275.6; tensor-core + CUDA-core 40.7 / 55.7 / 92.9 / 154.4 / 253.7. On eight
+   fixed experts with every token routed to all (1 / 4 / 8 / 16): 37.5 / 60.2 / 108.6 / 213.8; 39.9 / 42.0 / 45.7 / 50.0;
+   37.6 / 52.0 / 82.9 / 148.3; 39.7 / 50.9 / 71.4 / 117.5. The rule that fits this shape: CUDA-core kernels through 4 tokens
+   (they lead by 4 to 5 us at 1 to 4 on random routing), tensor-core FC1 with the prefetch FC2 from 8 (2 us at 8, 37 us at 16);
+   on concentrated routing the tensor-core pair wins from 4 tokens, as at the Qwen shape. The Qwen-shape rule (tensor cores from
+   2 tokens) is therefore 4 to 5 us wrong at 2 and 4 tokens here and right from 8. A rule on tokens per touched expert rather
+   than on batch size would cover both routings; it needs the router's counts on the host or a device-side selection, which the
+   layer does not have. Not changed yet; recorded as the open item with its numbers.
 
 ## Closed
 

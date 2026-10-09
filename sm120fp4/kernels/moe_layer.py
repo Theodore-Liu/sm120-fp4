@@ -71,6 +71,8 @@ def main(argv=None) -> int:
     ap.add_argument("--topk", type=int, default=8)
     ap.add_argument("--hidden", type=int, default=2048, help="hidden size; 2816 for the Gemma-4-26B-A4B shape (with --inter 704 and its baseline report)")
     ap.add_argument("--inter", type=int, default=768, help="expert intermediate size; 704 for the Gemma-4-26B-A4B shape")
+    ap.add_argument("--fc1", default="rule", choices=("rule", "cuda_core", "tensor_core"), help="override the FC1 kernel for every batch size (default: the rule, choice(m))")
+    ap.add_argument("--fc2", default="rule", choices=("rule", "cuda_core", "prefetch", "prefetch_split2"), help="override the FC2 kernel for every batch size (default: the rule)")
     a = ap.parse_args(argv)
     mr, m1, m2, m1m, m2p = moe.build(), fc1.build(), fc2.build(), fc1m.build(), fc2p.build()
     dev = torch.device("cuda")
@@ -104,6 +106,10 @@ def main(argv=None) -> int:
         out_cc = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
         wflat = wts.reshape(-1).contiguous()
         f1, f2 = choice(m)
+        if a.fc1 != "rule":
+            f1 = a.fc1
+        if a.fc2 != "rule":
+            f2 = a.fc2
         for fn in (m1.fc1_set_pdl, m2.fc2_set_pdl, m1m.fc1_mma_set_pdl, m2p.fc2_pf_set_pdl):
             fn(use_pdl(m))                        # dependent launch per batch size, the layer's rule
 
@@ -165,7 +171,7 @@ def main(argv=None) -> int:
         case("fixed8", m, fixed.repeat(m, 1).contiguous(), wts, x)
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "baseline": str(a.baseline), "shape": {"experts": e, "top_k": k, "hidden": h, "inter": i},
-                                 "rule": {str(m): choice(m) for m in (1, 2, 4, 8, 16)}, "rows": rows}, indent=1) + "\n",
+                                 "rule": {str(m): choice(m) for m in (1, 2, 4, 8, 16)}, "override": {"fc1": a.fc1, "fc2": a.fc2}, "rows": rows}, indent=1) + "\n",
                      encoding="utf-8")
     print(f"written {a.out}")
     return 0
