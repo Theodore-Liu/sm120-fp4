@@ -47,8 +47,8 @@ def choice(m: int, hidden: int = 2048, inter: int = 768) -> tuple[str, str]:
     Two shapes have been swept. At 2048 x 768 (the Qwen3-30B-A3B layer; 1024 shares the rule) the tensor-core kernels
     take over from 2 tokens, as below. At 2816 x 704 (the Gemma-4-26B-A4B layer; reports/moe-layer-gemma-shape-fc1-*-fc2-*-
     rtx5090-20261009.json) the CUDA-core pair leads by 4 to 5 us through 4 tokens on random routing and the tensor-core pair
-    from 8 (2 us at 8, 37 us at 16), so that shape switches at 8. Any other shape takes the Qwen rule, and the report says the
-    shape was not swept (shape_swept false).
+    from 8 (2 us at 8, 37 us at 16), so that shape switches at 8, and its FC2 runs with two groups per column tile. Any other
+    shape takes the Qwen rule, and the report says the shape was not swept (shape_swept false).
 
     FC2 runs the prefetch kernel with one group per column tile up to 16 tokens: in the layer on real weights, with the
     activations FC1 leaves in L2, one group is 6 us faster than two at 8 and 16 random tokens and equal on 8 experts
@@ -59,9 +59,13 @@ def choice(m: int, hidden: int = 2048, inter: int = 768) -> tuple[str, str]:
     at 4 tokens and 30 us longer at 8 (reports/real-ckpt-layer0-fc1sweep-rtx5090-2026-10-01.json)."""
     if not 1 <= m <= 16:
         raise ValueError(f"the layer's kernels take 1 to 16 tokens, not {m}")
-    cutoff = 8 if SWEPT_SHAPES.get((hidden, inter)) == "gemma" else 2
+    gemma = SWEPT_SHAPES.get((hidden, inter)) == "gemma"
+    cutoff = 8 if gemma else 2
     f1 = "cuda_core" if m < cutoff else "tensor_core"
-    f2 = "cuda_core" if m < cutoff else "prefetch"
+    # at 2816 x 704 the two-group prefetch FC2 is the faster form from 8 tokens (148.3 / 233.2 us against 150.3 / 242.5 at 8 / 16
+    # random tokens, equal on eight fixed experts; reports/moe-layer-gemma-shape-fc1-tensor_core-fc2-prefetch_split2-rtx5090-20261009.json);
+    # the 176 column tiles of that shape fill the 170 SMs once, so the second group is what gives the GPU a second wave
+    f2 = "cuda_core" if m < cutoff else ("prefetch_split2" if gemma else "prefetch")
     return f1, f2
 
 

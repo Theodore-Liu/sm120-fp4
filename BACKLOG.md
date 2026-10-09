@@ -374,6 +374,13 @@ closes it. Dates are when an item was added, not estimates.
    is 704 x 2816 (a shorter k, 5.5 chunks of 128 with a half chunk, and 176 column tiles of 16 against 128 at the Qwen shape), so
    each warp does less work per expert row and the prefetch covers less; a 32-wide k slice per lane or two experts per warp in
    flight is the next thing to try on FC2 at this shape.
+   Done 2026-10-09 (FC2 groups at this shape): with the tensor-core FC1, the two-group prefetch FC2 runs the layer at 148.3 / 233.2 us
+   against the one-group 150.3 / 242.5 at 8 / 16 random tokens and 47.9 / 50.1 against 46.9 / 50.9 on eight fixed experts
+   (`reports/moe-layer-gemma-shape-fc1-tensor_core-fc2-prefetch_split2-rtx5090-20261009.json`); the shape's 176 column tiles fill the
+   170 SMs once, so the second group is the second wave. The Gemma rule now takes `prefetch_split2` from 8 tokens; under it the layer
+   reads 37.4 / 52.0 / 88.9 / 148.1 / 234.3 us at 1 / 2 / 4 / 8 / 16 random tokens against the best existing path 41.8 / 58.1 / 96.0 / 149.2 / 204.4
+   (`reports/moe-layer-gemma-shape-rule2-rtx5090-20261009.json`). The FC2 kernel's own 2.2 to 3.7x of its bytes at this shape stands;
+   the k-slice and two-experts-in-flight ideas are still the open item.
 
 ## Closed
 
