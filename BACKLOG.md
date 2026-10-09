@@ -427,6 +427,14 @@ closes it. Dates are when an item was added, not estimates.
    between loads and MMAs), which the ncu stall-reason read (BACKLOG item 10, 2026-10-01: fewer instructions, not occupancy) also
    pointed at. Next: an instruction-count diff of the k loop at CH = 6 (`cuobjdump -sass`), then a decode path with fewer
    instructions per fragment.
+   Counted 2026-10-09 (`cuobjdump -sass` of the shipped build's NT = 2, CH = 6 instantiation, the one the Gemma shape runs at
+   more than 8 tokens; 5951 lines, the k loop fully unrolled so the function is the loop body plus the epilogue): 96 HMMA against
+   410 F2FP, 408 HADD2, 391 FMUL, 216 LOP3, 187 IADD, 178 CS2R, 146 LDG, 145 SHF, 137 MOV, 132 IMAD, 48 PRMT. The e2m1 decode
+   (nibble to half, scale multiply, repack) is about 1200 float and pack instructions for 96 tensor-core instructions, twelve per
+   MMA, where the loads are 1.5 per MMA; the issue slots go to decoding, not to waiting on memory, which is what the stall read
+   said. The lever is a decode with fewer instructions per fragment: a 16-entry lookup for the e2m1 nibble pairs (PRMT selects
+   from two registers instead of F2FP + HADD2 per element), and the scale applied once per 8 x 8 fragment on the accumulator
+   rather than per element before the MMA, which trades the FMUL per element for one per output.
 
 ## Closed
 
