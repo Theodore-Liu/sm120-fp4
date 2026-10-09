@@ -415,6 +415,18 @@ closes it. Dates are when an item was added, not estimates.
    read floor is 23.6 / 37.6 / 56.1 us, so the best form sits at 1.6 to 2.5x its bytes at every grid: the gap is in the kernel body
    (one expert in flight per warp, the load-to-MMA chain serial per warp), not in wave quantisation. Next: two experts in flight per
    warp (a second register buffer, the MMA of expert u overlapping the loads of u + 2), check-only first.
+   Measured 2026-10-09, two experts ahead does not help either (`fc2_mma_pf.build(inflight=2)`, the `PF_INFLIGHT2` build: a
+   three-buffer ring, the expert two ahead loading while the current one computes; off by default). It is correct and bit-identical
+   to the one-ahead output at every count (`reports/fc2-mma-pf-inflight2-gemma-shape-rtx5090-20261009.json`), but at 2816 x 704 it
+   holds 235 / 247 registers (NT 1 / 2) against 161 / 171 for one ahead, so at 8 warps one block fits an SM and at 4 warps two. At
+   8 warps it is within noise of one ahead (random 4 / 8 / 16 tokens: 52.0 / 81.5 / 133.3 against 52.0 / 82.2 / 139.8; with two
+   groups 54.0 / 80.7 / 127.8 against 53.0 / 80.6 / 132.9); at 4 warps and two groups, the shape's shipped form, it is slower
+   (50.0 / 78.6 / 124.7 against 42.5 / 64.8 / 105.7; `reports/fc2-pf-inflight2-warps-gemma-shape-rtx5090-20261009.json`). The
+   I = 1024 instantiations spill under it (64 and 128 bytes of stack), one more reason it stays opt-in. So neither the grid nor the
+   depth of the prefetch is the gap; what is left is the per-warp instruction stream itself (decode_pairs and the fragment shuffles
+   between loads and MMAs), which the ncu stall-reason read (BACKLOG item 10, 2026-10-01: fewer instructions, not occupancy) also
+   pointed at. Next: an instruction-count diff of the k loop at CH = 6 (`cuobjdump -sass`), then a decode path with fewer
+   instructions per fragment.
 
 ## Closed
 

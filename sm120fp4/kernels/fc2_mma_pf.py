@@ -147,18 +147,39 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
   uint4 wq[CH][2];
   unsigned ws[CH][2];
   if (e >= 0) load_expert<CH>(q2, s2, (long long)e * H + n0 + gid, I, tig, wq, ws);
+#ifdef PF_INFLIGHT2
+  // two experts ahead: wq2 holds the next expert's weights while nq (below) receives the one after it
+  uint4 wq2[CH][2];
+  unsigned ws2[CH][2];
+  {
+    const int u1 = u + stride;
+    const int e1 = u1 < U ? experts[u1] : -1;
+    if (e1 >= 0) {
+      load_expert<CH>(q2, s2, (long long)e1 * H + n0 + gid, I, tig, wq2, ws2);
+    } else {
+#pragma unroll
+      for (int ch = 0; ch < CH; ++ch) { wq2[ch][0] = wq2[ch][1] = make_uint4(0, 0, 0, 0); ws2[ch][0] = ws2[ch][1] = 0u; }
+    }
+  }
+#endif
 #ifdef PF_CHAIN
   Meta<NT> cur, nxt;
   if (e >= 0) load_meta<NT>(offsets, pairs, weights, alpha, u, e, gid, tig, top_k, cur);
 #endif
   for (; u < U; u += stride) {
-    // issue the next expert's loads before this expert's arithmetic
+    // issue the next expert's loads before this expert's arithmetic (two ahead under PF_INFLIGHT2)
     const int un = u + stride;
     const int en = un < U ? experts[un] : -1;
     uint4 nq[CH][2];
     unsigned ns[CH][2];
-    if (en >= 0) {
-      load_expert<CH>(q2, s2, (long long)en * H + n0 + gid, I, tig, nq, ns);
+#ifdef PF_INFLIGHT2
+    const int u2 = u + 2 * stride;
+    const int eload = u2 < U ? experts[u2] : -1;
+#else
+    const int eload = en;
+#endif
+    if (eload >= 0) {
+      load_expert<CH>(q2, s2, (long long)eload * H + n0 + gid, I, tig, nq, ns);
     } else {
 #pragma unroll
       for (int ch = 0; ch < CH; ++ch) { nq[ch][0] = nq[ch][1] = make_uint4(0, 0, 0, 0); ns[ch][0] = ns[ch][1] = 0u; }
@@ -267,8 +288,16 @@ k_fc2_pf(const unsigned char* __restrict__ q2, const unsigned char* __restrict__
 #endif
     }
     __syncwarp();                                   // the next expert may put a token in another lane
+#ifdef PF_INFLIGHT2
+#pragma unroll
+    for (int ch = 0; ch < CH; ++ch) {
+      wq[ch][0] = wq2[ch][0]; wq[ch][1] = wq2[ch][1]; ws[ch][0] = ws2[ch][0]; ws[ch][1] = ws2[ch][1];
+      wq2[ch][0] = nq[ch][0]; wq2[ch][1] = nq[ch][1]; ws2[ch][0] = ns[ch][0]; ws2[ch][1] = ns[ch][1];
+    }
+#else
 #pragma unroll
     for (int ch = 0; ch < CH; ++ch) { wq[ch][0] = nq[ch][0]; wq[ch][1] = nq[ch][1]; ws[ch][0] = ns[ch][0]; ws[ch][1] = ns[ch][1]; }
+#endif
     e = en;
 #ifdef PF_CHAIN
     cur = nxt;
@@ -356,14 +385,16 @@ void fc2_pf(torch::Tensor q2, torch::Tensor s2, torch::Tensor act, torch::Tensor
 
 
 def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_blocks: int = 0, mode: str = "full",
-          chain: bool = False, no_act: bool = False):
+          chain: bool = False, no_act: bool = False, inflight: int = 1):
     """skip_empty: skip the tensor-core work of a pair tile an expert does not fill (M > 8, fewer than 9 pairs).
     warps: warps per block (8 by default); min_blocks: __launch_bounds__'s minimum resident blocks per SM (0: unset).
     no_act: timing only, activations made from the pair index instead of read.
     chain: load the next expert's routing (offsets, pair indices, weight x alpha, token) with its weights.
     mode: "full", or a timing variant that gives wrong answers by design: "loads" (every load, no decode or MMA) or
-    "math" (decode and MMA on codes made from the row index, no weight load)."""
+    "math" (decode and MMA on codes made from the row index, no weight load).
+    inflight: experts whose weights a warp holds ahead of the one it computes (1, the register double buffer; 2, a three-buffer ring)."""
     assert mode in ("full", "loads", "math", "loads_contig")
+    assert inflight in (1, 2), inflight
     src = CUDA
     if warps != 8:
         assert src.count("constexpr int WARPS = 8;") == 1
@@ -371,11 +402,11 @@ def build(verbose: bool = False, skip_empty: bool = False, warps: int = 8, min_b
     if min_blocks:
         assert src.count("__launch_bounds__(WARPS * 32)") == 1
         src = src.replace("__launch_bounds__(WARPS * 32)", f"__launch_bounds__(WARPS * 32, {min_blocks})")
-    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "") + ("" if mode == "full" else f"_{mode}") + ("_chain" if chain else "") + ("_noact" if no_act else "")
+    name = "sm120fp4_fc2_pf" + ("_skip" if skip_empty else "") + (f"_w{warps}" if warps != 8 else "") +         (f"_mb{min_blocks}" if min_blocks else "") + ("" if mode == "full" else f"_{mode}") + ("_chain" if chain else "") + ("_noact" if no_act else "") + ("_if2" if inflight == 2 else "")
     return load_inline(name=name, cpp_sources=CPP, cuda_sources=src,
                        functions=["fc2_pf", "fc2_pf_set_pdl"],
                        extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a"]
-                       + (["-DPF_SKIP_EMPTY"] if skip_empty else []) + (["-DPF_CHAIN"] if chain else []) + (["-DPF_NO_ACT"] if no_act else [])
+                       + (["-DPF_SKIP_EMPTY"] if skip_empty else []) + (["-DPF_CHAIN"] if chain else []) + (["-DPF_NO_ACT"] if no_act else []) + (["-DPF_INFLIGHT2"] if inflight == 2 else [])
                        + ({"full": [], "loads": ["-DPF_LOADS_ONLY"], "math": ["-DPF_MATH_ONLY"],
                            "loads_contig": ["-DPF_LOADS_ONLY", "-DPF_LOADS_CONTIG"]}[mode])
                        + (["-Xptxas=-v"] if verbose else []),
@@ -389,10 +420,12 @@ def main(argv=None) -> int:
     ap.add_argument("--ptxas", action="store_true", help="print register use and spills")
     ap.add_argument("--hidden", type=int, default=2048, help="hidden size (a multiple of 16); 2816 for the Gemma-4-26B-A4B shape")
     ap.add_argument("--inter", type=int, default=768, help="expert intermediate size (a multiple of 32, at most 1024); 704 for the Gemma-4-26B-A4B shape")
+    ap.add_argument("--inflight2", action="store_true", help="also build and run the two-ahead prefetch (PF_INFLIGHT2) as the inflight2 and inflight2_split2 variants")
     a = ap.parse_args(argv)
     if not a.check_only and a.out is None:
         ap.error("--out is required unless --check-only")
     pf, v1, m1, fl = build(a.ptxas), fc2m.build(), fc1.build(), floor.build()
+    pf2 = build(a.ptxas, inflight=2) if a.inflight2 else None
     dev = torch.device("cuda")
     e, k, h, i = 128, 8, a.hidden, a.inter
     print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
@@ -417,6 +450,9 @@ def main(argv=None) -> int:
         variants = {"v1": lambda o: v1.fc2_mma(q2, s2, act, experts, offsets, pairs, wf, alpha, o, k),
                     "prefetch": lambda o: pf.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 1),
                     "prefetch_split2": lambda o: pf.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 2)}
+        if pf2 is not None:
+            variants["inflight2"] = lambda o: pf2.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 1)
+            variants["inflight2_split2"] = lambda o: pf2.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, o, scratch, counters, k, 2)
         if i % 128 != 0:
             del variants["v1"]                 # v1 takes I in multiples of 128 only; the comparison column then reads against the prefetch kernel's own output
         (variants.get("v1") or variants["prefetch"])(o1)

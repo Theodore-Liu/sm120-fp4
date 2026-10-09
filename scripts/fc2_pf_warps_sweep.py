@@ -42,9 +42,12 @@ def main(argv=None) -> int:
     ap.add_argument("--warps", type=int, nargs="+", default=[4, 8, 16])
     ap.add_argument("--groups", type=int, nargs="+", default=[1, 2], help="blocks per column tile (the kernel's split, 1 to 4)")
     ap.add_argument("--check-only", action="store_true", help="correctness and determinism only, no timing (us and the read floor are null)")
+    ap.add_argument("--inflight", type=int, default=1, choices=(1, 2), help="experts held ahead per warp (fc2_mma_pf.build's inflight); the 8-warp one-ahead build stays the reference output")
     a = ap.parse_args(argv)
     assert all(1 <= g <= 4 for g in a.groups), a.groups
-    mods = {w: pfm.build(warps=w) for w in sorted(set(a.warps) | {8})}
+    mods = {w: pfm.build(warps=w, inflight=a.inflight) for w in a.warps}
+    if a.inflight != 1 or 8 not in mods:
+        mods[8] = pfm.build(warps=8)
     m1, fl = fc1.build(), floor.build()
     dev = torch.device("cuda")
     e, k, h, i = 128, 8, a.hidden, a.inter
@@ -73,7 +76,8 @@ def main(argv=None) -> int:
         for wp in a.warps:
             for g in a.groups:
                 out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
-                go = lambda: mods[wp].fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, out, scratch, counters, k, g)  # noqa: E731
+                mod = mods[wp] if (a.inflight == 1 or wp != 8) else pfm.build(warps=8, inflight=a.inflight)
+                go = lambda: mod.fc2_pf(q2, s2, act, experts, offsets, pairs, wf, alpha, out, scratch, counters, k, g)  # noqa: E731
                 go()
                 torch.cuda.synchronize()
                 rel = float((out.float() - ref).norm() / ref.norm())
@@ -102,7 +106,7 @@ def main(argv=None) -> int:
         ids = fixed.unsqueeze(0).repeat(m, 1).contiguous()
         wts = torch.full((m, k), 1.0 / k, device=dev)
         case("fixed8", m, ids, wts, x)
-    a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "shape": {"experts": e, "top_k": k, "hidden": h, "inter": i}, "rows": rows}, indent=1) + "\n", encoding="utf-8")
+    a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "shape": {"experts": e, "top_k": k, "hidden": h, "inter": i}, "inflight": a.inflight, "rows": rows}, indent=1) + "\n", encoding="utf-8")
     print("written", a.out)
     return 0
 
