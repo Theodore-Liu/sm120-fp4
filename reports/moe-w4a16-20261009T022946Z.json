@@ -1,0 +1,77 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "baseline": "reports/moe-baseline-rtx5090-2026-09-29.json",
+ "shape": {
+  "experts": 128,
+  "topk": 8,
+  "hidden": 2816,
+  "inter": 704
+ },
+ "rows": [
+  {
+   "tokens": 1,
+   "experts_touched": 8,
+   "router_matches_torch": true,
+   "rel_err": 0.0023843555245548487,
+   "bit_stable_50": true,
+   "layer_us": 37.63199970126152,
+   "layer_pdl_us": 37.43999823927879,
+   "pdl_output_identical": true,
+   "best_existing": "b12x-w4a16",
+   "best_existing_us": 37.63199970126152,
+   "speedup": 1.0
+  },
+  {
+   "tokens": 2,
+   "experts_touched": 15,
+   "router_matches_torch": true,
+   "rel_err": 0.002354188822209835,
+   "bit_stable_50": true,
+   "layer_us": 54.048001766204834,
+   "layer_pdl_us": 53.79199981689453,
+   "pdl_output_identical": true,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 49.92000013589859,
+   "speedup": 0.9236234181577568
+  },
+  {
+   "tokens": 4,
+   "experts_touched": 30,
+   "router_matches_torch": true,
+   "rel_err": 0.0023222123272717,
+   "bit_stable_50": true,
+   "layer_us": 90.91199934482574,
+   "layer_pdl_us": 88.95999938249588,
+   "pdl_output_identical": true,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 78.8159966468811,
+   "speedup": 0.8669482270204513
+  },
+  {
+   "tokens": 8,
+   "experts_touched": 53,
+   "router_matches_torch": true,
+   "rel_err": 0.0023196612019091845,
+   "bit_stable_50": true,
+   "layer_us": 156.47999942302704,
+   "layer_pdl_us": 154.4319987297058,
+   "pdl_output_identical": true,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 113.88800293207169,
+   "speedup": 0.7278118823619597
+  },
+  {
+   "tokens": 16,
+   "experts_touched": 82,
+   "router_matches_torch": true,
+   "rel_err": 0.0023680576123297215,
+   "bit_stable_50": true,
+   "layer_us": 281.3760042190552,
+   "layer_pdl_us": 281.3119888305664,
+   "pdl_output_identical": true,
+   "best_existing": "marlin-w4a16",
+   "best_existing_us": 166.49599373340607,
+   "speedup": 0.5917206557663197
+  }
+ ]
+}

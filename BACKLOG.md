@@ -308,6 +308,15 @@ closes it. Dates are when an item was added, not estimates.
    2048 (two iterations of 32 lanes x 32 values), so the W4A16 path needs the shape work as much as the MMA forms; 2816 is not a
    multiple of 1024, so the FC1 loop over the hidden dimension has to take a count of 256-wide chunks (11 here) rather than of
    1024-wide ones. No layer number at this shape yet.
+   Done 2026-10-08: `fc1_w4a16` takes the iteration count as a template parameter (ITERS = ceil(H / 1024), lanes past H / 32
+   idle in the last iteration, dispatched on the host for H % 32 == 0 and H <= 4096); the self-check takes the shape from argv.
+   At 2048 x 768 the numbers are unchanged (max rel err 0.0038, bit-identical, 15.1 us at one token against a 13.1 us read floor).
+   At 2816 x 704 the kernel runs: 21.3 / 32.5 / 54.0 / 88.9 / 160.6 us at 1 / 2 / 4 / 8 / 16 tokens against read floors of
+   15.1 / 23.3 / 41.8 / 72.1 / 107.5. The W4A16 layer at the Gemma shape (`reports/moe-w4a16-20261009T022946Z.json`, torch router,
+   one graph, cold L2): 37.6 / 54.0 / 90.9 / 156.5 / 281.4 us against the best existing same-method path 37.6 (b12x) / 49.9 /
+   78.8 / 113.9 / 166.5 (marlin), 1.00x at one token down to 0.59x at sixteen; normwise error 0.0023, bit-identical over 50 calls.
+   The CUDA-core path keeps pace only at one token here, as at the Qwen shape; the MMA forms (`fc2_mma_pf`, `fc1_mma`) still refuse
+   I = 704 and H = 2816 and are the next step.
 
 ## Closed
 

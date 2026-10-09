@@ -11,7 +11,7 @@ Layout it consumes (this repository's reference layout, not FlashInfer's): codes
 even element in the low nibble; block scales [E * 2I, H/16] row-major E4M3 bytes; per-expert fp32 alpha. Output: the
 activation for pair p = token * top_k + j at act[p, :] in bf16.
 
-    PYTHONPATH=. python scripts/fc1_w4a16.py
+    PYTHONPATH=. python sm120fp4/kernels/fc1_w4a16.py [hidden intermediate]
 """
 from __future__ import annotations
 
@@ -89,12 +89,13 @@ __device__ __forceinline__ void decode32(uint4 q, unsigned short s, float* w) {
 // MAXT: upper bound on tokens per expert (the batch size, rounded up to 1/2/4/8/16), a template parameter so the
 // accumulators stay in registers. COLS: intermediate columns per warp; every weight load of the warp is issued before
 // any is decoded, so COLS x 2 rows x 2 x 16 bytes are in flight per lane.
-template <int MAXT, int COLS>
+template <int MAXT, int COLS, int ITERS>
 __global__ void __launch_bounds__(WARPS * 32)
 k_fc1(const unsigned char* __restrict__ q1, const unsigned char* __restrict__ s1, const __nv_bfloat16* __restrict__ x,
       const int* __restrict__ experts, const int* __restrict__ offsets, const int* __restrict__ pairs,
       const float* __restrict__ alpha, __nv_bfloat16* __restrict__ act, int H, int I, int top_k) {
-  constexpr int ITERS = 2;                 // H / 32 / 32 lanes for H = 2048; checked on the host
+  // ITERS = ceil(H / 1024): each lane owns 32 consecutive hidden values per iteration; lanes past H / 32 idle in the last one
+  const int slots = H / 32;                // checked on the host: H % 32 == 0 and H <= 1024 * ITERS
   const int tiles = I / (WARPS * COLS);
   const int u = blockIdx.x / tiles;
   const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
@@ -120,8 +121,13 @@ k_fc1(const unsigned char* __restrict__ q1, const unsigned char* __restrict__ s1
       const unsigned short* sr = reinterpret_cast<const unsigned short*>(s1 + row * (H / 16));
 #pragma unroll
       for (int j = 0; j < ITERS; ++j) {
-        wq[c][r][j] = __ldcs(wr + lane + 32 * j);
-        ws[c][r][j] = sr[lane + 32 * j];
+        if (lane + 32 * j < slots) {
+          wq[c][r][j] = __ldcs(wr + lane + 32 * j);
+          ws[c][r][j] = sr[lane + 32 * j];
+        } else {
+          wq[c][r][j] = make_uint4(0u, 0u, 0u, 0u);
+          ws[c][r][j] = 0;
+        }
       }
     }
 
@@ -139,6 +145,7 @@ k_fc1(const unsigned char* __restrict__ q1, const unsigned char* __restrict__ s1
 #pragma unroll
   for (int j = 0; j < ITERS; ++j) {
     const int k0 = (lane + 32 * j) * 32;
+    if (k0 >= H) continue;                 // an idle lane in the last iteration: its accumulators stay 0 for the reduction
 #pragma unroll
     for (int t = 0; t < MAXT; ++t) {
       if (t < n) {
@@ -193,11 +200,12 @@ k_fc1(const unsigned char* __restrict__ q1, const unsigned char* __restrict__ s1
 static bool g_pdl = false;   // launch with programmatic stream serialization (set by fc1_set_pdl)
 void fc1_set_pdl(bool on) { g_pdl = on; }
 
-template <int MAXT, int COLS>
-static void launch(const torch::Tensor& q1, const torch::Tensor& s1, const torch::Tensor& x, const torch::Tensor& experts,
-                   const torch::Tensor& offsets, const torch::Tensor& pairs, const torch::Tensor& alpha, torch::Tensor& act,
-                   int H, int I, int top_k) {
+template <int MAXT, int COLS, int ITERS>
+static void launch_i(const torch::Tensor& q1, const torch::Tensor& s1, const torch::Tensor& x, const torch::Tensor& experts,
+                     const torch::Tensor& offsets, const torch::Tensor& pairs, const torch::Tensor& alpha, torch::Tensor& act,
+                     int H, int I, int top_k) {
   TORCH_CHECK(I % (WARPS * COLS) == 0, "intermediate size must be a multiple of WARPS * COLS");
+  TORCH_CHECK(H % 32 == 0 && H <= 1024 * ITERS && H > 1024 * (ITERS - 1), "hidden size against the iteration count");
   const int U = (int)experts.numel();
   auto st = at::cuda::getCurrentCUDAStream();
   cudaLaunchConfig_t cfg = {};
@@ -209,11 +217,25 @@ static void launch(const torch::Tensor& q1, const torch::Tensor& s1, const torch
   attr[0].val.programmaticStreamSerializationAllowed = 1;
   cfg.attrs = attr;
   cfg.numAttrs = g_pdl ? 1 : 0;
-  TORCH_CHECK(cudaLaunchKernelEx(&cfg, k_fc1<MAXT, COLS>, q1.data_ptr<uint8_t>(), s1.data_ptr<uint8_t>(),
+  TORCH_CHECK(cudaLaunchKernelEx(&cfg, k_fc1<MAXT, COLS, ITERS>, q1.data_ptr<uint8_t>(), s1.data_ptr<uint8_t>(),
                                  reinterpret_cast<const __nv_bfloat16*>(x.data_ptr()), experts.data_ptr<int>(),
                                  offsets.data_ptr<int>(), pairs.data_ptr<int>(), alpha.data_ptr<float>(),
                                  reinterpret_cast<__nv_bfloat16*>(act.data_ptr()), H, I, top_k) == cudaSuccess, "launch");
   TORCH_CHECK(cudaGetLastError() == cudaSuccess, "launch");
+}
+
+template <int MAXT, int COLS>
+static void launch(const torch::Tensor& q1, const torch::Tensor& s1, const torch::Tensor& x, const torch::Tensor& experts,
+                   const torch::Tensor& offsets, const torch::Tensor& pairs, const torch::Tensor& alpha, torch::Tensor& act,
+                   int H, int I, int top_k) {
+  TORCH_CHECK(H % 32 == 0 && H >= 32 && H <= 4096, "hidden size must be a multiple of 32 and at most 4096");
+  const int iters = (H / 32 + 31) / 32;
+  switch (iters) {
+    case 1: launch_i<MAXT, COLS, 1>(q1, s1, x, experts, offsets, pairs, alpha, act, H, I, top_k); break;
+    case 2: launch_i<MAXT, COLS, 2>(q1, s1, x, experts, offsets, pairs, alpha, act, H, I, top_k); break;
+    case 3: launch_i<MAXT, COLS, 3>(q1, s1, x, experts, offsets, pairs, alpha, act, H, I, top_k); break;
+    default: launch_i<MAXT, COLS, 4>(q1, s1, x, experts, offsets, pairs, alpha, act, H, I, top_k); break;
+  }
 }
 
 #define FC1_DISPATCH(MT)                                                                                   if (cols == 1) launch<MT, 1>(q1, s1, x, experts, offsets, pairs, alpha, act, H, I, (int)top_k);           else if (cols == 2) launch<MT, 2>(q1, s1, x, experts, offsets, pairs, alpha, act, H, I, (int)top_k);      else launch<MT, 4>(q1, s1, x, experts, offsets, pairs, alpha, act, H, I, (int)top_k);
@@ -221,7 +243,7 @@ static void launch(const torch::Tensor& q1, const torch::Tensor& s1, const torch
 void fc1_w4a16_cols(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tensor experts, torch::Tensor offsets,
                     torch::Tensor pairs, torch::Tensor alpha, torch::Tensor act, int64_t inter, int64_t top_k, int64_t cols) {
   const int H = (int)x.size(1), I = (int)inter, M = (int)x.size(0);
-  TORCH_CHECK(H == 2048 && M <= 16, "shape");
+  TORCH_CHECK(H % 32 == 0 && H <= 4096 && M <= 16, "shape");
   if (M <= 1) { FC1_DISPATCH(1) } else if (M <= 2) { FC1_DISPATCH(2) } else if (M <= 4) { FC1_DISPATCH(4) }
   else if (M <= 8) { FC1_DISPATCH(8) } else { FC1_DISPATCH(16) }
 }
@@ -229,7 +251,7 @@ void fc1_w4a16_cols(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::
 void fc1_w4a16(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tensor experts, torch::Tensor offsets,
                torch::Tensor pairs, torch::Tensor alpha, torch::Tensor act, int64_t inter, int64_t top_k) {
   const int H = (int)x.size(1), I = (int)inter, M = (int)x.size(0);
-  TORCH_CHECK(H == 2048, "this version is specialised to hidden 2048 (2 iterations of 32 lanes x 32 values)");
+  TORCH_CHECK(H % 32 == 0 && H <= 4096, "hidden size must be a multiple of 32 and at most 4096 (up to 4 iterations of 32 lanes x 32 values)");
   TORCH_CHECK(M <= 16, "decode kernel: at most 16 tokens");
   // columns per warp chosen by the sweep in docs/stage2-design.md (RTX 5090): 2 at one token, 1 otherwise
   if (M <= 1) launch<1, 2>(q1, s1, x, experts, offsets, pairs, alpha, act, H, I, (int)top_k);
@@ -261,7 +283,9 @@ def main() -> int:
     mod = build()
     fl = floor.build()
     dev = torch.device("cuda")
-    e, k, h, i = 128, 8, 2048, 768
+    e, k = 128, 8
+    h, i = (int(sys.argv[1]), int(sys.argv[2])) if len(sys.argv) >= 3 else (2048, 768)   # the Qwen3-30B-A3B layer by default; e.g. 2816 704 for the Gemma-4-26B-A4B shape
+    print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
     w = bench.build(e, h, i, dev)
     q1 = w["q1"].contiguous()
     s1 = w["s1"].contiguous()
