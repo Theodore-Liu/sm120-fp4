@@ -38,10 +38,13 @@ layer_mod = sys.modules["moe_layer"]
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--hidden", type=int, default=2048, help="hidden size; 2816 for the Gemma-4-26B-A4B shape")
+    ap.add_argument("--inter", type=int, default=768, help="expert intermediate size; 704 for the Gemma-4-26B-A4B shape")
     a = ap.parse_args(argv)
     mr, m1, m2, m1m, m2p, fl = moe.build(), fc1.build(), fc2.build(), fc1m.build(), fc2p.build(), floor.build()
     dev = torch.device("cuda")
-    e, k, h, i = 128, 8, 2048, 768
+    e, k, h, i = 128, 8, a.hidden, a.inter
+    print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
     w = bench.build(e, h, i, dev)
     q1, s1, q2, s2 = (w[n].contiguous() for n in ("q1", "s1", "q2", "s2"))
     alpha = torch.ones(e, device=dev)
@@ -66,7 +69,7 @@ def main(argv=None) -> int:
         out = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
         outm = torch.empty(m, h, device=dev, dtype=torch.bfloat16)
         wflat = wts.reshape(-1).contiguous()
-        f1, f2 = layer_mod.choice(m)
+        f1, f2 = layer_mod.choice(m, h, i)
 
         def route():
             mr.route(ids, e, experts, offsets, pairs)

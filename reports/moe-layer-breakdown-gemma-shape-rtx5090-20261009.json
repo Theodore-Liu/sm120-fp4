@@ -1,0 +1,53 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 8,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "experts_touched": 53,
+   "rel_err": 0.002318938495591283,
+   "route_us": 4.896000027656555,
+   "fc1_us": 90.91199934482574,
+   "fc2_us": 83.20000022649765,
+   "layer_us": 152.319997549057,
+   "read_fc1_codes_us": 71.42399996519089,
+   "read_fc2_codes_us": 37.66399994492531,
+   "marlin_rel_err": 0.004511230159550905,
+   "marlin_us": 148.15999567508698
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "experts_touched": 82,
+   "rel_err": 0.002367052249610424,
+   "route_us": 4.863999783992767,
+   "fc1_us": 138.0160003900528,
+   "fc2_us": 142.0159935951233,
+   "layer_us": 244.51200664043427,
+   "read_fc1_codes_us": 107.29599744081497,
+   "read_fc2_codes_us": 57.08799883723259,
+   "marlin_rel_err": 0.004380766302347183,
+   "marlin_us": 203.48800718784332
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "fc1": "tensor_core",
+   "fc2": "prefetch",
+   "experts_touched": 8,
+   "rel_err": 0.0023570191115140915,
+   "route_us": 5.08800009265542,
+   "fc1_us": 27.424000203609467,
+   "fc2_us": 33.56799855828285,
+   "layer_us": 51.7439991235733,
+   "read_fc1_codes_us": 15.135999768972397,
+   "read_fc2_codes_us": 8.960000239312649,
+   "marlin_rel_err": 0.0038564291317015886,
+   "marlin_us": 43.807998299598694
+  }
+ ]
+}

@@ -364,6 +364,16 @@ closes it. Dates are when an item was added, not estimates.
    1.11x / 1.00x / 1.01x / 0.99x / 0.84x here); eight fixed experts 36.5 / 60.2 / 46.9 / 50.9 at 1 / 4 / 8 / 16 (the cutoff at 8 costs
    that routing 18 us at 4 tokens, where the tensor-core pair reads 42.0). A rule on tokens per touched expert would take both
    routings; it stays the open item.
+   Breakdown 2026-10-09 (`scripts/moe_layer_breakdown.py --hidden 2816 --inter 704`, one session, graph replay with L2 flushed;
+   `reports/moe-layer-breakdown-gemma-shape-rtx5090-20261009.json`): at 16 random tokens (82 experts touched) the router takes 4.9 us,
+   the tensor-core FC1 138.0 against a 107.3 us read of its codes (1.29x), the prefetch FC2 142.0 against 57.1 (2.49x), the layer
+   244.5 with dependent launch, and Marlin's whole layer 203.5. At 8 tokens (53 experts): FC1 90.9 against 71.4 (1.27x), FC2 83.2
+   against 37.7 (2.21x), the layer 152.3, Marlin 148.2. On eight fixed experts at 16 tokens: FC1 27.4 against 15.1, FC2 33.6
+   against 9.0, the layer 51.7, Marlin 43.8. At this shape FC2 is the part that trails its bytes, by 2.2 to 3.7x, where FC1 sits
+   within 1.3x; at the Qwen shape the same kernel ran at 1.5 to 1.9x of its bytes (docs/stage2-design.md). The Gemma expert's FC2
+   is 704 x 2816 (a shorter k, 5.5 chunks of 128 with a half chunk, and 176 column tiles of 16 against 128 at the Qwen shape), so
+   each warp does less work per expert row and the prefetch covers less; a 32-wide k slice per lane or two experts per warp in
+   flight is the next thing to try on FC2 at this shape.
 
 ## Closed
 
