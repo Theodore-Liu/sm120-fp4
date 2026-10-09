@@ -399,6 +399,13 @@ closes it. Dates are when an item was added, not estimates.
    1.12x / 1.12x / 1.08x / 1.01x / 0.87x); eight fixed experts 37.6 / 60.1 / 43.8 / 45.9 at 1 / 4 / 8 / 16 (against 36.1 / 59.4 / 47.9 /
    50.9). The 16-token gap to Marlin at this shape is now 11 us; the FC2 kernel's bytes (56 us at 16 tokens) against its 107 us leave
    it the part to work on.
+   Measured 2026-10-09 at the Qwen shape (`scripts/fc2_pf_warps_sweep.py --warps 4 8`, 2048 x 768;
+   `reports/fc2-pf-warps-qwen-shape-rtx5090-20261009.json`): 4 warps x 2 groups 36.6 / 52.0 / 90.8 us at 4 / 8 / 16 random tokens
+   against 8 x 1 at 35.8 / 52.0 / 88.8 and 8 x 2 at 35.6 / 49.9 / 86.8; on eight fixed experts 4 x 2 reads 17.2 / 17.6 / 21.2 at 4 / 8 / 16
+   against 8 x 1 at 15.1 / 17.2 / 19.2. The 4-warp build does not help at this shape (128 column tiles, 2 groups already give 256
+   blocks of 256 threads), so the per-shape warp count stands: 8 at 2048 x 768, 4 at 2816 x 704. What changes between the shapes is
+   the tile count against the 170 SMs (128 against 176) and the chunk count per lane (6 against 5.5); a rule from those two numbers
+   rather than from the shape table is the cleaner form, once a third shape is measured.
 
 ## Closed
 
