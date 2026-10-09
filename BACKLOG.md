@@ -335,6 +335,16 @@ closes it. Dates are when an item was added, not estimates.
    8 and 16 tokens (a different summation order over the expert partials; the same one-element difference exists at 2048 x 768,
    where the self-check compares both against v1 and so reports neither); each variant is bit-identical over 50 calls.
    Every kernel form now runs at the Gemma shape; the MMA layer baseline against marlin at this shape is the next step.
+   Done 2026-10-08 (the layer): `sm120fp4/kernels/moe_layer.py` takes `--experts --topk --hidden --inter` and records the shape; at
+   2816 x 704 against `reports/moe-baseline-gemma4-26b-a4b-shape-rtx5090-20261008.json` (`reports/moe-layer-gemma-shape-rtx5090-20261008.json`,
+   torch router, one graph, cold L2, random routing): the composed layer 37.6 / 58.1 / 95.0 / 150.3 / 243.5 us at 1 / 2 / 4 / 8 / 16
+   tokens against the best existing same-method path 41.8 (b12x) / 58.1 / 96.0 / 149.2 / 204.4 (marlin), 1.11x / 1.00x / 1.01x / 0.99x /
+   0.84x; the all-CUDA-core layer in the same session 35.8 / 52.0 / 88.9 / 156.4 / 281.3. Eight fixed experts with every token routed
+   to all: 35.6 / 43.8 / 46.1 / 51.0 us at 1 / 4 / 8 / 16 (all-CUDA-core 35.6 / 60.0 / 109.2 / 211.7). Two things the numbers say:
+   the kernel rule (`choice(m)`) was set from the Qwen-shape sweeps and here picks the tensor-core FC1 and the prefetch FC2 from two
+   tokens, where the all-CUDA-core layer is faster by 6 us at 2 and 4 tokens; and at sixteen tokens the layer trails marlin by 16
+   percent at this shape (at the Qwen shape it led). A per-shape rule, or a rule on bytes per touched expert rather than on tokens, is
+   the open item; the Gemma shape's smaller expert (704 x 2816 against 768 x 2048, 1.27x the bytes) shifts every crossover.
 
 ## Closed
 

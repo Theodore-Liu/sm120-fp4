@@ -67,10 +67,15 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, required=True, help="JSON report, written into the repository")
     ap.add_argument("--baseline", type=Path, default=Path("reports/moe-baseline-rtx5090-2026-09-29.json"))
+    ap.add_argument("--experts", type=int, default=128)
+    ap.add_argument("--topk", type=int, default=8)
+    ap.add_argument("--hidden", type=int, default=2048, help="hidden size; 2816 for the Gemma-4-26B-A4B shape (with --inter 704 and its baseline report)")
+    ap.add_argument("--inter", type=int, default=768, help="expert intermediate size; 704 for the Gemma-4-26B-A4B shape")
     a = ap.parse_args(argv)
     mr, m1, m2, m1m, m2p = moe.build(), fc1.build(), fc2.build(), fc1m.build(), fc2p.build()
     dev = torch.device("cuda")
-    e, k, h, i = 128, 8, 2048, 768
+    e, k, h, i = a.experts, a.topk, a.hidden, a.inter
+    print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
     w = bench.build(e, h, i, dev)
     q1, s1, q2, s2 = (w[n].contiguous() for n in ("q1", "s1", "q2", "s2"))
     alpha = torch.ones(e, device=dev)
@@ -159,7 +164,7 @@ def main(argv=None) -> int:
         wts = torch.full((m, k), 1.0 / k, device=dev)
         case("fixed8", m, fixed.repeat(m, 1).contiguous(), wts, x)
     a.out.parent.mkdir(parents=True, exist_ok=True)
-    a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "baseline": str(a.baseline),
+    a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "baseline": str(a.baseline), "shape": {"experts": e, "top_k": k, "hidden": h, "inter": i},
                                  "rule": {str(m): choice(m) for m in (1, 2, 4, 8, 16)}, "rows": rows}, indent=1) + "\n",
                      encoding="utf-8")
     print(f"written {a.out}")
