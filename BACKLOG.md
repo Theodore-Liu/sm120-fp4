@@ -381,6 +381,17 @@ closes it. Dates are when an item was added, not estimates.
    reads 37.4 / 52.0 / 88.9 / 148.1 / 234.3 us at 1 / 2 / 4 / 8 / 16 random tokens against the best existing path 41.8 / 58.1 / 96.0 / 149.2 / 204.4
    (`reports/moe-layer-gemma-shape-rule2-rtx5090-20261009.json`). The FC2 kernel's own 2.2 to 3.7x of its bytes at this shape stands;
    the k-slice and two-experts-in-flight ideas are still the open item.
+   Measured 2026-10-09 (`scripts/fc2_pf_warps_sweep.py --hidden 2816 --inter 704`, one session, graph replay with L2 flushed;
+   `reports/fc2-pf-warps-gemma-shape-rtx5090-20261009.json`): the FC2 prefetch kernel built with 4 warps per block and run with two
+   groups per column tile is the fastest form at this shape at every count from 2 tokens up, random routing 25.0 / 41.7 / 64.3 / 107.2 us
+   at 2 / 4 / 8 / 16 tokens against the shipped 8-warp one-group 29.4 / 52.0 / 82.7 / 142.1 and the 8-warp two-group 33.5 / 52.0 /
+   80.7 / 133.9 (read floors 14.0 / 23.3 / 37.7 / 56.1); on eight fixed experts 18.1 / 19.2 / 21.2 / 23.3 at 1 / 4 / 8 / 16 against
+   19.2 / 21.3 / 23.3 / 27.4. Sixteen warps per block is 5 to 27x slower at every row (register spill at that occupancy; not pursued).
+   The outputs differ from the 8-warp one-group output in a few rows by the summation-order rounding already recorded above (each
+   variant is bit-identical over 50 calls, normwise error unchanged). At this shape 4 warps x 2 groups gives 352 blocks of 128 threads
+   with 4 experts in flight per tile per group, where 8 warps x 1 group gives 176 blocks of 256: the second wave and the smaller block
+   are what the 170 SMs want here. Next: let the layer build the FC2 module with a per-shape warp count (fc2p.build(warps=4) for the
+   Gemma shape) and re-time the layer; the 16-token layer at 234.3 us has 133.9 of FC2 in it.
 
 ## Closed
 
