@@ -492,6 +492,9 @@ closes it. Dates are when an item was added, not estimates.
    (cuBLASLt FP8), CUTLASS's SM120 block-scaled examples and, once the disk allows, TensorRT-LLM's `nvfp4_gemm` (issue 14154)
    and DeepGEMM; a shape and scale census (K, alignment, degenerate scales, saturating values); every element outside the bound
    filed upstream with the operands that produce it.
+   First reading 2026-10-10: TensorRT-LLM 1.3.0rc9 `nvfp4_gemm` on the RTX 5090 is conformant on every runnable backend (cutlass, cublaslt,
+   default; 0 of 626,176 elements outside the bound, lossless operands exact to the output rounding), CuTe-DSL refuses SM120 with a clear
+   message; issue 14154 does not reproduce here (`docs/trtllm-nvfp4-gemm-rtx5090.md`, `scripts/trtllm_nvfp4_gemm_probe.py`).
 
 ## Closed
 

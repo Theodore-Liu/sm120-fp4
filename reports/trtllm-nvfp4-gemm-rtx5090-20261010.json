@@ -1,0 +1,701 @@
+{
+ "generated_utc": "2026-10-10T23:48:08Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "sms": 170,
+ "driver": "610.47",
+ "torch": "2.9.1+cu128",
+ "cuda": "12.8",
+ "tensorrt_llm": "1.3.0rc9",
+ "python": "3.12.14",
+ "cases": [
+  {
+   "backend": "cutlass",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6031456786032889,
+   "max_abs_err": 8.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.999998605743202,
+   "out_absmax": 2928.0,
+   "exact_absmax": 2935.0,
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6031456786032889,
+   "max_abs_err": 8.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.999998605743202,
+   "out_absmax": 2928.0,
+   "exact_absmax": 2935.0,
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "default",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6031456786032889,
+   "max_abs_err": 8.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.999998605743202,
+   "out_absmax": 2928.0,
+   "exact_absmax": 2935.0,
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5933000234861495,
+   "max_abs_err": 1.9321190316052252,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986144210151,
+   "out_absmax": 524.0,
+   "exact_absmax": 525.3552228253037,
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9910621205992605
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5933000234861495,
+   "max_abs_err": 1.9321190316052252,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986144210151,
+   "out_absmax": 524.0,
+   "exact_absmax": 525.3552228253037,
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9910621205992605
+  },
+  {
+   "backend": "default",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5933000234861495,
+   "max_abs_err": 1.9321190316052252,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986144210151,
+   "out_absmax": 524.0,
+   "exact_absmax": 525.3552228253037,
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9910621205992605
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6195090133948187,
+   "max_abs_err": 8.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986115096041,
+   "out_absmax": 2784.0,
+   "exact_absmax": 2791.0,
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6195090133948187,
+   "max_abs_err": 8.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986115096041,
+   "out_absmax": 2784.0,
+   "exact_absmax": 2791.0,
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "default",
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6195090133948187,
+   "max_abs_err": 8.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986115096041,
+   "out_absmax": 2784.0,
+   "exact_absmax": 2791.0,
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5705678167715393,
+   "max_abs_err": 1.8688694779394837,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986211524149,
+   "out_absmax": 624.0,
+   "exact_absmax": 623.0325299234419,
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9909247637680298
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5705678167715393,
+   "max_abs_err": 1.8688694779394837,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986211524149,
+   "out_absmax": 624.0,
+   "exact_absmax": 623.0325299234419,
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9909247637680298
+  },
+  {
+   "backend": "default",
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5705678167715393,
+   "max_abs_err": 1.8688694779394837,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986211524149,
+   "out_absmax": 624.0,
+   "exact_absmax": 623.0325299234419,
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9909247637680298
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.44679574584127296,
+   "max_abs_err": 4.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999985399605703,
+   "out_absmax": 2112.0,
+   "exact_absmax": 2108.0,
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.44679574584127296,
+   "max_abs_err": 4.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999985399605703,
+   "out_absmax": 2112.0,
+   "exact_absmax": 2108.0,
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "default",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.44679574584127296,
+   "max_abs_err": 4.0,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999985399605703,
+   "out_absmax": 2112.0,
+   "exact_absmax": 2108.0,
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.44016753415903664,
+   "max_abs_err": 0.9916626445431689,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986436076824,
+   "out_absmax": 536.0,
+   "exact_absmax": 535.589020100273,
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9912955649903549
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.44016753415903664,
+   "max_abs_err": 0.9916626445431689,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986436076824,
+   "out_absmax": 536.0,
+   "exact_absmax": 535.589020100273,
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9912955649903549
+  },
+  {
+   "backend": "default",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.44016753415903664,
+   "max_abs_err": 0.9916626445431689,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986436076824,
+   "out_absmax": 536.0,
+   "exact_absmax": 535.589020100273,
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9912955649903549
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "random-bf16"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8752370522716455,
+   "max_abs_err": 3.75,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.999998556366504,
+   "out_absmax": 1160.0,
+   "exact_absmax": 1161.5,
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8752370522716455,
+   "max_abs_err": 3.75,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.999998556366504,
+   "out_absmax": 1160.0,
+   "exact_absmax": 1161.5,
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "default",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8752370522716455,
+   "max_abs_err": 3.75,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.999998556366504,
+   "out_absmax": 1160.0,
+   "exact_absmax": 1161.5,
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8673432043720488,
+   "max_abs_err": 0.49988755457246725,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986384607782,
+   "out_absmax": 302.0,
+   "exact_absmax": 302.4352452493756,
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9911585600501995
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8673432043720488,
+   "max_abs_err": 0.49988755457246725,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986384607782,
+   "out_absmax": 302.0,
+   "exact_absmax": 302.4352452493756,
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9911585600501995
+  },
+  {
+   "backend": "default",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8673432043720488,
+   "max_abs_err": 0.49988755457246725,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986384607782,
+   "out_absmax": 302.0,
+   "exact_absmax": 302.4352452493756,
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.9911585600501995
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "random-bf16"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6250333803837396,
+   "max_abs_err": 3.25,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986189311098,
+   "out_absmax": 1384.0,
+   "exact_absmax": 1380.75,
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6250333803837396,
+   "max_abs_err": 3.25,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986189311098,
+   "out_absmax": 1384.0,
+   "exact_absmax": 1380.75,
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "default",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6250333803837396,
+   "max_abs_err": 3.25,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999986189311098,
+   "out_absmax": 1384.0,
+   "exact_absmax": 1380.75,
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "lossless"
+  },
+  {
+   "backend": "cutlass",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.61885834454884,
+   "max_abs_err": 0.4996007899920585,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999987557066917,
+   "out_absmax": 298.0,
+   "exact_absmax": 297.6834605072822,
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.992296414758834
+  },
+  {
+   "backend": "cublaslt",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.61885834454884,
+   "max_abs_err": 0.4996007899920585,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999987557066917,
+   "out_absmax": 298.0,
+   "exact_absmax": 297.6834605072822,
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.992296414758834
+  },
+  {
+   "backend": "default",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.61885834454884,
+   "max_abs_err": 0.4996007899920585,
+   "all_zero_output": false,
+   "conformant": true,
+   "correlation_vs_exact": 0.9999987557066917,
+   "out_absmax": 298.0,
+   "exact_absmax": 297.6834605072822,
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "random-bf16",
+   "correlation_exact_vs_bf16_product": 0.992296414758834
+  },
+  {
+   "backend": "cute_dsl",
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection.",
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "random-bf16"
+  }
+ ]
+}
