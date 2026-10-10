@@ -468,6 +468,17 @@ closes it. Dates are when an item was added, not estimates.
    is the PDL overlap, which already hid FC2's tail. The larger piece is now FC1: 90.9 against a 71.4 us read of its codes at 8
    tokens and 139.0 against 108.3 at 16 (1.27x and 1.28x), where FC2 sits at 1.57x and 1.89x of its read. The 16-token gap to
    Marlin (9 us) is FC1's and FC2's NT 2 instantiation together; FC1's tensor-core kernel at this shape is the next read.
+   Read 2026-10-09: the FC1 tensor-core kernel's NT 2, CH 6 instantiation (`cuobjdump -sass`) issues 192 HMMA against 821 F2FP, 816 HADD2
+   and 801 FMUL (about 12.7 decode instructions per MMA, as FC2's 12) and 107 LDG, so the same bf16 decode was built in as an opt-in
+   (`fc1_mma.build(decode="bf16" | "auto")`, `FC1_DECODE_BF16` / `FC1_DECODE_AUTO`; bit-identical on 8 of 8 cases,
+   `reports/fc1-decode-identity-gemma-shape-rtx5090-20261009.json`). It does not help FC1: at 2816 x 704 on random routing the bf16
+   decode reads 23.0 / 37.7 / 64.8 / 103.2 / 154.4 us at 1 / 2 / 4 / 8 / 16 tokens against the shipped 27.3 / 33.5 / 56.1 / 90.9 / 138.0
+   (`reports/fc1-mma-decode-{f32,bf16,auto}-gemma-shape-rtx5090-20261009.json`): faster at one token only, 13 to 15 percent slower from 2
+   to 8, and "auto" (bf16 at NT 1) inherits the loss at 2 to 8 and ties at 16. The decode-instruction count is therefore not what the
+   FC1 kernel's time is made of either; with its loads already issued up front (4 rows x CHUNKS vectors in flight) the shipped FMUL path
+   must be overlapping better than the HMUL2 chain. The opt-in stays for the record; the default is unchanged and the layer does not
+   use it. What remains for FC1 is the read against its byte floor at 16 tokens (138.0 against 107.3): a wider k chunk per load
+   (two 16-byte vectors per lane per row) is the next candidate, measured before it is wired.
 
 ## Closed
 
