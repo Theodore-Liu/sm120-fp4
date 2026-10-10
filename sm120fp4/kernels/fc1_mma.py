@@ -94,6 +94,39 @@ __device__ __forceinline__ void decode_pairs(uint4 q, unsigned s01, unsigned* ou
   }
 }
 
+#if defined(FC1_DECODE_BF16) || defined(FC1_DECODE_AUTO)
+// e2m1 pair -> bf16x2 in one conversion, scaled by one bf16x2 multiply; e2m1 carries one significand bit and e4m3 three, so the
+// product has at most four and the bf16 multiply is exact: the same bits the shipped path reaches through fp32.
+__device__ __forceinline__ unsigned fp4x2_bf16(unsigned byte) {
+  unsigned o;
+  unsigned short in = (unsigned short)byte;
+  asm("{ .reg .b8 lo, hi;\n mov.b16 {lo, hi}, %1;\n cvt.rn.bf16x2.e2m1x2 %0, lo; }\n" : "=r"(o) : "h"(in));
+  return o;
+}
+__device__ __forceinline__ unsigned bf16x2_broadcast(float s) {
+  __nv_bfloat162 v = __floats2bfloat162_rn(s, s);
+  return *reinterpret_cast<unsigned*>(&v);
+}
+__device__ __forceinline__ unsigned hmul2_bf16(unsigned a, unsigned b) {
+  __nv_bfloat162 x = *reinterpret_cast<__nv_bfloat162*>(&a), y = *reinterpret_cast<__nv_bfloat162*>(&b);
+  __nv_bfloat162 r = __hmul2(x, y);
+  return *reinterpret_cast<unsigned*>(&r);
+}
+__device__ __forceinline__ void decode_pairs_bf16(uint4 q, unsigned s01, unsigned* out) {
+  const unsigned s0 = bf16x2_broadcast(e4m3(s01 & 0xff)), s1 = bf16x2_broadcast(e4m3((s01 >> 8) & 0xff));
+  const unsigned w[4] = {q.x, q.y, q.z, q.w};
+#pragma unroll
+  for (int j = 0; j < 16; ++j) out[j] = hmul2_bf16(fp4x2_bf16((w[j >> 2] >> (8 * (j & 3))) & 0xff), j < 8 ? s0 : s1);
+}
+#endif
+#if defined(FC1_DECODE_BF16)
+#define FC1_DECODE(q, s, o) decode_pairs_bf16(q, s, o)
+#elif defined(FC1_DECODE_AUTO)
+#define FC1_DECODE(q, s, o) do { if constexpr (NT == 1) decode_pairs_bf16(q, s, o); else decode_pairs(q, s, o); } while (0)
+#else
+#define FC1_DECODE(q, s, o) decode_pairs(q, s, o)
+#endif
+
 __device__ __forceinline__ void mma(float* c, unsigned a0, unsigned a1, unsigned a2, unsigned a3, unsigned b0, unsigned b1) {
   asm volatile("mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32 {%0,%1,%2,%3}, {%4,%5,%6,%7}, {%8,%9}, {%0,%1,%2,%3};\n"
                : "+f"(c[0]), "+f"(c[1]), "+f"(c[2]), "+f"(c[3])
@@ -171,15 +204,15 @@ k_fc1_mma(const unsigned char* __restrict__ q1, const unsigned char* __restrict_
     }
     unsigned a[2][16];
     // up rows, then gate rows: 8 MMA steps each; step s uses pairs 2s (fragment cols 2tig, 2tig+1) and 2s+1 (2tig+8, 2tig+9)
-    decode_pairs(wq[0], ws[0], a[0]);
-    decode_pairs(wq[1], ws[1], a[1]);
+    FC1_DECODE(wq[0], ws[0], a[0]);
+    FC1_DECODE(wq[1], ws[1], a[1]);
 #pragma unroll
     for (int s = 0; s < 8; ++s)
 #pragma unroll
       for (int t = 0; t < NT; ++t)
         mma(cu[t], a[0][2 * s], a[1][2 * s], a[0][2 * s + 1], a[1][2 * s + 1], xb[t][2 * s], xb[t][2 * s + 1]);
-    decode_pairs(wq[2], ws[2], a[0]);
-    decode_pairs(wq[3], ws[3], a[1]);
+    FC1_DECODE(wq[2], ws[2], a[0]);
+    FC1_DECODE(wq[3], ws[3], a[1]);
 #pragma unroll
     for (int s = 0; s < 8; ++s)
 #pragma unroll
@@ -250,9 +283,11 @@ void fc1_mma(torch::Tensor q1, torch::Tensor s1, torch::Tensor x, torch::Tensor 
 """
 
 
-def build():
-    return load_inline(name="sm120fp4_fc1_mma", cpp_sources=CPP, cuda_sources=CUDA, functions=["fc1_mma", "fc1_mma_set_pdl"],
-                       extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a", "-Xptxas=-v"], verbose=False)
+def build(decode: str = "f32"):
+    """decode: "f32" (shipped), "bf16" (the e2m1 pair converted straight to bf16x2 and scaled with one exact bf16x2 multiply, every pair) or "auto" (bf16 at one token tile, f32 at two)."""
+    assert decode in ("f32", "bf16", "auto"), decode
+    return load_inline(name="sm120fp4_fc1_mma" + {"f32": "", "bf16": "_dbf", "auto": "_dauto"}[decode], cpp_sources=CPP, cuda_sources=CUDA, functions=["fc1_mma", "fc1_mma_set_pdl"],
+                       extra_cuda_cflags=["-O3", "-gencode=arch=compute_120a,code=sm_120a", "-Xptxas=-v"] + {"f32": [], "bf16": ["-DFC1_DECODE_BF16"], "auto": ["-DFC1_DECODE_AUTO"]}[decode], verbose=False)
 
 
 def main(argv=None) -> int:
@@ -260,9 +295,11 @@ def main(argv=None) -> int:
     ap.add_argument("--out", type=Path, default=None, help="write every row to this JSON report")
     ap.add_argument("--hidden", type=int, default=2048, help="hidden size (a multiple of 128, at most 3072); 2816 for the Gemma-4-26B-A4B shape")
     ap.add_argument("--inter", type=int, default=768, help="expert intermediate size (a multiple of 16); 704 for the Gemma-4-26B-A4B shape")
+    ap.add_argument("--decode", default="f32", choices=("f32", "bf16", "auto"), help="build's decode: f32 (shipped), bf16 (every pair) or auto (bf16 at one token tile only)")
+    ap.add_argument("--check-only", action="store_true", help="correctness and determinism only, no timing (the us columns are null)")
     a = ap.parse_args(argv)
     rows = []
-    mm, mc, fl = build(), fc1.build(), floor.build()
+    mm, mc, fl = build(decode=a.decode), fc1.build(), floor.build()
     dev = torch.device("cuda")
     e, k, h, i = 128, 8, a.hidden, a.inter
     print(f"shape: {e} experts, top-{k}, hidden {h}, intermediate {i}")
@@ -292,13 +329,17 @@ def main(argv=None) -> int:
             go()
             stable = stable and bool(torch.equal(act, first))
         act2 = torch.empty_like(act)
-        t_mma = floor.graph_time(go)
-        t_cc = floor.graph_time(lambda: mc.fc1_w4a16(q1, s1, x, experts, offsets, pairs, alpha, act2, i, k))
         ptrs = torch.tensor([q1.data_ptr() + int(x_) * 2 * i * h // 2 for x_ in experts.tolist()], dtype=torch.int64, device=dev)
-        t_read = floor.graph_time(lambda: fl.stream_read(ptrs, 2 * i * h // 2, 0, 2 * i * h // 2, sms * 4, 256, sink))
+        if a.check_only:
+            t_mma = t_cc = t_read = None
+        else:
+            t_mma = floor.graph_time(go)
+            t_cc = floor.graph_time(lambda: mc.fc1_w4a16(q1, s1, x, experts, offsets, pairs, alpha, act2, i, k))
+            t_read = floor.graph_time(lambda: fl.stream_read(ptrs, 2 * i * h // 2, 0, 2 * i * h // 2, sms * 4, 256, sink))
         rows.append({"routing": label, "tokens": m, "rel_err": rel, "bit_identical_50": stable, "fc1_mma_us": t_mma,
                      "fc1_cuda_core_us": t_cc, "read_fc1_codes_us": t_read})
-        print(f"{label:6s} | {m:6d} | {rel:16.5f} | {str(stable):17s} | {t_mma:10.1f} | {t_cc:16.1f} | {t_read:8.1f}")
+        fmt = lambda v, w: ("-" if v is None else f"{v:.1f}").rjust(w)  # noqa: E731
+        print(f"{label:6s} | {m:6d} | {rel:16.5f} | {str(stable):17s} | {fmt(t_mma, 10)} | {fmt(t_cc, 16)} | {fmt(t_read, 8)}")
 
     for m in (1, 2, 4, 8, 16):
         g = torch.Generator().manual_seed(1000 + m)
@@ -311,7 +352,7 @@ def main(argv=None) -> int:
         run_case("fixed8", m, fixed.repeat(m, 1).contiguous(), x)
     if a.out:
         a.out.parent.mkdir(parents=True, exist_ok=True)
-        a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "rows": rows}, indent=1) + "\n", encoding="utf-8")
+        a.out.write_text(json.dumps({"device": torch.cuda.get_device_name(0), "shape": {"hidden": h, "inter": i}, "decode": a.decode, "check_only": a.check_only, "rows": rows}, indent=1) + "\n", encoding="utf-8")
         print(f"written {a.out}")
     return 0
 

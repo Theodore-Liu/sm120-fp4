@@ -1,0 +1,74 @@
+{
+ "device": "NVIDIA GeForce RTX 5090",
+ "shape": {
+  "hidden": 2816,
+  "inter": 704
+ },
+ "rows": [
+  {
+   "routing": "random",
+   "tokens": 1,
+   "bf16_equals_f32": true,
+   "auto_equals_f32": true,
+   "elements_differing_bf16": 0,
+   "elements": 5632
+  },
+  {
+   "routing": "random",
+   "tokens": 2,
+   "bf16_equals_f32": true,
+   "auto_equals_f32": true,
+   "elements_differing_bf16": 0,
+   "elements": 11264
+  },
+  {
+   "routing": "random",
+   "tokens": 4,
+   "bf16_equals_f32": true,
+   "auto_equals_f32": true,
+   "elements_differing_bf16": 0,
+   "elements": 22528
+  },
+  {
+   "routing": "random",
+   "tokens": 8,
+   "bf16_equals_f32": true,
+   "auto_equals_f32": true,
+   "elements_differing_bf16": 0,
+   "elements": 45056
+  },
+  {
+   "routing": "random",
+   "tokens": 16,
+   "bf16_equals_f32": true,
+   "auto_equals_f32": true,
+   "elements_differing_bf16": 0,
+   "elements": 90112
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 1,
+   "bf16_equals_f32": true,
+   "auto_equals_f32": true,
+   "elements_differing_bf16": 0,
+   "elements": 5632
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 8,
+   "bf16_equals_f32": true,
+   "auto_equals_f32": true,
+   "elements_differing_bf16": 0,
+   "elements": 45056
+  },
+  {
+   "routing": "fixed8",
+   "tokens": 16,
+   "bf16_equals_f32": true,
+   "auto_equals_f32": true,
+   "elements_differing_bf16": 0,
+   "elements": 90112
+  }
+ ],
+ "all_identical": true
+}
