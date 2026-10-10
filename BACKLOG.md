@@ -480,6 +480,19 @@ closes it. Dates are when an item was added, not estimates.
    use it. What remains for FC1 is the read against its byte floor at 16 tokens (138.0 against 107.3): a wider k chunk per load
    (two 16-byte vectors per lane per row) is the next candidate, measured before it is wired.
 
+11. **A census of shipped low-precision kernels on SM120 against an exact oracle** (2026-10-10). `sm120fp4/oracle.py`
+   computes the value NVFP4 defines exactly (integer-scaled float64 sums, one rounding for the per-tensor scales, one for the
+   output) and a per-element bound an fp32-accumulating kernel must respect (K * 2^-24 * sum|a b| + half an output ulp), so a
+   verdict is a count of elements outside the bound, not a threshold; `quantizer_conformance` compares a library quantizer's
+   codes and scales with the format's definition and reports midpoint ties apart. Selftest and `tests/test_oracle.py` (9 tests,
+   CPU): the fp32 reference GEMM sits inside the bound, a flipped code and a dropped 16-wide partial sit outside it at K <= 1024,
+   and the detectability floor is recorded (at K = 4096 a one-code fault is below the fp32 worst case; the module says how a
+   census gets under it). Next: run the stage 1 FlashInfer checks through the oracle; add vLLM's `cutlass_scaled_fp4_mm` /
+   `scaled_fp4_quant` / `cutlass_fp4_moe_mm`, FlashInfer `grouped_mm_fp4` and `trtllm_fp4_block_scale_moe`, `torch._scaled_mm`
+   (cuBLASLt FP8), CUTLASS's SM120 block-scaled examples and, once the disk allows, TensorRT-LLM's `nvfp4_gemm` (issue 14154)
+   and DeepGEMM; a shape and scale census (K, alignment, degenerate scales, saturating values); every element outside the bound
+   filed upstream with the operands that produce it.
+
 ## Closed
 
 - **Adoption 1, the stage-2 backend as an installable vLLM plugin** (closed 2026-10-03): the kernel sources moved into
