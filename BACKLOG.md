@@ -277,6 +277,9 @@ closes it. Dates are when an item was added, not estimates.
    and `docs/stage2-baselines.md`: 20 identical calls, 20 outputs, 1.8 to 3.8% apart; the atomic scatter the source
    describes plus a lost or duplicated 8-column group in 2 of 100 calls. The issue text is drafted for the maintainer
    to review before anything is posted.
+   Re-read 2026-10-10 on FlashInfer 0.7.1: order dependence still present at M=1 and M=4 (20/20 distinct), bit-stable at M=16; the lost
+   8-column group did not recur in 100 runs (docs/stage2-baselines.md, the 0.7.1 subsection). Issue draft in the paper repository's docs/pr-drafts/.
+
 10. **Stage 2 on a second checkpoint family** (2026-10-02). A Gemma-class or Mixtral-class NVFP4 MoE checkpoint through
    the same table, to show the layer is not tuned to one expert shape.
    Survey 2026-10-08 (configs and `model.safetensors.index.json` read from the Hub, nothing downloaded):
