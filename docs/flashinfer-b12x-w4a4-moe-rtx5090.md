@@ -72,7 +72,19 @@ routes per token the roundings differ run to run. The oracle's micro model allow
 inside it, so under the API's contract (bf16 output, no determinism promised) this is a precision design, not a defect. A
 caller that needs run-to-run identical outputs at decode batch sizes does not get them from this path.
 
+## The dynamic backend: 2,048 routed rows
+
+`reports/flashinfer-b12x-w4a4-moe-dynamic-fitted-rtx5090-fi071-20261011.json` (M = 1024, top-2, 5 runs). Its rounding points
+were fitted the same way as the static backend's, with identity FC1 at 2,048 routed rows: FC2 in bf16 partials per 256 (with a
+zero-weight second route, "bf16 partials per 256, summed once" matched on every element and every other chunk size differed on
+a third or more); each partial weighted in bf16x2 by bf16(w * alpha) (the only weighting under which every one of 6 runs with
+random top-2 weights lay inside the set of outputs reachable by bf16 atomic additions of the four weighted partials in any
+order, with 0 elements outside; the fp32-sum alternative differed on a third of the elements). Under that model the probe reads
+0 of 1,048,576 elements outside on each of 5 runs (max 0.92 of the bound) and 5 distinct outputs in 5 runs: the same bf16
+atomic design as the micro backend, non-deterministic by construction. A first read with a guessed chunk of 512 had left 2 to
+4 elements outside; the fit replaced the guess.
+
 ## What this row does not say
 
-Two shape families, random operands, global scales of 1. The dynamic backend (past the static cutover of 1,024 routed rows)
-was not exercised.
+Two shape families, random operands, global scales of 1, three backends (micro, static, dynamic) each at one or two token
+counts.
