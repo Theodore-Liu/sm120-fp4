@@ -6,7 +6,8 @@ Call shape as validated by `scripts/diag_b12x_nondeterminism.py`: weights quanti
 and `fc2_input_scale` is 1), block scales in the 128x4 layout converted with `convert_sf_to_mma_layout`, `quant_mode="nvfp4"`.
 The backend the dispatcher picks depends on the token count (micro for at most 8 tokens and 40 routed rows with top-k > 1,
 static beyond, dynamic past the static cutover); the oracle's combine model follows: "micro" (bf16 atomic scatter) for the
-micro range, "static" (bf16x2 weight multiply, fp32 finalize) otherwise. Each token count runs several times; conformance is
+micro range, "static" (bf16 partials per 256 weighted in bf16x2, fp32 finalize) between, "dynamic" (the same partials and
+weighting, each added by a bf16 atomic) past the static cutover. Each token count runs several times; conformance is
 per run and the distinct-output count across runs is recorded beside it.
 
     PYTHONPATH=/path/to/sm120-fp4 python scripts/flashinfer_b12x_w4a4_moe_probe.py --out reports/...json
@@ -66,7 +67,7 @@ def main(argv=None) -> int:
         routed = m * k
         micro = m <= MICRO_MAX_TOKENS and routed <= (MICRO_ROWS_MULTI if k > 1 else MICRO_ROWS_TOPK)
         combine = "micro" if micro else ("dynamic" if routed > STATIC_CUTOVER_ROWS else "static")
-        fc2_chunk = 512 if combine == "dynamic" else 256
+        fc2_chunk = 256                                   # every backend that chunks FC2 does so per 256 (fitted 2026-10-11)
         rec = {"tokens": m, "routed_rows": routed, "combine_model": combine}
         try:
             o = W.fused_moe_w4a4_oracle(x, w13_p, w13_s, w13_g, w2_p, w2_s, w2_g, ids, wts, gs_in=1.0, gs_mid=1.0, combine=combine, fc2_chunk=fc2_chunk)

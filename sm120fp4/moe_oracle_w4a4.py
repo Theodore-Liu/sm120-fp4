@@ -26,8 +26,8 @@ mid quantiser is evaluated at both ends of each activation's interval and under 
 maximum's two ends), the hull being the element's interval. A block whose two scale candidates differ is counted as
 "ambiguous". The combine model is a parameter: `"static"`, `"micro"`, or `"dynamic"` (the gated dynamic kernel: the static
 design's bf16 partials and bf16x2 weighting, but each weighted partial added into the output by a bf16 atomic
-`red.global.add.noftz.v4.bf16x2`, one rounding per partial in an order the hardware chooses; its FC2 task spans up to four
-128-column slices, so `fc2_chunk` is 512 there).
+`red.global.add.noftz.v4.bf16x2`, one rounding per partial in an order the hardware chooses; fitted on 2026-10-11 with identity
+probes at 2,048 routed rows: chunk 256, every run inside the set of orderings, the fp32-sum alternative excluded).
 
 The floor is as for the W4A16 oracle: set by the first GEMM's worst-case accumulation bound at the bf16 write before the
 mid quantiser, and for the micro combine by the k bf16 roundings of the partial sums. Faults of the kinds the census has
