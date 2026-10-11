@@ -1,0 +1,154 @@
+{
+ "generated_utc": "2026-10-11T05:27:11Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.13.0+cu130",
+ "vllm": "0.28.0",
+ "cases": [
+  {
+   "tokens": 64,
+   "experts": 4,
+   "topk": 1,
+   "n": 512,
+   "k": 1024,
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8704726688478867,
+   "max_abs_err": 0.4688644909785751,
+   "all_zero_output": false,
+   "conformant": true,
+   "segments": [
+    13,
+    12,
+    21,
+    18
+   ],
+   "segment_starts": [
+    0,
+    13,
+    25,
+    46
+   ],
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "tokens": 128,
+   "experts": 8,
+   "topk": 2,
+   "n": 1024,
+   "k": 2048,
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.7676170421783579,
+   "max_abs_err": 0.4999260414893456,
+   "all_zero_output": false,
+   "conformant": true,
+   "segments": [
+    29,
+    31,
+    23,
+    32,
+    34,
+    37,
+    39,
+    31
+   ],
+   "segment_starts": [
+    0,
+    29,
+    60,
+    83,
+    115,
+    149,
+    186,
+    225
+   ],
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "tokens": 32,
+   "experts": 2,
+   "topk": 1,
+   "n": 256,
+   "k": 512,
+   "elements": 8192,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9504300842124589,
+   "max_abs_err": 0.24764890165353393,
+   "all_zero_output": false,
+   "conformant": true,
+   "segments": [
+    12,
+    20
+   ],
+   "segment_starts": [
+    0,
+    12
+   ],
+   "outside_bound_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "tokens": 300,
+   "experts": 8,
+   "topk": 2,
+   "n": 512,
+   "k": 1024,
+   "elements": 307200,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8737104743972453,
+   "max_abs_err": 0.46158981862717496,
+   "all_zero_output": false,
+   "conformant": true,
+   "segments": [
+    83,
+    67,
+    76,
+    73,
+    74,
+    77,
+    80,
+    70
+   ],
+   "segment_starts": [
+    0,
+    83,
+    150,
+    226,
+    299,
+    373,
+    450,
+    530
+   ],
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ ]
+}

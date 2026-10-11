@@ -64,6 +64,16 @@ across the mid-tile segment (16,359 of 16,384; 16,354 of 16,384; 32,233 of 34,81
 16/48/64 wrong on both later segments with 2,512 NaNs. So the defect is the block-scale handling of a segment that starts inside a 128-row scale
 tile, for both block-scaled formats the path serves; the unscaled FP8 path is unaffected.
 
+## The control: vLLM's own grouped NVFP4 GEMM takes arbitrary segments
+
+vLLM 0.28.0's `cutlass_fp4_moe_mm` (its CUTLASS grouped block-scaled GEMM, the MoE path it ships for SM120), fed through vLLM's own data
+preparation (`get_cutlass_moe_mm_data`, `shuffle_rows`, `scaled_fp4_experts_quant`) with random top-k routing, so that the expert segments
+have the lengths routing produces (13/12/21/18; 29/31/23/32/34/37/39/31; 12/20; 83/67/76/73/74/77/80/70 tokens) and all but the first start
+off a 128-row boundary, is conformant on every element (0 of 610,304 outside the bound; `scripts/vllm_fp4_moe_mm_probe.py`,
+`reports/vllm-fp4-moe-mm-rtx5090-20261010.json`). The difference in the interface is the point: vLLM gives each expert its own
+block-scale region padded to 128 rows (`blockscale_offsets`, separate from the row offsets), so a segment's scales always begin on a tile
+boundary; FlashInfer's cuDNN path takes one scale tensor swizzled over all tokens and has nothing to say where a segment's tile begins.
+
 ## Status
 
 A draft issue for the author's review is in the paper repository (`docs/pr-drafts/flashinfer-grouped-fp4-alignment-issue.md`). Not yet asked: whether the block-scaled grouped GEMM in FlashInfer's unified MoE API routes
