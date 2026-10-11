@@ -1,0 +1,179 @@
+{
+ "generated_utc": "2026-10-11T07:55:45Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "cases": [
+  {
+   "path": "torch._scaled_mm tensor",
+   "m": 1,
+   "n": 4096,
+   "k": 4096,
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.4563108077223422,
+   "max_abs_err": 0.0004882875742202308,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "torch._scaled_mm rowwise",
+   "m": 1,
+   "n": 4096,
+   "k": 4096,
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.459718734477032,
+   "max_abs_err": 0.00048653904452400365,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "flashinfer mm_fp8 trtllm_low_latency",
+   "m": 1,
+   "n": 4096,
+   "k": 4096,
+   "child_returncode": 1,
+   "error": "child exited 1 (-11 is SIGSEGV): , line 121, in main\n    flashinfer_case(int(m_), int(n_), int(k_), path_)\n  File \"/mnt/c/Users/jingz/oss/sm120-fp4/scripts/fp8_gemm_census.py\", line 66, in flashinfer_case\n    out = flashinfer.mm_fp8(a_q.to(dev), w_prep, alpha=alpha, out_dtype=torch.bfloat16)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/utils.py\", line 1553, in wrapper\n    raise BackendSupportedError(\nflashinfer.utils.BackendSupportedError: mm_fp8 does not support backend 'trtllm_low_latency' with capability 120\n"
+  },
+  {
+   "path": "torch._scaled_mm tensor",
+   "m": 16,
+   "n": 2048,
+   "k": 7168,
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.2592325875089747,
+   "max_abs_err": 0.000243940535045159,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "torch._scaled_mm rowwise",
+   "m": 16,
+   "n": 2048,
+   "k": 7168,
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.301483087115166,
+   "max_abs_err": 0.0007059118585766577,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "flashinfer mm_fp8 trtllm_low_latency",
+   "m": 16,
+   "n": 2048,
+   "k": 7168,
+   "child_returncode": 1,
+   "error": "child exited 1 (-11 is SIGSEGV): , line 121, in main\n    flashinfer_case(int(m_), int(n_), int(k_), path_)\n  File \"/mnt/c/Users/jingz/oss/sm120-fp4/scripts/fp8_gemm_census.py\", line 66, in flashinfer_case\n    out = flashinfer.mm_fp8(a_q.to(dev), w_prep, alpha=alpha, out_dtype=torch.bfloat16)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/utils.py\", line 1553, in wrapper\n    raise BackendSupportedError(\nflashinfer.utils.BackendSupportedError: mm_fp8 does not support backend 'trtllm_low_latency' with capability 120\n"
+  },
+  {
+   "path": "torch._scaled_mm tensor",
+   "m": 128,
+   "n": 4096,
+   "k": 1024,
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9113419915625477,
+   "max_abs_err": 0.00048795536130644135,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "torch._scaled_mm rowwise",
+   "m": 128,
+   "n": 4096,
+   "k": 1024,
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.901771852427753,
+   "max_abs_err": 0.000385881488940365,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "flashinfer mm_fp8 trtllm_low_latency",
+   "m": 128,
+   "n": 4096,
+   "k": 1024,
+   "child_returncode": 1,
+   "error": "child exited 1 (-11 is SIGSEGV): , line 121, in main\n    flashinfer_case(int(m_), int(n_), int(k_), path_)\n  File \"/mnt/c/Users/jingz/oss/sm120-fp4/scripts/fp8_gemm_census.py\", line 66, in flashinfer_case\n    out = flashinfer.mm_fp8(a_q.to(dev), w_prep, alpha=alpha, out_dtype=torch.bfloat16)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/utils.py\", line 1553, in wrapper\n    raise BackendSupportedError(\nflashinfer.utils.BackendSupportedError: mm_fp8 does not support backend 'trtllm_low_latency' with capability 120\n"
+  },
+  {
+   "path": "torch._scaled_mm tensor",
+   "m": 256,
+   "n": 1024,
+   "k": 2048,
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.758308244975362,
+   "max_abs_err": 0.0004878977384000782,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "torch._scaled_mm rowwise",
+   "m": 256,
+   "n": 1024,
+   "k": 2048,
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.7608112019145541,
+   "max_abs_err": 0.00048131271738344195,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "flashinfer mm_fp8 trtllm_low_latency",
+   "m": 256,
+   "n": 1024,
+   "k": 2048,
+   "child_returncode": 1,
+   "error": "child exited 1 (-11 is SIGSEGV): , line 121, in main\n    flashinfer_case(int(m_), int(n_), int(k_), path_)\n  File \"/mnt/c/Users/jingz/oss/sm120-fp4/scripts/fp8_gemm_census.py\", line 66, in flashinfer_case\n    out = flashinfer.mm_fp8(a_q.to(dev), w_prep, alpha=alpha, out_dtype=torch.bfloat16)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/utils.py\", line 1553, in wrapper\n    raise BackendSupportedError(\nflashinfer.utils.BackendSupportedError: mm_fp8 does not support backend 'trtllm_low_latency' with capability 120\n"
+  },
+  {
+   "path": "torch._scaled_mm tensor",
+   "m": 512,
+   "n": 512,
+   "k": 512,
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9538845007324157,
+   "max_abs_err": 0.0001676757211447888,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "torch._scaled_mm rowwise",
+   "m": 512,
+   "n": 512,
+   "k": 512,
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9606632950217823,
+   "max_abs_err": 0.0002403963039934176,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "path": "flashinfer mm_fp8 trtllm_low_latency",
+   "m": 512,
+   "n": 512,
+   "k": 512,
+   "child_returncode": 1,
+   "error": "child exited 1 (-11 is SIGSEGV): , line 121, in main\n    flashinfer_case(int(m_), int(n_), int(k_), path_)\n  File \"/mnt/c/Users/jingz/oss/sm120-fp4/scripts/fp8_gemm_census.py\", line 66, in flashinfer_case\n    out = flashinfer.mm_fp8(a_q.to(dev), w_prep, alpha=alpha, out_dtype=torch.bfloat16)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/utils.py\", line 1553, in wrapper\n    raise BackendSupportedError(\nflashinfer.utils.BackendSupportedError: mm_fp8 does not support backend 'trtllm_low_latency' with capability 120\n"
+  }
+ ],
+ "vllm": "unavailable: ModuleNotFoundError",
+ "flashinfer": "0.7.1"
+}
