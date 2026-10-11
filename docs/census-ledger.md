@@ -24,6 +24,7 @@ report names, and is read with the detectability floor the oracle module documen
 | 2026-10-11 | FlashInfer 0.6.16.post3 | `mm_fp8` trtllm_low_latency | 5 shapes | **no capability guard**: SIGSEGV at m = 1, 128, 256 (sm100f cubins on sm_120), RuntimeError at m = 16, 512 | same | **fixed upstream**: 0.7.1 refuses SM120 with a message (`BackendSupportedError`); logged, not reported |
 | 2026-10-11 | FlashInfer 0.7.1 | `b12x_fused_moe` W4A16 (bf16 activations, NVFP4 weights, gated SiLU) | 8 experts, hidden 1024, intermediate 512, top-2, M = 1 / 4 / 16 / 64, 5 runs each | conformant every run under the fused-MoE oracle (`sm120fp4/moe_oracle.py`, follows the kernel's rounding points), deterministic (1 distinct output at every M) | `reports/flashinfer-b12x-w4a16-moe-rtx5090-fi071-20261011.json` | convention, undocumented: the second half of w13 is the gate (the W4A4 path reads it the same way); alpha = 1 / gs; scales 128x4 (`docs/flashinfer-b12x-w4a16-moe-rtx5090.md`) |
 | 2026-10-11 | FlashInfer 0.7.1 | `b12x_fused_moe` W4A4 (`quant_mode="nvfp4"`), micro and static backends | 8 experts, hidden 1024, intermediate 512, top-2, M = 1 / 4 (micro) and 16 / 64 (static), 5 runs each | conformant every run under each backend's own rounding model (`sm120fp4/moe_oracle_w4a4.py`), deterministic at this shape | `reports/flashinfer-b12x-w4a4-moe-rtx5090-fi071-20261011.json` | precision design, documented: the static backend's FC2 is bf16 partials per 256 of K (37 percent of outputs one ulp from an fp32 FC2, median 0.2 percent); contract: `w1_alpha` is the input-quant scale, not an FC1 multiplier (`docs/flashinfer-b12x-w4a4-moe-rtx5090.md`) |
+| 2026-10-11 | FlashInfer 0.7.1 | `b12x_fused_moe` W4A4 at the stage-2 shape (128 experts, top-8, hidden 2048, intermediate 768) | M = 1 / 4 (micro) and 16 (static), 10 runs each | conformant every run under the backend's model; micro **non-deterministic** (10 distinct outputs in 10 runs at M = 1 and 4), static deterministic | `reports/flashinfer-b12x-w4a4-moe-top8-rtx5090-fi071-20261011.json` | the stage-2 non-determinism, now placed: the micro backend's bf16 atomic scatter rounds every partial sum, a design the oracle's micro model allows (max err 0.27 of its bound); not a defect under the API's contract, a precision design to know |
 
 ## Tally toward the four-week test
 
@@ -34,7 +35,7 @@ input-quant scale). Precision designs documented: 1 (b12x W4A4 static FC2 in bf1
 
 ## Not yet read
 
-FlashInfer b12x dynamic backend (past 1,024 routed rows) and the W4A4 path at top-8 under the oracle; CUTLASS's
+FlashInfer b12x dynamic backend (past 1,024 routed rows); CUTLASS's
 SM120 block-scaled examples; FlashInfer's cuDNN / CUTLASS dense FP8 and MXFP8 GEMMs (`mm_fp8` has only the TRT-LLM backend; the cuDNN and SM120 CUTLASS FP8 runners sit behind `bmm_fp8`); DeepGEMM; llama.cpp q4_0 / q8_0 GEMV; attention kernels (an exact
 oracle for attention is the hard instrument and is not written).
 

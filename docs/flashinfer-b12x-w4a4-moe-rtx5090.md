@@ -62,8 +62,17 @@ Two corrections to the oracle itself came out of the same fitting and apply to e
 - **The output rounding's half ulp is taken at the top of the interval**, since the true sum may sit in the binade above the
   interval's midpoint; the selftest's faithful emulation had landed 5 percent outside on one element for that reason alone.
 
+## The stage-2 shape: 128 experts, top-8, hidden 2048, intermediate 768
+
+`reports/flashinfer-b12x-w4a4-moe-top8-rtx5090-fi071-20261011.json`, 10 runs per token count. M = 1 and 4 go to the micro
+backend: 10 distinct outputs in 10 runs at both, every run inside the micro model's bound (max 0.20 and 0.27 of it). M = 16
+goes to the static backend: one output in 10 runs, inside the bound (max 0.27). So the stage-2 non-determinism is placed: it
+is the micro backend's bf16 atomic scatter, which rounds every partial sum in whatever order the atomics land; with eight
+routes per token the roundings differ run to run. The oracle's micro model allows k bf16 roundings and the kernel stays well
+inside it, so under the API's contract (bf16 output, no determinism promised) this is a precision design, not a defect. A
+caller that needs run-to-run identical outputs at decode batch sizes does not get them from this path.
+
 ## What this row does not say
 
-One shape family, random operands, top-2, global scales of 1. The dynamic backend (past the static cutover of 1,024 routed
-rows) was not exercised. Determinism was read on 5 runs at a shape where routes rarely collide; the stage-2 finding of
-non-determinism at top-8 stands and is the micro backend's bf16 atomic scatter.
+Two shape families, random operands, global scales of 1. The dynamic backend (past the static cutover of 1,024 routed rows)
+was not exercised.
