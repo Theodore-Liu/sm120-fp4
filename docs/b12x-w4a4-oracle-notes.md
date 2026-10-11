@@ -38,3 +38,11 @@ path the points differ, and the activation quantiser adds set-valued steps. Read
 
 The micro backend (small M) needs its own reading before any verdict on it; the known non-determinism there means the oracle
 should report per-run conformance and distinct-output counts side by side, as the W4A16 probe does.
+
+## As measured (2026-10-11, after the oracle was fitted to the kernel)
+
+The design above was corrected in three places by fitting against the kernel (`docs/flashinfer-b12x-w4a4-moe-rtx5090.md`):
+the static backend's FC2 is computed in K-chunks of 256 with each partial rounded to bf16 and weighted per partial, not as one
+fp32 accumulation; the micro backend's FC2 is one fp32 accumulation with the route result held as bf16 and the weight applied
+in fp32; and the block quantisers are emulated exactly rather than as set-valued with a slack, since `rcp.approx` equals the
+fp32 RN reciprocal on this device. `w1_alpha` is the input-quant global scale in this mode, not an FC1 multiplier.

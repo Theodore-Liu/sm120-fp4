@@ -1,0 +1,100 @@
+{
+ "generated_utc": "2026-10-11T11:21:25Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "triton": "3.5.1",
+ "instruction": "rcp.approx.ftz.f32",
+ "scales_exactly_with_powers_of_two": true,
+ "rows": [
+  {
+   "x": 1.0,
+   "rcp_approx": 1.0,
+   "rcp_approx_bits": "0x3f800000",
+   "rn_reciprocal": 1.0,
+   "rn_bits": "0x3f800000",
+   "approx_minus_exact_ulps": 0.0,
+   "approx_equals_rn": true,
+   "side": "exact"
+  },
+  {
+   "x": 1.125,
+   "rcp_approx": 0.8888888955116272,
+   "rcp_approx_bits": "0x3f638e39",
+   "rn_reciprocal": 0.8888888955116272,
+   "rn_bits": "0x3f638e39",
+   "approx_minus_exact_ulps": 0.1111111119389534,
+   "approx_equals_rn": true,
+   "side": "above"
+  },
+  {
+   "x": 1.25,
+   "rcp_approx": 0.800000011920929,
+   "rcp_approx_bits": "0x3f4ccccd",
+   "rn_reciprocal": 0.800000011920929,
+   "rn_bits": "0x3f4ccccd",
+   "approx_minus_exact_ulps": 0.19999999925494194,
+   "approx_equals_rn": true,
+   "side": "above"
+  },
+  {
+   "x": 1.375,
+   "rcp_approx": 0.7272727489471436,
+   "rcp_approx_bits": "0x3f3a2e8c",
+   "rn_reciprocal": 0.7272727489471436,
+   "rn_bits": "0x3f3a2e8c",
+   "approx_minus_exact_ulps": 0.3636363632977009,
+   "approx_equals_rn": true,
+   "side": "above"
+  },
+  {
+   "x": 1.5,
+   "rcp_approx": 0.6666666865348816,
+   "rcp_approx_bits": "0x3f2aaaab",
+   "rn_reciprocal": 0.6666666865348816,
+   "rn_bits": "0x3f2aaaab",
+   "approx_minus_exact_ulps": 0.33333333395421505,
+   "approx_equals_rn": true,
+   "side": "above"
+  },
+  {
+   "x": 1.625,
+   "rcp_approx": 0.6153846383094788,
+   "rcp_approx_bits": "0x3f1d89d9",
+   "rn_reciprocal": 0.6153846383094788,
+   "rn_bits": "0x3f1d89d9",
+   "approx_minus_exact_ulps": 0.38461538404226303,
+   "approx_equals_rn": true,
+   "side": "above"
+  },
+  {
+   "x": 1.75,
+   "rcp_approx": 0.5714285969734192,
+   "rcp_approx_bits": "0x3f124925",
+   "rn_reciprocal": 0.5714285969734192,
+   "rn_bits": "0x3f124925",
+   "approx_minus_exact_ulps": 0.4285714291036129,
+   "approx_equals_rn": true,
+   "side": "above"
+  },
+  {
+   "x": 1.875,
+   "rcp_approx": 0.5333333611488342,
+   "rcp_approx_bits": "0x3f088889",
+   "rn_reciprocal": 0.5333333611488342,
+   "rn_bits": "0x3f088889",
+   "approx_minus_exact_ulps": 0.466666666790843,
+   "approx_equals_rn": true,
+   "side": "above"
+  },
+  {
+   "x": 6.0,
+   "rcp_approx": 0.1666666716337204,
+   "rcp_approx_bits": "0x3e2aaaab",
+   "rn_reciprocal": 0.1666666716337204,
+   "rn_bits": "0x3e2aaaab",
+   "approx_minus_exact_ulps": 0.33333333395421505,
+   "approx_equals_rn": true,
+   "side": "above"
+  }
+ ]
+}

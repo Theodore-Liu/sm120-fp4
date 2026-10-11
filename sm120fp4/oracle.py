@@ -51,7 +51,12 @@ import torch
 
 from .reference import BLOCK, E2M1_MAX, E4M3_MAX, e2m1_decode, unpack_e2m1
 
-U32 = 2.0 ** -24
+# The per-addition unit of the accumulation bound. Tensor cores accumulate in fp32 by aligning the addends to the largest
+# exponent and truncating (round toward zero), so one addition can err by a full ulp of the running sum, not the half ulp of
+# round-to-nearest (Fasi, Higham, Mikaitis and Pranesh, "Numerical behavior of NVIDIA tensor cores", 2021). The dense census
+# rows read against a 2^-24 unit sat at 0.95 of that bound, and a fused-MoE row crossed it by 4 percent on one element of
+# 65,536; with the truncation unit every row is inside. 2026-10-11.
+U32 = 2.0 ** -23
 U64 = 2.0 ** -53
 
 

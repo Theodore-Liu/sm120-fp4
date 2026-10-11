@@ -2,7 +2,7 @@
 
 One row per shipped kernel path read against the exact oracle (`sm120fp4/oracle.py`) on the RTX 5090 (sm_120, driver 610.47). The four-week
 test of the direction (opened 2026-10-10): fewer than three distinct confirmed defects by 2026-11-07 downgrades it. "Conformant" means every
-output element inside the oracle's bound (exact product plus fp32-accumulation slack plus output rounding), on the shapes and operands the
+output element inside the oracle's bound (exact product plus the fp32-accumulation slack at the tensor core's truncation unit of one ulp per addition, 2^-23, since 2026-10-11, plus output rounding), on the shapes and operands the
 report names, and is read with the detectability floor the oracle module documents (a one-code fault at K = 4096 is below fp32 noise).
 
 | date | library, version | path | shapes, operands | verdict | report | note |
@@ -23,16 +23,18 @@ report names, and is read with the detectability floor the oracle module documen
 | 2026-10-11 | vLLM 0.28.0 | `cutlass_scaled_mm` FP8: per-tensor, per-token x per-channel, 1x128 x 128x128 blockwise | the same 5 shapes | conformant, 0 outside on all three scale kinds | `reports/fp8-gemm-rtx5090-vllm028-20261011.json` | the blockwise path needs the activation scale column-major, as vLLM's own caller writes it; row-major reads wrong for every m > 1 (an operand contract that lives in the caller, not the docstring) |
 | 2026-10-11 | FlashInfer 0.6.16.post3 | `mm_fp8` trtllm_low_latency | 5 shapes | **no capability guard**: SIGSEGV at m = 1, 128, 256 (sm100f cubins on sm_120), RuntimeError at m = 16, 512 | same | **fixed upstream**: 0.7.1 refuses SM120 with a message (`BackendSupportedError`); logged, not reported |
 | 2026-10-11 | FlashInfer 0.7.1 | `b12x_fused_moe` W4A16 (bf16 activations, NVFP4 weights, gated SiLU) | 8 experts, hidden 1024, intermediate 512, top-2, M = 1 / 4 / 16 / 64, 5 runs each | conformant every run under the fused-MoE oracle (`sm120fp4/moe_oracle.py`, follows the kernel's rounding points), deterministic (1 distinct output at every M) | `reports/flashinfer-b12x-w4a16-moe-rtx5090-fi071-20261011.json` | convention, undocumented: the second half of w13 is the gate (the W4A4 path reads it the same way); alpha = 1 / gs; scales 128x4 (`docs/flashinfer-b12x-w4a16-moe-rtx5090.md`) |
+| 2026-10-11 | FlashInfer 0.7.1 | `b12x_fused_moe` W4A4 (`quant_mode="nvfp4"`), micro and static backends | 8 experts, hidden 1024, intermediate 512, top-2, M = 1 / 4 (micro) and 16 / 64 (static), 5 runs each | conformant every run under each backend's own rounding model (`sm120fp4/moe_oracle_w4a4.py`), deterministic at this shape | `reports/flashinfer-b12x-w4a4-moe-rtx5090-fi071-20261011.json` | precision design, documented: the static backend's FC2 is bf16 partials per 256 of K (37 percent of outputs one ulp from an fp32 FC2, median 0.2 percent); contract: `w1_alpha` is the input-quant scale, not an FC1 multiplier (`docs/flashinfer-b12x-w4a4-moe-rtx5090.md`) |
 
 ## Tally toward the four-week test
 
 Distinct defect classes found and reproduced: **2** (the b12x W4A4 scatter non-determinism; the cuDNN grouped block-scaled GEMM's mid-tile
-segments). Confirmed by maintainers: 0 (both issue drafts await the author's review before posting). Conventions documented, not defects: 2
-(E4M3 / E2M1 tie rounding, GPU quantisers against torch; the b12x fused MoE's w13 half order). Reports that did not reproduce: 1 (TensorRT-LLM issue 14154 on this part). Crashes on an unsupported part already guarded in the next release: 1 (FlashInfer 0.6.16 `mm_fp8`).
+segments). Confirmed by maintainers: 0 (both issue drafts await the author's review before posting). Conventions documented, not defects: 3
+(E4M3 / E2M1 tie rounding, GPU quantisers against torch; the b12x fused MoE's w13 half order; b12x W4A4's `w1_alpha` as the
+input-quant scale). Precision designs documented: 1 (b12x W4A4 static FC2 in bf16 partials per 256 of K). Reports that did not reproduce: 1 (TensorRT-LLM issue 14154 on this part). Crashes on an unsupported part already guarded in the next release: 1 (FlashInfer 0.6.16 `mm_fp8`).
 
 ## Not yet read
 
-FlashInfer b12x W4A4 fused MoE under the fused-MoE oracle (so far read only for determinism and against a float reference); CUTLASS's
+FlashInfer b12x dynamic backend (past 1,024 routed rows) and the W4A4 path at top-8 under the oracle; CUTLASS's
 SM120 block-scaled examples; FlashInfer's cuDNN / CUTLASS dense FP8 and MXFP8 GEMMs (`mm_fp8` has only the TRT-LLM backend; the cuDNN and SM120 CUTLASS FP8 runners sit behind `bmm_fp8`); DeepGEMM; llama.cpp q4_0 / q8_0 GEMV; attention kernels (an exact
 oracle for attention is the hard instrument and is not written).
 
@@ -47,3 +49,9 @@ from the library's own documentation and a second backend or library disagrees w
 A second note (2026-10-11, `docs/fp8-gemm-rtx5090.md`): a fault that vanishes exactly at m = 1 is a layout fault in a per-row operand,
 not a kernel fault, since at one row every layout of an (m, g) tensor is the same bytes. vLLM's blockwise FP8 path takes its
 activation scale column-major, which its docstring does not say and its own caller does; read the caller before the verdict.
+
+A third note (2026-10-11, `docs/flashinfer-b12x-w4a4-moe-rtx5090.md`): when a kernel's rounding points are not in its docstring, fit them
+with structured probes (identity weights that make the output read out an intermediate; top-1 with weight 1 to isolate one GEMM)
+before any verdict; the first W4A4 model differed from the kernel on half the elements by one ulp, which is the signature of a
+wrong rounding point, not of a kernel fault. The same fitting corrected two parts of every oracle here: the accumulation unit
+(tensor cores truncate, one ulp per addition) and the binade of the output rounding (taken at the top of the interval).

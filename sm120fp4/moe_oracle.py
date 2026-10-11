@@ -145,7 +145,8 @@ def fused_moe_w4a16_oracle(x_bf16: torch.Tensor, w13_packed: torch.Tensor, w13_s
         out.index_add_(0, tok, contrib)
         abs_contrib.index_add_(0, tok, contrib.abs())
         bound.index_add_(0, tok, w_eff.abs() * cb + (w_unc + 2.0 * U32) * contrib.abs())  # the fp32 multiply by the weight
-    bound += topk * U32 * abs_contrib + 0.5 * _ulp(out, torch.bfloat16) + 2.0 * U64 * abs_contrib
+    pre = bound + topk * U32 * abs_contrib + 2.0 * U64 * abs_contrib
+    bound = pre + 0.5 * _ulp(out.abs() + pre, torch.bfloat16)   # the output rounding's half ulp at the top of the interval
     return {"nominal": out, "bound": bound, "abs_contrib": abs_contrib, "tie_elements": ties}
 
 
