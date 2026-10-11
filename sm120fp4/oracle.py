@@ -98,6 +98,30 @@ def exact_gemm_nvfp4(a_packed, a_sf, a_gs, b_packed, b_sf, b_gs, out_dtype=torch
     return exact, bound
 
 
+def exact_grouped_gemm_nvfp4(a_packed, a_sf, a_gs, b_packed, b_sf, b_gs, m_indptr, out_dtype=torch.bfloat16, block: int = BLOCK):
+    """Exact grouped GEMM: rows m_indptr[e]:m_indptr[e+1] of A against expert e's weights B[e] ([E, N, K/2] codes, [E, N, K/block]
+    scales, per-expert or shared fp32 global scale), assembled expert by expert from exact_gemm_nvfp4. Returns (exact, bound) of
+    shape [cum_m, N]; an expert with no rows contributes nothing. This is the oracle for grouped_mm_fp4-style kernels and for the
+    expert GEMMs inside a fused MoE whose activations are already quantised."""
+    m_indptr = [int(v) for v in torch.as_tensor(m_indptr).reshape(-1).tolist()]
+    e_count = b_packed.shape[0]
+    if len(m_indptr) != e_count + 1:
+        raise ValueError(f"m_indptr has {len(m_indptr)} entries for {e_count} experts")
+    n = b_packed.shape[1]
+    exact = torch.zeros(m_indptr[-1], n, dtype=torch.float64)
+    bound = torch.zeros(m_indptr[-1], n, dtype=torch.float64)
+    b_gs_t = torch.as_tensor(b_gs, dtype=torch.float64).reshape(-1)
+    for e in range(e_count):
+        lo, hi = m_indptr[e], m_indptr[e + 1]
+        if hi <= lo:
+            continue
+        gs_e = b_gs_t[e] if b_gs_t.numel() == e_count else b_gs_t[0]
+        ex, bd = exact_gemm_nvfp4(a_packed[lo:hi], a_sf[lo:hi], a_gs, b_packed[e], b_sf[e], gs_e.reshape(1), out_dtype, block)
+        exact[lo:hi] = ex
+        bound[lo:hi] = bd
+    return exact, bound
+
+
 def conformance(kernel_out: torch.Tensor, exact: torch.Tensor, bound: torch.Tensor) -> dict:
     """Compare a kernel's output with the exact value under the bound. Every number a report needs, no threshold."""
     k = kernel_out.detach().double().cpu()
@@ -249,6 +273,19 @@ def selftest() -> int:
         print(f"  scale moved off a midpoint -> defect: {not qo['conformant']}")
         q2 = quantizer_conformance(a, bad, asf, ags)
         ok &= not q2["conformant"] and q2["codes_differ_not_at_tie"] >= 1
+    # 7. the grouped oracle equals the dense oracle expert by expert, and a row routed to the wrong expert is outside the bound
+    E, n, k = 3, 8, 256
+    a = torch.randn(10, k); ap, asf, ags = quantize_nvfp4(a)
+    bs = [quantize_nvfp4(torch.randn(n, k)) for _ in range(E)]
+    bp = torch.stack([b[0] for b in bs]); bsf = torch.stack([b[1] for b in bs]); bgs = torch.cat([b[2] for b in bs])
+    indptr = torch.tensor([0, 4, 4, 10])
+    ge, gb = exact_grouped_gemm_nvfp4(ap, asf, ags, bp, bsf, bgs, indptr)
+    d0, _ = exact_gemm_nvfp4(ap[0:4], asf[0:4], ags, bp[0], bsf[0], bgs[0:1])
+    d2, _ = exact_gemm_nvfp4(ap[4:10], asf[4:10], ags, bp[2], bsf[2], bgs[2:3])
+    ok &= bool(torch.equal(ge[0:4], d0) and torch.equal(ge[4:10], d2))
+    swapped, _ = exact_gemm_nvfp4(ap[0:4], asf[0:4], ags, bp[1], bsf[1], bgs[1:2])
+    ok &= not conformance(torch.cat([swapped, d2]).to(torch.bfloat16), ge, gb)["conformant"]
+    print("  grouped oracle: equals the dense one per expert and catches a mis-routed expert")
     # 6. a zero bound never divides by zero and an all-zero output is named
     z = conformance(torch.zeros(2, 2), torch.zeros(2, 2, dtype=torch.float64), torch.zeros(2, 2, dtype=torch.float64))
     ok &= z["conformant"] and z["all_zero_output"]

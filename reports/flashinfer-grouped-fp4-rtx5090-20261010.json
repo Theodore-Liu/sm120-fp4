@@ -1,0 +1,56 @@
+{
+ "generated_utc": "2026-10-11T01:56:24Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.13.0+cu130",
+ "flashinfer": "0.6.16.post3",
+ "cases": [
+  {
+   "experts": 4,
+   "tokens": 64,
+   "n": 512,
+   "k": 1024,
+   "m_indptr": [
+    0,
+    16,
+    16,
+    40,
+    64
+   ],
+   "error": "RuntimeError: cuDNN grouped_mm_fp4 requires backend version >= 92100, found 92000."
+  },
+  {
+   "experts": 8,
+   "tokens": 128,
+   "n": 1024,
+   "k": 2048,
+   "m_indptr": [
+    0,
+    2,
+    6,
+    86,
+    108,
+    115,
+    116,
+    124,
+    128
+   ],
+   "error": "RuntimeError: cuDNN grouped_mm_fp4 requires backend version >= 92100, found 92000."
+  },
+  {
+   "experts": 2,
+   "tokens": 32,
+   "n": 256,
+   "k": 512,
+   "m_indptr": [
+    0,
+    0,
+    32
+   ],
+   "error": "RuntimeError: cuDNN grouped_mm_fp4 requires backend version >= 92100, found 92000."
+  }
+ ]
+}

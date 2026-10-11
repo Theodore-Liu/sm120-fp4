@@ -499,6 +499,10 @@ closes it. Dates are when an item was added, not estimates.
    (0 of 626,176 outside the bound); `scaled_fp4_quant` conformant, and the oracle surfaced a convention: vLLM and FlashInfer round E4M3
    scale ties and E2M1 code ties half away from zero and agree with each other, torch's cast rounds to even (`docs/vllm-nvfp4-rtx5090.md`);
    `quantizer_conformance` now classifies ties. `tests/test_mm_fp4.py` gained the oracle form of the GEMM check (12 pass on the 5090).
+   Third reading 2026-10-10, the first defect: FlashInfer 0.7.1 `grouped_mm_fp4` (cuDNN 9.27) on the 5090 returns wrong output for every
+   expert segment whose first row is not a multiple of 128 (deterministic, raises nothing; aligned segments conformant; `grouped_mm_fp8` on the
+   same segments conformant, so the cause is the FP4 block-scale addressing of mid-tile segments); `docs/flashinfer-grouped-fp4-rtx5090.md`;
+   `exact_grouped_gemm_nvfp4` added to the oracle. Issue draft in the paper repository's docs/pr-drafts/, awaiting the author.
    First reading 2026-10-10: TensorRT-LLM 1.3.0rc9 `nvfp4_gemm` on the RTX 5090 is conformant on every runnable backend (cutlass, cublaslt,
    default; 0 of 626,176 elements outside the bound, lossless operands exact to the output rounding), CuTe-DSL refuses SM120 with a clear
    message; issue 14154 does not reproduce here (`docs/trtllm-nvfp4-gemm-rtx5090.md`, `scripts/trtllm_nvfp4_gemm_probe.py`).
