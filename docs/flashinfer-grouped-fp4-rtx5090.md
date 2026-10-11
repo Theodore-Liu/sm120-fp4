@@ -101,6 +101,27 @@ is known inside FlashInfer; the public API neither enforces nor documents it. No
 used by both runners; the graph keeps declaring the logical shape. Prototype `scripts/fix_proto_grouped_sfa.py`; the FlashInfer branch
 `fix/grouped-block-scale-per-group-sfa` (local, not pushed) carries it with six unaligned-segment regression tests per format.
 
+The first version did the re-layout with PyTorch index ops. It cost 0.2 to 0.35 ms a call, 31 to 254 percent of the GEMM
+(`reports/grouped-sfa-relayout-cost-rtx5090-20261011.json`). The branch now uses a Triton kernel (one program per destination 128-row
+block and column tile, group found by a prefix sum over per-group block counts). It is bit-identical to the PyTorch reference on 300 random
+ragged routings, and it takes 2 to 22 us (`reports/grouped-sfa-kernel-check-rtx5090-20261011.json`). Two further details matter for cost:
+
+- the blob is bound to cuDNN through a view with the declared logical shape, because a tensor of another shape sends cuDNN through a per-call
+  shape override;
+- the helpers must sit above the graph builder's `lru_cache` decorator. Inserting them between the decorator and the builder left the builder
+  uncached, and every call took 25 ms.
+
+Paired timing on the 5090 (`reports/grouped-sfa-ab-timing-rtx5090-20261011.txt`, three alternating rounds, 128-aligned segments so both are
+correct), median round in ms:
+
+| experts x tokens, n, k | unpatched | patched |
+|---|---|---|
+| 8 x 128, 4096, 4096 | 0.084 | 0.122 |
+| 8 x 1024, 4096, 4096 | 0.388 | 0.445 |
+| 64 x 128, 2048, 7168 | 0.522 | 0.581 |
+| 128 x 64, 2048, 7168 | 0.841 | 0.901 |
+| 128 x 512, 1536, 4096 | 0.891 | 0.945 |
+
 **Verification.**
 
 | where | what | result |
@@ -111,9 +132,12 @@ used by both runners; the graph keeps declaring the logical shape. Prototype `sc
 | RTX PRO 6000 bare metal, with the fix | the same | 56 pass, 1 fail: the same version-skew test (main's test monkeypatches a function 0.7.1 does not have) |
 | RTX PRO 6000 bare metal, with the fix | the alignment sweeps against the exact oracle | NVFP4 9 of 9, MXFP8 5 of 5, FP8 5 of 5 conformant |
 
-`reports/grouped-sfa-fix-pro6000/` holds the pod's logs and JSONs. Still owed before a PR: FlashInfer's FP4 suite (its quantizer JITs for
-`sm_120f`, which the pod image's CUDA 12.8 cannot build, so both pod runs failed those tests identically before reaching the GEMM; local
-WSL has CUDA 13 but dropped repeatedly today), and the suites against a full build of FlashInfer main rather than 0.7.1 with the same patch.
+| RTX 5090, final code (Triton kernel), FlashInfer 0.7.1 with the fix | FP4 and MXFP8 suites with the new tests, one process per test, CUDA 13 | 110 pass, 2 fail: the version-skew test in each file |
+| RTX 5090, final code | the alignment sweeps against the exact oracle | NVFP4 9 of 9, MXFP8 5 of 5, FP8 5 of 5 conformant |
+
+`reports/grouped-sfa-fix-pro6000/` holds the pod's logs and JSONs. The pod image's CUDA 12.8 cannot JIT FlashInfer's FP4 quantizer for
+`sm_120f`, so the FP4 suite was run on the 5090 with CUDA 13 instead (`reports/grouped-sfa-suites-final-rtx5090-20261011.log`). Still owed before a PR: the suites
+against an editable build of FlashInfer main rather than 0.7.1 with the same patch.
 
 ## Status
 

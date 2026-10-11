@@ -1,0 +1,62 @@
+{
+ "generated_utc": "2026-10-11T23:32:20Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "bit_exact": {
+  "trials": 300,
+  "mismatched": 0
+ },
+ "cost": [
+  {
+   "experts": 8,
+   "tokens_per_expert": 128,
+   "n": 4096,
+   "k": 4096,
+   "grouped_mm_fp4_with_fix_ms": 0.1271,
+   "relayout_eager_ms": 0.0197,
+   "relayout_kernel_us": 1.9,
+   "relayout_graph_ms": 0.0087
+  },
+  {
+   "experts": 8,
+   "tokens_per_expert": 1024,
+   "n": 4096,
+   "k": 4096,
+   "grouped_mm_fp4_with_fix_ms": 0.44,
+   "relayout_eager_ms": 0.0208,
+   "relayout_kernel_us": 2.2,
+   "relayout_graph_ms": 0.0094
+  },
+  {
+   "experts": 64,
+   "tokens_per_expert": 128,
+   "n": 2048,
+   "k": 7168,
+   "grouped_mm_fp4_with_fix_ms": 0.5784,
+   "relayout_eager_ms": 0.0274,
+   "relayout_kernel_us": 6.1,
+   "relayout_graph_ms": 0.0134
+  },
+  {
+   "experts": 128,
+   "tokens_per_expert": 64,
+   "n": 2048,
+   "k": 7168,
+   "grouped_mm_fp4_with_fix_ms": 0.9045,
+   "relayout_eager_ms": 0.032,
+   "relayout_kernel_us": 21.8,
+   "relayout_graph_ms": 0.0187
+  },
+  {
+   "experts": 128,
+   "tokens_per_expert": 512,
+   "n": 1536,
+   "k": 4096,
+   "grouped_mm_fp4_with_fix_ms": 0.9485,
+   "relayout_eager_ms": 0.0349,
+   "relayout_kernel_us": 15.3,
+   "relayout_graph_ms": 0.0224
+  }
+ ]
+}

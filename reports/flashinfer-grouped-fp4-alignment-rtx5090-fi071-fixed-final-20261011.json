@@ -1,0 +1,233 @@
+{
+ "generated_utc": "2026-10-11T23:32:26Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "cudnn": 92700,
+ "n": 256,
+ "k": 512,
+ "cases": [
+  {
+   "name": "4x128 aligned",
+   "segments": [
+    128,
+    128,
+    128,
+    128
+   ],
+   "elements": 131072,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9264204310413972,
+   "max_abs_err": 0.24973235292455342,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "256,128,384,256 aligned (their test)",
+   "segments": [
+    256,
+    128,
+    384,
+    256
+   ],
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9291770035407343,
+   "max_abs_err": 0.24983996503486594,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "0,128,0,128 aligned with empties",
+   "segments": [
+    0,
+    128,
+    0,
+    128
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9252092933514251,
+   "max_abs_err": 0.24963937352372056,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "64,64 half tiles",
+   "segments": [
+    64,
+    64
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.921921731722275,
+   "max_abs_err": 0.24966975504180766,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "120,136 straddling",
+   "segments": [
+    120,
+    136
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9275680894785842,
+   "max_abs_err": 0.24999388697639802,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "16,48,64 small",
+   "segments": [
+    16,
+    48,
+    64
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9257173340239895,
+   "max_abs_err": 0.24878507124070381,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "32,96 two in one tile",
+   "segments": [
+    32,
+    96
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.929621485332984,
+   "max_abs_err": 0.24999999999992895,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "128,64,64 first aligned",
+   "segments": [
+    128,
+    64,
+    64
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9286466262178353,
+   "max_abs_err": 0.24995270725993635,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "192,64 second starts mid-tile",
+   "segments": [
+    192,
+    64
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9223466737853279,
+   "max_abs_err": 0.24874823705224003,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0
+   ]
+  }
+ ]
+}

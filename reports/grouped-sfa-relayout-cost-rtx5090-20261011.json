@@ -1,0 +1,53 @@
+{
+ "generated_utc": "2026-10-11T23:24:12Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "cases": [
+  {
+   "experts": 8,
+   "tokens_per_expert": 128,
+   "n": 4096,
+   "k": 4096,
+   "grouped_mm_fp4_ms": 0.0799,
+   "relayout_ms": 0.2031,
+   "relayout_over_gemm_percent": 254.29
+  },
+  {
+   "experts": 8,
+   "tokens_per_expert": 1024,
+   "n": 4096,
+   "k": 4096,
+   "grouped_mm_fp4_ms": 0.4009,
+   "relayout_ms": 0.2305,
+   "relayout_over_gemm_percent": 57.5
+  },
+  {
+   "experts": 64,
+   "tokens_per_expert": 128,
+   "n": 2048,
+   "k": 7168,
+   "grouped_mm_fp4_ms": 0.5175,
+   "relayout_ms": 0.238,
+   "relayout_over_gemm_percent": 45.98
+  },
+  {
+   "experts": 128,
+   "tokens_per_expert": 64,
+   "n": 2048,
+   "k": 7168,
+   "grouped_mm_fp4_ms": 0.8436,
+   "relayout_ms": 0.264,
+   "relayout_over_gemm_percent": 31.29
+  },
+  {
+   "experts": 128,
+   "tokens_per_expert": 512,
+   "n": 1536,
+   "k": 4096,
+   "grouped_mm_fp4_ms": 0.871,
+   "relayout_ms": 0.3467,
+   "relayout_over_gemm_percent": 39.81
+  }
+ ]
+}

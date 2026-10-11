@@ -14,10 +14,13 @@ src_path, dst_path = sys.argv[1], sys.argv[2]
 src = open(src_path, encoding="utf-8").read()
 dst = open(dst_path, encoding="utf-8").read()
 start = src.index("def _segmented_token_scale_capacity_rows(")
-end = src.index("def _build_cudnn_moe_block_scale_grouped_gemm_graph(")
+# The builder is decorated (@functools.lru_cache): the helpers go above the decorator, never between it and the def,
+# or the cache wraps the wrong function and every call rebuilds the cuDNN graph (measured 2026-10-11: 25 ms a call).
+anchor = "@functools.lru_cache(maxsize=1024)\ndef _build_cudnn_moe_block_scale_grouped_gemm_graph("
+end = src.index(anchor)
 helper = src[start:end]
-anchor = "def _build_cudnn_moe_block_scale_grouped_gemm_graph("
-assert dst.count(anchor) == 1 and "_segment_token_descale_per_group" not in dst
+assert dst.count(anchor) == 1, "decorated builder anchor"
+assert "_segment_token_descale_per_group" not in dst
 dst = dst.replace(anchor, helper + anchor)
 
 for name, call in (
@@ -31,8 +34,11 @@ for name, call in (
     old_decl = "    token_descale_3d = a_descale.unsqueeze(0)\n"
     assert body.count(old_decl) == 1, name
     body = body.replace(old_decl, old_decl + (
-        "    token_descale_runtime = _segment_token_descale_per_group(\n"
-        f"        a_descale, m_indptr, cum_m, {call}\n"
+        "    token_descale_runtime = _bind_as_declared(\n"
+        "        _segment_token_descale_per_group(\n"
+        f"            a_descale, m_indptr, cum_m, {call}\n"
+        "        ),\n"
+        "        a_descale,\n"
         "    ).unsqueeze(0)\n"))
     old_vp = "        _CUDNN_UIDs.TOKEN_SCALE_FACTOR.value: token_descale_3d,\n"
     assert body.count(old_vp) == 1, name
@@ -42,3 +48,15 @@ for name, call in (
 ast.parse(dst)
 open(dst_path, "w", encoding="utf-8", newline="\n").write(dst)
 print("overlay patched")
+
+# The helper launches a Triton kernel that lives in flashinfer/triton/kernels/grouped_scale.py: copy it beside the runner too.
+import os
+import shutil
+
+_root_src = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(src_path))))
+_root_dst = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(dst_path))))
+_k_src = os.path.join(_root_src, "triton", "kernels", "grouped_scale.py")
+_k_dst = os.path.join(_root_dst, "triton", "kernels", "grouped_scale.py")
+if os.path.exists(_k_src):
+    shutil.copyfile(_k_src, _k_dst)
+    print("kernel copied to", _k_dst)

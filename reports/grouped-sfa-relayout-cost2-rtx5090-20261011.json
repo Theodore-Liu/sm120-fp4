@@ -1,0 +1,67 @@
+{
+ "generated_utc": "2026-10-11T23:25:03Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "cases": [
+  {
+   "experts": 8,
+   "tokens_per_expert": 128,
+   "k": 4096,
+   "lean_bit_exact_vs_worktree": true,
+   "worktree_eager_ms": 0.2487,
+   "worktree_kernel_us": 33.7,
+   "worktree_graph_ms": 0.0425,
+   "lean_eager_ms": 0.4152,
+   "lean_kernel_us": 52.9,
+   "lean_graph_ms": 0.0606
+  },
+  {
+   "experts": 8,
+   "tokens_per_expert": 1024,
+   "k": 4096,
+   "lean_bit_exact_vs_worktree": true,
+   "worktree_eager_ms": 0.2292,
+   "worktree_kernel_us": 48.7,
+   "worktree_graph_ms": 0.0618,
+   "lean_eager_ms": 0.413,
+   "lean_kernel_us": 60.8,
+   "lean_graph_ms": 0.0694
+  },
+  {
+   "experts": 64,
+   "tokens_per_expert": 128,
+   "k": 7168,
+   "lean_bit_exact_vs_worktree": true,
+   "worktree_eager_ms": 0.2552,
+   "worktree_kernel_us": 89.6,
+   "worktree_graph_ms": 0.0911,
+   "lean_eager_ms": 0.4234,
+   "lean_kernel_us": 81.6,
+   "lean_graph_ms": 0.1091
+  },
+  {
+   "experts": 128,
+   "tokens_per_expert": 64,
+   "k": 7168,
+   "lean_bit_exact_vs_worktree": true,
+   "worktree_eager_ms": 0.2848,
+   "worktree_kernel_us": 95.4,
+   "worktree_graph_ms": 0.1014,
+   "lean_eager_ms": 0.4274,
+   "lean_kernel_us": 95.9,
+   "lean_graph_ms": 0.1249
+  },
+  {
+   "experts": 128,
+   "tokens_per_expert": 512,
+   "k": 4096,
+   "lean_bit_exact_vs_worktree": true,
+   "worktree_eager_ms": 0.3487,
+   "worktree_kernel_us": 207.0,
+   "worktree_graph_ms": 0.2044,
+   "lean_eager_ms": 0.4643,
+   "lean_kernel_us": 160.7,
+   "lean_graph_ms": 0.1642
+  }
+ ]
+}
