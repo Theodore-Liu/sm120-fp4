@@ -55,8 +55,16 @@ case, 64/64, 16/48/64, 192/64 and 120/136 included (0 elements outside the bound
 arbitrary `m_indptr` correctly when there are no block scales, and the FP4 path's defect is in how the per-16-element scales of a segment that
 does not start on a 128-row scale tile are addressed.
 
+## The MXFP8 path shares it
+
+`grouped_mm_mxfp8` (e4m3 elements with UE8M0 scales per 32 elements, the same cuDNN grouped GEMM with a different block scale), run through
+the same sweep (`scripts/flashinfer_grouped_mxfp8_alignment.py`, `reports/flashinfer-grouped-mxfp8-alignment-rtx5090-fi071-20261010.json`,
+operands and reference from FlashInfer's own `mxfp8_quantize` / `mxfp8_dequantize_host`): 4 x 128 conformant; 64/64, 192/64 and 120/136 wrong
+across the mid-tile segment (16,359 of 16,384; 16,354 of 16,384; 32,233 of 34,816 outside the bound, errors about 100 on outputs of about 500);
+16/48/64 wrong on both later segments with 2,512 NaNs. So the defect is the block-scale handling of a segment that starts inside a 128-row scale
+tile, for both block-scaled formats the path serves; the unscaled FP8 path is unaffected.
+
 ## Status
 
-A draft issue for the author's review is in the paper repository (`docs/pr-drafts/flashinfer-grouped-fp4-alignment-issue.md`). Not yet asked:
-`grouped_mm_mxfp8` (32-element scales on the same path), and whether the block-scaled grouped GEMM in FlashInfer's unified MoE API routes
+A draft issue for the author's review is in the paper repository (`docs/pr-drafts/flashinfer-grouped-fp4-alignment-issue.md`). Not yet asked: whether the block-scaled grouped GEMM in FlashInfer's unified MoE API routes
 real workloads through this op on SM120.

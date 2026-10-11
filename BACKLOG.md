@@ -503,6 +503,7 @@ closes it. Dates are when an item was added, not estimates.
    expert segment whose first row is not a multiple of 128 (deterministic, raises nothing; aligned segments conformant; `grouped_mm_fp8` on the
    same segments conformant, so the cause is the FP4 block-scale addressing of mid-tile segments); `docs/flashinfer-grouped-fp4-rtx5090.md`;
    `exact_grouped_gemm_nvfp4` added to the oracle. Issue draft in the paper repository's docs/pr-drafts/, awaiting the author.
+   The MXFP8 grouped path (`grouped_mm_mxfp8`) shows the same rule: aligned conformant, mid-tile segments wrong, NaNs on the small case.
    First reading 2026-10-10: TensorRT-LLM 1.3.0rc9 `nvfp4_gemm` on the RTX 5090 is conformant on every runnable backend (cutlass, cublaslt,
    default; 0 of 626,176 elements outside the bound, lossless operands exact to the output rounding), CuTe-DSL refuses SM120 with a clear
    message; issue 14154 does not reproduce here (`docs/trtllm-nvfp4-gemm-rtx5090.md`, `scripts/trtllm_nvfp4_gemm_probe.py`).
