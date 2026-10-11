@@ -1,0 +1,39 @@
+{
+ "generated_utc": "2026-10-11T17:05:05Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "backend": "trtllm",
+ "cases": [
+  {
+   "m": 1,
+   "n": 4096,
+   "k": 4096,
+   "error": "BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120"
+  },
+  {
+   "m": 16,
+   "n": 2048,
+   "k": 7168,
+   "error": "BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120"
+  },
+  {
+   "m": 128,
+   "n": 4096,
+   "k": 1024,
+   "error": "BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120"
+  },
+  {
+   "m": 256,
+   "n": 1024,
+   "k": 2048,
+   "error": "BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120"
+  },
+  {
+   "m": 512,
+   "n": 512,
+   "k": 512,
+   "error": "BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120"
+  }
+ ]
+}

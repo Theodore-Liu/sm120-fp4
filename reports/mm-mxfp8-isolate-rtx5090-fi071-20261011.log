@@ -1,0 +1,84 @@
+10:04:48 cudnn start
+10:04:50 cudnn calling m=1 n=4096 k=4096
+10:04:51 cudnn ok outside=0
+10:04:51 cudnn calling m=16 n=2048 k=7168
+10:04:51 cudnn ok outside=0
+10:04:51 cudnn calling m=128 n=4096 k=1024
+10:04:51 cudnn ok outside=0
+10:04:51 cudnn calling m=256 n=1024 k=2048
+10:04:51 cudnn ok outside=0
+10:04:51 cudnn calling m=512 n=512 k=512
+10:04:51 cudnn ok outside=0
+10:04:51 cudnn wrote report
+10:04:53 cute-dsl start
+10:04:54 cute-dsl calling m=1 n=4096 k=4096
+10:04:54 cute-dsl error BackendSupportedError: mm_mxfp8 does not support backend 'cute-dsl' with capability 120
+10:04:54 cute-dsl calling m=16 n=2048 k=7168
+10:04:54 cute-dsl error BackendSupportedError: mm_mxfp8 does not support backend 'cute-dsl' with capability 120
+10:04:54 cute-dsl calling m=128 n=4096 k=1024
+10:04:54 cute-dsl error BackendSupportedError: mm_mxfp8 does not support backend 'cute-dsl' with capability 120
+10:04:54 cute-dsl calling m=256 n=1024 k=2048
+10:04:54 cute-dsl error BackendSupportedError: mm_mxfp8 does not support backend 'cute-dsl' with capability 120
+10:04:54 cute-dsl calling m=512 n=512 k=512
+10:04:54 cute-dsl error BackendSupportedError: mm_mxfp8 does not support backend 'cute-dsl' with capability 120
+10:04:54 cute-dsl wrote report
+10:04:56 cutedsl_low_latency start
+10:04:57 cutedsl_low_latency calling m=1 n=4096 k=4096
+10:04:57 cutedsl_low_latency error BackendSupportedError: mm_mxfp8 does not support backend 'cutedsl_low_latency' with capability 120
+10:04:57 cutedsl_low_latency calling m=16 n=2048 k=7168
+10:04:57 cutedsl_low_latency error BackendSupportedError: mm_mxfp8 does not support backend 'cutedsl_low_latency' with capability 120
+10:04:57 cutedsl_low_latency calling m=128 n=4096 k=1024
+10:04:57 cutedsl_low_latency error BackendSupportedError: mm_mxfp8 does not support backend 'cutedsl_low_latency' with capability 120
+10:04:57 cutedsl_low_latency calling m=256 n=1024 k=2048
+10:04:57 cutedsl_low_latency error BackendSupportedError: mm_mxfp8 does not support backend 'cutedsl_low_latency' with capability 120
+10:04:57 cutedsl_low_latency calling m=512 n=512 k=512
+10:04:57 cutedsl_low_latency error BackendSupportedError: mm_mxfp8 does not support backend 'cutedsl_low_latency' with capability 120
+10:04:57 cutedsl_low_latency wrote report
+10:04:59 b12x start
+10:05:00 b12x calling m=1 n=4096 k=4096
+10:05:01 b12x ok outside=0
+10:05:01 b12x calling m=16 n=2048 k=7168
+10:05:02 b12x ok outside=0
+10:05:02 b12x calling m=128 n=4096 k=1024
+10:05:02 b12x ok outside=0
+10:05:02 b12x calling m=256 n=1024 k=2048
+10:05:02 b12x ok outside=0
+10:05:02 b12x calling m=512 n=512 k=512
+10:05:02 b12x ok outside=0
+10:05:02 b12x wrote report
+10:05:04 trtllm start
+10:05:05 trtllm calling m=1 n=4096 k=4096
+10:05:05 trtllm error BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120
+10:05:05 trtllm calling m=16 n=2048 k=7168
+10:05:05 trtllm error BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120
+10:05:05 trtllm calling m=128 n=4096 k=1024
+10:05:05 trtllm error BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120
+10:05:05 trtllm calling m=256 n=1024 k=2048
+10:05:05 trtllm error BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120
+10:05:05 trtllm calling m=512 n=512 k=512
+10:05:05 trtllm error BackendSupportedError: mm_mxfp8 does not support backend 'trtllm' with capability 120
+10:05:05 trtllm wrote report
+10:05:07 auto start
+10:05:08 auto calling m=1 n=4096 k=4096
+10:06:04 auto ok outside=0
+10:06:04 auto calling m=16 n=2048 k=7168
+10:06:04 auto ok outside=0
+10:06:05 auto calling m=128 n=4096 k=1024
+10:06:05 auto ok outside=0
+10:06:05 auto calling m=256 n=1024 k=2048
+10:06:05 auto ok outside=0
+10:06:05 auto calling m=512 n=512 k=512
+10:06:05 auto ok outside=0
+10:06:05 auto wrote report
+10:06:07 cutlass start
+10:06:08 cutlass calling m=1 n=4096 k=4096
+10:06:08 cutlass ok outside=0
+10:06:08 cutlass calling m=16 n=2048 k=7168
+10:06:08 cutlass ok outside=0
+10:06:08 cutlass calling m=128 n=4096 k=1024
+10:06:08 cutlass ok outside=0
+10:06:08 cutlass calling m=256 n=1024 k=2048
+10:06:08 cutlass ok outside=0
+10:06:08 cutlass calling m=512 n=512 k=512
+10:06:08 cutlass ok outside=0
+10:06:08 cutlass wrote report
