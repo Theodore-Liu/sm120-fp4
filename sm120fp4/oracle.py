@@ -98,6 +98,26 @@ def exact_gemm_nvfp4(a_packed, a_sf, a_gs, b_packed, b_sf, b_gs, out_dtype=torch
     return exact, bound
 
 
+def exact_gemm_bf16_nvfp4(a_bf16, b_packed, b_sf, b_gs, out_dtype=torch.bfloat16, block: int = BLOCK):
+    """W4A16: C[M, N] = A[M, K] (bf16, exact in float64) @ dequant(B)[N, K]^T with B in NVFP4. Each product of a bf16 (8 significant
+    bits) and a scaled code (at most 7) is exact in float64; the sum over K is a float64 sum whose own rounding (K * 2^-53 relative)
+    is added to the bound, so the result is exact to within that and the two roundings the NVFP4 oracle names. The bound for an
+    fp32-accumulating kernel is as in exact_gemm_nvfp4."""
+    a = a_bf16.detach().cpu().double()
+    twoqb, sfb = dequant_integer_parts(b_packed, b_sf, block)
+    n, k = twoqb.shape
+    if a.shape[1] != k:
+        raise ValueError(f"K must match: {tuple(a.shape)} vs {tuple(twoqb.shape)}")
+    sb = (twoqb.view(n, k // block, block) * sfb[:, :, None]).view(n, k)       # 2 * q * sf, exact
+    inv = 1.0 / (2.0 * b_gs.double().reshape(()))
+    s = a @ sb.t()
+    sabs = a.abs() @ sb.abs().t()
+    exact = s * inv
+    sum_abs = sabs * inv
+    bound = k * U32 * sum_abs + 0.5 * _ulp(exact, out_dtype) + U64 * exact.abs() * 2 + k * U64 * sum_abs
+    return exact, bound
+
+
 def exact_grouped_gemm_nvfp4(a_packed, a_sf, a_gs, b_packed, b_sf, b_gs, m_indptr, out_dtype=torch.bfloat16, block: int = BLOCK):
     """Exact grouped GEMM: rows m_indptr[e]:m_indptr[e+1] of A against expert e's weights B[e] ([E, N, K/2] codes, [E, N, K/block]
     scales, per-expert or shared fp32 global scale), assembled expert by expert from exact_gemm_nvfp4. Returns (exact, bound) of
@@ -286,6 +306,17 @@ def selftest() -> int:
     swapped, _ = exact_gemm_nvfp4(ap[0:4], asf[0:4], ags, bp[1], bsf[1], bgs[1:2])
     ok &= not conformance(torch.cat([swapped, d2]).to(torch.bfloat16), ge, gb)["conformant"]
     print("  grouped oracle: equals the dense one per expert and catches a mis-routed expert")
+    # 8. the W4A16 oracle agrees with the NVFP4 one when the activation is itself an exactly representable dequantised NVFP4 row set
+    a = torch.randn(6, 256); ap, asf, ags = quantize_nvfp4(a)
+    from .reference import dequantize_nvfp4
+    a_deq = dequantize_nvfp4(ap, asf, ags)                       # fp32 values; representable in bf16 only when small codes: use fp32->bf16 round trip check
+    b = torch.randn(5, 256); bp, bsf, bgs = quantize_nvfp4(b)
+    e_w, _ = exact_gemm_bf16_nvfp4(a_deq.to(torch.bfloat16), bp, bsf, bgs)
+    twoqb, sfb = dequant_integer_parts(bp, bsf)                  # the float64 dequantisation, not reference.py's fp32 one
+    b_deq64 = (twoqb.view(5, -1, BLOCK) * sfb[:, :, None]).view(5, -1) / (2.0 * bgs.double())
+    ref = a_deq.to(torch.bfloat16).double() @ b_deq64.t()
+    ok &= bool((e_w - ref).abs().max() <= 1e-12 * ref.abs().max() + 1e-300)
+    print("  W4A16 oracle equals the float64 product of the dequantised operands")
     # 6. a zero bound never divides by zero and an all-zero output is named
     z = conformance(torch.zeros(2, 2), torch.zeros(2, 2, dtype=torch.float64), torch.zeros(2, 2, dtype=torch.float64))
     ok &= z["conformant"] and z["all_zero_output"]

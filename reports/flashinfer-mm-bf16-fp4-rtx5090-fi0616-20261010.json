@@ -1,0 +1,264 @@
+{
+ "generated_utc": "2026-10-11T06:37:56Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.13.0+cu130",
+ "flashinfer": "0.6.16.post3",
+ "cudnn": 92000,
+ "cases": [
+  {
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "backend": "cudnn",
+   "error": "ValueError: cuDNN bf16 x fp4 GEMM requires backend version >= 92301 (9.23.1), found 92000. "
+  },
+  {
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "backend": "cute-dsl",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5792382592124451,
+   "max_abs_err": 0.9495268934559249,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "backend": "cute-dsl-native",
+   "error": "ValueError: Unknown backend 'cute-dsl-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "backend": "blackwell-native",
+   "error": "ValueError: Unknown backend 'blackwell-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "backend": "blackwell-tiled",
+   "error": "ValueError: Unknown backend 'blackwell-tiled'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "backend": "cudnn",
+   "error": "ValueError: cuDNN bf16 x fp4 GEMM requires backend version >= 92301 (9.23.1), found 92000. "
+  },
+  {
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "backend": "cute-dsl",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.435183873109184,
+   "max_abs_err": 0.4885333764886184,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "backend": "cute-dsl-native",
+   "error": "ValueError: Unknown backend 'cute-dsl-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "backend": "blackwell-native",
+   "error": "ValueError: Unknown backend 'blackwell-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "backend": "blackwell-tiled",
+   "error": "ValueError: Unknown backend 'blackwell-tiled'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    128,
+    2048,
+    2048
+   ],
+   "backend": "cudnn",
+   "error": "ValueError: cuDNN bf16 x fp4 GEMM requires backend version >= 92301 (9.23.1), found 92000. "
+  },
+  {
+   "shape": [
+    128,
+    2048,
+    2048
+   ],
+   "backend": "cute-dsl",
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.7652149539627032,
+   "max_abs_err": 0.49982969888256434,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    128,
+    2048,
+    2048
+   ],
+   "backend": "cute-dsl-native",
+   "error": "ValueError: Unknown backend 'cute-dsl-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    128,
+    2048,
+    2048
+   ],
+   "backend": "blackwell-native",
+   "error": "ValueError: Unknown backend 'blackwell-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    128,
+    2048,
+    2048
+   ],
+   "backend": "blackwell-tiled",
+   "error": "ValueError: Unknown backend 'blackwell-tiled'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "backend": "cudnn",
+   "error": "ValueError: cuDNN bf16 x fp4 GEMM requires backend version >= 92301 (9.23.1), found 92000. "
+  },
+  {
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "backend": "cute-dsl",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8655327508506654,
+   "max_abs_err": 0.24941008840458778,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "backend": "cute-dsl-native",
+   "error": "ValueError: Unknown backend 'cute-dsl-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "backend": "blackwell-native",
+   "error": "ValueError: Unknown backend 'blackwell-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "backend": "blackwell-tiled",
+   "error": "ValueError: Unknown backend 'blackwell-tiled'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "backend": "cudnn",
+   "error": "ValueError: cuDNN bf16 x fp4 GEMM requires backend version >= 92301 (9.23.1), found 92000. "
+  },
+  {
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "backend": "cute-dsl",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.7299360164918226,
+   "max_abs_err": 0.4811644981197958,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "backend": "cute-dsl-native",
+   "error": "ValueError: Unknown backend 'cute-dsl-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "backend": "blackwell-native",
+   "error": "ValueError: Unknown backend 'blackwell-native'.  Supported: 'cudnn', 'cute-dsl'."
+  },
+  {
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "backend": "blackwell-tiled",
+   "error": "ValueError: Unknown backend 'blackwell-tiled'.  Supported: 'cudnn', 'cute-dsl'."
+  }
+ ]
+}
