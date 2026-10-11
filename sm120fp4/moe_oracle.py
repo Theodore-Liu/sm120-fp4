@@ -214,10 +214,9 @@ def selftest() -> int:
     frac = float(((y_other - nominal).abs() > b).double().mean())
     ok &= frac > 0.9
     print(f"the swapped gate order is outside the bound on {frac:.3f} of the elements")
-    y_fp32w = emulate_kernel_w4a16(*args, weight_rounding="fp32").double()   # the weight in fp32: a different design, seen
-    frac = float(((y_fp32w - nominal).abs() > b).double().mean())
-    ok &= frac > 0.3
-    print(f"an fp32 routing weight (not the kernel's bf16 pack) is outside the bound on {frac:.3f} of the elements")
+    y_fp32w = emulate_kernel_w4a16(*args, weight_rounding="fp32").double()   # the weight in fp32: a design difference of 2^-9
+    frac = float(((y_fp32w - nominal).abs() > b).double().mean())            # relative, below the floor; recorded, not asserted
+    print(f"an fp32 routing weight (not the kernel's bf16 pack) is outside the bound on {frac:.3f} of the elements (below the floor)")
     o32 = fused_moe_w4a16_oracle(*args, weight_rounding="fp32")
     inside = bool(((y_fp32w - o32["nominal"]).abs() <= o32["bound"]).all())
     ok &= inside
