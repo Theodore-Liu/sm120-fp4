@@ -1,0 +1,131 @@
+{
+ "generated_utc": "2026-10-11T09:18:19Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "shape": {
+  "experts": 8,
+  "hidden": 1024,
+  "inter": 512,
+  "topk": 2
+ },
+ "runs": 5,
+ "cases": [
+  {
+   "tokens": 1,
+   "rel_err_vs_float_reference": [
+    0.0052618920037679606,
+    0.0052618920037679606,
+    0.0052618920037679606,
+    0.0052618920037679606,
+    0.0052618920037679606
+   ],
+   "distinct_outputs": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "elements": 1024,
+   "max_err_over_bound_per_run": [
+    0.3770588022395882,
+    0.3770588022395882,
+    0.3770588022395882,
+    0.3770588022395882,
+    0.3770588022395882
+   ],
+   "conformant_every_run": true,
+   "tie_elements": 854,
+   "mean_bound_over_abs_contrib": 0.06700208197262271
+  },
+  {
+   "tokens": 4,
+   "rel_err_vs_float_reference": [
+    0.005154210373411729,
+    0.005154210373411729,
+    0.005154210373411729,
+    0.005154210373411729,
+    0.005154210373411729
+   ],
+   "distinct_outputs": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "elements": 4096,
+   "max_err_over_bound_per_run": [
+    0.3620589229087594,
+    0.3620589229087594,
+    0.3620589229087594,
+    0.3620589229087594,
+    0.3620589229087594
+   ],
+   "conformant_every_run": true,
+   "tie_elements": 3451,
+   "mean_bound_over_abs_contrib": 0.06746058178132114
+  },
+  {
+   "tokens": 16,
+   "rel_err_vs_float_reference": [
+    0.004895909152029051,
+    0.004895909152029051,
+    0.004895909152029051,
+    0.004895909152029051,
+    0.004895909152029051
+   ],
+   "distinct_outputs": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "elements": 16384,
+   "max_err_over_bound_per_run": [
+    0.5714928375579008,
+    0.5714928375579008,
+    0.5714928375579008,
+    0.5714928375579008,
+    0.5714928375579008
+   ],
+   "conformant_every_run": true,
+   "tie_elements": 13768,
+   "mean_bound_over_abs_contrib": 0.05798299523447077
+  },
+  {
+   "tokens": 64,
+   "rel_err_vs_float_reference": [
+    0.004842412406210899,
+    0.004842412406210899,
+    0.004842412406210899,
+    0.004842412406210899,
+    0.004842412406210899
+   ],
+   "distinct_outputs": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "elements": 65536,
+   "max_err_over_bound_per_run": [
+    0.5503233310397961,
+    0.5503233310397961,
+    0.5503233310397961,
+    0.5503233310397961,
+    0.5503233310397961
+   ],
+   "conformant_every_run": true,
+   "tie_elements": 55297,
+   "mean_bound_over_abs_contrib": 0.06350661138613281
+  }
+ ]
+}

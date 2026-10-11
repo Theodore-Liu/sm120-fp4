@@ -22,16 +22,17 @@ report names, and is read with the detectability floor the oracle module documen
 | 2026-10-11 | torch 2.13.0+cu130 and 2.9.1+cu128 (cuBLASLt) | `torch._scaled_mm` FP8 e4m3, per-tensor and rowwise scales | 5 shapes, 1,085,440 elements per path | conformant, 0 outside on both torch versions, max 0.961 of bound | `reports/fp8-gemm-rtx5090-{vllm028,fi071}-20261011.json` | `docs/fp8-gemm-rtx5090.md` |
 | 2026-10-11 | vLLM 0.28.0 | `cutlass_scaled_mm` FP8: per-tensor, per-token x per-channel, 1x128 x 128x128 blockwise | the same 5 shapes | conformant, 0 outside on all three scale kinds | `reports/fp8-gemm-rtx5090-vllm028-20261011.json` | the blockwise path needs the activation scale column-major, as vLLM's own caller writes it; row-major reads wrong for every m > 1 (an operand contract that lives in the caller, not the docstring) |
 | 2026-10-11 | FlashInfer 0.6.16.post3 | `mm_fp8` trtllm_low_latency | 5 shapes | **no capability guard**: SIGSEGV at m = 1, 128, 256 (sm100f cubins on sm_120), RuntimeError at m = 16, 512 | same | **fixed upstream**: 0.7.1 refuses SM120 with a message (`BackendSupportedError`); logged, not reported |
+| 2026-10-11 | FlashInfer 0.7.1 | `b12x_fused_moe` W4A16 (bf16 activations, NVFP4 weights, gated SiLU) | 8 experts, hidden 1024, intermediate 512, top-2, M = 1 / 4 / 16 / 64, 5 runs each | conformant every run under the fused-MoE oracle (`sm120fp4/moe_oracle.py`, follows the kernel's rounding points), deterministic (1 distinct output at every M) | `reports/flashinfer-b12x-w4a16-moe-rtx5090-fi071-20261011.json` | convention, undocumented: the second half of w13 is the gate (the W4A4 path reads it the same way); alpha = 1 / gs; scales 128x4 (`docs/flashinfer-b12x-w4a16-moe-rtx5090.md`) |
 
 ## Tally toward the four-week test
 
 Distinct defect classes found and reproduced: **2** (the b12x W4A4 scatter non-determinism; the cuDNN grouped block-scaled GEMM's mid-tile
-segments). Confirmed by maintainers: 0 (both issue drafts await the author's review before posting). Conventions documented, not defects: 1
-(E4M3 / E2M1 tie rounding, GPU quantisers against torch). Reports that did not reproduce: 1 (TensorRT-LLM issue 14154 on this part). Crashes on an unsupported part already guarded in the next release: 1 (FlashInfer 0.6.16 `mm_fp8`).
+segments). Confirmed by maintainers: 0 (both issue drafts await the author's review before posting). Conventions documented, not defects: 2
+(E4M3 / E2M1 tie rounding, GPU quantisers against torch; the b12x fused MoE's w13 half order). Reports that did not reproduce: 1 (TensorRT-LLM issue 14154 on this part). Crashes on an unsupported part already guarded in the next release: 1 (FlashInfer 0.6.16 `mm_fp8`).
 
 ## Not yet read
 
-FlashInfer b12x W4A16 fused MoE (the dense W4A16 GEMM above is conformant); CUTLASS's
+FlashInfer b12x W4A4 fused MoE under the fused-MoE oracle (so far read only for determinism and against a float reference); CUTLASS's
 SM120 block-scaled examples; FlashInfer's cuDNN / CUTLASS dense FP8 and MXFP8 GEMMs (`mm_fp8` has only the TRT-LLM backend; the cuDNN and SM120 CUTLASS FP8 runners sit behind `bmm_fp8`); DeepGEMM; llama.cpp q4_0 / q8_0 GEMV; attention kernels (an exact
 oracle for attention is the hard instrument and is not written).
 
