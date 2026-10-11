@@ -1,0 +1,13 @@
+09:16:37 cublas start
+09:16:39 cublas calling
+09:16:40 cublas ok shape=(1, 128, 4096) finite=True
+09:16:42 cutlass start
+09:16:43 cutlass calling
+09:19:37 cudnn start
+09:19:39 cudnn calling
+09:19:39 cudnn ok shape=(1, 128, 4096) finite=True
+09:19:41 cute-dsl start
+09:19:42 cute-dsl calling
+09:19:42 cute-dsl error BackendSupportedError: bmm_fp8 does not support backend 'cute-dsl' with capability 120
+09:19:44 cutlass start
+09:19:45 cutlass calling

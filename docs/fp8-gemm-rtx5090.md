@@ -45,3 +45,20 @@ but not this layout; the contract lives in the caller.
 A second caller-side fault found on the way: the oracle's first version inferred the scale kind from the tensor shapes, and on
 the (1, 4096, 4096) shape a (1, n) column scale has the same last dimension as k, so it was read as a per-element scale. The
 oracle now takes the scale kind explicitly.
+
+## Addendum (2026-10-11, later): `bmm_fp8` on its four backends
+
+`scripts/fp8_gemm_census.py --bmm-backends ...` reads FlashInfer 0.7.1's `bmm_fp8` (A (b, m, k) row-major, B (b, k, n) column-major, per-tensor
+scales) on the same five shapes, `reports/fp8-gemm-bmm-rtx5090-fi071-20261011.json`:
+
+| backend | result |
+|---|---|
+| cublas | conformant, 0 of 1,085,440 outside; bit-identical to the `torch._scaled_mm` rows |
+| cudnn | conformant, 0 outside; bit-identical to cublas |
+| cute-dsl | refuses SM120 with `BackendSupportedError` |
+| **cutlass** | **takes the WSL2 virtual machine down.** `scripts/bmm_fp8_isolate.py` writes a marker to the Windows side before and after one call; for cutlass the "calling" marker is the last line twice over (`reports/bmm-fp8-isolate-rtx5090-fi071-20261011.log`), Windows then reports `Wsl/Service/E_UNEXPECTED` for every WSL command until the distribution is terminated (`wsl -t Ubuntu`) and restarted. The first attempt to read all four backends in one process left no report and no error, which is how the crash was noticed. |
+
+The crash is a defect by any contract (a GEMM call must not end the process, let alone the machine it runs in), but it was observed
+under WSL2's GPU paravirtualisation only; the census owes a bare-metal Linux reading, where the same fault would surface as an Xid in
+the kernel log or an exception, before anything is reported upstream. The census script leaves cutlass out of its default backend
+list because no try/except can catch this.

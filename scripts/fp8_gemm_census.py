@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Dense FP8 (e4m3) GEMM paths on SM120 against an exact oracle: torch's `_scaled_mm` (cuBLASLt), vLLM's `cutlass_scaled_mm`
-(CUTLASS, per-tensor, per-token x per-channel and 128-blockwise scales) and FlashInfer's `mm_fp8` (TRT-LLM low-latency).
+(CUTLASS, per-tensor, per-token x per-channel and 128-blockwise scales), FlashInfer's `mm_fp8` (TRT-LLM low-latency) and
+FlashInfer's `bmm_fp8` on each backend it names (cublas, cudnn, cutlass, cute-dsl), per-tensor scales.
 
 The oracle is exact: an e4m3 value is exact in fp64, so the product of the quantised operands summed in fp64 and multiplied by
 the fp32 scales (exact in fp64) is the value a correct kernel approximates. The bound is the fp32-accumulation bound used across
@@ -112,7 +113,10 @@ def run_case(fn, name, rec_list, m, n, k, out_dtype, exact, bound):
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--no-flashinfer", action="store_true")
+    ap.add_argument("--no-flashinfer", action="store_true", help="skip the mm_fp8 child (segfaults on 0.6.16)")
+    ap.add_argument("--bmm-backends", default="cublas,cudnn,cute-dsl",
+                    help="bmm_fp8 backends to read; 'cutlass' is left out by default because on the RTX 5090 under WSL2 it took the "
+                         "WSL virtual machine down on every call (2026-10-11, scripts/bmm_fp8_isolate.py), which no in-process guard can catch")
     ap.add_argument("--child-flashinfer", type=str, default=None, help="internal: run one mm_fp8 case and print its output tensor path")
     ap.add_argument("--out", type=Path, default=Path("reports") / f"fp8-gemm-{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}.json")
     a = ap.parse_args(argv)
@@ -164,6 +168,12 @@ def main(argv=None) -> int:
                          "vllm cutlass_scaled_mm block128", report["cases"], m, n, k, torch.bfloat16, ex_b, bd_b)
         if flashinfer is not None and not a.no_flashinfer:
             report["cases"].append(flashinfer_child(m, n, k, ex_t, bd_t))
+        if flashinfer is not None and hasattr(flashinfer, "bmm_fp8"):
+            for backend in [b for b in a.bmm_backends.split(",") if b]:
+                def bmm(backend=backend):
+                    # bmm_fp8: A (b, m, k) row-major, B (b, k, n) column-major, per-tensor float scales, bf16 out
+                    return flashinfer.bmm_fp8(a_d[None], w_d.t()[None], sa_t.to(dev), sw_t.to(dev), torch.bfloat16, backend=backend)[0]
+                run_case(bmm, f"flashinfer bmm_fp8 {backend}", report["cases"], m, n, k, torch.bfloat16, ex_t, bd_t)
     a.out.parent.mkdir(parents=True, exist_ok=True)
     a.out.write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"wrote {a.out}")
