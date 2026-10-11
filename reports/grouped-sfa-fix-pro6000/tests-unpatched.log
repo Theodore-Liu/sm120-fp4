@@ -1,0 +1,226 @@
+21:48:51 unpatched collected 112
+21:48:51 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-128-1]
+21:48:57 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-128-1]
+21:48:57 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-128-4]
+21:49:00 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-128-4]
+21:49:00 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-128-8]
+21:49:03 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-128-8]
+21:49:03 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-256-1]
+21:49:06 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-256-1]
+21:49:06 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-256-4]
+21:49:09 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-256-4]
+21:49:09 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-256-8]
+21:49:13 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-128-256-8]
+21:49:13 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-128-1]
+21:49:16 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-128-1]
+21:49:16 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-128-4]
+21:49:19 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-128-4]
+21:49:19 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-128-8]
+21:49:23 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-128-8]
+21:49:23 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-256-1]
+21:49:26 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-256-1]
+21:49:26 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-256-4]
+21:49:30 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-256-4]
+21:49:30 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-256-8]
+21:49:33 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-256-256-8]
+21:49:33 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-128-1]
+21:49:36 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-128-1]
+21:49:36 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-128-4]
+21:49:39 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-128-4]
+21:49:39 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-128-8]
+21:49:43 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-128-8]
+21:49:43 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-256-1]
+21:49:46 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-256-1]
+21:49:46 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-256-4]
+21:49:49 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-256-4]
+21:49:49 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-256-8]
+21:49:52 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[128-512-256-8]
+21:49:52 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-128-1]
+21:49:56 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-128-1]
+21:49:56 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-128-4]
+21:49:59 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-128-4]
+21:49:59 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-128-8]
+21:50:02 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-128-8]
+21:50:02 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-256-1]
+21:50:05 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-256-1]
+21:50:05 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-256-4]
+21:50:08 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-256-4]
+21:50:08 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-256-8]
+21:50:12 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-128-256-8]
+21:50:12 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-128-1]
+21:50:15 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-128-1]
+21:50:15 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-128-4]
+21:50:18 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-128-4]
+21:50:18 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-128-8]
+21:50:22 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-128-8]
+21:50:22 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-256-1]
+21:50:25 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-256-1]
+21:50:25 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-256-4]
+21:50:28 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-256-4]
+21:50:28 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-256-8]
+21:50:31 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-256-256-8]
+21:50:31 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-128-1]
+21:50:34 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-128-1]
+21:50:34 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-128-4]
+21:50:37 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-128-4]
+21:50:37 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-128-8]
+21:50:41 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-128-8]
+21:50:41 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-256-1]
+21:50:44 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-256-1]
+21:50:44 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-256-4]
+21:50:47 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-256-4]
+21:50:47 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-256-8]
+21:50:51 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_uniform_distribution[256-512-256-8]
+21:50:51 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_non_uniform_distribution
+21:50:54 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_non_uniform_distribution
+21:50:54 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_empty_experts
+21:50:57 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_empty_experts
+21:50:57 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens0]
+21:51:00 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens0]
+21:51:00 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens1]
+21:51:03 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens1]
+21:51:03 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens2]
+21:51:06 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens2]
+21:51:07 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens3]
+21:51:10 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens3]
+21:51:10 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens4]
+21:51:13 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens4]
+21:51:13 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens5]
+21:51:16 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens5]
+21:51:16 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_single_expert
+21:51:19 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_single_expert
+21:51:19 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_preallocated_output
+21:51:22 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_preallocated_output
+21:51:22 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_out_dtype[out_dtype0]
+21:51:26 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_out_dtype[out_dtype0]
+21:51:26 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_out_dtype[out_dtype1]
+21:51:29 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_out_dtype[out_dtype1]
+21:51:29 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_graph_cache_reuse
+21:51:32 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_graph_cache_reuse
+21:51:32 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_sm12x_requires_block_scale_cudnn
+21:51:35 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_sm12x_requires_block_scale_cudnn
+21:51:35 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_wrong_input_dtype
+21:51:38 unpatched pass tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_wrong_input_dtype
+21:51:38 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_wrong_m_indptr_dtype
+21:51:41 unpatched pass tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_wrong_m_indptr_dtype
+21:51:41 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_wrong_m_indptr_length
+21:51:44 unpatched pass tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_wrong_m_indptr_length
+21:51:44 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_k_mismatch
+21:51:47 unpatched pass tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_k_mismatch
+21:51:47 unpatched start tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_wrong_block_size
+21:51:50 unpatched pass tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4Validation::test_wrong_block_size
+21:51:50 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-128-1]
+21:52:44 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-128-1]
+21:52:44 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-128-4]
+21:52:48 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-128-4]
+21:52:48 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-128-8]
+21:52:51 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-128-8]
+21:52:51 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-256-1]
+21:52:54 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-256-1]
+21:52:54 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-256-4]
+21:52:58 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-256-4]
+21:52:58 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-256-8]
+21:53:02 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-128-256-8]
+21:53:02 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-128-1]
+21:53:06 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-128-1]
+21:53:06 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-128-4]
+21:53:09 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-128-4]
+21:53:09 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-128-8]
+21:53:13 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-128-8]
+21:53:13 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-256-1]
+21:53:17 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-256-1]
+21:53:17 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-256-4]
+21:53:20 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-256-4]
+21:53:20 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-256-8]
+21:53:24 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-256-256-8]
+21:53:24 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-128-1]
+21:53:27 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-128-1]
+21:53:27 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-128-4]
+21:53:31 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-128-4]
+21:53:31 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-128-8]
+21:53:34 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-128-8]
+21:53:34 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-256-1]
+21:53:38 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-256-1]
+21:53:38 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-256-4]
+21:53:42 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-256-4]
+21:53:42 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-256-8]
+21:53:46 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[128-512-256-8]
+21:53:46 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-128-1]
+21:53:49 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-128-1]
+21:53:49 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-128-4]
+21:53:53 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-128-4]
+21:53:53 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-128-8]
+21:53:56 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-128-8]
+21:53:56 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-256-1]
+21:54:00 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-256-1]
+21:54:00 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-256-4]
+21:54:04 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-256-4]
+21:54:04 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-256-8]
+21:54:07 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-128-256-8]
+21:54:07 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-128-1]
+21:54:11 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-128-1]
+21:54:11 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-128-4]
+21:54:14 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-128-4]
+21:54:14 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-128-8]
+21:54:18 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-128-8]
+21:54:18 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-256-1]
+21:54:21 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-256-1]
+21:54:21 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-256-4]
+21:54:25 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-256-4]
+21:54:25 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-256-8]
+21:54:28 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-256-256-8]
+21:54:28 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-128-1]
+21:54:32 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-128-1]
+21:54:32 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-128-4]
+21:54:36 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-128-4]
+21:54:36 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-128-8]
+21:54:40 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-128-8]
+21:54:40 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-256-1]
+21:54:43 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-256-1]
+21:54:43 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-256-4]
+21:54:47 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-256-4]
+21:54:47 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-256-8]
+21:54:51 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_uniform_distribution[256-512-256-8]
+21:54:51 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_non_uniform_distribution
+21:54:54 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_non_uniform_distribution
+21:54:54 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_empty_experts
+21:54:58 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_empty_experts
+21:54:58 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens0]
+21:55:01 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens0]
+21:55:01 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens1]
+21:55:05 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens1]
+21:55:05 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens2]
+21:55:09 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens2]
+21:55:09 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens3]
+21:55:12 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens3]
+21:55:12 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens4]
+21:55:16 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens4]
+21:55:16 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens5]
+21:55:19 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens5]
+21:55:19 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_single_expert
+21:55:23 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_single_expert
+21:55:23 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_preallocated_output
+21:55:26 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_preallocated_output
+21:55:26 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_out_dtype[out_dtype0]
+21:55:30 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_out_dtype[out_dtype0]
+21:55:30 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_out_dtype[out_dtype1]
+21:55:34 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_out_dtype[out_dtype1]
+21:55:34 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_out_dtype[out_dtype2]
+21:55:37 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_out_dtype[out_dtype2]
+21:55:37 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_graph_cache_reuse
+21:55:41 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_graph_cache_reuse
+21:55:41 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_quantize_dtypes
+21:55:44 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_quantize_dtypes
+21:55:44 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_sm12x_requires_block_scale_cudnn
+21:55:47 unpatched FAIL rc=1 tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_sm12x_requires_block_scale_cudnn
+21:55:47 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_wrong_input_dtype
+21:55:49 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_wrong_input_dtype
+21:55:49 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_wrong_descale_dtype
+21:55:52 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_wrong_descale_dtype
+21:55:52 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_wrong_m_indptr_dtype
+21:55:55 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_wrong_m_indptr_dtype
+21:55:55 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_wrong_m_indptr_length
+21:55:58 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_wrong_m_indptr_length
+21:55:58 unpatched start tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_k_mismatch
+21:56:01 unpatched pass tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8Validation::test_k_mismatch
+21:56:01 unpatched done pass=55 fail=57

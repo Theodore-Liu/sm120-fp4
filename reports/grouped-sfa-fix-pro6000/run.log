@@ -1,0 +1,40 @@
+START 2026-10-11T21:45:13Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07
+tar: bundle/fixed_core.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/conftest.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/test_cute_sm120_fp8.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/test_cute_sm120_mxfp8.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/test_grouped_mm_bf16.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/test_grouped_mm_fp4.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/test_grouped_mm_fp8.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/test_grouped_mm_mxfp8.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/_compat.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/__init__.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/__pycache__/conftest.cpython-312-pytest-9.1.1.pyc: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/__pycache__/test_grouped_mm_fp4.cpython-312-pytest-9.1.1.pyc: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/__pycache__/test_grouped_mm_mxfp8.cpython-312-pytest-9.1.1.pyc: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/__pycache__/_compat.cpython-312.pyc: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/__pycache__/__init__.cpython-312.pyc: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm/__pycache__: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/grouped_mm: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/__init__.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/__pycache__/__init__.cpython-312.pyc: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests/__pycache__: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests/tests: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/gtests: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/overlay_grouped_sfa_fix.py: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle/run_tests_isolated.sh: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: bundle: Cannot change ownership to uid 197609, gid 197609: Invalid argument
+tar: Exiting with failure status due to previous errors
+WRAPPER_RC_FALSE_START=9
+START 2026-10-11T21:46:48Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07
+torch 2.14.1+cu130 flashinfer 0.7.1 cudnn 92400
+overlay patched
+sweep fp4 rc=0
+sweep mxfp8 rc=0
+sweep fp8 rc=0
+21:56:01 unpatched done pass=55 fail=57
+22:02:18 patched done pass=61 fail=51
+END 2026-10-11T22:02:32Z
+WRAPPER_RC=0

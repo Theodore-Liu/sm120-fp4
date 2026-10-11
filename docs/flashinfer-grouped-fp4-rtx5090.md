@@ -86,6 +86,35 @@ segments is correct everywhere, as on the 5090). The MXFP8 sweep on the same pod
 2,512 NaNs on 16/48/64 as the 5090. So the defect is neither the 5090's, nor the driver's, nor WSL2's, nor cuDNN 9.27's: two
 devices, two drivers, two cuDNN builds and two PyTorch builds agree.
 
+## Root cause and a fix (2026-10-11)
+
+**Cause.** cuDNN frontend's SM120 and SM100 MoE block-scale kernel templates (`cudnn/gemm/frost/sm120/kernel_templates/
+sm120_moe_grouped_block_scale_matmul_fwd.py`, and the SM100 compiler's matching contract) read A's scales "F8_128x4-reordered and padded
+to whole 128-row blocks PER GROUP, then concatenated in group order", sized to the static capacity `min(S, G) + (S - min(S, G)) // 128`
+blocks; the graph declares the logical shape and the runtime buffer must be that blob ("silently read out of bounds (wrong numerics, no
+fault)" otherwise, in the compiler's own words). FlashInfer's `grouped_mm_fp4` / `grouped_mm_mxfp8` pass the scales as one 128x4 swizzle
+over all tokens, which is the same bytes only when every group starts on a multiple of 128 rows: exactly the rule both devices showed.
+FlashInfer's unified MoE API (`fused_moe/runners.py`) already pads every expert segment to 128 rows for these backends, so the constraint
+is known inside FlashInfer; the public API neither enforces nor documents it. No upstream issue or PR covers it (searched 2026-10-11).
+
+**Fix.** A device-side re-layout of A's scales into the per-group blob before the cuDNN call (no host synchronisation, graph-capture safe),
+used by both runners; the graph keeps declaring the logical shape. Prototype `scripts/fix_proto_grouped_sfa.py`; the FlashInfer branch
+`fix/grouped-block-scale-per-group-sfa` (local, not pushed) carries it with six unaligned-segment regression tests per format.
+
+**Verification.**
+
+| where | what | result |
+|---|---|---|
+| RTX 5090 (WSL2), FlashInfer 0.7.1 with the fix | the alignment sweeps against the exact oracle | NVFP4 9 of 9, MXFP8 5 of 5 conformant (FP8 unchanged) |
+| RTX 5090, unpatched | the six new NVFP4 tests | 6 of 6 fail on accuracy (three NaN, cosine 0.07, 0.91, 0.97) |
+| RTX PRO 6000 bare metal, unpatched | FlashInfer's grouped MXFP8 suite with the new tests, one process per test | 50 pass, 7 fail: the 6 new unaligned tests and one version-skew test |
+| RTX PRO 6000 bare metal, with the fix | the same | 56 pass, 1 fail: the same version-skew test (main's test monkeypatches a function 0.7.1 does not have) |
+| RTX PRO 6000 bare metal, with the fix | the alignment sweeps against the exact oracle | NVFP4 9 of 9, MXFP8 5 of 5, FP8 5 of 5 conformant |
+
+`reports/grouped-sfa-fix-pro6000/` holds the pod's logs and JSONs. Still owed before a PR: FlashInfer's FP4 suite (its quantizer JITs for
+`sm_120f`, which the pod image's CUDA 12.8 cannot build, so both pod runs failed those tests identically before reaching the GEMM; local
+WSL has CUDA 13 but dropped repeatedly today), and the suites against a full build of FlashInfer main rather than 0.7.1 with the same patch.
+
 ## Status
 
 A draft issue for the author's review is in the paper repository (`docs/pr-drafts/flashinfer-grouped-fp4-alignment-issue.md`). Not yet asked: whether the block-scaled grouped GEMM in FlashInfer's unified MoE API routes

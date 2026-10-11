@@ -35,7 +35,7 @@ report names, and is read with the detectability floor the oracle module documen
 ## Tally toward the four-week test
 
 Distinct defect classes found and reproduced: **1** (the cuDNN grouped block-scaled GEMM's mid-tile segments, wrong output with no error,
-NVFP4 and MXFP8, on two devices). Environment findings, not kernel defects: 1 (`bmm_fp8`'s cutlass backend taking the WSL2 virtual
+NVFP4 and MXFP8, on two devices; root cause in FlashInfer's wrapper, a local fix verified, see `docs/flashinfer-grouped-fp4-rtx5090.md`). Environment findings, not kernel defects: 1 (`bmm_fp8`'s cutlass backend taking the WSL2 virtual
 machine down on the 5090 while running clean on a bare-metal PRO 6000). Confirmed by maintainers: 0 (every issue draft awaits the
 author's review before posting). Precision designs documented, not defects under the API's contract: 3 (the b12x W4A4 micro and
 dynamic backends' bf16 atomic scatter; the W4A4 static backend's FC2 in bf16 partials per 256; the W4A16 path's bf16-packed routing

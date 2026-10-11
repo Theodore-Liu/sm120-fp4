@@ -1,0 +1,1679 @@
+FFFFFFFFFFFF                                                             [100%]
+=================================== FAILURES ===================================
+_____________ TestGroupedMmFp4.test_unaligned_segments[seg_lens0] ______________
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+>           subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:433: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja'],)
+kwargs = {'stdout': -1, 'stderr': -2, 'cwd': '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', 'text': True}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.grouped_mm.test_grouped_mm_fp4.TestGroupedMmFp4 object at 0x7e8aa8a83500>
+seg_lens = [64, 64]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+>       a_fp4, a_sf, a_gsf = self._quantize_a(a_bf16)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/grouped_mm/test_grouped_mm_fp4.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/grouped_mm/test_grouped_mm_fp4.py:42: in _quantize_a
+    a_fp4, a_sf = nvfp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1725: in nvfp4_quantize
+    a_fp4, a_sf = fp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1190: in fp4_quantize
+    x_q, sf = get_fp4_quantization_module(f"{major}{minor}").fp4_quantize_sm100(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:299: in get_fp4_quantization_module
+    module = backend_modules[backend]().build_and_load()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:357: in build_and_load
+    self.build()
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:599: in build
+    run_ninja(self.build_dir, self.ninja_path, verbose)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+            subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            msg = "Ninja build failed."
+            if e.output:
+                msg += " Ninja output:\n" + e.output
+>           raise RuntimeError(msg) from e
+E           RuntimeError: Ninja build failed. Ninja output:
+E           ninja: Entering directory `/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f'
+E           [1/2]  /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           FAILED: [code=1] /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E            /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           nvcc fatal   : Unsupported gpu architecture 'compute_120f'
+E           ninja: build stopped: subcommand failed.
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:445: RuntimeError
+----------------------------- Captured stderr call -----------------------------
+2026-10-11 21:56:03,362 - INFO - core.py:594 - flashinfer.jit: Building JIT module fp4_quantization_120f; this can take several minutes on first use.
+_____________ TestGroupedMmFp4.test_unaligned_segments[seg_lens1] ______________
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+>           subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:433: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja'],)
+kwargs = {'stdout': -1, 'stderr': -2, 'cwd': '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', 'text': True}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.grouped_mm.test_grouped_mm_fp4.TestGroupedMmFp4 object at 0x7e8aa8a830e0>
+seg_lens = [120, 136]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+>       a_fp4, a_sf, a_gsf = self._quantize_a(a_bf16)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/grouped_mm/test_grouped_mm_fp4.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/grouped_mm/test_grouped_mm_fp4.py:42: in _quantize_a
+    a_fp4, a_sf = nvfp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1725: in nvfp4_quantize
+    a_fp4, a_sf = fp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1190: in fp4_quantize
+    x_q, sf = get_fp4_quantization_module(f"{major}{minor}").fp4_quantize_sm100(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:299: in get_fp4_quantization_module
+    module = backend_modules[backend]().build_and_load()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:357: in build_and_load
+    self.build()
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:599: in build
+    run_ninja(self.build_dir, self.ninja_path, verbose)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+            subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            msg = "Ninja build failed."
+            if e.output:
+                msg += " Ninja output:\n" + e.output
+>           raise RuntimeError(msg) from e
+E           RuntimeError: Ninja build failed. Ninja output:
+E           ninja: Entering directory `/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f'
+E           [1/2]  /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           FAILED: [code=1] /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E            /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           nvcc fatal   : Unsupported gpu architecture 'compute_120f'
+E           ninja: build stopped: subcommand failed.
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:445: RuntimeError
+_____________ TestGroupedMmFp4.test_unaligned_segments[seg_lens2] ______________
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+>           subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:433: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja'],)
+kwargs = {'stdout': -1, 'stderr': -2, 'cwd': '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', 'text': True}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.grouped_mm.test_grouped_mm_fp4.TestGroupedMmFp4 object at 0x7e8aa8a831a0>
+seg_lens = [16, 48, 64]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+>       a_fp4, a_sf, a_gsf = self._quantize_a(a_bf16)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/grouped_mm/test_grouped_mm_fp4.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/grouped_mm/test_grouped_mm_fp4.py:42: in _quantize_a
+    a_fp4, a_sf = nvfp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1725: in nvfp4_quantize
+    a_fp4, a_sf = fp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1190: in fp4_quantize
+    x_q, sf = get_fp4_quantization_module(f"{major}{minor}").fp4_quantize_sm100(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:299: in get_fp4_quantization_module
+    module = backend_modules[backend]().build_and_load()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:357: in build_and_load
+    self.build()
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:599: in build
+    run_ninja(self.build_dir, self.ninja_path, verbose)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+            subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            msg = "Ninja build failed."
+            if e.output:
+                msg += " Ninja output:\n" + e.output
+>           raise RuntimeError(msg) from e
+E           RuntimeError: Ninja build failed. Ninja output:
+E           ninja: Entering directory `/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f'
+E           [1/2]  /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           FAILED: [code=1] /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E            /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           nvcc fatal   : Unsupported gpu architecture 'compute_120f'
+E           ninja: build stopped: subcommand failed.
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:445: RuntimeError
+_____________ TestGroupedMmFp4.test_unaligned_segments[seg_lens3] ______________
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+>           subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:433: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja'],)
+kwargs = {'stdout': -1, 'stderr': -2, 'cwd': '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', 'text': True}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.grouped_mm.test_grouped_mm_fp4.TestGroupedMmFp4 object at 0x7e8aa8a82e70>
+seg_lens = [128, 64, 64]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+>       a_fp4, a_sf, a_gsf = self._quantize_a(a_bf16)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/grouped_mm/test_grouped_mm_fp4.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/grouped_mm/test_grouped_mm_fp4.py:42: in _quantize_a
+    a_fp4, a_sf = nvfp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1725: in nvfp4_quantize
+    a_fp4, a_sf = fp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1190: in fp4_quantize
+    x_q, sf = get_fp4_quantization_module(f"{major}{minor}").fp4_quantize_sm100(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:299: in get_fp4_quantization_module
+    module = backend_modules[backend]().build_and_load()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:357: in build_and_load
+    self.build()
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:599: in build
+    run_ninja(self.build_dir, self.ninja_path, verbose)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+            subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            msg = "Ninja build failed."
+            if e.output:
+                msg += " Ninja output:\n" + e.output
+>           raise RuntimeError(msg) from e
+E           RuntimeError: Ninja build failed. Ninja output:
+E           ninja: Entering directory `/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f'
+E           [1/2]  /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           FAILED: [code=1] /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E            /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           nvcc fatal   : Unsupported gpu architecture 'compute_120f'
+E           ninja: build stopped: subcommand failed.
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:445: RuntimeError
+_____________ TestGroupedMmFp4.test_unaligned_segments[seg_lens4] ______________
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+>           subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:433: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja'],)
+kwargs = {'stdout': -1, 'stderr': -2, 'cwd': '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', 'text': True}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.grouped_mm.test_grouped_mm_fp4.TestGroupedMmFp4 object at 0x7e8aa8a82d80>
+seg_lens = [192, 64]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+>       a_fp4, a_sf, a_gsf = self._quantize_a(a_bf16)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/grouped_mm/test_grouped_mm_fp4.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/grouped_mm/test_grouped_mm_fp4.py:42: in _quantize_a
+    a_fp4, a_sf = nvfp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1725: in nvfp4_quantize
+    a_fp4, a_sf = fp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1190: in fp4_quantize
+    x_q, sf = get_fp4_quantization_module(f"{major}{minor}").fp4_quantize_sm100(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:299: in get_fp4_quantization_module
+    module = backend_modules[backend]().build_and_load()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:357: in build_and_load
+    self.build()
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:599: in build
+    run_ninja(self.build_dir, self.ninja_path, verbose)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+            subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            msg = "Ninja build failed."
+            if e.output:
+                msg += " Ninja output:\n" + e.output
+>           raise RuntimeError(msg) from e
+E           RuntimeError: Ninja build failed. Ninja output:
+E           ninja: Entering directory `/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f'
+E           [1/2]  /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           FAILED: [code=1] /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E            /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           nvcc fatal   : Unsupported gpu architecture 'compute_120f'
+E           ninja: build stopped: subcommand failed.
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:445: RuntimeError
+_____________ TestGroupedMmFp4.test_unaligned_segments[seg_lens5] ______________
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+>           subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:433: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja'],)
+kwargs = {'stdout': -1, 'stderr': -2, 'cwd': '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', 'text': True}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['ninja', '-v', '-C', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f', '-f', '/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.grouped_mm.test_grouped_mm_fp4.TestGroupedMmFp4 object at 0x7e8aa8a82d50>
+seg_lens = [13, 83, 0, 67, 77]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+>       a_fp4, a_sf, a_gsf = self._quantize_a(a_bf16)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/grouped_mm/test_grouped_mm_fp4.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/grouped_mm/test_grouped_mm_fp4.py:42: in _quantize_a
+    a_fp4, a_sf = nvfp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1725: in nvfp4_quantize
+    a_fp4, a_sf = fp4_quantize(
+/root/venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2369: in _auto_dump_wrapper
+    return _inner(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:1190: in fp4_quantize
+    x_q, sf = get_fp4_quantization_module(f"{major}{minor}").fp4_quantize_sm100(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/quantization/fp4_quantization.py:299: in get_fp4_quantization_module
+    module = backend_modules[backend]().build_and_load()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:357: in build_and_load
+    self.build()
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/core.py:599: in build
+    run_ninja(self.build_dir, self.ninja_path, verbose)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+workdir = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f')
+ninja_file = PosixPath('/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/build.ninja')
+verbose = False, max_jobs = None
+
+    def run_ninja(
+        workdir: Path,
+        ninja_file: Path,
+        verbose: bool,
+        max_jobs: Optional[int] = None,
+    ) -> None:
+        workdir.mkdir(parents=True, exist_ok=True)
+        command = [
+            "ninja",
+            "-v",
+            "-C",
+            str(workdir.resolve()),
+            "-f",
+            str(ninja_file.resolve()),
+        ]
+        num_workers = max_jobs if max_jobs is not None else _get_num_workers()
+        if num_workers is not None:
+            command += ["-j", str(num_workers)]
+    
+        sys.stdout.flush()
+        sys.stderr.flush()
+        try:
+            subprocess.run(
+                command,
+                stdout=None if verbose else subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                cwd=str(workdir.resolve()),
+                check=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            msg = "Ninja build failed."
+            if e.output:
+                msg += " Ninja output:\n" + e.output
+>           raise RuntimeError(msg) from e
+E           RuntimeError: Ninja build failed. Ninja output:
+E           ninja: Entering directory `/root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f'
+E           [1/2]  /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           FAILED: [code=1] /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E            /usr/local/cuda/bin/nvcc --generate-dependencies-with-compile -MF /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o.d -DPy_LIMITED_API=0x03090000 -D_GLIBCXX_USE_CXX11_ABI=1 -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal -I/root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/cub -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/libcudacxx/include -I/root/venv/lib/python3.12/site-packages/flashinfer/data/cccl/thrust -isystem /usr/include/python3.12 -isystem /usr/local/cuda/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/tvm_ffi/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/cutlass/tools/util/include -isystem /root/venv/lib/python3.12/site-packages/flashinfer/data/spdlog/include --compiler-options=-fPIC --expt-relaxed-constexpr -static-global-template-stub=false -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -std=c++17 --threads=1 -use_fast_math -Xfatbin=-compress-all --compress-mode=size -DFLASHINFER_ENABLE_F16 -DFLASHINFER_ENABLE_BF16 -DFLASHINFER_ENABLE_FP8_E4M3 -DFLASHINFER_ENABLE_FP8_E5M2 -DNDEBUG -O3 -gencode=arch=compute_120f,code=sm_120f -DFLASHINFER_ENABLE_FP8_E8M0 -DFLASHINFER_ENABLE_FP4_E2M1 -DENABLE_BF16 -DENABLE_FP8 -DENABLE_FP4 -c /root/venv/lib/python3.12/site-packages/flashinfer/data/csrc/nv_internal/cpp/kernels/quantization.cu -o /root/.cache/flashinfer/0.7.1/120a/cached_ops/fp4_quantization_120f/kernels_quantization.cuda.o 
+E           nvcc fatal   : Unsupported gpu architecture 'compute_120f'
+E           ninja: build stopped: subcommand failed.
+
+/root/venv/lib/python3.12/site-packages/flashinfer/jit/cpp_ext.py:445: RuntimeError
+____________ TestGroupedMmMxfp8.test_unaligned_segments[seg_lens0] _____________
+
+self = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a32f30>
+seg_lens = [64, 64]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+        a_mxfp8, a_scale = self._quantize_a(a_bf16)
+        b_mxfp8, b_scale = self._quantize_b(b_bf16)
+    
+        out = grouped_mm_mxfp8(
+            a_mxfp8,
+            b_mxfp8,
+            a_scale,
+            b_scale,
+            m_indptr,
+            out_dtype=torch.bfloat16,
+        )
+        ref = ref_grouped_mm(a_bf16, b_bf16, m_indptr, out_dtype=torch.bfloat16)
+    
+        assert torch.isfinite(out).all()
+        for e in range(num_experts):
+            start, end = m_indptr[e].item(), m_indptr[e + 1].item()
+            if start == end:
+                continue
+            cos_sim = F.cosine_similarity(
+                ref[start:end].reshape(-1).float(),
+                out[start:end].reshape(-1).float(),
+                dim=0,
+            )
+>           assert cos_sim > self.MIN_SEGMENT_COS_SIM, (
+                f"segment {e} rows [{start}, {end}): cosine similarity {cos_sim:.4f}"
+            )
+E           AssertionError: segment 1 rows [64, 128): cosine similarity 0.9610
+E           assert tensor(0.9610, device='cuda:0') > 0.97
+E            +  where 0.97 = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a32f30>.MIN_SEGMENT_COS_SIM
+
+tests/grouped_mm/test_grouped_mm_mxfp8.py:205: AssertionError
+----------------------------- Captured stderr call -----------------------------
+cuDNN Frontend warning: Multiple libcudart libraries found: libcudart.so.12 and libcudart.so.13. Using libcudart.so.12. Set CUDNN_FRONTEND_CUDART_LIB_NAME to select one explicitly.
+____________ TestGroupedMmMxfp8.test_unaligned_segments[seg_lens1] _____________
+
+self = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a33140>
+seg_lens = [120, 136]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+        a_mxfp8, a_scale = self._quantize_a(a_bf16)
+        b_mxfp8, b_scale = self._quantize_b(b_bf16)
+    
+        out = grouped_mm_mxfp8(
+            a_mxfp8,
+            b_mxfp8,
+            a_scale,
+            b_scale,
+            m_indptr,
+            out_dtype=torch.bfloat16,
+        )
+        ref = ref_grouped_mm(a_bf16, b_bf16, m_indptr, out_dtype=torch.bfloat16)
+    
+        assert torch.isfinite(out).all()
+        for e in range(num_experts):
+            start, end = m_indptr[e].item(), m_indptr[e + 1].item()
+            if start == end:
+                continue
+            cos_sim = F.cosine_similarity(
+                ref[start:end].reshape(-1).float(),
+                out[start:end].reshape(-1).float(),
+                dim=0,
+            )
+>           assert cos_sim > self.MIN_SEGMENT_COS_SIM, (
+                f"segment {e} rows [{start}, {end}): cosine similarity {cos_sim:.4f}"
+            )
+E           AssertionError: segment 1 rows [120, 256): cosine similarity 0.0000
+E           assert tensor(0., device='cuda:0') > 0.97
+E            +  where 0.97 = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a33140>.MIN_SEGMENT_COS_SIM
+
+tests/grouped_mm/test_grouped_mm_mxfp8.py:205: AssertionError
+____________ TestGroupedMmMxfp8.test_unaligned_segments[seg_lens2] _____________
+
+self = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a33200>
+seg_lens = [16, 48, 64]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+        a_mxfp8, a_scale = self._quantize_a(a_bf16)
+        b_mxfp8, b_scale = self._quantize_b(b_bf16)
+    
+        out = grouped_mm_mxfp8(
+            a_mxfp8,
+            b_mxfp8,
+            a_scale,
+            b_scale,
+            m_indptr,
+            out_dtype=torch.bfloat16,
+        )
+        ref = ref_grouped_mm(a_bf16, b_bf16, m_indptr, out_dtype=torch.bfloat16)
+    
+        assert torch.isfinite(out).all()
+        for e in range(num_experts):
+            start, end = m_indptr[e].item(), m_indptr[e + 1].item()
+            if start == end:
+                continue
+            cos_sim = F.cosine_similarity(
+                ref[start:end].reshape(-1).float(),
+                out[start:end].reshape(-1).float(),
+                dim=0,
+            )
+>           assert cos_sim > self.MIN_SEGMENT_COS_SIM, (
+                f"segment {e} rows [{start}, {end}): cosine similarity {cos_sim:.4f}"
+            )
+E           AssertionError: segment 1 rows [16, 64): cosine similarity 0.0000
+E           assert tensor(0., device='cuda:0') > 0.97
+E            +  where 0.97 = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a33200>.MIN_SEGMENT_COS_SIM
+
+tests/grouped_mm/test_grouped_mm_mxfp8.py:205: AssertionError
+____________ TestGroupedMmMxfp8.test_unaligned_segments[seg_lens3] _____________
+
+self = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a332c0>
+seg_lens = [128, 64, 64]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+        a_mxfp8, a_scale = self._quantize_a(a_bf16)
+        b_mxfp8, b_scale = self._quantize_b(b_bf16)
+    
+        out = grouped_mm_mxfp8(
+            a_mxfp8,
+            b_mxfp8,
+            a_scale,
+            b_scale,
+            m_indptr,
+            out_dtype=torch.bfloat16,
+        )
+        ref = ref_grouped_mm(a_bf16, b_bf16, m_indptr, out_dtype=torch.bfloat16)
+    
+        assert torch.isfinite(out).all()
+        for e in range(num_experts):
+            start, end = m_indptr[e].item(), m_indptr[e + 1].item()
+            if start == end:
+                continue
+            cos_sim = F.cosine_similarity(
+                ref[start:end].reshape(-1).float(),
+                out[start:end].reshape(-1).float(),
+                dim=0,
+            )
+>           assert cos_sim > self.MIN_SEGMENT_COS_SIM, (
+                f"segment {e} rows [{start}, {end}): cosine similarity {cos_sim:.4f}"
+            )
+E           AssertionError: segment 2 rows [192, 256): cosine similarity 0.0000
+E           assert tensor(2.2654e-25, device='cuda:0') > 0.97
+E            +  where 0.97 = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a332c0>.MIN_SEGMENT_COS_SIM
+
+tests/grouped_mm/test_grouped_mm_mxfp8.py:205: AssertionError
+____________ TestGroupedMmMxfp8.test_unaligned_segments[seg_lens4] _____________
+
+self = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a33380>
+seg_lens = [192, 64]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+        a_mxfp8, a_scale = self._quantize_a(a_bf16)
+        b_mxfp8, b_scale = self._quantize_b(b_bf16)
+    
+        out = grouped_mm_mxfp8(
+            a_mxfp8,
+            b_mxfp8,
+            a_scale,
+            b_scale,
+            m_indptr,
+            out_dtype=torch.bfloat16,
+        )
+        ref = ref_grouped_mm(a_bf16, b_bf16, m_indptr, out_dtype=torch.bfloat16)
+    
+        assert torch.isfinite(out).all()
+        for e in range(num_experts):
+            start, end = m_indptr[e].item(), m_indptr[e + 1].item()
+            if start == end:
+                continue
+            cos_sim = F.cosine_similarity(
+                ref[start:end].reshape(-1).float(),
+                out[start:end].reshape(-1).float(),
+                dim=0,
+            )
+>           assert cos_sim > self.MIN_SEGMENT_COS_SIM, (
+                f"segment {e} rows [{start}, {end}): cosine similarity {cos_sim:.4f}"
+            )
+E           AssertionError: segment 1 rows [192, 256): cosine similarity 0.9520
+E           assert tensor(0.9520, device='cuda:0') > 0.97
+E            +  where 0.97 = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a33380>.MIN_SEGMENT_COS_SIM
+
+tests/grouped_mm/test_grouped_mm_mxfp8.py:205: AssertionError
+____________ TestGroupedMmMxfp8.test_unaligned_segments[seg_lens5] _____________
+
+self = <tests.grouped_mm.test_grouped_mm_mxfp8.TestGroupedMmMxfp8 object at 0x7e8aa8a33440>
+seg_lens = [13, 83, 0, 67, 77]
+
+    @requires_cudnn_moe_block_scale
+    @pytest.mark.parametrize("seg_lens", UNALIGNED_SEGMENTS)
+    def test_unaligned_segments(self, seg_lens):
+        """Segments starting off a 128-row boundary are as accurate as aligned ones."""
+        torch.manual_seed(3)
+        num_experts = len(seg_lens)
+        cum_m = sum(seg_lens)
+        k, n = 512, 256
+    
+        a_bf16 = torch.randn(cum_m, k, dtype=torch.bfloat16, device="cuda")
+        b_bf16 = torch.randn(num_experts, n, k, dtype=torch.bfloat16, device="cuda")
+        m_indptr = torch.tensor(
+            [0, *torch.tensor(seg_lens).cumsum(0).tolist()],
+            dtype=torch.int32,
+            device="cuda",
+        )
+    
+        a_mxfp8, a_scale = self._quantize_a(a_bf16)
+        b_mxfp8, b_scale = self._quantize_b(b_bf16)
+    
+        out = grouped_mm_mxfp8(
+            a_mxfp8,
+            b_mxfp8,
+            a_scale,
+            b_scale,
+            m_indptr,
+            out_dtype=torch.bfloat16,
+        )
+        ref = ref_grouped_mm(a_bf16, b_bf16, m_indptr, out_dtype=torch.bfloat16)
+    
+>       assert torch.isfinite(out).all()
+E       AssertionError: assert tensor(False, device='cuda:0')
+E        +  where tensor(False, device='cuda:0') = <built-in method all of Tensor object at 0x7e8a3ddec780>()
+E        +    where <built-in method all of Tensor object at 0x7e8a3ddec780> = tensor([[ True,  True,  True,  ...,  True,  True,  True],\n        [ True,  True,  True,  ...,  True,  True,  True],\n  ...,  True,  True,  ...,  True,  True,  True],\n        [ True,  True,  True,  ...,  True,  True,  True]], device='cuda:0').all
+E        +      where tensor([[ True,  True,  True,  ...,  True,  True,  True],\n        [ True,  True,  True,  ...,  True,  True,  True],\n  ...,  True,  True,  ...,  True,  True,  True],\n        [ True,  True,  True,  ...,  True,  True,  True]], device='cuda:0') = <built-in method isfinite of type object at 0x7e8df10e5640>(tensor([[-1.4250e+01,  1.2375e+01, -1.6375e+01,  ..., -2.5000e+01,\n          2.9125e+01,  2.9500e+01],\n        [ 1.012...1.2863e+27,  1.7795e+27,  ...,  2.2728e+27,\n          2.2365e+26,  1.6828e+27]], device='cuda:0', dtype=torch.bfloat16))
+E        +        where <built-in method isfinite of type object at 0x7e8df10e5640> = torch.isfinite
+
+tests/grouped_mm/test_grouped_mm_mxfp8.py:195: AssertionError
+=============================== warnings summary ===============================
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell/blockscaled_contiguous_gather_grouped_gemm_act_fusion.py:3459
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell/blockscaled_contiguous_gather_grouped_gemm_act_fusion.py:3459: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    c_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell/moe_w4a16_kernel.py:2377
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell/moe_w4a16_kernel.py:2377: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    c_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/utils.py:29
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/utils.py:29: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    a_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/utils.py:31
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/utils.py:31: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    b_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/utils.py:34
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/utils.py:34: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    c_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/contiguous_grouped_gemm_finalize_fusion.py:968
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/contiguous_grouped_gemm_finalize_fusion.py:968: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    a_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/contiguous_grouped_gemm_finalize_fusion.py:970
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/hopper/contiguous_grouped_gemm_finalize_fusion.py:970: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    b_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_kernel_builder.py:316: 24 warnings
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_kernel_builder.py:316: DeprecationWarning: cutlass.utils.smem_allocator.SmemAllocator.capacity_in_bytes is deprecated; use cutlass.memory.SmemAllocator.capacity_in_bytes instead. It will be removed in a future release.
+    capacity = cutlass.utils.SmemAllocator.capacity_in_bytes() - cls.MBAR_RESERVE
+
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319
+../../venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319
+  /root/venv/lib/python3.12/site-packages/flashinfer/fused_moe/cute_dsl/blackwell_sm12x/_moe_utils/moe_epilogue.py:319: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    cutlass.utils.LayoutEnum.COL_MAJOR, out_dtype, tile[0]
+
+../../venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/grouped_gemm_masked_blackwell.py:427
+  /root/venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/grouped_gemm_masked_blackwell.py:427: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    epi_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/grouped_gemm_masked_blackwell.py:2391
+  /root/venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/grouped_gemm_masked_blackwell.py:2391: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    c_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/cute_dsl/low_latency_blockscaled_gemm.py:102
+  /root/venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/cute_dsl/low_latency_blockscaled_gemm.py:102: DeprecationWarning: cutlass.utils.smem_allocator.get_smem_capacity_in_bytes is deprecated; use cutlass.memory.get_smem_capacity_in_bytes instead. It will be removed in a future release.
+    _SMEM_CAPACITY_BYTES = cutlass.utils.get_smem_capacity_in_bytes("sm_100")
+
+../../venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/grouped_gemm_masked_rubin.py:215
+  /root/venv/lib/python3.12/site-packages/flashinfer/gemm/kernels/grouped_gemm_masked_rubin.py:215: DeprecationWarning: cutlass.utils.LayoutEnum is deprecated; use cutlass.tensor_utils.LayoutEnum instead. It will be removed in a future release.
+    c_layout: utils.LayoutEnum,
+
+../../venv/lib/python3.12/site-packages/flashinfer/gdn_kernels/blackwell/gated_delta_net_chunked.py:95
+../../venv/lib/python3.12/site-packages/flashinfer/gdn_kernels/blackwell/gated_delta_net_chunked.py:95
+  /root/venv/lib/python3.12/site-packages/flashinfer/gdn_kernels/blackwell/gated_delta_net_chunked.py:95: DeprecationWarning: cutlass.utils.TensorMapUpdateMode is deprecated; use cutlass.tensor_utils.TensorMapUpdateMode instead. It will be removed in a future release.
+    from cutlass.utils import TensorMapManager, TensorMapUpdateMode
+
+../../venv/lib/python3.12/site-packages/flashinfer/gdn_kernels/delta_rule_dsl/collective_store_tma.py:6
+  /root/venv/lib/python3.12/site-packages/flashinfer/gdn_kernels/delta_rule_dsl/collective_store_tma.py:6: DeprecationWarning: cutlass.utils.tensormap_manager.TensorMapUpdateMode is deprecated; use cutlass.tensor_utils.TensorMapUpdateMode instead. It will be removed in a future release.
+    from cutlass.utils.tensormap_manager import TensorMapManager, TensorMapUpdateMode
+
+../../venv/lib/python3.12/site-packages/flashinfer/gdn_kernels/blackwell/gated_delta_net_cp_prefill.py:55
+../../venv/lib/python3.12/site-packages/flashinfer/gdn_kernels/blackwell/gated_delta_net_cp_prefill.py:55
+  /root/venv/lib/python3.12/site-packages/flashinfer/gdn_kernels/blackwell/gated_delta_net_cp_prefill.py:55: DeprecationWarning: cutlass.utils.TensorMapUpdateMode is deprecated; use cutlass.tensor_utils.TensorMapUpdateMode instead. It will be removed in a future release.
+    from cutlass.utils import TensorMapManager, TensorMapUpdateMode
+
+../../venv/lib/python3.12/site-packages/flashinfer/cute_dsl/availability.py:136
+  /root/venv/lib/python3.12/site-packages/flashinfer/cute_dsl/availability.py:136: DeprecationWarning: Arch from arch.py is deprecated. Use Arch from enums.py instead.
+    from cutlass.base_dsl.arch import Arch
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens0]
+FAILED tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens1]
+FAILED tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens2]
+FAILED tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens3]
+FAILED tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens4]
+FAILED tests/grouped_mm/test_grouped_mm_fp4.py::TestGroupedMmFp4::test_unaligned_segments[seg_lens5]
+FAILED tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens0]
+FAILED tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens1]
+FAILED tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens2]
+FAILED tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens3]
+FAILED tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens4]
+FAILED tests/grouped_mm/test_grouped_mm_mxfp8.py::TestGroupedMmMxfp8::test_unaligned_segments[seg_lens5]
+12 failed, 688 deselected, 49 warnings in 1.39s

@@ -1,0 +1,105 @@
+{
+ "generated_utc": "2026-10-11T21:33:15Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "cudnn": 92700,
+ "cases": [
+  {
+   "name": "4x128 aligned",
+   "segments": [
+    128,
+    128,
+    128,
+    128
+   ],
+   "elements": 131072,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9223744930709707,
+   "max_abs_err": 0.24924468994140625,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "64,64 half tiles",
+   "segments": [
+    64,
+    64
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9320781890775232,
+   "max_abs_err": 0.24962234497070312,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "16,48,64 small",
+   "segments": [
+    16,
+    48,
+    64
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9283156499342252,
+   "max_abs_err": 0.248504638671875,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "192,64 second mid-tile",
+   "segments": [
+    192,
+    64
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.926237806912441,
+   "max_abs_err": 0.24993896484375,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "120,136 straddling",
+   "segments": [
+    120,
+    136
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9262155544880322,
+   "max_abs_err": 0.24957275390625,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0
+   ]
+  }
+ ]
+}
