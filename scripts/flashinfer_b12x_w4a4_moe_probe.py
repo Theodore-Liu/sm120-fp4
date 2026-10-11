@@ -25,7 +25,7 @@ from sm120fp4 import moe_oracle_w4a4 as W
 from sm120fp4.layouts import to_128x4
 from sm120fp4.reference import quantize_nvfp4
 
-MICRO_MAX_TOKENS, MICRO_ROWS_TOPK, MICRO_ROWS_MULTI = 8, 20, 40   # moe_dispatch.py constants, 0.7.1
+MICRO_MAX_TOKENS, MICRO_ROWS_TOPK, MICRO_ROWS_MULTI, STATIC_CUTOVER_ROWS = 8, 20, 40, 1024   # moe_dispatch.py constants, 0.7.1 (nvfp4)
 
 
 def main(argv=None) -> int:
@@ -65,10 +65,11 @@ def main(argv=None) -> int:
         ids = ids.to(torch.int32)
         routed = m * k
         micro = m <= MICRO_MAX_TOKENS and routed <= (MICRO_ROWS_MULTI if k > 1 else MICRO_ROWS_TOPK)
-        combine = "micro" if micro else "static"
+        combine = "micro" if micro else ("dynamic" if routed > STATIC_CUTOVER_ROWS else "static")
+        fc2_chunk = 512 if combine == "dynamic" else 256
         rec = {"tokens": m, "routed_rows": routed, "combine_model": combine}
         try:
-            o = W.fused_moe_w4a4_oracle(x, w13_p, w13_s, w13_g, w2_p, w2_s, w2_g, ids, wts, gs_in=1.0, gs_mid=1.0, combine=combine)
+            o = W.fused_moe_w4a4_oracle(x, w13_p, w13_s, w13_g, w2_p, w2_s, w2_g, ids, wts, gs_in=1.0, gs_mid=1.0, combine=combine, fc2_chunk=fc2_chunk)
             outs = []
             for _ in range(a.runs):
                 y = fm.b12x_fused_moe(x.to(dev), w13_p.to(dev), s13, w2_p.to(dev), s2, ids.to(dev), wts.to(dev), e, k,

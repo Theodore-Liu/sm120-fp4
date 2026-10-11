@@ -1,0 +1,81 @@
+{
+ "generated_utc": "2026-10-11T13:54:59Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "shape": {
+  "experts": 8,
+  "hidden": 1024,
+  "inter": 512,
+  "topk": 2
+ },
+ "runs": 5,
+ "cases": [
+  {
+   "tokens": 512,
+   "routed_rows": 1024,
+   "combine_model": "static",
+   "distinct_outputs": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "elements": 524288,
+   "max_err_over_bound_per_run": [
+    0.9908580163911744,
+    0.9908580163911744,
+    0.9908580163911744,
+    0.9908580163911744,
+    0.9908580163911744
+   ],
+   "conformant_every_run": true,
+   "ambiguous_blocks_in": 0,
+   "ambiguous_blocks_mid": 3396,
+   "tie_elements": 521690,
+   "mean_bound_over_abs_contrib": 0.1796678710063661,
+   "rel_err_vs_nominal": [
+    0.027146692366668185,
+    0.027146692366668185,
+    0.027146692366668185,
+    0.027146692366668185,
+    0.027146692366668185
+   ]
+  },
+  {
+   "tokens": 1024,
+   "routed_rows": 2048,
+   "combine_model": "dynamic",
+   "distinct_outputs": 5,
+   "outside_per_run": [
+    4,
+    3,
+    4,
+    2,
+    3
+   ],
+   "elements": 1048576,
+   "max_err_over_bound_per_run": [
+    1.238684348982529,
+    1.238684348982529,
+    1.238684348982529,
+    1.238684348982529,
+    1.238684348982529
+   ],
+   "conformant_every_run": false,
+   "ambiguous_blocks_in": 0,
+   "ambiguous_blocks_mid": 6744,
+   "tie_elements": 1043453,
+   "mean_bound_over_abs_contrib": 0.18026811353194927,
+   "rel_err_vs_nominal": [
+    0.026888056413947117,
+    0.02688286588958128,
+    0.026885993415000586,
+    0.02688502735981754,
+    0.026887007742208806
+   ]
+  }
+ ]
+}

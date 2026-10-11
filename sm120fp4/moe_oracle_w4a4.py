@@ -24,7 +24,10 @@ the quantiser bit for bit. That matters because bf16 inputs produce exact ties o
 E4M3 midpoint for about one block in nine): the input quantiser is therefore emulated exactly on the exact bf16 x, and the
 mid quantiser is evaluated at both ends of each activation's interval and under both candidate scales (from the block
 maximum's two ends), the hull being the element's interval. A block whose two scale candidates differ is counted as
-"ambiguous". The combine model is a parameter (`combine="static"` or `"micro"`).
+"ambiguous". The combine model is a parameter: `"static"`, `"micro"`, or `"dynamic"` (the gated dynamic kernel: the static
+design's bf16 partials and bf16x2 weighting, but each weighted partial added into the output by a bf16 atomic
+`red.global.add.noftz.v4.bf16x2`, one rounding per partial in an order the hardware chooses; its FC2 task spans up to four
+128-column slices, so `fc2_chunk` is 512 there).
 
 The floor is as for the W4A16 oracle: set by the first GEMM's worst-case accumulation bound at the bf16 write before the
 mid quantiser, and for the micro combine by the k bf16 roundings of the partial sums. Faults of the kinds the census has
@@ -182,7 +185,7 @@ def fused_moe_w4a4_oracle(x_bf16: torch.Tensor, w13_packed, w13_sf, w13_gs, w2_p
         w2 = dequant_expert_w2(w2_packed[e], w2_sf[e], g2, block)                   # [H, I], includes 1/gs2
         alpha = 1.0 / g2
         w = wts[tok, slot].double()
-        if combine == "static":
+        if combine in ("static", "dynamic"):
             # FC2 is computed in K-chunks of `fc2_chunk` columns; each partial is rounded to bf16 (in the kernel's units, times
             # gs2), multiplied in bf16 by combined_scale = bf16(w * alpha) (`mul.rn.bf16x2`), and every weighted partial of every
             # route is summed in fp32 by the finalize, which rounds once (bit-exact against the kernel on 2026-10-11)
@@ -216,6 +219,10 @@ def fused_moe_w4a4_oracle(x_bf16: torch.Tensor, w13_packed, w13_sf, w13_gs, w2_p
     pre = bound + topk * U32 * abs_contrib + 2.0 * U64 * abs_contrib
     if combine == "static":
         bound = pre + 0.5 * _ulp(out.abs() + pre, torch.bfloat16)
+    elif combine == "dynamic":
+        # every weighted bf16 partial of every route lands in the output through a bf16 atomic: one rounding per partial
+        n_partials = topk * max(1, inter // fc2_chunk)
+        bound = pre + n_partials * 0.5 * _ulp(abs_contrib + pre, torch.bfloat16)
     else:
         bound = pre + topk * 0.5 * _ulp(abs_contrib + pre, torch.bfloat16)   # k bf16 roundings of partial sums
     return {"nominal": out, "bound": bound, "abs_contrib": abs_contrib, "ambiguous_blocks_in": amb_in,
