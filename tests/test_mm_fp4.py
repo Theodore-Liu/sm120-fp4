@@ -50,6 +50,31 @@ def test_mm_fp4_matches_reference(device, fi, backend, m, n, k):
 
 
 @pytest.mark.parametrize("backend", BACKENDS)
+@pytest.mark.parametrize("m,n,k", [(128, 256, 512), (16, 4096, 4096), (1, 1024, 2048), (512, 512, 1024)])
+def test_mm_fp4_inside_the_exact_oracles_bound(device, fi, backend, m, n, k):
+    """The tolerance-free form of the check above: every output element within the bound an fp32-accumulating kernel
+    must respect around the exact NVFP4 product (sm120fp4.oracle). The 2e-2 relative check stays as the coarse screen;
+    this one sees a kernel wrong by less than that."""
+    from sm120fp4 import oracle
+
+    g = torch.Generator().manual_seed(3)
+    a = torch.randn(m, k, generator=g).to(dtype=torch.bfloat16).float()
+    b = torch.randn(n, k, generator=g).to(dtype=torch.bfloat16).float()
+    a_q, a_sf, a_gs = quantize_nvfp4(a)
+    b_q, b_sf, b_gs = quantize_nvfp4(b)
+    exact, bound = oracle.exact_gemm_nvfp4(a_q, a_sf, a_gs, b_q, b_sf, b_gs, out_dtype=torch.bfloat16)
+    alpha = (1.0 / (a_gs * b_gs)).reshape(1).to(device)
+    try:
+        out = _run(fi, backend, a_q.to(device), to_128x4(a_sf).view(torch.float8_e4m3fn).to(device),
+                   b_q.to(device), to_128x4(b_sf).view(torch.float8_e4m3fn).to(device), alpha)
+    except Exception as e:  # noqa: BLE001
+        pytest.skip(f"{backend} backend unavailable on this device: {type(e).__name__}: {str(e)[:160]}")
+    torch.cuda.synchronize()
+    v = oracle.conformance(out.float(), exact, bound)
+    assert v["conformant"], f"{backend}: {v['outside_bound']} of {v['elements']} elements outside the bound (max err/bound {v['max_err_over_bound']:.2f})"
+
+
+@pytest.mark.parametrize("backend", BACKENDS)
 def test_mm_fp4_graph_replay_is_stable(device, fi, backend):
     m, n, k = 64, 2048, 2048
     a_q, a_sf, b_q, b_sf, alpha, ref = _operands(m, n, k, device)

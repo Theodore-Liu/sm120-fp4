@@ -495,6 +495,10 @@ closes it. Dates are when an item was added, not estimates.
    (cuBLASLt FP8), CUTLASS's SM120 block-scaled examples and, once the disk allows, TensorRT-LLM's `nvfp4_gemm` (issue 14154)
    and DeepGEMM; a shape and scale census (K, alignment, degenerate scales, saturating values); every element outside the bound
    filed upstream with the operands that produce it.
+   Second reading 2026-10-10: vLLM 0.28.0 `cutlass_scaled_fp4_mm` conformant on five shapes with vLLM-quantised and lossless operands
+   (0 of 626,176 outside the bound); `scaled_fp4_quant` conformant, and the oracle surfaced a convention: vLLM and FlashInfer round E4M3
+   scale ties and E2M1 code ties half away from zero and agree with each other, torch's cast rounds to even (`docs/vllm-nvfp4-rtx5090.md`);
+   `quantizer_conformance` now classifies ties. `tests/test_mm_fp4.py` gained the oracle form of the GEMM check (12 pass on the 5090).
    First reading 2026-10-10: TensorRT-LLM 1.3.0rc9 `nvfp4_gemm` on the RTX 5090 is conformant on every runnable backend (cutlass, cublaslt,
    default; 0 of 626,176 elements outside the bound, lossless operands exact to the output rounding), CuTe-DSL refuses SM120 with a clear
    message; issue 14154 does not reproduce here (`docs/trtllm-nvfp4-gemm-rtx5090.md`, `scripts/trtllm_nvfp4_gemm_probe.py`).

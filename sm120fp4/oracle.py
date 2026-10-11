@@ -49,7 +49,7 @@ import sys
 
 import torch
 
-from .reference import e2m1_decode, unpack_e2m1, BLOCK
+from .reference import BLOCK, E2M1_MAX, E4M3_MAX, e2m1_decode, unpack_e2m1
 
 U32 = 2.0 ** -24
 U64 = 2.0 ** -53
@@ -118,33 +118,72 @@ def conformance(kernel_out: torch.Tensor, exact: torch.Tensor, bound: torch.Tens
     }
 
 
+def _e4m3_tie_mask(sf_fp32: torch.Tensor) -> torch.Tensor:
+    """True where an fp32 scale value sits exactly halfway between two adjacent positive E4M3 values (saturation at 448 aside),
+    so that round-to-nearest-even and round-half-away-from-zero legitimately give different E4M3 codes."""
+    grid = torch.arange(0, 256, dtype=torch.uint8).view(torch.float8_e4m3fn).float()
+    grid = grid[torch.isfinite(grid) & (grid > 0)].unique().sort().values
+    v = sf_fp32.float().reshape(-1)
+    idx = torch.searchsorted(grid, v)
+    lo = grid[(idx - 1).clamp(min=0)]
+    hi = grid[idx.clamp(max=grid.numel() - 1)]
+    tie = (v == (lo + hi) / 2) & (lo < hi) & (v > 0) & (v < E4M3_MAX)
+    return tie.reshape(sf_fp32.shape)
+
+
 def quantizer_conformance(x: torch.Tensor, packed: torch.Tensor, sf_bits: torch.Tensor, gs: torch.Tensor, block: int = BLOCK) -> dict:
     """Check a library quantizer's codes and scales against the format's definition (reference.quantize_nvfp4 with the
-    library's own global scale). Midpoint ties are reported apart: at an exact tie the format's round-to-nearest-even
-    on the code and a kernel's fp32 arithmetic can legitimately differ by one code, so a tie is not a defect."""
+    library's own global scale). Ties are reported apart, for the scales as for the codes: at an exact midpoint the
+    reference's round-to-nearest-even and a kernel's round-half-away-from-zero give adjacent E4M3 codes and both are
+    valid roundings of the same number (vLLM 0.28.0 and FlashInfer 0.6.16 both round such scale ties up; torch's
+    float8 cast rounds them to even), and a scale that differs at a tie changes the codes of its whole block, so a
+    code difference inside such a block is counted with the scale tie and not as a code defect."""
     from .reference import quantize_nvfp4, E2M1_GRID
     ref_packed, ref_sf, _ = quantize_nvfp4(x.float(), gs.float(), block)
     codes = unpack_e2m1(packed.cpu())
     ref_codes = unpack_e2m1(ref_packed.cpu())
-    sf_eq = bool(torch.equal(sf_bits.cpu().view(torch.uint8).reshape(-1), ref_sf.cpu().view(torch.uint8).reshape(-1)))
-    diff = codes != ref_codes
-    # ties: |x * scale| lands exactly halfway between two grid points
-    sf_val = sf_bits.cpu().view(torch.float8_e4m3fn).float()
+    sf_lib = sf_bits.cpu().view(torch.uint8).reshape(x.shape[0], -1)
+    sf_ref = ref_sf.cpu().view(torch.uint8).reshape(x.shape[0], -1)
+    sf_diff = sf_lib != sf_ref
     xm = x.float().cpu().view(x.shape[0], -1, block)
-    scale = torch.where(sf_val > 0, gs.float().cpu().reshape(()) / sf_val, torch.zeros_like(sf_val))
+    gsf = gs.float().cpu().reshape(())
+    sf_f32 = (xm.abs().amax(dim=-1) / E2M1_MAX * gsf)
+    sf_tie = _e4m3_tie_mask(sf_f32)
+    # a tie excuses a difference only when both sides chose one of the two neighbours of the midpoint
+    lib_val = sf_lib.view(torch.float8_e4m3fn).float()
+    ref_val = sf_ref.view(torch.float8_e4m3fn).float()
+    grid = torch.arange(0, 256, dtype=torch.uint8).view(torch.float8_e4m3fn).float()
+    grid = grid[torch.isfinite(grid) & (grid > 0)].unique().sort().values
+    idx = torch.searchsorted(grid, sf_f32.reshape(-1))
+    lo = grid[(idx - 1).clamp(min=0)].reshape(sf_f32.shape)
+    hi = grid[idx.clamp(max=grid.numel() - 1)].reshape(sf_f32.shape)
+    neighbours = ((lib_val == lo) | (lib_val == hi)) & ((ref_val == lo) | (ref_val == hi))
+    sf_diff_tie = sf_diff & sf_tie & neighbours
+    sf_diff_other = sf_diff & ~sf_diff_tie
+    # codes: ties on the element grid, with the library's own scale, excluding blocks whose scale differs at a tie
+    sf_val = sf_lib.view(torch.float8_e4m3fn).float()
+    scale = torch.where(sf_val > 0, gsf / sf_val, torch.zeros_like(sf_val))
     y = (xm * scale[..., None]).abs().reshape(x.shape[0], -1)
-    grid = E2M1_GRID
-    mids = (grid[1:] + grid[:-1]) / 2
-    at_tie = torch.zeros_like(y, dtype=torch.bool)
-    for mval in mids.tolist():
-        at_tie |= y == mval
+    # a code tie: |x * gs / sf| within two fp32 ulps of an E2M1 midpoint. The exact midpoint is the round-to-even
+    # against round-half-away case; the two-ulp band covers the order in which a kernel multiplies and divides
+    # (x * (gs / sf) against (x * gs) / sf), which moves a value sitting on a midpoint by one ulp either way.
+    mids = (E2M1_GRID[1:] + E2M1_GRID[:-1]) / 2
+    ulp_y = torch.finfo(torch.float32).eps * y.clamp(min=torch.finfo(torch.float32).tiny)
+    at_tie = ((y[..., None] - mids).abs() <= 2 * ulp_y[..., None]).any(dim=-1)
+    in_tie_block = sf_diff_tie.repeat_interleave(block, dim=1)
+    diff = codes != ref_codes
     return {
         "elements": int(codes.numel()),
-        "scales_identical": sf_eq,
+        "blocks": int(sf_diff.numel()),
+        "scales_differ": int(sf_diff.sum()),
+        "scales_differ_at_tie": int(sf_diff_tie.sum()),
+        "scales_differ_not_at_tie": int(sf_diff_other.sum()),
+        "scales_identical": bool(not sf_diff.any()),
         "codes_differ": int(diff.sum()),
-        "codes_differ_at_tie": int((diff & at_tie).sum()),
-        "codes_differ_not_at_tie": int((diff & ~at_tie).sum()),
-        "conformant": sf_eq and int((diff & ~at_tie).sum()) == 0,
+        "codes_differ_at_tie": int((diff & at_tie & ~in_tie_block).sum()),
+        "codes_differ_in_scale_tie_blocks": int((diff & in_tie_block).sum()),
+        "codes_differ_not_at_tie": int((diff & ~at_tie & ~in_tie_block).sum()),
+        "conformant": int(sf_diff_other.sum()) == 0 and int((diff & ~at_tie & ~in_tie_block).sum()) == 0,
     }
 
 
@@ -194,6 +233,20 @@ def selftest() -> int:
         # 5. the quantizer check accepts the reference quantizer's own output and rejects a changed code
         q = quantizer_conformance(a, ap, asf, ags)
         ok &= q["conformant"] and q["codes_differ"] == 0 and q["scales_identical"]
+        # a scale moved up at an exact E4M3 midpoint (the kernels' rounding) is a tie, not a defect; moved elsewhere it is one
+        tie_x = torch.full((1, 16), 2.265625); tie_gs = torch.tensor([307.2])      # sf_fp32 = 2.265625 / 6 * 307.2 = 116, midway 112 | 120
+        tp, tsf, _ = quantize_nvfp4(tie_x, tie_gs)
+        up = tsf.clone(); up[0, 0] = torch.tensor(120.0).to(torch.float8_e4m3fn).view(torch.uint8)
+        from .reference import e2m1_encode
+        codes_up = e2m1_encode(tie_x * (tie_gs / 120.0)).view(1, 16)
+        from .reference import pack_e2m1
+        qt = quantizer_conformance(tie_x, pack_e2m1(codes_up), up, tie_gs)
+        ok &= bool(qt["scales_differ_at_tie"] == 1 and qt["scales_differ_not_at_tie"] == 0 and qt["conformant"])
+        print(f"  scale tie rounded up -> tie, conformant: {qt['conformant']}")
+        off = tsf.clone(); off[0, 0] = torch.tensor(128.0).to(torch.float8_e4m3fn).view(torch.uint8)
+        qo = quantizer_conformance(tie_x, tp, off, tie_gs)
+        ok &= bool(qo["scales_differ_not_at_tie"] == 1 and not qo["conformant"])
+        print(f"  scale moved off a midpoint -> defect: {not qo['conformant']}")
         q2 = quantizer_conformance(a, bad, asf, ags)
         ok &= not q2["conformant"] and q2["codes_differ_not_at_tie"] >= 1
     # 6. a zero bound never divides by zero and an all-zero output is named

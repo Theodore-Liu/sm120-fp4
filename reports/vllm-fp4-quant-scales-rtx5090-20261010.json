@@ -1,0 +1,111 @@
+{
+ "vllm": "0.28.0",
+ "torch": "2.13.0+cu130",
+ "device": "NVIDIA GeForce RTX 5090",
+ "cases": [
+  {
+   "m": 64,
+   "k": 1024,
+   "blocks": 4096,
+   "rowmajor_scales_differ": 0,
+   "rowmajor_steps_hist": {
+    "0": 4096
+   },
+   "rowmajor_codes_differ": 0,
+   "swizzled_vs_rowmajor_scales_differ": 0,
+   "swizzled_vs_rowmajor_codes_differ": 0,
+   "deterministic": true
+  },
+  {
+   "m": 16,
+   "k": 1024,
+   "blocks": 1024,
+   "rowmajor_scales_differ": 0,
+   "rowmajor_steps_hist": {
+    "0": 1024
+   },
+   "rowmajor_codes_differ": 9,
+   "swizzled_vs_rowmajor_scales_differ": 0,
+   "swizzled_vs_rowmajor_codes_differ": 0,
+   "deterministic": true
+  },
+  {
+   "m": 128,
+   "k": 1024,
+   "blocks": 8192,
+   "rowmajor_scales_differ": 0,
+   "rowmajor_steps_hist": {
+    "0": 8192
+   },
+   "rowmajor_codes_differ": 116,
+   "swizzled_vs_rowmajor_scales_differ": 0,
+   "swizzled_vs_rowmajor_codes_differ": 0,
+   "deterministic": true
+  },
+  {
+   "m": 64,
+   "k": 2048,
+   "blocks": 8192,
+   "rowmajor_scales_differ": 0,
+   "rowmajor_steps_hist": {
+    "0": 8192
+   },
+   "rowmajor_codes_differ": 0,
+   "swizzled_vs_rowmajor_scales_differ": 0,
+   "swizzled_vs_rowmajor_codes_differ": 0,
+   "deterministic": true
+  },
+  {
+   "m": 64,
+   "k": 512,
+   "blocks": 2048,
+   "rowmajor_scales_differ": 0,
+   "rowmajor_steps_hist": {
+    "0": 2048
+   },
+   "rowmajor_codes_differ": 11,
+   "swizzled_vs_rowmajor_scales_differ": 0,
+   "swizzled_vs_rowmajor_codes_differ": 0,
+   "deterministic": true
+  },
+  {
+   "m": 64,
+   "k": 4096,
+   "blocks": 16384,
+   "rowmajor_scales_differ": 0,
+   "rowmajor_steps_hist": {
+    "0": 16384
+   },
+   "rowmajor_codes_differ": 0,
+   "swizzled_vs_rowmajor_scales_differ": 0,
+   "swizzled_vs_rowmajor_codes_differ": 0,
+   "deterministic": true
+  },
+  {
+   "m": 3,
+   "k": 1024,
+   "blocks": 192,
+   "rowmajor_scales_differ": 0,
+   "rowmajor_steps_hist": {
+    "0": 192
+   },
+   "rowmajor_codes_differ": 1,
+   "swizzled_vs_rowmajor_scales_differ": 0,
+   "swizzled_vs_rowmajor_codes_differ": 0,
+   "deterministic": true
+  },
+  {
+   "m": 1,
+   "k": 1024,
+   "blocks": 64,
+   "rowmajor_scales_differ": 0,
+   "rowmajor_steps_hist": {
+    "0": 64
+   },
+   "rowmajor_codes_differ": 0,
+   "swizzled_vs_rowmajor_scales_differ": 0,
+   "swizzled_vs_rowmajor_codes_differ": 0,
+   "deterministic": true
+  }
+ ]
+}

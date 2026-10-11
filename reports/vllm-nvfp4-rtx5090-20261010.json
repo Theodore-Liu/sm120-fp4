@@ -1,0 +1,333 @@
+{
+ "generated_utc": "2026-10-11T01:01:20Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.13.0+cu130",
+ "cuda": "13.0",
+ "vllm": "0.28.0",
+ "python": "3.12.14",
+ "driver": "610.47",
+ "supports_fp4": true,
+ "quantizer": [
+  {
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "a": {
+    "elements": 65536,
+    "blocks": 4096,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 0,
+    "codes_differ_at_tie": 0,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   },
+   "b": {
+    "elements": 16777216,
+    "blocks": 1048576,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 0,
+    "codes_differ_at_tie": 0,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   }
+  },
+  {
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "a": {
+    "elements": 524288,
+    "blocks": 32768,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 0,
+    "codes_differ_at_tie": 0,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   },
+   "b": {
+    "elements": 16777216,
+    "blocks": 1048576,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 0,
+    "codes_differ_at_tie": 0,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   }
+  },
+  {
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "a": {
+    "elements": 4096,
+    "blocks": 256,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 0,
+    "codes_differ_at_tie": 0,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   },
+   "b": {
+    "elements": 16777216,
+    "blocks": 1048576,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 19124,
+    "codes_differ_at_tie": 19124,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   }
+  },
+  {
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "a": {
+    "elements": 65536,
+    "blocks": 4096,
+    "scales_differ": 41,
+    "scales_differ_at_tie": 41,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": false,
+    "codes_differ": 119,
+    "codes_differ_at_tie": 33,
+    "codes_differ_in_scale_tie_blocks": 86,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   },
+   "b": {
+    "elements": 524288,
+    "blocks": 32768,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 444,
+    "codes_differ_at_tie": 444,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   }
+  },
+  {
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "a": {
+    "elements": 6144,
+    "blocks": 384,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 4,
+    "codes_differ_at_tie": 4,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   },
+   "b": {
+    "elements": 524288,
+    "blocks": 32768,
+    "scales_differ": 0,
+    "scales_differ_at_tie": 0,
+    "scales_differ_not_at_tie": 0,
+    "scales_identical": true,
+    "codes_differ": 430,
+    "codes_differ_at_tie": 430,
+    "codes_differ_in_scale_tie_blocks": 0,
+    "codes_differ_not_at_tie": 0,
+    "conformant": true
+   }
+  }
+ ],
+ "gemm": [
+  {
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "vllm-quantised",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5293876680975009,
+   "max_abs_err": 1.7124912008603133,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "operands": "lossless",
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.5556808240902089,
+   "max_abs_err": 7.25,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "vllm-quantised",
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6148215338433779,
+   "max_abs_err": 1.9924004001081812,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    128,
+    4096,
+    4096
+   ],
+   "operands": "lossless",
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6120969850935625,
+   "max_abs_err": 8.0,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "vllm-quantised",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.43780198008135623,
+   "max_abs_err": 0.997580529413824,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "operands": "lossless",
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.4452052933344074,
+   "max_abs_err": 4.0,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "vllm-quantised",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.867509767093157,
+   "max_abs_err": 0.8484868686773552,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    64,
+    512,
+    1024
+   ],
+   "operands": "lossless",
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.8754007266509307,
+   "max_abs_err": 3.25,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "vllm-quantised",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.7244686976343461,
+   "max_abs_err": 0.945149975974175,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "shape": [
+    3,
+    256,
+    2048
+   ],
+   "operands": "lossless",
+   "elements": 768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.7086873021090693,
+   "max_abs_err": 3.75,
+   "all_zero_output": false,
+   "conformant": true
+  }
+ ]
+}
