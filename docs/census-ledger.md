@@ -32,15 +32,20 @@ report names, and is read with the detectability floor the oracle module documen
 
 ## Tally toward the four-week test
 
-Distinct defect classes found and reproduced: **3** (the b12x W4A4 scatter non-determinism; the cuDNN grouped block-scaled GEMM's mid-tile
-segments; `bmm_fp8`'s cutlass backend taking the WSL2 virtual machine down on SM120, pending a bare-metal reading). Confirmed by maintainers: 0 (both issue drafts await the author's review before posting). Conventions documented, not defects: 3
-(E4M3 / E2M1 tie rounding, GPU quantisers against torch; the b12x fused MoE's w13 half order; b12x W4A4's `w1_alpha` as the
-input-quant scale). Precision designs documented: 1 (b12x W4A4 static FC2 in bf16 partials per 256 of K). Reports that did not reproduce: 1 (TensorRT-LLM issue 14154 on this part). Crashes on an unsupported part already guarded in the next release: 1 (FlashInfer 0.6.16 `mm_fp8`).
+Distinct defect classes found and reproduced: **2** (the cuDNN grouped block-scaled GEMM's mid-tile segments, wrong output with no error;
+`bmm_fp8`'s cutlass backend taking the WSL2 virtual machine down on SM120, pending a bare-metal reading). Confirmed by maintainers: 0
+(every issue draft awaits the author's review before posting). Precision designs documented, not defects under the API's contract: 3
+(the b12x W4A4 micro and dynamic backends' bf16 atomic scatter, the stage-2 non-determinism, counted as a defect class until the W4A4
+oracle placed it on 2026-10-11; the W4A4 static backend's FC2 in bf16 partials per 256; the W4A16 path's bf16-packed routing weight).
+Conventions documented, not defects: 3 (E4M3 / E2M1 tie rounding, GPU quantisers against torch; the b12x fused MoE's w13 half order;
+b12x W4A4's `w1_alpha` as the input-quant scale). Crashes on an unsupported part already guarded in the next release: 1 (FlashInfer
+0.6.16 `mm_fp8`). Reports that did not reproduce: 1 (TensorRT-LLM issue 14154 on this part).
 
 ## Not yet read
 
-CUTLASS's
-SM120 block-scaled examples; `bmm_fp8`'s cutlass backend on bare-metal Linux (to turn the WSL2 crash into an Xid or an exception a maintainer can act on); DeepGEMM; llama.cpp q4_0 / q8_0 GEMV; attention kernels (an exact
+DeepGEMM upstream is SM100-only (tcgen05; it does not compile or run on SM120, so no row), but two SM120 forks exist and are
+shipped code someone runs (lucifer1004/DeepGEMM-sm120, lna-lab/DeepGEMM-for-SM120e); their FP8 GEMMs under the FP8 oracle; CUTLASS's
+SM120 block-scaled examples; `bmm_fp8`'s cutlass backend on bare-metal Linux (to turn the WSL2 crash into an Xid or an exception a maintainer can act on); llama.cpp q4_0 / q8_0 GEMV (no build on this machine yet); attention kernels (an exact
 oracle for attention is the hard instrument and is not written).
 
 ## An instrument note
