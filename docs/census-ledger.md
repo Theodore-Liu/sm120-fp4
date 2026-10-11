@@ -30,6 +30,7 @@ report names, and is read with the detectability floor the oracle module documen
 | 2026-10-11 | FlashInfer 0.7.1 | `bmm_fp8` cublas and cudnn (dense FP8 e4m3, per-tensor scales) | the FP8 census's 5 shapes, 1,085,440 elements per backend | conformant, 0 outside on both (bit-identical to each other and to torch's cuBLASLt rows) | `reports/fp8-gemm-bmm-rtx5090-fi071-20261011.json` | cute-dsl refuses SM120 with a message |
 | 2026-10-11 | FlashInfer 0.7.1 | `bmm_fp8` **cutlass** | one call, (1, 128, 1024) x (1024, 4096), e4m3, per-tensor scales | on the RTX 5090 **under WSL2** the call takes the virtual machine down (`Wsl/Service/E_UNEXPECTED`, reproduced twice, marker file stops at the call); on a bare-metal RTX PRO 6000 (Linux, torch 2.14.1+cu130, the same FlashInfer 0.7.1, JIT built there) the same call **runs and returns a finite result**, and the dense census reads cublas and cudnn conformant on the same pod | `reports/bmm-fp8-isolate-rtx5090-fi071-20261011.log`, `reports/bmm-fp8-isolate-pro6000-20261011.log` | **an environment finding, not a kernel defect**: WSL2's GPU paravirtualisation (or the cu128 JIT build under it) dies where bare metal does not; the two stacks differ in torch and CUDA build, so a 5090 bare-metal reading with the identical wheel would close it; left out of the census script's default backends on WSL2 |
 | 2026-10-11 | FlashInfer 0.7.1 | `mm_mxfp8` (dense MXFP8, UE8M0 scales per 32) cudnn / cutlass / b12x / auto | the census's 5 shapes, 1,085,440 elements per backend, one process per backend with a crash marker | conformant, 0 outside on each of the four (max 0.93 of bound) | `reports/mm-mxfp8-<backend>-rtx5090-fi071-20261011.json`, `reports/mm-mxfp8-isolate-rtx5090-fi071-20261011.log` | cute-dsl, cutedsl_low_latency and trtllm refuse SM120 with a message; the cutlass MXFP8 path runs where the cutlass `bmm_fp8` path took the VM down, so that crash is that path's own (`docs/flashinfer-mm-mxfp8-rtx5090.md`) |
+| 2026-10-11 | DeepGEMM, vllm-project/DeepGEMM dev 15c02c8 (vendors lucifer1004/DeepGEMM-sm120), built with CUDA 13.2, torch 2.13+cu130 | `fp8_gemm_nt`, SM120 1d1d kernel, legacy recipe (A per token x 128, B per 128x128 block, UE8M0 scales) | the census's 5 shapes, 1,085,440 elements | conformant, 0 outside (max 0.93 of bound) | `reports/deepgemm-fp8-rtx5090-dev15c02c8-20261011.json`, marker log beside it | upstream DeepGEMM is SM100-only; the build needs `libdw-dev` (elfutils headers) for its JIT's backtrace support |
 
 ## Tally toward the four-week test
 
@@ -44,10 +45,7 @@ Reports that did not reproduce: 1 (TensorRT-LLM issue 14154 on this part).
 
 ## Not yet read
 
-DeepGEMM upstream is SM100-only (tcgen05; it does not compile or run on SM120, so no row); lucifer1004/DeepGEMM-sm120 is a
-header-only SM120a device layer (CUDA 13 or later, MIT) that vllm-project/DeepGEMM vendored (its PR 10), so the readable target is
-vllm-project/DeepGEMM built against CUDA 13 (the vllm028 environment's torch is cu130) and its FP8 block-scaled GEMM entry under the
-elementwise FP8 oracle; lna-lab/DeepGEMM-for-SM120e is the other fork; CUTLASS's
+DeepGEMM's other SM120 entry points (FP8xFP4 mixed, k-grouped and m-grouped MoE GEMMs, MQA logits) and the lna-lab fork; CUTLASS's
 SM120 block-scaled examples; `bmm_fp8`'s cutlass backend on bare-metal Linux (to turn the WSL2 crash into an Xid or an exception a maintainer can act on); llama.cpp q4_0 / q8_0 GEMV (no build on this machine yet); attention kernels (an exact
 oracle for attention is the hard instrument and is not written).
 

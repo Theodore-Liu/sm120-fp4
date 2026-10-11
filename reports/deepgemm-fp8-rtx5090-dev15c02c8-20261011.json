@@ -1,0 +1,70 @@
+{
+ "generated_utc": "2026-10-11T20:24:37Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.13.0+cu130",
+ "deep_gemm": "2.8.1",
+ "deep_gemm_commit": "15c02c8",
+ "deep_gemm_path": "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/deep_gemm",
+ "cases": [
+  {
+   "m": 1,
+   "n": 4096,
+   "k": 4096,
+   "elements": 4096,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.2814475018927956,
+   "max_abs_err": 0.6075210571289062,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "m": 16,
+   "n": 2048,
+   "k": 7168,
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.2014145937568165,
+   "max_abs_err": 0.9730005264282227,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "m": 128,
+   "n": 4096,
+   "k": 1024,
+   "elements": 524288,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.837259517360098,
+   "max_abs_err": 0.485748291015625,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "m": 256,
+   "n": 1024,
+   "k": 2048,
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.6122844515945508,
+   "max_abs_err": 0.4998283386230469,
+   "all_zero_output": false,
+   "conformant": true
+  },
+  {
+   "m": 512,
+   "n": 512,
+   "k": 512,
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9266857919891301,
+   "max_abs_err": 0.24977397918701172,
+   "all_zero_output": false,
+   "conformant": true
+  }
+ ]
+}
