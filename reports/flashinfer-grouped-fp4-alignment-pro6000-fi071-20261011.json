@@ -1,0 +1,233 @@
+{
+ "generated_utc": "2026-10-11T19:20:12Z",
+ "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "torch": "2.14.1+cu130",
+ "flashinfer": "0.7.1",
+ "cudnn": 92400,
+ "n": 256,
+ "k": 512,
+ "cases": [
+  {
+   "name": "4x128 aligned",
+   "segments": [
+    128,
+    128,
+    128,
+    128
+   ],
+   "elements": 131072,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9264204310413972,
+   "max_abs_err": 0.24973235292455342,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "256,128,384,256 aligned (their test)",
+   "segments": [
+    256,
+    128,
+    384,
+    256
+   ],
+   "elements": 262144,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9291770035407343,
+   "max_abs_err": 0.24983996503486594,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "0,128,0,128 aligned with empties",
+   "segments": [
+    0,
+    128,
+    0,
+    128
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9252092933514251,
+   "max_abs_err": 0.24963937352372056,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "64,64 half tiles",
+   "segments": [
+    64,
+    64
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 16281,
+   "max_err_over_bound": 890.9227165967102,
+   "max_abs_err": 33.33274840029276,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    16281
+   ],
+   "nan_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "120,136 straddling",
+   "segments": [
+    120,
+    136
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 34541,
+   "max_err_over_bound": 1262.1957911753168,
+   "max_abs_err": 38.34285047090481,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    34541
+   ],
+   "nan_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "16,48,64 small",
+   "segments": [
+    16,
+    48,
+    64
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 28491,
+   "max_err_over_bound": 995.4954953849644,
+   "max_abs_err": 30.737602647610856,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    12221,
+    16270
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "32,96 two in one tile",
+   "segments": [
+    32,
+    96
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 24363,
+   "max_err_over_bound": 1323.181554046122,
+   "max_abs_err": 37.14982262436228,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    24363
+   ],
+   "nan_per_segment": [
+    0,
+    0
+   ]
+  },
+  {
+   "name": "128,64,64 first aligned",
+   "segments": [
+    128,
+    64,
+    64
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 16265,
+   "max_err_over_bound": 1058.272409722794,
+   "max_abs_err": 30.353435546506695,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    16265
+   ],
+   "nan_per_segment": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "192,64 second starts mid-tile",
+   "segments": [
+    192,
+    64
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 16241,
+   "max_err_over_bound": 1162.7253837135017,
+   "max_abs_err": 34.30252493383678,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    16241
+   ],
+   "nan_per_segment": [
+    0,
+    0
+   ]
+  }
+ ]
+}

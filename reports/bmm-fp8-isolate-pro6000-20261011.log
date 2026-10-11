@@ -1,0 +1,8 @@
+19:25:32 cublas start
+19:25:33 cublas calling
+19:25:54 cublas ok shape=(1, 128, 4096) finite=True
+bmm_fp8 cublas rc=0
+19:25:56 cutlass start
+19:25:57 cutlass calling
+19:28:01 cutlass ok shape=(1, 128, 4096) finite=True
+bmm_fp8 cutlass rc=0

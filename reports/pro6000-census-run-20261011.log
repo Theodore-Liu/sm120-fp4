@@ -1,0 +1,43 @@
+START 2026-10-11T19:16:15Z host=f992495281bf
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 580.173.02, 97887 MiB
+sm120-fp4 at 41e57e2 Ledger tally rewritten by kind: 2 defect classes (the group
+torch 2.14.1+cu130 flashinfer 0.7.1 cudnn 92400 cc (12, 0)
+bmm_fp8 cublas rc=0
+bmm_fp8 cutlass rc=0
+grouped fp4 rc=0
+grouped mxfp8 rc=0
+grouped fp8 rc=0
+fp8 census rc=0
+total 68
+drwxr-xr-x 2 root root 4096 Oct 11 19:20 .
+drwx------ 1 root root 4096 Oct 11 19:20 ..
+-rw-r--r-- 1 root root  133 Oct 11 19:20 bmm-cublas.stdout
+-rw-r--r-- 1 root root  139 Oct 11 19:20 bmm-cutlass.stdout
+-rw-r--r-- 1 root root  360 Oct 11 19:20 bmm-fp8-isolate-pro6000.log
+-rw-r--r-- 1 root root   59 Oct 11 19:20 env.txt
+-rw-r--r-- 1 root root 3865 Oct 11 19:20 flashinfer-grouped-fp4-alignment-pro6000-fi071-20261011.json
+-rw-r--r-- 1 root root 1887 Oct 11 19:20 flashinfer-grouped-fp8-alignment-pro6000-fi071-20261011.json
+-rw-r--r-- 1 root root  999 Oct 11 19:20 flashinfer-grouped-mxfp8-alignment-pro6000-fi071-20261011.json
+-rw-r--r-- 1 root root 4888 Oct 11 19:20 fp8-census.stdout
+-rw-r--r-- 1 root root 5404 Oct 11 19:20 fp8-gemm-pro6000-fi071-20261011.json
+-rw-r--r-- 1 root root   68 Oct 11 19:16 gpu.txt
+-rw-r--r-- 1 root root 3109 Oct 11 19:20 grouped-fp4.stdout
+-rw-r--r-- 1 root root 1621 Oct 11 19:20 grouped-fp8.stdout
+-rw-r--r-- 1 root root  889 Oct 11 19:20 grouped-mxfp8.stdout
+END 2026-10-11T19:20:28Z
+WRAPPER_RC_FIRST_PASS=0
+RERUN START 2026-10-11T19:23:21Z
+bmm_fp8 cublas rc=0
+bmm_fp8 cutlass rc=0
+bmm_fp8 cudnn rc=0
+grouped mxfp8 rc=0
+fp8 census rc=0
+RERUN END 2026-10-11T19:23:41Z
+WRAPPER_RC_SECOND_PASS=0
+RERUN3 START 2026-10-11T19:25:31Z ninja=/root/venv/bin/ninja
+bmm_fp8 cublas rc=0
+bmm_fp8 cutlass rc=0
+grouped mxfp8 rc=0
+fp8 census rc=0
+RERUN3 END 2026-10-11T19:29:21Z
+WRAPPER_RC=0

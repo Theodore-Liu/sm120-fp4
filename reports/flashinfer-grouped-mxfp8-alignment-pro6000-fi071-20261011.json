@@ -1,0 +1,105 @@
+{
+ "generated_utc": "2026-10-11T19:28:05Z",
+ "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "torch": "2.14.1+cu130",
+ "flashinfer": "0.7.1",
+ "cudnn": 92400,
+ "cases": [
+  {
+   "name": "4x128 aligned",
+   "segments": [
+    128,
+    128,
+    128,
+    128
+   ],
+   "elements": 131072,
+   "non_finite": 0,
+   "outside_bound": 0,
+   "max_err_over_bound": 0.9250726188471248,
+   "max_abs_err": 0.4980201721191406,
+   "all_zero_output": false,
+   "conformant": true,
+   "outside_bound_per_segment": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "64,64 half tiles",
+   "segments": [
+    64,
+    64
+   ],
+   "elements": 32768,
+   "non_finite": 0,
+   "outside_bound": 16347,
+   "max_err_over_bound": 866.9585752426356,
+   "max_abs_err": 111.60686564445496,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    16347
+   ]
+  },
+  {
+   "name": "16,48,64 small",
+   "segments": [
+    16,
+    48,
+    64
+   ],
+   "elements": 32768,
+   "non_finite": 2512,
+   "outside_bound": 28400,
+   "max_err_over_bound": NaN,
+   "max_abs_err": NaN,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    12276,
+    16124
+   ]
+  },
+  {
+   "name": "192,64 second mid-tile",
+   "segments": [
+    192,
+    64
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 16347,
+   "max_err_over_bound": 636.9614783967638,
+   "max_abs_err": 106.6862678527832,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    16347
+   ]
+  },
+  {
+   "name": "120,136 straddling",
+   "segments": [
+    120,
+    136
+   ],
+   "elements": 65536,
+   "non_finite": 0,
+   "outside_bound": 32206,
+   "max_err_over_bound": 1331.3273717723114,
+   "max_abs_err": 85.47500610351562,
+   "all_zero_output": false,
+   "conformant": false,
+   "outside_bound_per_segment": [
+    0,
+    32206
+   ]
+  }
+ ]
+}

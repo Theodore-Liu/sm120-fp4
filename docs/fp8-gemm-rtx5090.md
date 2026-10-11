@@ -62,3 +62,14 @@ The crash is a defect by any contract (a GEMM call must not end the process, let
 under WSL2's GPU paravirtualisation only; the census owes a bare-metal Linux reading, where the same fault would surface as an Xid in
 the kernel log or an exception, before anything is reported upstream. The census script leaves cutlass out of its default backend
 list because no try/except can catch this.
+
+### The bare-metal reading (2026-10-11, RTX PRO 6000 Blackwell Server Edition, RunPod)
+
+On a rented PRO 6000 (Linux, driver 580.173.02, torch 2.14.1+cu130, FlashInfer 0.7.1 with its gemm_sm120 JIT module built there, cuDNN
+9.24) the same `bmm_fp8_isolate.py --backend cutlass` call runs to completion with a finite result (`reports/bmm-fp8-isolate-pro6000-20261011.log`),
+and the dense census reads the cublas and cudnn backends conformant on all five shapes (`reports/fp8-gemm-pro6000-fi071-20261011.json`).
+The crash on the 5090 is therefore an environment finding, not a kernel defect: WSL2's GPU paravirtualisation, or the cu128 JIT build under it,
+dies where bare metal does not. The two stacks differ in torch and CUDA build as well as in virtualisation, so the clean separation is a 5090
+reading outside WSL2 or a WSL2 reading with the pod's wheel; until then the census does not count this row as a defect. (A first pass on the
+pod failed every JIT path with "No such file or directory: ninja": FlashInfer's JIT runs the ninja executable, which must be on PATH; the pod
+script now installs it and exports the venv's bin.)

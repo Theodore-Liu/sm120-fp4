@@ -74,6 +74,18 @@ off a 128-row boundary, is conformant on every element (0 of 610,304 outside the
 block-scale region padded to 128 rows (`blockscale_offsets`, separate from the row offsets), so a segment's scales always begin on a tile
 boundary; FlashInfer's cuDNN path takes one scale tensor swizzled over all tokens and has nothing to say where a segment's tile begins.
 
+## A second device, bare metal: RTX PRO 6000 Blackwell Server Edition (2026-10-11)
+
+`reports/flashinfer-grouped-fp4-alignment-pro6000-fi071-20261011.json`, run on a rented RTX PRO 6000 (compute capability 12.0, driver
+580.173.02, Linux, no virtualisation) with FlashInfer 0.7.1, PyTorch 2.14.1+cu130 and cuDNN 9.24: the same nine segment patterns give the
+same rule, element for element in kind. Every segment that starts at a multiple of 128 is correct (4x128; 256/128/384/256; 0/128/0/128;
+the first segment of every other case) and every segment that starts elsewhere is wrong across the segment: 16,281 of 16,384 for the second
+half-tile of 64/64; 34,541 of 34,816 for 120/136; 12,221 and 16,270 for 16/48/64; 24,363 for 32/96; 16,265 for the third segment of
+128/64/64; 16,241 for 192/64 (`reports/flashinfer-grouped-fp8-alignment-pro6000-fi071-20261011.json`: `grouped_mm_fp8` on the same
+segments is correct everywhere, as on the 5090). The MXFP8 sweep on the same pod (`reports/flashinfer-grouped-mxfp8-alignment-pro6000-fi071-20261011.json`) gives the same rule with the same
+2,512 NaNs on 16/48/64 as the 5090. So the defect is neither the 5090's, nor the driver's, nor WSL2's, nor cuDNN 9.27's: two
+devices, two drivers, two cuDNN builds and two PyTorch builds agree.
+
 ## Status
 
 A draft issue for the author's review is in the paper repository (`docs/pr-drafts/flashinfer-grouped-fp4-alignment-issue.md`). Not yet asked: whether the block-scaled grouped GEMM in FlashInfer's unified MoE API routes
