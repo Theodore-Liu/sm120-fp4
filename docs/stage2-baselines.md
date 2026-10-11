@@ -107,6 +107,15 @@ vector atomic update that is lost or applied twice; this has not been traced to 
 What a caller sees: W4A4 outputs that differ between identical calls by 1 to 4% normwise, and, in about 2% of calls in the configuration tested (top-1, 4 tokens), an
 8-column group of one token's output that is wrong by a whole partial contribution.
 
+### Re-read on FlashInfer 0.7.1 (2026-10-10, RTX 5090, torch 2.9.1+cu128)
+
+The same two scripts against the current release (`reports/b12x-nondeterminism-rtx5090-fi071-20261010.json`). The non-determinism is
+still there where the micro kernels run: top-8, intermediate 768, M=1 gives 20 distinct outputs in 20 calls (run-to-run 1.15% normwise),
+M=4 20 of 20 (1.84%); at M=16, served by the static kernel, 1 of 20 (bit-stable). The lost or doubled 8-column group did not recur:
+100 top-1 calls at intermediate 768 stay within 2 bf16 ulps of the median run (565 of 819,200 elements above 2 ulps, 0 above 8, 0 runs
+affected), against 2 of 100 runs on 0.6.16.post3. Either the vector-atomic hazard was fixed between the versions or it is rarer than
+1 in 100 here; the issue text reports the order dependence as present and the lost update as seen on 0.6.16.post3 only.
+
 ## Finding 2: where b12x W4A4 rounds
 
 Against the reference that quantizes both GEMM inputs from fp32, b12x W4A4 is 2 to 4% off. Rounding the SwiGLU output
