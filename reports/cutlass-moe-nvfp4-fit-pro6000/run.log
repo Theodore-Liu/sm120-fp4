@@ -1,0 +1,20 @@
+START 2026-10-12T07:28:20Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07
+ERROR: Could not find a version that satisfies the requirement flashinfer-jit-cache==0.7.1 (from versions: 0.4.0+cu128, 0.4.1+cu128, 0.5.0rc1+cu128, 0.5.0rc2+cu128, 0.5.0rc3+cu128, 0.5.0+cu128, 0.5.1+cu128, 0.5.2+cu128, 0.5.3+cu128, 0.6.0rc1+cu128, 0.6.0rc2+cu128, 0.6.0+cu128, 0.6.1+cu128, 0.6.2+cu128, 0.6.3+cu128, 0.6.4+cu128, 0.6.5+cu128, 0.6.6+cu128, 0.6.7+cu128, 0.6.7.post1+cu128, 0.6.7.post2+cu128, 0.6.7.post3+cu128, 0.6.8rc1+cu128, 0.6.8+cu128, 0.6.8.post1+cu128, 0.6.9rc1+cu128, 0.6.9+cu128, 0.6.10rc1+cu128, 0.6.10+cu128, 0.6.10.post1+cu128, 0.6.11rc1+cu128, 0.6.11+cu128, 0.6.11.post1+cu128, 0.6.11.post2+cu128, 0.6.11.post3+cu128, 0.6.12rc1+cu128, 0.6.12rc2+cu128, 0.6.12rc3+cu128, 0.6.12+cu128, 0.6.13rc1+cu128, 0.6.13rc2+cu128, 0.6.13+cu128, 0.6.14+cu128, 0.6.15+cu128, 0.6.15.post1+cu128, 0.6.16rc3+cu128, 0.6.16rc4+cu128, 0.6.16rc5+cu128, 0.6.16+cu128, 0.6.16.post1+cu128, 0.6.16.post2+cu128, 0.6.16.post3+cu128, 0.6.16.post4+cu128, 0.6.17rc1+cu128, 0.6.17rc5+cu128, 0.6.17+cu128)
+ERROR: No matching distribution found for flashinfer-jit-cache==0.7.1
+jit-cache NOT installed; the JIT will build
+torch 2.9.1+cu128 flashinfer 0.7.1
+fit m=1024 rc=0
+oracle {"elements_matching": 545496, "elements": 1048576, "fraction_matching": 0.520226, "rows_fully_matching": 193, "rows": 1024, "exact_bitwise": 293995, "max_abs_diff": 5.2578125, "rel_err_normwise": 0.02459089210691718}
+g16_a32 {"elements_matching": 468269, "elements": 1048576, "fraction_matching": 0.446576, "rows_fully_matching": 121, "rows": 1024, "exact_bitwise": 215191, "max_abs_diff": 5.5, "rel_err_normwise": 0.028606826248523027}
+g16_a16 {"elements_matching": 1048576, "elements": 1048576, "fraction_matching": 1.0, "rows_fully_matching": 1024, "rows": 1024, "exact_bitwise": 1048576, "max_abs_diff": 0.0, "rel_err_normwise": 0.0}
+f32 {"elements_matching": 418001, "elements": 1048576, "fraction_matching": 0.398637, "rows_fully_matching": 67, "rows": 1024, "exact_bitwise": 159102, "max_abs_diff": 6.25, "rel_err_normwise": 0.030445117366523507}
+wrote /root/out/fit-cutlass-moe-nvfp4-pro6000-fi071-m1024-20261012.json
+fit m=2048 rc=0
+oracle {"elements_matching": 1068756, "elements": 2097152, "fraction_matching": 0.509623, "rows_fully_matching": 358, "rows": 2048, "exact_bitwise": 562280, "max_abs_diff": 6.53125, "rel_err_normwise": 0.025683682225287226}
+g16_a32 {"elements_matching": 892422, "elements": 2097152, "fraction_matching": 0.42554, "rows_fully_matching": 185, "rows": 2048, "exact_bitwise": 377438, "max_abs_diff": 5.75, "rel_err_normwise": 0.030058029086264607}
+g16_a16 {"elements_matching": 2097152, "elements": 2097152, "fraction_matching": 1.0, "rows_fully_matching": 2048, "rows": 2048, "exact_bitwise": 2097152, "max_abs_diff": 0.0, "rel_err_normwise": 0.0}
+f32 {"elements_matching": 811304, "elements": 2097152, "fraction_matching": 0.38686, "rows_fully_matching": 133, "rows": 2048, "exact_bitwise": 309388, "max_abs_diff": 6.25, "rel_err_normwise": 0.031891917502821145}
+wrote /root/out/fit-cutlass-moe-nvfp4-pro6000-fi071-m2048-20261012.json
+END 2026-10-12T07:34:35Z
+WRAPPER_RC=0

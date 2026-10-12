@@ -47,11 +47,13 @@ def ulp_bf16(t: torch.Tensor) -> torch.Tensor:
     return (2.0 ** (torch.floor(torch.log2(a)) - 7)).double()
 
 
-def emulate(model: str, x, w13d, w2d, ids, inter):
+def route_fc2(model: str, x, w13d, w2d, ids, inter):
+    """Per (token, slot) FC2 results in float64 (exact products of the mid-quantised activation and W2, alpha 1)."""
     xq, _ = W.quantize_block_fast_exact(x.float(), 1.0)
-    out = torch.zeros(x.shape[0], w2d.shape[1], dtype=torch.float64)
+    m, k = ids.shape
+    r = torch.zeros(m, k, w2d.shape[1], dtype=torch.float64)
     for e in range(w13d.shape[0]):
-        tok = (ids[:, 0] == e).nonzero(as_tuple=True)[0]
+        tok, slot = (ids == e).nonzero(as_tuple=True)
         if tok.numel() == 0:
             continue
         f = xq[tok] @ w13d[e].T                          # exact FC1
@@ -64,8 +66,26 @@ def emulate(model: str, x, w13d, w2d, ids, inter):
         if model in ("oracle", "g16_a16"):
             act = bf16(act)
         q, _ = W.quantize_block_fast_exact(act.float(), 1.0)
-        out[tok] = q @ w2d[e].T                          # exact FC2, alpha 1, weight 1
-    return bf16(out)
+        r[tok, slot] = q @ w2d[e].T
+    return r
+
+
+def finalize(r, wts, how: str):
+    w = wts.double()[:, :, None]
+    if how == "fp32_sum":            # FC2 kept in fp32, weighted and summed in fp32, one bf16 rounding
+        return bf16(f32((f32(r) * w).sum(1)))
+    if how == "bf16_route":          # each route's FC2 written as bf16, weighted and summed in fp32, one bf16 rounding
+        return bf16(f32((bf16(r) * w).sum(1)))
+    if how == "bf16_weighted":       # each route rounded to bf16 after weighting, summed in fp32
+        return bf16(f32(bf16(f32(r) * w).sum(1)))
+    raise ValueError(how)
+
+
+def emulate(model: str, x, w13d, w2d, ids, inter, wts=None, how="fp32_sum"):
+    r = route_fc2(model, x, w13d, w2d, ids, inter)
+    if wts is None:
+        wts = torch.ones(ids.shape)
+    return finalize(r, wts, how)
 
 
 def main(argv=None) -> int:
@@ -75,11 +95,12 @@ def main(argv=None) -> int:
     ap.add_argument("--hidden", type=int, default=1024)
     ap.add_argument("--inter", type=int, default=512)
     ap.add_argument("--tokens", type=int, default=1024)
+    ap.add_argument("--topk", type=int, default=1)
     a = ap.parse_args(argv)
     import flashinfer
     from flashinfer import fused_moe as fm
     dev = torch.device("cuda")
-    e, h, i, m = a.experts, a.hidden, a.inter, a.tokens
+    e, h, i, m, k = a.experts, a.hidden, a.inter, a.tokens, a.topk
     one = torch.ones(1)
     gen = torch.Generator().manual_seed(20261012)
     w13 = [quantize_nvfp4(torch.randn(2 * i, h, generator=gen) * 0.1, one) for _ in range(e)]
@@ -94,8 +115,13 @@ def main(argv=None) -> int:
     ones_e = torch.ones(e, device=dev)
     qs = [a1, sw13.view(torch.int32), 1.0 / (a1 * ones_e), a1, sw2.view(torch.int32), 1.0 / (a1 * ones_e)]
     x = torch.randn(m, h, generator=gen).to(torch.bfloat16)
-    ids = torch.randint(0, e, (m, 1), generator=gen).to(torch.int32)
-    wts = torch.ones(m, 1)
+    if k == 1:
+        ids = torch.randint(0, e, (m, 1), generator=gen).to(torch.int32)
+        wts = torch.ones(m, 1)
+    else:
+        ids = torch.stack([torch.randperm(e, generator=gen)[:k] for _ in range(m)]).to(torch.int32)
+        wts = torch.rand(m, k, generator=gen) + 0.1
+        wts = (wts / wts.sum(-1, keepdim=True)).float()
     y = torch.zeros(m, h, dtype=torch.bfloat16, device=dev)
     fm.cutlass_fused_moe(x.to(dev), ids.to(dev), wts.to(dev), w13_p.to(dev).contiguous().view(torch.long),
                          w2_p.to(dev).contiguous().view(torch.long), torch.bfloat16, quant_scales=qs, output=y)
@@ -103,9 +129,13 @@ def main(argv=None) -> int:
     y = y.double().cpu()
     report = {"generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "device": torch.cuda.get_device_name(0),
               "torch": torch.__version__, "flashinfer": getattr(flashinfer, "__version__", "editable"),
-              "shape": {"experts": e, "hidden": h, "inter": i, "tokens": m, "topk": 1}, "models": {}}
-    for model in ("oracle", "g16_a32", "g16_a16", "f32"):
-        em = emulate(model, x, w13d, w2d, ids.long(), i)
+              "shape": {"experts": e, "hidden": h, "inter": i, "tokens": m, "topk": k}, "models": {}}
+    hows = ("fp32_sum",) if k == 1 else ("fp32_sum", "bf16_route", "bf16_weighted")
+    models = ("oracle", "g16_a32", "g16_a16", "f32") if k == 1 else ("g16_a16",)
+    routes = {mo: route_fc2(mo, x, w13d, w2d, ids.long(), i) for mo in models}
+    for model, how in [(mo, hw) for mo in models for hw in hows]:
+        em = finalize(routes[model], wts, how)
+        model = model if k == 1 else f"{model}+{how}"
         d = (y - em).abs()
         u = ulp_bf16(torch.maximum(y.abs(), em.abs()))
         match = d <= 2 * u

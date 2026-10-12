@@ -1,0 +1,6 @@
+2026-10-12 07:30:12,219 - INFO - core.py:594 - flashinfer.jit: Building JIT module fused_moe_120; this can take several minutes on first use.
+oracle {"elements_matching": 545496, "elements": 1048576, "fraction_matching": 0.520226, "rows_fully_matching": 193, "rows": 1024, "exact_bitwise": 293995, "max_abs_diff": 5.2578125, "rel_err_normwise": 0.02459089210691718}
+g16_a32 {"elements_matching": 468269, "elements": 1048576, "fraction_matching": 0.446576, "rows_fully_matching": 121, "rows": 1024, "exact_bitwise": 215191, "max_abs_diff": 5.5, "rel_err_normwise": 0.028606826248523027}
+g16_a16 {"elements_matching": 1048576, "elements": 1048576, "fraction_matching": 1.0, "rows_fully_matching": 1024, "rows": 1024, "exact_bitwise": 1048576, "max_abs_diff": 0.0, "rel_err_normwise": 0.0}
+f32 {"elements_matching": 418001, "elements": 1048576, "fraction_matching": 0.398637, "rows_fully_matching": 67, "rows": 1024, "exact_bitwise": 159102, "max_abs_diff": 6.25, "rel_err_normwise": 0.030445117366523507}
+wrote /root/out/fit-cutlass-moe-nvfp4-pro6000-fi071-m1024-20261012.json

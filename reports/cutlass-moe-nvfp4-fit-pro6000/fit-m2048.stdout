@@ -1,0 +1,5 @@
+oracle {"elements_matching": 1068756, "elements": 2097152, "fraction_matching": 0.509623, "rows_fully_matching": 358, "rows": 2048, "exact_bitwise": 562280, "max_abs_diff": 6.53125, "rel_err_normwise": 0.025683682225287226}
+g16_a32 {"elements_matching": 892422, "elements": 2097152, "fraction_matching": 0.42554, "rows_fully_matching": 185, "rows": 2048, "exact_bitwise": 377438, "max_abs_diff": 5.75, "rel_err_normwise": 0.030058029086264607}
+g16_a16 {"elements_matching": 2097152, "elements": 2097152, "fraction_matching": 1.0, "rows_fully_matching": 2048, "rows": 2048, "exact_bitwise": 2097152, "max_abs_diff": 0.0, "rel_err_normwise": 0.0}
+f32 {"elements_matching": 811304, "elements": 2097152, "fraction_matching": 0.38686, "rows_fully_matching": 133, "rows": 2048, "exact_bitwise": 309388, "max_abs_diff": 6.25, "rel_err_normwise": 0.031891917502821145}
+wrote /root/out/fit-cutlass-moe-nvfp4-pro6000-fi071-m2048-20261012.json
