@@ -136,8 +136,10 @@ correct), median round in ms:
 | RTX 5090, final code | the alignment sweeps against the exact oracle | NVFP4 9 of 9, MXFP8 5 of 5, FP8 5 of 5 conformant |
 
 `reports/grouped-sfa-fix-pro6000/` holds the pod's logs and JSONs. The pod image's CUDA 12.8 cannot JIT FlashInfer's FP4 quantizer for
-`sm_120f`, so the FP4 suite was run on the 5090 with CUDA 13 instead (`reports/grouped-sfa-suites-final-rtx5090-20261011.log`). Still owed before a PR: the suites
-against an editable build of FlashInfer main rather than 0.7.1 with the same patch.
+`sm_120f`, so the FP4 suite was run on the 5090 with CUDA 13 instead (`reports/grouped-sfa-suites-final-rtx5090-20261011.log`). Against an editable build of FlashInfer main
+(36fd7685 plus the fix commit, built on the WSL ext4 disk; `reports/grouped-sfa-suites-main-rtx5090-20261011.log`), one process per test:
+with the fix 112 of 112 pass; without it 100 pass and the 12 failures are exactly the 12 new unaligned-segment tests. The version-skew
+failure seen on 0.7.1 does not occur on main.
 
 ## Status
 

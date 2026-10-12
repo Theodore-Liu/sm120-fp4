@@ -5,7 +5,7 @@
 # Re-running with the same log and label resumes where a dropped run stopped.
 set -u
 LOG=$1; LABEL=$2; PP=$3; shift 3
-PY=$HOME/fi071/.venv/bin/python
+PY=${PY:-$HOME/fi071/.venv/bin/python}
 cd ${TEST_ROOT:-$HOME/gtests} || exit 2
 if [ "$PP" != "-" ]; then export PYTHONPATH=$PP; fi
 ids=$($PY -m pytest -q -p no:cacheprovider --collect-only "$@" 2>/dev/null | grep "::")
