@@ -1,0 +1,25 @@
+START 2026-10-12T19:59:08Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07, 12.0
+8bb3cf0d2 hexagon: optimize CPY/CONCAT — round 3, short-rows edition (#30341)
+Cuda compilation tools, release 13.2, V13.2.86
+Build cuda_13.2.r13.2/compiler.37953736_0
+cmake version 3.28.3
+-- Replacing 120-real in CMAKE_CUDA_ARCHITECTURES_NATIVE with 120a-real
+-- Using CMAKE_CUDA_ARCHITECTURES=120a-real CMAKE_CUDA_ARCHITECTURES_NATIVE=120a-real
+MUL_MAT rc=0 lines=4345 ok=0 fail=0 notsupported=420
+Backend 2/2: CPU
+  Skipping
+2/2 backends passed
+[1;32mOK[0m
+mlsys-5090-research/scripts/pod/llamacpp-mulmat-pro6000.sh: line 23: 171020 Aborted                 (core dumped) ./build/bin/test-backend-ops test -o $op -b CUDA0 > $OUT/tbo-$op.log 2>&1
+MUL_MAT_ID rc=134 lines=130 ok=0 fail=4 notsupported=2
+[MUL_MAT_ID] ERR = 1.486095733 > 0.000500000   MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=9,k=256,amax=1.000000,m_v=0,ids_offset=0,dup=1): [1;31mFAIL[0m
+[MUL_MAT_ID] ERR = 1.788407181 > 0.000500000   MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=16,k=256,amax=1.000000,m_v=0,ids_offset=0,dup=1): [1;31mFAIL[0m
+[MUL_MAT_ID] ERR = 1.665134437 > 0.000500000   MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=33,k=256,amax=1.000000,m_v=0,ids_offset=0,dup=1): [1;31mFAIL[0m
+[MUL_MAT_ID] ERR = 1.841438710 > 0.000500000   MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=64,k=256,amax=1.000000,m_v=0,ids_offset=0,dup=1): [1;31mFAIL[0m
+./build/bin/test-backend-ops(+0x24c5a)[0x5fa422cebc5a]
+/lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x7b35b2f841ca]
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x7b35b2f8428b]
+./build/bin/test-backend-ops(+0x25635)[0x5fa422cec635]
+END 2026-10-12T20:03:46Z
+WRAPPER_RC=0
