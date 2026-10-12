@@ -330,7 +330,7 @@ einsum site, being FP8, stays last; the adoption items below come before its nex
 
 ## Status
 
-<!-- ci-status -->CI 2026-10-11: passed on a1435cc, 124 passed, 0 failed, 27 skipped in 20 s on NVIDIA GeForce RTX 5090 (driver 610.47, torch 2.13.0+cu130).
+<!-- ci-status -->CI 2026-10-12: passed on 9d7e5b1, 124 passed, 0 failed, 27 skipped in 20 s on NVIDIA GeForce RTX 5090 (driver 610.47, torch 2.13.0+cu130).
 
 Stage 1 complete. Stage 2: the W4A16 decode layer is ahead of Marlin on seven of the eight measured rows of a real NVFP4
 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8
