@@ -1,0 +1,48 @@
+START 2026-10-12T13:22:42Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.71.05
+torch 2.14.1+cu130 flashinfer 0.7.1 cudnn 92400
+probe rc=0
+13:27:56 mm-edge mm_mxfp8 auto m=300 n=4104 k=4128
+13:27:56 mm-edge mm_mxfp8 auto m=300 n=4104 k=4128
+{"op": "mm_mxfp8", "m": 300, "n": 24, "k": 4128, "backend": "auto", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=24, k=4128."}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 32, "backend": "cudnn", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=136, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 32, "backend": "cutlass", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=136, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 32, "backend": "b12x", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=136, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 32, "backend": "auto", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=136, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 160, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 160, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=160."}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 1056, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 1056, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=1056."}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 4128, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 136, "k": 4128, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=4128."}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 32, "backend": "cudnn", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=1000, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 32, "backend": "cutlass", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=1000, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 32, "backend": "b12x", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=1000, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 32, "backend": "auto", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=1000, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 160, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 160, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=160."}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 1056, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 1056, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=1056."}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 4128, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 1000, "k": 4128, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=4128."}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 32, "backend": "cudnn", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=4104, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 32, "backend": "cutlass", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=4104, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 32, "backend": "b12x", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=4104, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 32, "backend": "auto", "error": "ValueError: MXFP8 requires n >= 128 and k >= 128 for CUTLASS MXFP8. got m=300, n=4104, k=32."}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 160, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 160, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=160."}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 1056, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 1056, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=1056."}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 4128, "backend": "cutlass", "error": "ValueError: Problem size is not supported for mm_mxfp8"}
+{"op": "mm_mxfp8", "m": 300, "n": 4104, "k": 4128, "backend": "b12x", "error": "ValueError: b12x mm_mxfp8 requires the contraction dim K to be a multiple of 128 (one full BK128 tile). Got K=4128."}
+('mm_fp4', 'auto') {'judged': 150, 'outside_cases': 0, 'errors': 0}
+('mm_fp4', 'b12x') {'judged': 150, 'outside_cases': 0, 'errors': 0}
+('mm_fp4', 'cudnn') {'judged': 0, 'outside_cases': 0, 'errors': 150}
+('mm_fp4', 'cutlass') {'judged': 150, 'outside_cases': 0, 'errors': 0}
+('mm_mxfp8', 'auto') {'judged': 54, 'outside_cases': 0, 'errors': 66}
+('mm_mxfp8', 'b12x') {'judged': 0, 'outside_cases': 0, 'errors': 120}
+('mm_mxfp8', 'cudnn') {'judged': 54, 'outside_cases': 0, 'errors': 66}
+('mm_mxfp8', 'cutlass') {'judged': 0, 'outside_cases': 0, 'errors': 120}
+cases 1080, judged 558; wrote /root/out/flashinfer-mm-edge-pro6000-fi071-20261012.json
+END 2026-10-12T13:27:56Z
+WRAPPER_RC=0
