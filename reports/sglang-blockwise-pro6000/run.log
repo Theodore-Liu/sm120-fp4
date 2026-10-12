@@ -1,0 +1,59 @@
+START 2026-10-12T18:47:44Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07, 12.0
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+AttributeError: module 'sglang' has no attribute '__version__'
+f92199b569 [Unified Cache] Abort requests whose external linker load fails instead of crashing the scheduler (#40896)
+probe rc=0
+{"part": "in-contract", "m": 128, "n": 4096, "k": 4096, "out": "bfloat16", "path": "swapab-32", "elements": 524288, "outside": 0, "nan": 0, "max_err_over_bound": 0.4544498707001562, "distinct_outputs": 1}
+{"part": "in-contract", "m": 129, "n": 4096, "k": 4096, "out": "bfloat16", "path": "swapab-32", "elements": 528384, "outside": 0, "nan": 0, "max_err_over_bound": 0.4819463632655751, "distinct_outputs": 1}
+{"part": "in-contract", "m": 200, "n": 4096, "k": 4096, "out": "bfloat16", "path": "swapab-64", "elements": 819200, "outside": 0, "nan": 0, "max_err_over_bound": 0.47720474912550953, "distinct_outputs": 1}
+{"part": "in-contract", "m": 256, "n": 4096, "k": 4096, "out": "bfloat16", "path": "swapab-64", "elements": 1048576, "outside": 0, "nan": 0, "max_err_over_bound": 0.45260790898734204, "distinct_outputs": 1}
+{"part": "in-contract", "m": 257, "n": 4096, "k": 4096, "out": "bfloat16", "path": "swapab-32", "elements": 1052672, "outside": 0, "nan": 0, "max_err_over_bound": 0.4679547443678404, "distinct_outputs": 1}
+{"part": "in-contract", "m": 300, "n": 4096, "k": 4096, "out": "bfloat16", "path": "128x128", "elements": 1228800, "outside": 0, "nan": 0, "max_err_over_bound": 0.4606951638987305, "distinct_outputs": 1}
+{"part": "in-contract", "m": 1024, "n": 4096, "k": 4096, "out": "bfloat16", "path": "128x128", "elements": 4194304, "outside": 0, "nan": 0, "max_err_over_bound": 0.468735829335053, "distinct_outputs": 1}
+{"part": "in-contract", "m": 1, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 1536, "outside": 0, "nan": 0, "max_err_over_bound": 0.1553879882915935, "distinct_outputs": 1}
+{"part": "in-contract", "m": 3, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 4608, "outside": 0, "nan": 0, "max_err_over_bound": 0.21136864843644754, "distinct_outputs": 1}
+{"part": "in-contract", "m": 4, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 6144, "outside": 0, "nan": 0, "max_err_over_bound": 0.2118318589265198, "distinct_outputs": 1}
+{"part": "in-contract", "m": 7, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 10752, "outside": 0, "nan": 0, "max_err_over_bound": 0.23102772098645194, "distinct_outputs": 1}
+{"part": "in-contract", "m": 64, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 98304, "outside": 0, "nan": 0, "max_err_over_bound": 0.219475945575375, "distinct_outputs": 1}
+{"part": "in-contract", "m": 100, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 153600, "outside": 0, "nan": 0, "max_err_over_bound": 0.24192866737546606, "distinct_outputs": 1}
+{"part": "in-contract", "m": 128, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 196608, "outside": 0, "nan": 0, "max_err_over_bound": 0.2522572212690302, "distinct_outputs": 1}
+{"part": "in-contract", "m": 129, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 198144, "outside": 0, "nan": 0, "max_err_over_bound": 0.2386599654955059, "distinct_outputs": 1}
+{"part": "in-contract", "m": 200, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-64", "elements": 307200, "outside": 0, "nan": 0, "max_err_over_bound": 0.23946226069526144, "distinct_outputs": 1}
+{"part": "in-contract", "m": 256, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-64", "elements": 393216, "outside": 0, "nan": 0, "max_err_over_bound": 0.23803759396830892, "distinct_outputs": 1}
+{"part": "in-contract", "m": 257, "n": 1536, "k": 7168, "out": "bfloat16", "path": "swapab-32", "elements": 394752, "outside": 0, "nan": 0, "max_err_over_bound": 0.23135105446473578, "distinct_outputs": 1}
+{"part": "in-contract", "m": 300, "n": 1536, "k": 7168, "out": "bfloat16", "path": "128x128", "elements": 460800, "outside": 0, "nan": 0, "max_err_over_bound": 0.23841382159264096, "distinct_outputs": 1}
+{"part": "in-contract", "m": 1024, "n": 1536, "k": 7168, "out": "bfloat16", "path": "128x128", "elements": 1572864, "outside": 0, "nan": 0, "max_err_over_bound": 0.23692621050249346, "distinct_outputs": 1}
+{"part": "in-contract", "m": 1, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 512, "outside": 0, "nan": 0, "max_err_over_bound": 0.3170660779819451, "distinct_outputs": 1}
+{"part": "in-contract", "m": 3, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 1536, "outside": 0, "nan": 0, "max_err_over_bound": 0.31061124104744836, "distinct_outputs": 1}
+{"part": "in-contract", "m": 4, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 2048, "outside": 0, "nan": 0, "max_err_over_bound": 0.33381131270349734, "distinct_outputs": 1}
+{"part": "in-contract", "m": 7, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 3584, "outside": 0, "nan": 0, "max_err_over_bound": 0.3367523647267751, "distinct_outputs": 1}
+{"part": "in-contract", "m": 64, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 32768, "outside": 0, "nan": 0, "max_err_over_bound": 0.4198758419930049, "distinct_outputs": 1}
+{"part": "in-contract", "m": 100, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 51200, "outside": 0, "nan": 0, "max_err_over_bound": 0.4423892227971733, "distinct_outputs": 1}
+{"part": "in-contract", "m": 128, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 65536, "outside": 0, "nan": 0, "max_err_over_bound": 0.3743171988204759, "distinct_outputs": 1}
+{"part": "in-contract", "m": 129, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 66048, "outside": 0, "nan": 0, "max_err_over_bound": 0.3797609573761734, "distinct_outputs": 1}
+{"part": "in-contract", "m": 200, "n": 512, "k": 1024, "out": "float16", "path": "swapab-64", "elements": 102400, "outside": 0, "nan": 0, "max_err_over_bound": 0.4322042880190845, "distinct_outputs": 1}
+{"part": "in-contract", "m": 256, "n": 512, "k": 1024, "out": "float16", "path": "swapab-64", "elements": 131072, "outside": 0, "nan": 0, "max_err_over_bound": 0.4442611013070001, "distinct_outputs": 1}
+{"part": "in-contract", "m": 257, "n": 512, "k": 1024, "out": "float16", "path": "swapab-32", "elements": 131584, "outside": 0, "nan": 0, "max_err_over_bound": 0.4403226935086608, "distinct_outputs": 1}
+{"part": "in-contract", "m": 300, "n": 512, "k": 1024, "out": "float16", "path": "128x128", "elements": 153600, "outside": 0, "nan": 0, "max_err_over_bound": 0.4474402034164643, "distinct_outputs": 1}
+{"part": "in-contract", "m": 1024, "n": 512, "k": 1024, "out": "float16", "path": "128x128", "elements": 524288, "outside": 0, "nan": 0, "max_err_over_bound": 0.4925566008597201, "distinct_outputs": 1}
+{"part": "accepted-off-128", "m": 1, "n": 128, "k": 144, "path": "swapab-32", "scale_shapes_passed": [[1, 1], [1, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 7, "n": 128, "k": 144, "path": "swapab-32", "scale_shapes_passed": [[7, 1], [1, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 129, "n": 128, "k": 144, "path": "swapab-32", "scale_shapes_passed": [[129, 1], [1, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 300, "n": 128, "k": 144, "path": "128x128", "scale_shapes_passed": [[300, 1], [1, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:280: Invalid status"}
+{"part": "accepted-off-128", "m": 1, "n": 136, "k": 512, "path": "swapab-32", "scale_shapes_passed": [[1, 4], [4, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 7, "n": 136, "k": 512, "path": "swapab-32", "scale_shapes_passed": [[7, 4], [4, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 129, "n": 136, "k": 512, "path": "swapab-32", "scale_shapes_passed": [[129, 4], [4, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 300, "n": 136, "k": 512, "path": "128x128", "scale_shapes_passed": [[300, 4], [4, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:280: Invalid status"}
+{"part": "accepted-off-128", "m": 1, "n": 136, "k": 144, "path": "swapab-32", "scale_shapes_passed": [[1, 1], [1, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 7, "n": 136, "k": 144, "path": "swapab-32", "scale_shapes_passed": [[7, 1], [1, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 129, "n": 136, "k": 144, "path": "swapab-32", "scale_shapes_passed": [[129, 1], [1, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 300, "n": 136, "k": 144, "path": "128x128", "scale_shapes_passed": [[300, 1], [1, 1]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:280: Invalid status"}
+{"part": "accepted-off-128", "m": 1, "n": 1000, "k": 1040, "path": "swapab-32", "scale_shapes_passed": [[1, 8], [8, 7]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 7, "n": 1000, "k": 1040, "path": "swapab-32", "scale_shapes_passed": [[7, 8], [8, 7]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 129, "n": 1000, "k": 1040, "path": "swapab-32", "scale_shapes_passed": [[129, 8], [8, 7]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:431: Invalid status"}
+{"part": "accepted-off-128", "m": 300, "n": 1000, "k": 1040, "path": "128x128", "scale_shapes_passed": [[300, 8], [8, 7]], "error": "RuntimeError: Failed at /root/sglang/python/sglang/kernels/jit/csrc/gemm/fp8_blockwise/fp8_blockwise_scaled_mm_sm120.cuh:280: Invalid status"}
+in-contract judged 65, outside in 0, nondet 0; off-128 accepted 0, memory-dependent 0; errors 16; wrote /root/out/sglang-blockwise-pro6000-20261012.json
+END 2026-10-12T18:52:01Z
+WRAPPER_RC=0
