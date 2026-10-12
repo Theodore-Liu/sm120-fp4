@@ -1,0 +1,320 @@
+{
+ "generated_utc": "2026-10-12T06:28:54Z",
+ "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "shape": {
+  "experts": 8,
+  "hidden": 1024,
+  "inter": 512
+ },
+ "runs": 2,
+ "cases": [
+  {
+   "tokens": 1024,
+   "topk": 1,
+   "routing": "aligned128",
+   "segment_lengths": [
+    128,
+    128,
+    128,
+    128,
+    128,
+    128,
+    128,
+    128
+   ],
+   "segments_starting_off_128": 0,
+   "distinct_outputs": 1,
+   "micro": {
+    "outside": 2270,
+    "elements": 1048576,
+    "max_err_over_bound": 7.333219688904921,
+    "median_err_over_bound": 0.21161820858718589,
+    "rel_err_normwise": 0.02754994000702453,
+    "rows_with_err_over_10x_bound": 0,
+    "max_ratio_rows_in_segments_off_128": null,
+    "max_ratio_rows_in_segments_on_128": 7.333219688904921,
+    "per_expert": [
+     {
+      "expert": 0,
+      "start": 0,
+      "rows": 128,
+      "outside": 298,
+      "max_ratio": 3.2
+     },
+     {
+      "expert": 1,
+      "start": 128,
+      "rows": 128,
+      "outside": 1101,
+      "max_ratio": 7.333
+     },
+     {
+      "expert": 2,
+      "start": 256,
+      "rows": 128,
+      "outside": 11,
+      "max_ratio": 1.357
+     },
+     {
+      "expert": 3,
+      "start": 384,
+      "rows": 128,
+      "outside": 105,
+      "max_ratio": 1.733
+     },
+     {
+      "expert": 4,
+      "start": 512,
+      "rows": 128,
+      "outside": 18,
+      "max_ratio": 1.379
+     },
+     {
+      "expert": 5,
+      "start": 640,
+      "rows": 128,
+      "outside": 132,
+      "max_ratio": 2.643
+     },
+     {
+      "expert": 6,
+      "start": 768,
+      "rows": 128,
+      "outside": 389,
+      "max_ratio": 5.5
+     },
+     {
+      "expert": 7,
+      "start": 896,
+      "rows": 128,
+      "outside": 216,
+      "max_ratio": 2.615
+     }
+    ]
+   },
+   "static": {
+    "outside": 2303,
+    "elements": 1048576,
+    "max_err_over_bound": 7.998901518040358,
+    "median_err_over_bound": 0.21211988878593965,
+    "rel_err_normwise": 0.027551360282669402,
+    "rows_with_err_over_10x_bound": 0,
+    "max_ratio_rows_in_segments_off_128": null,
+    "max_ratio_rows_in_segments_on_128": 7.998901518040358,
+    "per_expert": [
+     {
+      "expert": 0,
+      "start": 0,
+      "rows": 128,
+      "outside": 294,
+      "max_ratio": 3.353
+     },
+     {
+      "expert": 1,
+      "start": 128,
+      "rows": 128,
+      "outside": 1109,
+      "max_ratio": 5.755
+     },
+     {
+      "expert": 2,
+      "start": 256,
+      "rows": 128,
+      "outside": 23,
+      "max_ratio": 1.429
+     },
+     {
+      "expert": 3,
+      "start": 384,
+      "rows": 128,
+      "outside": 101,
+      "max_ratio": 1.733
+     },
+     {
+      "expert": 4,
+      "start": 512,
+      "rows": 128,
+      "outside": 39,
+      "max_ratio": 7.999
+     },
+     {
+      "expert": 5,
+      "start": 640,
+      "rows": 128,
+      "outside": 133,
+      "max_ratio": 3.0
+     },
+     {
+      "expert": 6,
+      "start": 768,
+      "rows": 128,
+      "outside": 383,
+      "max_ratio": 5.222
+     },
+     {
+      "expert": 7,
+      "start": 896,
+      "rows": 128,
+      "outside": 221,
+      "max_ratio": 2.692
+     }
+    ]
+   }
+  },
+  {
+   "tokens": 960,
+   "topk": 1,
+   "routing": "shifted64",
+   "segment_lengths": [
+    64,
+    128,
+    128,
+    128,
+    128,
+    128,
+    128,
+    128
+   ],
+   "segments_starting_off_128": 7,
+   "distinct_outputs": 1,
+   "micro": {
+    "outside": 2382,
+    "elements": 983040,
+    "max_err_over_bound": 4.19402609726363,
+    "median_err_over_bound": 0.21428495341687764,
+    "rel_err_normwise": 0.028211688495844163,
+    "rows_with_err_over_10x_bound": 0,
+    "max_ratio_rows_in_segments_off_128": 4.19402609726363,
+    "max_ratio_rows_in_segments_on_128": 1.2995164539465645,
+    "per_expert": [
+     {
+      "expert": 0,
+      "start": 0,
+      "rows": 64,
+      "outside": 5,
+      "max_ratio": 1.3
+     },
+     {
+      "expert": 1,
+      "start": 64,
+      "rows": 128,
+      "outside": 148,
+      "max_ratio": 2.81
+     },
+     {
+      "expert": 2,
+      "start": 192,
+      "rows": 128,
+      "outside": 211,
+      "max_ratio": 2.861
+     },
+     {
+      "expert": 3,
+      "start": 320,
+      "rows": 128,
+      "outside": 345,
+      "max_ratio": 2.667
+     },
+     {
+      "expert": 4,
+      "start": 448,
+      "rows": 128,
+      "outside": 142,
+      "max_ratio": 2.795
+     },
+     {
+      "expert": 5,
+      "start": 576,
+      "rows": 128,
+      "outside": 235,
+      "max_ratio": 2.516
+     },
+     {
+      "expert": 6,
+      "start": 704,
+      "rows": 128,
+      "outside": 649,
+      "max_ratio": 3.792
+     },
+     {
+      "expert": 7,
+      "start": 832,
+      "rows": 128,
+      "outside": 647,
+      "max_ratio": 4.194
+     }
+    ]
+   },
+   "static": {
+    "outside": 2537,
+    "elements": 983040,
+    "max_err_over_bound": 4.405068257390207,
+    "median_err_over_bound": 0.21392993780905384,
+    "rel_err_normwise": 0.02821033066983626,
+    "rows_with_err_over_10x_bound": 0,
+    "max_ratio_rows_in_segments_off_128": 4.405068257390207,
+    "max_ratio_rows_in_segments_on_128": 1.311433829293969,
+    "per_expert": [
+     {
+      "expert": 0,
+      "start": 0,
+      "rows": 64,
+      "outside": 9,
+      "max_ratio": 1.311
+     },
+     {
+      "expert": 1,
+      "start": 64,
+      "rows": 128,
+      "outside": 176,
+      "max_ratio": 2.805
+     },
+     {
+      "expert": 2,
+      "start": 192,
+      "rows": 128,
+      "outside": 207,
+      "max_ratio": 2.889
+     },
+     {
+      "expert": 3,
+      "start": 320,
+      "rows": 128,
+      "outside": 352,
+      "max_ratio": 2.667
+     },
+     {
+      "expert": 4,
+      "start": 448,
+      "rows": 128,
+      "outside": 188,
+      "max_ratio": 2.842
+     },
+     {
+      "expert": 5,
+      "start": 576,
+      "rows": 128,
+      "outside": 240,
+      "max_ratio": 2.541
+     },
+     {
+      "expert": 6,
+      "start": 704,
+      "rows": 128,
+      "outside": 708,
+      "max_ratio": 3.758
+     },
+     {
+      "expert": 7,
+      "start": 832,
+      "rows": 128,
+      "outside": 657,
+      "max_ratio": 4.405
+     }
+    ]
+   }
+  }
+ ]
+}

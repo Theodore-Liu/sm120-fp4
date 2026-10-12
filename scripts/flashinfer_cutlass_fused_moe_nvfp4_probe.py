@@ -36,6 +36,17 @@ def routing(m: int, e: int, k: int, mode: str, gen: torch.Generator):
     if mode == "random":
         logits = torch.randn(m, e, generator=gen)
         wts, ids = torch.topk(torch.softmax(logits, -1), k, dim=-1)
+    elif mode in ("aligned128", "shifted64"):
+        # top-1, every expert's segment exactly 128 rows (all start on a 128-row boundary), or the same with expert 0 given
+        # 64 rows so every later segment starts 64 rows into a tile; m must be 128 * e (aligned) or 128 * e - 64 (shifted)
+        lens = [128] * e
+        if mode == "shifted64":
+            lens[0] = 64
+        assert k == 1 and m == sum(lens), (m, k, lens)
+        ids = torch.cat([torch.full((n, 1), j) for j, n in enumerate(lens)])
+        perm = torch.randperm(m, generator=gen)          # tokens in random order; the kernel sorts them by expert
+        ids = ids[perm]
+        wts = torch.ones(m, 1)
     else:  # "skewed": expert j gets a share proportional to (j + 1), so segment lengths differ and start mid-tile
         p = torch.arange(1, e + 1, dtype=torch.float64)
         ids = torch.stack([torch.multinomial(p, k, replacement=False, generator=gen) for _ in range(m)])
@@ -108,6 +119,14 @@ def main(argv=None) -> int:
                     off = ((starts % 128) != 0)[ids[:, 0].long()]
                     rec[combine]["max_ratio_rows_in_segments_off_128"] = float(row_max[off].max()) if off.any() else None
                     rec[combine]["max_ratio_rows_in_segments_on_128"] = float(row_max[~off].max()) if (~off).any() else None
+                    per_expert = []
+                    for j in range(e):
+                        rows = ids[:, 0].long() == j
+                        if rows.any():
+                            per_expert.append({"expert": j, "start": int(starts[j]), "rows": int(rows.sum()),
+                                               "outside": int((er[rows] > b[rows]).sum()),
+                                               "max_ratio": round(float(row_max[rows].max()), 3)})
+                    rec[combine]["per_expert"] = per_expert
         except Exception as ex:  # noqa: BLE001
             rec["error"] = f"{type(ex).__name__}: {str(ex)[:400]}"
         report["cases"].append(rec)
