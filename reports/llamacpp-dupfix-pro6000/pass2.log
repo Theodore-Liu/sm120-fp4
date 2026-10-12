@@ -1,0 +1,8 @@
+START 2026-10-12T20:40:49Z
+ 4 files changed, 62 insertions(+), 111 deletions(-)
+fix2 MUL_MAT_ID rc=0 ok=948 fail=0 dup_ok=16 last=2/2 backends passed
+fix2 MUL_MAT rc=0 ok=2445 fail=0 dup_ok=0 last=2/2 backends passed
+perf MUL_MAT_ID rc=0 rows=133
+perf MUL_MAT f16 rc=0 rows=10
+END 2026-10-12T20:49:23Z
+WRAPPER_RC=0
