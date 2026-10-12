@@ -1,0 +1,130 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 97251 MiB):
+  Device 0: NVIDIA RTX PRO 6000 Blackwell Server Edition, compute capability 12.0, VMM: yes, VRAM: 97251 MiB
+Testing 2 devices
+
+Backend 1/2: CUDA0
+  Device description: NVIDIA RTX PRO 6000 Blackwell Server Edition
+  Device memory: 97251 MB (96693 MB free)
+
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=1,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=15,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=16,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=17,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=31,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=32,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=33,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=47,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=48,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=49,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=8,n_used=1,b=0,m=512,n=1,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=1,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=15,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=16,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=17,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=31,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=32,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=33,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=47,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=48,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=49,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=8,n_used=1,b=0,m=512,n=1,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=1,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=15,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=16,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=17,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=31,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=32,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=33,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=47,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=48,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=4,b=0,m=512,n=49,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=8,n_used=1,b=0,m=512,n=1,k=256,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=4,n_used=2,b=0,m=8,n=1,k=64,amax=1.000000,m_v=64,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=4,n_used=2,b=0,m=8,n=16,k=64,amax=1.000000,m_v=64,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=16,n_used=16,b=0,m=32,n=1024,k=16,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=2,n_used=2,b=0,m=32,n=8192,k=64,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=16,n_used=16,b=0,m=50,n=200,k=64,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=bf16,type_b=f32,n_mats=16,n_used=16,b=0,m=32,n=1024,k=16,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=bf16,type_b=f32,n_mats=16,n_used=16,b=0,m=50,n=200,k=64,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=16,n_used=16,b=1,m=32,n=1024,k=16,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=2,n_used=2,b=1,m=32,n=8192,k=64,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=16,n_used=16,b=1,m=50,n=200,k=64,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=bf16,type_b=f32,n_mats=16,n_used=16,b=1,m=32,n=1024,k=16,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=bf16,type_b=f32,n_mats=16,n_used=16,b=1,m=50,n=200,k=64,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq2_xxs,type_b=f32,n_mats=1,n_used=1,b=0,m=1,n=8192,k=4096,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=1,n_used=1,b=0,m=8,n=16,k=1,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=1,n_used=1,b=0,m=8,n=16,k=63,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=1,n_used=1,b=0,m=8,n=16,k=65,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=mxfp4,type_b=f32,n_mats=32,n_used=2,b=0,m=2880,n=32,k=2880,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq3_s,type_b=f32,n_mats=512,n_used=10,b=0,m=128,n=1,k=512,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=512,n_used=10,b=0,m=256,n=1,k=128,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq3_s,type_b=f32,n_mats=1024,n_used=10,b=0,m=128,n=1,k=512,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=1024,n_used=10,b=0,m=256,n=1,k=128,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq3_s,type_b=f32,n_mats=512,n_used=10,b=0,m=128,n=5,k=512,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=512,n_used=10,b=0,m=256,n=5,k=128,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq3_s,type_b=f32,n_mats=1024,n_used=10,b=0,m=128,n=5,k=512,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=1024,n_used=10,b=0,m=256,n=5,k=128,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq3_s,type_b=f32,n_mats=512,n_used=10,b=0,m=128,n=64,k=512,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=512,n_used=10,b=0,m=256,n=64,k=128,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq3_s,type_b=f32,n_mats=1024,n_used=10,b=0,m=128,n=64,k=512,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=1024,n_used=10,b=0,m=256,n=64,k=128,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq3_s,type_b=f32,n_mats=512,n_used=10,b=0,m=128,n=300,k=512,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=512,n_used=10,b=0,m=256,n=300,k=128,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=iq3_s,type_b=f32,n_mats=1024,n_used=10,b=0,m=128,n=300,k=512,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=1024,n_used=10,b=0,m=256,n=300,k=128,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=2,b=0,m=2880,n=32,k=2880,amax=1.000000,m_v=0,ids_offset=0): [1;32mOK[0m
+  MUL_MAT_ID(type_a=tq1_0,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=1,k=4096,amax=1.000000,m_v=0,ids_offset=0): not supported [CUDA0] 
+  MUL_MAT_ID(type_a=tq1_0,type_b=f32,n_mats=128,n_used=8,b=0,m=1024,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0): not supported [CUDA0] 
+[MUL_MAT_ID] ERR = 1.533280707 > 0.000500000   MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=9,k=256,amax=1.000000,m_v=0,ids_offset=0,dup=1): [1;31mFAIL[0m
+[MUL_MAT_ID] ERR = 1.767281567 > 0.000500000   MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=16,k=256,amax=1.000000,m_v=0,ids_offset=0,dup=1): [1;31mFAIL[0m
+[MUL_MAT_ID] ERR = 1.650162439 > 0.000500000   MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=33,k=256,amax=1.000000,m_v=0,ids_offset=0,dup=1): [1;31mFAIL[0m
+[MUL_MAT_ID] ERR = 1.852264619 > 0.000500000   MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=28,n_used=10,b=0,m=1024,n=64,k=256,amax=1.000000,m_v=0,ids_offset=0,dup=1): [1;31mFAIL[0m
+CUDA error: an illegal memory access was encountered
+  current device: 0, in function launch_mul_mat_q at /root/llama-base/ggml/src/ggml-cuda/template-instances/../mmq.cuh:1410
+  cudaFuncSetAttribute((mul_mat_q<type, J, false, prec_src1>), cudaFuncAttributeMaxDynamicSharedMemorySize, nbytes_shared)
+/root/llama-base/ggml/src/ggml-cuda/ggml-cuda.cu:109: CUDA error
+/root/llama-base/build/bin/libggml-base.so.0(+0x1671b)[0x799b83bde71b]
+/root/llama-base/build/bin/libggml-base.so.0(+0x16b9c)[0x799b83bdeb9c]
+/root/llama-base/build/bin/libggml-base.so.0(ggml_abort+0x15b)[0x799b83bded7b]
+/root/llama-base/build/bin/libggml-cuda.so.0(_Z15ggml_cuda_errorPKcS0_S0_iS0_+0xb7)[0x799b80d25257]
+/root/llama-base/build/bin/libggml-cuda.so.0(+0xcbdb73)[0x799b816e4b73]
+/root/llama-base/build/bin/libggml-cuda.so.0(_Z19ggml_cuda_mul_mat_qR25ggml_backend_cuda_contextPK11ggml_tensorS3_S3_PS1_+0xbeb)[0x799b80d84aeb]
+/root/llama-base/build/bin/libggml-cuda.so.0(+0x316abb)[0x799b80d3dabb]
+/root/llama-base/build/bin/libggml-base.so.0(ggml_backend_graph_compute+0x12)[0x799b83bf7e12]
+/root/llama-base/build/bin/libggml-base.so.0(ggml_backend_compare_graph_backend+0x211)[0x799b83bfdf91]
+/root/llama-base/build/bin/test-backend-ops(+0xff73d)[0x61c06638873d]
+/root/llama-base/build/bin/test-backend-ops(+0x796f7)[0x61c0663026f7]
+/root/llama-base/build/bin/test-backend-ops(+0x24c5a)[0x61c0662adc5a]
+/lib/x86_64-linux-gnu/libc.so.6(+0x2a1ca)[0x799b8363c1ca]
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x8b)[0x799b8363c28b]
+/root/llama-base/build/bin/test-backend-ops(+0x25635)[0x61c0662ae635]

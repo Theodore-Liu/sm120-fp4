@@ -1,0 +1,15 @@
+START 2026-10-12T21:37:36Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07, 12.0
+fix:  4 files changed, 140 insertions(+), 119 deletions(-)
+Build cuda_13.2.r13.2/compiler.37953736_0
+mlsys-5090-research/scripts/pod/llamacpp-dupfix-pro6000.sh: line 29: 10591 Aborted                 (core dumped) $B test -o $op -b CUDA0 > $OUT/test-$v-$op.log 2>&1
+base MUL_MAT_ID rc=134 ok=67 fail=4 dup_ok=0 last=
+base MUL_MAT rc=0 ok=2445 fail=0 dup_ok=0 last=2/2 backends passed
+base perf MUL_MAT_ID rc=0 runs=132
+base perf MUL_MAT f16 rc=0 runs=9
+fix MUL_MAT_ID rc=0 ok=948 fail=0 dup_ok=16 last=2/2 backends passed
+fix MUL_MAT rc=0 ok=2445 fail=0 dup_ok=0 last=2/2 backends passed
+fix perf MUL_MAT_ID rc=0 runs=132
+fix perf MUL_MAT f16 rc=0 runs=9
+END 2026-10-12T22:00:27Z
+WRAPPER_RC=0
