@@ -1,0 +1,315 @@
+{
+ "generated_utc": "2026-10-12T14:52:04Z",
+ "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "torch": "2.13.0+cu130",
+ "vllm": "0.28.0",
+ "cases": [
+  {
+   "m": 1,
+   "n": 8,
+   "k": 16,
+   "elements": 8,
+   "exact_one_rounding": 8,
+   "exact_two_rounding": 8,
+   "within_1ulp_one": 8,
+   "within_1ulp_two": 8
+  },
+  {
+   "m": 3,
+   "n": 8,
+   "k": 16,
+   "elements": 24,
+   "exact_one_rounding": 24,
+   "exact_two_rounding": 24,
+   "within_1ulp_one": 24,
+   "within_1ulp_two": 24
+  },
+  {
+   "m": 7,
+   "n": 8,
+   "k": 16,
+   "elements": 56,
+   "exact_one_rounding": 54,
+   "exact_two_rounding": 56,
+   "within_1ulp_one": 56,
+   "within_1ulp_two": 56
+  },
+  {
+   "m": 65,
+   "n": 8,
+   "k": 16,
+   "elements": 520,
+   "exact_one_rounding": 507,
+   "exact_two_rounding": 520,
+   "within_1ulp_one": 520,
+   "within_1ulp_two": 520
+  },
+  {
+   "m": 129,
+   "n": 8,
+   "k": 16,
+   "elements": 1032,
+   "exact_one_rounding": 1022,
+   "exact_two_rounding": 1032,
+   "within_1ulp_one": 1032,
+   "within_1ulp_two": 1032
+  },
+  {
+   "m": 300,
+   "n": 8,
+   "k": 16,
+   "elements": 2400,
+   "exact_one_rounding": 2265,
+   "exact_two_rounding": 2400,
+   "within_1ulp_one": 2371,
+   "within_1ulp_two": 2400
+  },
+  {
+   "m": 1,
+   "n": 24,
+   "k": 144,
+   "elements": 24,
+   "exact_one_rounding": 23,
+   "exact_two_rounding": 24,
+   "within_1ulp_one": 24,
+   "within_1ulp_two": 24
+  },
+  {
+   "m": 3,
+   "n": 24,
+   "k": 144,
+   "elements": 72,
+   "exact_one_rounding": 67,
+   "exact_two_rounding": 72,
+   "within_1ulp_one": 71,
+   "within_1ulp_two": 72
+  },
+  {
+   "m": 7,
+   "n": 24,
+   "k": 144,
+   "elements": 168,
+   "exact_one_rounding": 166,
+   "exact_two_rounding": 168,
+   "within_1ulp_one": 168,
+   "within_1ulp_two": 168
+  },
+  {
+   "m": 65,
+   "n": 24,
+   "k": 144,
+   "elements": 1560,
+   "exact_one_rounding": 1436,
+   "exact_two_rounding": 1560,
+   "within_1ulp_one": 1548,
+   "within_1ulp_two": 1560
+  },
+  {
+   "m": 129,
+   "n": 24,
+   "k": 144,
+   "elements": 3096,
+   "exact_one_rounding": 2920,
+   "exact_two_rounding": 3096,
+   "within_1ulp_one": 3084,
+   "within_1ulp_two": 3096
+  },
+  {
+   "m": 300,
+   "n": 24,
+   "k": 144,
+   "elements": 7200,
+   "exact_one_rounding": 6902,
+   "exact_two_rounding": 7200,
+   "within_1ulp_one": 7169,
+   "within_1ulp_two": 7200
+  },
+  {
+   "m": 1,
+   "n": 1000,
+   "k": 1040,
+   "elements": 1000,
+   "exact_one_rounding": 913,
+   "exact_two_rounding": 1000,
+   "within_1ulp_one": 989,
+   "within_1ulp_two": 1000
+  },
+  {
+   "m": 3,
+   "n": 1000,
+   "k": 1040,
+   "elements": 3000,
+   "exact_one_rounding": 2666,
+   "exact_two_rounding": 3000,
+   "within_1ulp_one": 2953,
+   "within_1ulp_two": 3000
+  },
+  {
+   "m": 7,
+   "n": 1000,
+   "k": 1040,
+   "elements": 7000,
+   "exact_one_rounding": 6254,
+   "exact_two_rounding": 7000,
+   "within_1ulp_one": 6881,
+   "within_1ulp_two": 7000
+  },
+  {
+   "m": 65,
+   "n": 1000,
+   "k": 1040,
+   "elements": 65000,
+   "exact_one_rounding": 57178,
+   "exact_two_rounding": 65000,
+   "within_1ulp_one": 63928,
+   "within_1ulp_two": 65000
+  },
+  {
+   "m": 129,
+   "n": 1000,
+   "k": 1040,
+   "elements": 129000,
+   "exact_one_rounding": 114794,
+   "exact_two_rounding": 129000,
+   "within_1ulp_one": 127041,
+   "within_1ulp_two": 129000
+  },
+  {
+   "m": 300,
+   "n": 1000,
+   "k": 1040,
+   "elements": 300000,
+   "exact_one_rounding": 264146,
+   "exact_two_rounding": 299999,
+   "within_1ulp_one": 295067,
+   "within_1ulp_two": 300000
+  },
+  {
+   "m": 1,
+   "n": 16,
+   "k": 24,
+   "elements": 16,
+   "exact_one_rounding": 16,
+   "exact_two_rounding": 16,
+   "within_1ulp_one": 16,
+   "within_1ulp_two": 16
+  },
+  {
+   "m": 3,
+   "n": 16,
+   "k": 24,
+   "elements": 48,
+   "exact_one_rounding": 48,
+   "exact_two_rounding": 48,
+   "within_1ulp_one": 48,
+   "within_1ulp_two": 48
+  },
+  {
+   "m": 7,
+   "n": 16,
+   "k": 24,
+   "elements": 112,
+   "exact_one_rounding": 111,
+   "exact_two_rounding": 112,
+   "within_1ulp_one": 111,
+   "within_1ulp_two": 112
+  },
+  {
+   "m": 65,
+   "n": 16,
+   "k": 24,
+   "elements": 1040,
+   "exact_one_rounding": 1025,
+   "exact_two_rounding": 1040,
+   "within_1ulp_one": 1038,
+   "within_1ulp_two": 1040
+  },
+  {
+   "m": 129,
+   "n": 16,
+   "k": 24,
+   "elements": 2064,
+   "exact_one_rounding": 1998,
+   "exact_two_rounding": 2064,
+   "within_1ulp_one": 2053,
+   "within_1ulp_two": 2064
+  },
+  {
+   "m": 300,
+   "n": 16,
+   "k": 24,
+   "elements": 4800,
+   "exact_one_rounding": 4610,
+   "exact_two_rounding": 4800,
+   "within_1ulp_one": 4772,
+   "within_1ulp_two": 4800
+  },
+  {
+   "m": 1,
+   "n": 136,
+   "k": 40,
+   "elements": 136,
+   "exact_one_rounding": 132,
+   "exact_two_rounding": 136,
+   "within_1ulp_one": 135,
+   "within_1ulp_two": 136
+  },
+  {
+   "m": 3,
+   "n": 136,
+   "k": 40,
+   "elements": 408,
+   "exact_one_rounding": 395,
+   "exact_two_rounding": 408,
+   "within_1ulp_one": 406,
+   "within_1ulp_two": 408
+  },
+  {
+   "m": 7,
+   "n": 136,
+   "k": 40,
+   "elements": 952,
+   "exact_one_rounding": 913,
+   "exact_two_rounding": 952,
+   "within_1ulp_one": 948,
+   "within_1ulp_two": 952
+  },
+  {
+   "m": 65,
+   "n": 136,
+   "k": 40,
+   "elements": 8840,
+   "exact_one_rounding": 8580,
+   "exact_two_rounding": 8840,
+   "within_1ulp_one": 8820,
+   "within_1ulp_two": 8840
+  },
+  {
+   "m": 129,
+   "n": 136,
+   "k": 40,
+   "elements": 17544,
+   "exact_one_rounding": 16869,
+   "exact_two_rounding": 17544,
+   "within_1ulp_one": 17501,
+   "within_1ulp_two": 17544
+  },
+  {
+   "m": 300,
+   "n": 136,
+   "k": 40,
+   "elements": 40800,
+   "exact_one_rounding": 38996,
+   "exact_two_rounding": 40800,
+   "within_1ulp_one": 40638,
+   "within_1ulp_two": 40800
+  }
+ ],
+ "totals": {
+  "elements": 597920,
+  "exact_one": 535038,
+  "exact_two": 597919,
+  "near_one": 589420,
+  "near_two": 597920
+ }
+}

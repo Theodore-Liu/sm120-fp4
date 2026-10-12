@@ -1,0 +1,684 @@
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=32
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=32
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=96
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=96
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=160
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=160
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=1056
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=1056
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=4128
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=32 k=4128
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=32
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=32
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=96
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=96
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=160
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=160
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=1056
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=1056
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=4128
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=96 k=4128
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=32
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=32
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=96
+14:50:21 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=96
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=160
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=160
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=1056
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=1056
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=4128
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=160 k=4128
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=32
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=32
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=96
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=96
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=160
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=160
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=1056
+14:50:22 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=1056
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=4128
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=1056 k=4128
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=32
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=32
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=96
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=96
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=160
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=160
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=1056
+14:50:23 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=1056
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=4128
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=1 n=4128 k=4128
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=32
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=32
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=96
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=96
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=160
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=160
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=1056
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=1056
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=4128
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=32 k=4128
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=32
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=32
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=96
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=96
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=160
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=160
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=1056
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=1056
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=4128
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=96 k=4128
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=32
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=32
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=96
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=96
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=160
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=160
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=1056
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=1056
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=4128
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=160 k=4128
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=32
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=32
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=96
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=96
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=160
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=160
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=1056
+14:50:25 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=1056
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=4128
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=1056 k=4128
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=32
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=32
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=96
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=96
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=160
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=160
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=1056
+14:50:26 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=1056
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=4128
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=3 n=4128 k=4128
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=32
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=32
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=96
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=96
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=160
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=160
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=1056
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=1056
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=4128
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=32 k=4128
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=32
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=32
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=96
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=96
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=160
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=160
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=1056
+14:50:27 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=1056
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=4128
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=96 k=4128
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=32
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=32
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=96
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=96
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=160
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=160
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=1056
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=1056
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=4128
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=160 k=4128
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=32
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=32
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=96
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=96
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=160
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=160
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=1056
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=1056
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=4128
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=1056 k=4128
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=32
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=32
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=96
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=96
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=160
+14:50:28 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=160
+14:50:29 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=1056
+14:50:29 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=1056
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=4128
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=7 n=4128 k=4128
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=32
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=32
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=96
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=96
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=160
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=160
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=1056
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=1056
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=4128
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=32 k=4128
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=32
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=32
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=96
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=96
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=160
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=160
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=1056
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=1056
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=4128
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=96 k=4128
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=32
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=32
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=96
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=96
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=160
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=160
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=1056
+14:50:30 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=1056
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=4128
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=160 k=4128
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=32
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=32
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=96
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=96
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=160
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=160
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=1056
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=1056
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=4128
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=1056 k=4128
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=32
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=32
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=96
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=96
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=160
+14:50:31 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=160
+14:50:32 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=1056
+14:50:32 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=1056
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=4128
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=65 n=4128 k=4128
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=32
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=32
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=96
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=96
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=160
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=160
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=1056
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=1056
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=4128
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=32 k=4128
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=32
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=32
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=96
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=96
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=160
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=160
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=1056
+14:50:33 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=1056
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=4128
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=96 k=4128
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=32
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=32
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=96
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=96
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=160
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=160
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=1056
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=1056
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=4128
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=160 k=4128
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=32
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=32
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=96
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=96
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=160
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=160
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=1056
+14:50:34 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=1056
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=4128
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=1056 k=4128
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=32
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=32
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=96
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=96
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=160
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=160
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=1056
+14:50:35 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=1056
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=4128
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=129 n=4128 k=4128
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=32
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=32
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=96
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=96
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=160
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=160
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=1056
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=1056
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=4128
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=32 k=4128
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=32
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=32
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=96
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=96
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=160
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=160
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=1056
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=1056
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=4128
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=96 k=4128
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=32
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=32
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=96
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=96
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=160
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=160
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=1056
+14:50:37 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=1056
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=4128
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=160 k=4128
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=32
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=32
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=96
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=96
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=160
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=160
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=1056
+14:50:38 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=1056
+14:50:39 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=4128
+14:50:39 vllm-edge cutlass_scaled_fp4_mm  m=300 n=1056 k=4128
+14:50:39 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=32
+14:50:39 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=32
+14:50:39 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=96
+14:50:39 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=96
+14:50:39 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=160
+14:50:39 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=160
+14:50:40 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=1056
+14:50:40 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=1056
+14:50:41 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=4128
+14:50:41 vllm-edge cutlass_scaled_fp4_mm  m=300 n=4128 k=4128
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=1 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=1 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=1 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=1 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=1 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=1 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=3 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=3 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=3 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=3 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=3 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=3 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=7 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=7 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=7 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=7 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=7 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=7 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=65 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=65 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=65 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=65 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=65 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=65 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=129 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=129 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=129 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=129 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=129 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=129 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=300 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=300 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=300 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row m=300 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=300 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=300 n=16 k=16
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=1 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=1 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=1 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=1 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=1 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=1 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=3 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=3 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=3 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=3 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=3 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=3 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=7 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=7 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=7 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=7 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=7 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=7 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=65 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=65 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=65 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=65 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=65 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=65 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=129 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=129 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=129 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=129 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=129 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=129 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=300 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=300 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=300 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row m=300 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=300 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=300 n=48 k=144
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=1 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=1 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=1 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=1 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=1 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=1 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=3 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=3 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=3 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=3 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=3 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=3 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=7 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=7 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=7 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=7 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=7 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=7 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=65 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=65 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=65 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=65 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=65 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=65 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=129 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=129 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=129 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=129 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=129 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=129 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=300 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=300 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=300 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row m=300 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=300 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=300 n=144 k=48
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=1 n=1040 k=1040
+14:50:41 vllm-edge cutlass_scaled_mm tensor m=1 n=1040 k=1040
+14:50:41 vllm-edge cutlass_scaled_mm row m=1 n=1040 k=1040
+14:50:41 vllm-edge cutlass_scaled_mm row m=1 n=1040 k=1040
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=1 n=1040 k=1040
+14:50:41 vllm-edge cutlass_scaled_mm row+bias m=1 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=3 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=3 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=3 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=3 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=3 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=3 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=7 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=7 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=7 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=7 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=7 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=7 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=65 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=65 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=65 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=65 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=65 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=65 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=129 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=129 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=129 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=129 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=129 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=129 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=300 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=300 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=300 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row m=300 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=300 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=300 n=1040 k=1040
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=1 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=1 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=1 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=1 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=1 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=1 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=3 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=3 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=3 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=3 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=3 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=3 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=7 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=7 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=7 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=7 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=7 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=7 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=65 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=65 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=65 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=65 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=65 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=65 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=129 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=129 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=129 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=129 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=129 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=129 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=300 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=300 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=300 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row m=300 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=300 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm row+bias m=300 n=4112 k=144
+14:50:42 vllm-edge cutlass_scaled_mm tensor m=1 n=8 k=16
+14:50:44 vllm-edge cutlass_scaled_mm tensor m=1 n=8 k=16
+14:50:44 vllm-edge cutlass_scaled_mm row m=1 n=8 k=16
+14:50:45 vllm-edge cutlass_scaled_mm row m=1 n=8 k=16
+14:50:45 vllm-edge cutlass_scaled_mm row+bias m=1 n=8 k=16
+14:50:45 vllm-edge cutlass_scaled_mm row+bias m=1 n=8 k=16
+14:50:45 vllm-edge cutlass_scaled_mm tensor m=3 n=8 k=16
+14:50:45 vllm-edge cutlass_scaled_mm tensor m=3 n=8 k=16
+14:50:45 vllm-edge cutlass_scaled_mm row m=3 n=8 k=16
+14:50:45 vllm-edge cutlass_scaled_mm row m=3 n=8 k=16
+14:50:45 vllm-edge cutlass_scaled_mm row+bias m=3 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row+bias m=3 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm tensor m=7 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm tensor m=7 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row m=7 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row m=7 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row+bias m=7 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row+bias m=7 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm tensor m=65 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm tensor m=65 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row m=65 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row m=65 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row+bias m=65 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm row+bias m=65 n=8 k=16
+14:50:46 vllm-edge cutlass_scaled_mm tensor m=129 n=8 k=16
+14:50:47 vllm-edge cutlass_scaled_mm tensor m=129 n=8 k=16
+14:50:47 vllm-edge cutlass_scaled_mm row m=129 n=8 k=16
+14:50:47 vllm-edge cutlass_scaled_mm row m=129 n=8 k=16
+14:50:47 vllm-edge cutlass_scaled_mm row+bias m=129 n=8 k=16
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=129 n=8 k=16
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=300 n=8 k=16
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=300 n=8 k=16
+14:50:48 vllm-edge cutlass_scaled_mm row m=300 n=8 k=16
+14:50:48 vllm-edge cutlass_scaled_mm row m=300 n=8 k=16
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=300 n=8 k=16
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=300 n=8 k=16
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=1 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=1 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=1 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=1 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=1 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=1 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=3 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=3 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=3 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=3 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=3 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=3 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=7 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=7 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=7 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=7 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=7 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=7 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=65 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=65 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=65 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=65 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=65 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=65 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=129 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=129 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=129 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=129 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=129 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=129 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=300 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=300 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=300 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row m=300 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=300 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=300 n=24 k=144
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=1 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=1 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=1 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=1 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=1 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=1 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=3 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=3 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=3 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=3 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=3 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=3 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=7 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=7 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=7 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=7 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=7 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=7 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=65 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=65 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=65 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=65 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=65 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=65 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=129 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=129 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=129 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=129 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=129 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=129 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=300 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=300 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=300 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row m=300 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=300 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm row+bias m=300 n=1000 k=1040
+14:50:48 vllm-edge cutlass_scaled_mm tensor m=1 n=16 k=24
+14:50:49 vllm-edge cutlass_scaled_mm tensor m=1 n=16 k=24
+14:50:49 vllm-edge cutlass_scaled_mm row m=1 n=16 k=24
+14:50:50 vllm-edge cutlass_scaled_mm row m=1 n=16 k=24
+14:50:50 vllm-edge cutlass_scaled_mm row+bias m=1 n=16 k=24
+14:50:50 vllm-edge cutlass_scaled_mm row+bias m=1 n=16 k=24
+14:50:50 vllm-edge cutlass_scaled_mm tensor m=3 n=16 k=24
+14:50:51 vllm-edge cutlass_scaled_mm tensor m=3 n=16 k=24
+14:50:51 vllm-edge cutlass_scaled_mm row m=3 n=16 k=24
+14:50:52 vllm-edge cutlass_scaled_mm row m=3 n=16 k=24
+14:50:52 vllm-edge cutlass_scaled_mm row+bias m=3 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm row+bias m=3 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm tensor m=7 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm tensor m=7 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm row m=7 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm row m=7 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm row+bias m=7 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm row+bias m=7 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm tensor m=65 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm tensor m=65 n=16 k=24
+14:50:53 vllm-edge cutlass_scaled_mm row m=65 n=16 k=24
+14:50:54 vllm-edge cutlass_scaled_mm row m=65 n=16 k=24
+14:50:54 vllm-edge cutlass_scaled_mm row+bias m=65 n=16 k=24
+14:50:54 vllm-edge cutlass_scaled_mm row+bias m=65 n=16 k=24
+14:50:54 vllm-edge cutlass_scaled_mm tensor m=129 n=16 k=24
+14:50:55 vllm-edge cutlass_scaled_mm tensor m=129 n=16 k=24
+14:50:55 vllm-edge cutlass_scaled_mm row m=129 n=16 k=24
+14:50:56 vllm-edge cutlass_scaled_mm row m=129 n=16 k=24
+14:50:56 vllm-edge cutlass_scaled_mm row+bias m=129 n=16 k=24
+14:50:58 vllm-edge cutlass_scaled_mm row+bias m=129 n=16 k=24
+14:50:58 vllm-edge cutlass_scaled_mm tensor m=300 n=16 k=24
+14:50:58 vllm-edge cutlass_scaled_mm tensor m=300 n=16 k=24
+14:50:58 vllm-edge cutlass_scaled_mm row m=300 n=16 k=24
+14:50:58 vllm-edge cutlass_scaled_mm row m=300 n=16 k=24
+14:50:58 vllm-edge cutlass_scaled_mm row+bias m=300 n=16 k=24
+14:50:58 vllm-edge cutlass_scaled_mm row+bias m=300 n=16 k=24
+14:50:58 vllm-edge cutlass_scaled_mm tensor m=1 n=136 k=40
+14:50:58 vllm-edge cutlass_scaled_mm tensor m=1 n=136 k=40
+14:50:58 vllm-edge cutlass_scaled_mm row m=1 n=136 k=40
+14:50:59 vllm-edge cutlass_scaled_mm row m=1 n=136 k=40
+14:50:59 vllm-edge cutlass_scaled_mm row+bias m=1 n=136 k=40
+14:51:00 vllm-edge cutlass_scaled_mm row+bias m=1 n=136 k=40
+14:51:00 vllm-edge cutlass_scaled_mm tensor m=3 n=136 k=40
+14:51:01 vllm-edge cutlass_scaled_mm tensor m=3 n=136 k=40
+14:51:01 vllm-edge cutlass_scaled_mm row m=3 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm row m=3 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm row+bias m=3 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm row+bias m=3 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm tensor m=7 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm tensor m=7 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm row m=7 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm row m=7 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm row+bias m=7 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm row+bias m=7 n=136 k=40
+14:51:02 vllm-edge cutlass_scaled_mm tensor m=65 n=136 k=40
+14:51:03 vllm-edge cutlass_scaled_mm tensor m=65 n=136 k=40
+14:51:03 vllm-edge cutlass_scaled_mm row m=65 n=136 k=40
+14:51:04 vllm-edge cutlass_scaled_mm row m=65 n=136 k=40
+14:51:04 vllm-edge cutlass_scaled_mm row+bias m=65 n=136 k=40
+14:51:05 vllm-edge cutlass_scaled_mm row+bias m=65 n=136 k=40
+14:51:05 vllm-edge cutlass_scaled_mm tensor m=129 n=136 k=40
+14:51:06 vllm-edge cutlass_scaled_mm tensor m=129 n=136 k=40
+14:51:06 vllm-edge cutlass_scaled_mm row m=129 n=136 k=40
+14:51:08 vllm-edge cutlass_scaled_mm row m=129 n=136 k=40
+14:51:08 vllm-edge cutlass_scaled_mm row+bias m=129 n=136 k=40
+14:51:09 vllm-edge cutlass_scaled_mm row+bias m=129 n=136 k=40
+14:51:09 vllm-edge cutlass_scaled_mm tensor m=300 n=136 k=40
+14:51:09 vllm-edge cutlass_scaled_mm tensor m=300 n=136 k=40
+14:51:09 vllm-edge cutlass_scaled_mm row m=300 n=136 k=40
+14:51:09 vllm-edge cutlass_scaled_mm row m=300 n=136 k=40
+14:51:09 vllm-edge cutlass_scaled_mm row+bias m=300 n=136 k=40
+14:51:09 vllm-edge cutlass_scaled_mm row+bias m=300 n=136 k=40
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=1 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=1 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=3 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=3 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=7 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=7 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=65 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=65 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=129 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=129 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=300 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=300 n=128 k=128
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=1 n=384 k=1152
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=1 n=384 k=1152
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=3 n=384 k=1152
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=3 n=384 k=1152
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=7 n=384 k=1152
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=7 n=384 k=1152
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=65 n=384 k=1152
+14:51:09 vllm-edge cutlass_scaled_mm block128 m=65 n=384 k=1152
+14:51:10 vllm-edge cutlass_scaled_mm block128 m=129 n=384 k=1152
+14:51:10 vllm-edge cutlass_scaled_mm block128 m=129 n=384 k=1152
+14:51:10 vllm-edge cutlass_scaled_mm block128 m=300 n=384 k=1152
+14:51:10 vllm-edge cutlass_scaled_mm block128 m=300 n=384 k=1152

@@ -1,0 +1,34 @@
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 7, "n": 8, "k": 16, "elements": 56, "outside": 2, "nan": 0, "max_err_over_bound": 1.0238840333295525, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 65, "n": 8, "k": 16, "elements": 520, "outside": 13, "nan": 0, "max_err_over_bound": 1.3678409093005244, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 129, "n": 8, "k": 16, "elements": 1032, "outside": 10, "nan": 0, "max_err_over_bound": 1.0987512453351, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 300, "n": 8, "k": 16, "elements": 2400, "outside": 134, "nan": 0, "max_err_over_bound": 33.940603546074705, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 3, "n": 24, "k": 144, "elements": 72, "outside": 4, "nan": 0, "max_err_over_bound": 2.819753325494477, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 7, "n": 24, "k": 144, "elements": 168, "outside": 1, "nan": 0, "max_err_over_bound": 1.046182398599453, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 65, "n": 24, "k": 144, "elements": 1560, "outside": 111, "nan": 0, "max_err_over_bound": 10.678616801815883, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 129, "n": 24, "k": 144, "elements": 3096, "outside": 154, "nan": 0, "max_err_over_bound": 18.876086720087827, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 300, "n": 24, "k": 144, "elements": 7200, "outside": 263, "nan": 0, "max_err_over_bound": 17.00933107293952, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 1, "n": 1000, "k": 1040, "elements": 1000, "outside": 9, "nan": 0, "max_err_over_bound": 1.3605348846824314, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 3, "n": 1000, "k": 1040, "elements": 3000, "outside": 42, "nan": 0, "max_err_over_bound": 1.8139418150440958, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 7, "n": 1000, "k": 1040, "elements": 7000, "outside": 75, "nan": 0, "max_err_over_bound": 2.3290476446432735, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 65, "n": 1000, "k": 1040, "elements": 65000, "outside": 853, "nan": 0, "max_err_over_bound": 3.2608931937042356, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 129, "n": 1000, "k": 1040, "elements": 129000, "outside": 1640, "nan": 0, "max_err_over_bound": 2.4560099158137163, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 300, "n": 1000, "k": 1040, "elements": 300000, "outside": 3969, "nan": 0, "max_err_over_bound": 3.045033815566324, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 7, "n": 16, "k": 24, "elements": 112, "outside": 1, "nan": 0, "max_err_over_bound": 6.199303710679097, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 65, "n": 16, "k": 24, "elements": 1040, "outside": 15, "nan": 0, "max_err_over_bound": 3.8523833706741053, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 129, "n": 16, "k": 24, "elements": 2064, "outside": 66, "nan": 0, "max_err_over_bound": 54.03304956214197, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 300, "n": 16, "k": 24, "elements": 4800, "outside": 188, "nan": 0, "max_err_over_bound": 79.29125299473338, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 1, "n": 136, "k": 40, "elements": 136, "outside": 4, "nan": 0, "max_err_over_bound": 5.490709489983546, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 3, "n": 136, "k": 40, "elements": 408, "outside": 13, "nan": 0, "max_err_over_bound": 11.935294444194636, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 7, "n": 136, "k": 40, "elements": 952, "outside": 37, "nan": 0, "max_err_over_bound": 13.844104162461731, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 65, "n": 136, "k": 40, "elements": 8840, "outside": 246, "nan": 0, "max_err_over_bound": 56.88852791928579, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 129, "n": 136, "k": 40, "elements": 17544, "outside": 653, "nan": 0, "max_err_over_bound": 17.346792752010803, "distinct_outputs": 1}
+{"op": "cutlass_scaled_mm", "path": "triton-fallback", "scales": "row+bias", "m": 300, "n": 136, "k": 40, "elements": 40800, "outside": 1742, "nan": 0, "max_err_over_bound": 106.2234101994773, "distinct_outputs": 1}
+('cutlass_scaled_fp4_mm', '-', '-') {'judged': 150, 'bad_cases': 0, 'errors': 0}
+('cutlass_scaled_mm', 'cutlass', 'block128') {'judged': 12, 'bad_cases': 0, 'errors': 0}
+('cutlass_scaled_mm', 'cutlass', 'row') {'judged': 30, 'bad_cases': 0, 'errors': 0}
+('cutlass_scaled_mm', 'cutlass', 'row+bias') {'judged': 30, 'bad_cases': 0, 'errors': 0}
+('cutlass_scaled_mm', 'cutlass', 'tensor') {'judged': 30, 'bad_cases': 0, 'errors': 0}
+('cutlass_scaled_mm', 'triton-fallback', 'row') {'judged': 30, 'bad_cases': 0, 'errors': 0}
+('cutlass_scaled_mm', 'triton-fallback', 'row+bias') {'judged': 30, 'bad_cases': 25, 'errors': 0}
+('cutlass_scaled_mm', 'triton-fallback', 'tensor') {'judged': 30, 'bad_cases': 0, 'errors': 0}
+cases 342; wrote /root/out/vllm-edge-pro6000-v0280-20261012.json
