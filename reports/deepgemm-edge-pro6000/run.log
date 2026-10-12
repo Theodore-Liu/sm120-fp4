@@ -1,0 +1,40 @@
+START 2026-10-12T11:42:15Z
+NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 610.57.04
+torch 2.13.0+cu130 deep_gemm 2.8.1
+15c02c8 Public release 26/09/30 (#462) (#30)
+probe rc=0
+11:47:51 edge contiguous-index groups=8 n=9 k=4112
+11:47:51 edge contiguous-psum groups=8 n=9 k=4112
+11:47:53 edge masked groups=8 n=9 k=4112
+{"kind": "dense", "m": 129, "n": 4100, "k": 48, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 129, "n": 4100, "k": 144, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 129, "n": 4100, "k": 208, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 129, "n": 4100, "k": 1040, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 129, "n": 4100, "k": 4112, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 9, "k": 16, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 9, "k": 48, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 9, "k": 144, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 9, "k": 208, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 9, "k": 1040, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 9, "k": 4112, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 4100, "k": 16, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 4100, "k": 48, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 4100, "k": 144, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 4100, "k": 208, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 4100, "k": 1040, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "dense", "m": 300, "n": 4100, "k": 4112, "fp32_with_c": false, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "contiguous-index", "groups": 64, "n": 136, "k": 208, "empty_groups": 41, "m": 3968, "elements": 283288, "outside": 0, "nan": 0, "max_err_over_bound": 0.9769175233991798, "distinct_outputs": 1}
+{"kind": "contiguous-psum", "groups": 64, "n": 136, "k": 208, "empty_groups": 41, "m": 3968, "elements": 283288, "outside": 0, "nan": 0, "max_err_over_bound": 0.9785529694528056, "distinct_outputs": 1}
+{"kind": "masked", "groups": 64, "n": 136, "k": 208, "max_m": 384, "empty_groups": 41, "elements": 283288, "outside": 0, "nan": 0, "max_err_over_bound": 0.9753499638125063, "distinct_outputs": 1}
+{"kind": "contiguous-index", "groups": 64, "n": 1000, "k": 1040, "empty_groups": 48, "m": 2944, "elements": 2194000, "outside": 0, "nan": 0, "max_err_over_bound": 0.8591040413833526, "distinct_outputs": 1}
+{"kind": "contiguous-psum", "groups": 64, "n": 1000, "k": 1040, "empty_groups": 48, "m": 2944, "elements": 2194000, "outside": 0, "nan": 0, "max_err_over_bound": 0.8480523678703972, "distinct_outputs": 1}
+{"kind": "masked", "groups": 64, "n": 1000, "k": 1040, "max_m": 384, "empty_groups": 48, "elements": 2194000, "outside": 0, "nan": 0, "max_err_over_bound": 0.8552172212411118, "distinct_outputs": 1}
+{"kind": "contiguous-index", "groups": 17, "n": 4100, "k": 144, "empty_groups": 7, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "contiguous-psum", "groups": 17, "n": 4100, "k": 144, "empty_groups": 7, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "masked", "groups": 17, "n": 4100, "k": 144, "max_m": 256, "empty_groups": 7, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "contiguous-index", "groups": 8, "n": 9, "k": 4112, "empty_groups": 5, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "contiguous-psum", "groups": 8, "n": 9, "k": 4112, "empty_groups": 5, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+{"kind": "masked", "groups": 8, "n": 9, "k": 4112, "max_m": 256, "empty_groups": 5, "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/runtime_utils.hpp:129): num_gmem_outer_stride_bytes % 16u == 0u"}
+cases 236, judged 154, outside in 0, nan in 0, nondeterministic 0, errors 82; wrote /root/out/deepgemm-edge-pro6000-15c02c8-20261012.json
+END 2026-10-12T11:47:53Z
+WRAPPER_RC=0

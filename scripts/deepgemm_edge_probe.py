@@ -5,8 +5,9 @@ oracle (vllm-project/DeepGEMM dev).
 The contract, read from the host checks (csrc/apis/gemm.hpp, csrc/apis/sm120_dispatch.hpp, csrc/utils/layout.hpp) and the
 README: m, n, k positive; d bf16 (or fp32 with an optional fp32 accumulator c, `d = a @ b.T + c`); only mixed FP8 x FP4 needs
 k % 128 == 0; grouped contiguous segments aligned to `get_mk_alignment_for_contiguous_layout()`; masked_m per group in [0, max_m].
-FP8 rows are read by TMA, so k is kept a multiple of 16 (16-byte rows); n = 9 with a strided output is exercised by DeepGEMM's
-own SM120 test, so odd n is in contract. The library's casts (`per_token_cast_to_fp8`, `per_block_cast_to_fp8`, UE8M0 scales)
+FP8 rows are read by TMA, so k is kept a multiple of 16 (16-byte rows); the output's row stride must also be a 16-byte
+multiple, so outputs are allocated with padded rows and passed as column slices (`strided`), as DeepGEMM's own SM120 odd-n test
+does; odd n is then in contract. The library's casts (`per_token_cast_to_fp8`, `per_block_cast_to_fp8`, UE8M0 scales)
 pad unaligned shapes themselves, so unpadded m, n, k are supported inputs.
 
 Cases:
@@ -38,6 +39,16 @@ def expand(sf: torch.Tensor, row_gran: int, k_gran: int, rows: int, k: int) -> t
     s = sf.detach().cpu().double()
     s = s[..., : -(-rows // row_gran), : -(-k // k_gran)]
     return s.repeat_interleave(row_gran, dim=-2)[..., :rows, :].repeat_interleave(k_gran, dim=-1)[..., :k]
+
+
+def strided(shape, dtype, fill=0.0):
+    """An output (or accumulator) whose rows start on 16-byte boundaries: the TMA descriptor requires the row stride in bytes
+    to be a multiple of 16 (`runtime_utils.hpp: num_gmem_outer_stride_bytes % 16u == 0u`), so an n whose rows are not 16-byte
+    multiples is written into a wider buffer and passed as a column slice, as DeepGEMM's own SM120 odd-n test does."""
+    *lead, n = shape
+    per = 16 // torch.empty((), dtype=dtype).element_size()
+    width = -(-n // per) * per
+    return torch.full((*lead, width), fill, dtype=dtype, device="cuda")[..., :n]
 
 
 def bound(ad, bd, exact, k, out_dtype):
@@ -99,10 +110,11 @@ def main(argv=None) -> int:
                             bnd = bound(ad, bd, exact, k, torch.bfloat16)
                         outs = []
                         for _ in range(2):
-                            d = torch.empty(m, n, dtype=torch.float32 if acc else torch.bfloat16, device="cuda")
+                            d = strided((m, n), torch.float32 if acc else torch.bfloat16)
                             mark(f"dense m={m} n={n} k={k} acc={acc}")
                             if acc:
-                                deep_gemm.fp8_gemm_nt((xq, xs), (wq, ws), d, c=c.cuda())
+                                cc = strided((m, n), torch.float32); cc.copy_(c.cuda())
+                                deep_gemm.fp8_gemm_nt((xq, xs), (wq, ws), d, c=cc)
                             else:
                                 deep_gemm.fp8_gemm_nt((xq, xs), (wq, ws), d)
                             torch.cuda.synchronize()
@@ -161,7 +173,7 @@ def main(argv=None) -> int:
                         bnd[s0:s0 + ln] = bound(ad[s0:s0 + ln], bd[g], exact[s0:s0 + ln], k, torch.bfloat16)
                 outs = []
                 for _ in range(2):
-                    d = torch.zeros(m, n, dtype=torch.bfloat16, device="cuda")
+                    d = strided((m, n), torch.bfloat16)
                     mark(f"{rec['kind']} groups={num_groups} n={n} k={k}")
                     deep_gemm.m_grouped_fp8_fp4_gemm_nt_contiguous((xq, xs), (bq, bsf), d, gl.cuda(), disable_ue8m0_cast=False,
                                                                   use_psum_layout=(layout == "psum"))
@@ -192,7 +204,7 @@ def main(argv=None) -> int:
             exp_m = max(1, int(sum(lens) / max(1, num_groups - rec["empty_groups"])))
             outs = []
             for _ in range(2):
-                d = torch.zeros(num_groups, max_m, n, dtype=torch.bfloat16, device="cuda")
+                d = strided((num_groups, max_m, n), torch.bfloat16)
                 mark(f"masked groups={num_groups} n={n} k={k}")
                 deep_gemm.m_grouped_fp8_fp4_gemm_nt_masked((xq, xs), (bq, bsf), d, mm.cuda(), exp_m, disable_ue8m0_cast=False)
                 torch.cuda.synchronize()
