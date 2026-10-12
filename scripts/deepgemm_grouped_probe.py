@@ -9,8 +9,8 @@ Inside the documented contract only: README, "each expert segment must be aligne
 That test judges with `calc_diff` (a normalised squared difference against a bf16 product of the unquantised operands); here
 each valid output element is judged against the exact product of the quantised operands (scales expanded element by element,
 float64 sum) under the census's bound. Rows outside every group (padding, PSUM gaps, masked tails) are not judged. Each case runs
-three times and the distinct-output count over the valid rows is recorded. FP4 operands are skipped in this version (their
-packing is not decoded here); they are listed as skipped, not judged.
+three times and the distinct-output count over the valid rows is recorded. FP4 operands are decoded here
+(`decode_fp4`, checked at start-up against the E2M1 reference and DeepGEMM's own `cast_back_from_fp4`).
 
     PYTHONPATH=<sm120-fp4>:<DeepGEMM>/tests python scripts/deepgemm_grouped_probe.py --out reports/<file>.json [--max-cases N]
 """
@@ -45,6 +45,40 @@ def expand(sf: torch.Tensor, rows: int, cols: int) -> torch.Tensor:
     return sf.repeat_interleave(gr, dim=-2)[..., :rows, :].repeat_interleave(gc, dim=-1)[..., :cols]
 
 
+E2M1 = torch.tensor([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0], dtype=torch.float64)
+
+
+def decode_fp4(packed: torch.Tensor) -> torch.Tensor:
+    """DeepGEMM's packed FP4 (int8, K-major, [.., rows, k/2]): low nibble = even element, bit 3 = sign, bits 2..0 index
+    {0, 0.5, 1, 1.5, 2, 3, 4, 6} (`per_token_cast_to_fp4`). Returns float64 [.., rows, k]. Written independently of
+    DeepGEMM's `cast_back_from_fp4` and checked against it and against the census's E2M1 reference at start-up."""
+    b = packed.detach().cpu().view(torch.uint8).long()
+    lo, hi = b & 0xF, (b >> 4) & 0xF
+    codes = torch.stack([lo, hi], dim=-1).reshape(*b.shape[:-1], b.shape[-1] * 2)
+    mag = E2M1[codes & 7]
+    return torch.where((codes & 8) != 0, -mag, mag)
+
+
+def dequant(x: torch.Tensor, sf: torch.Tensor, is_fp4: bool, row_gran: int, k_gran: int) -> torch.Tensor:
+    """Operand values times their scales, element by element, with the granularities stated by the quant config (not
+    inferred from the scale tensor's shape, which may carry padding)."""
+    v = decode_fp4(x) if is_fp4 else x.detach().cpu().double()
+    rows, k = v.shape[-2], v.shape[-1]
+    s = sf_to_float(sf)
+    s = s[..., : -(-rows // row_gran), : -(-k // k_gran)]
+    s = s.repeat_interleave(row_gran, dim=-2)[..., :rows, :].repeat_interleave(k_gran, dim=-1)[..., :k]
+    return v * s
+
+
+def selftest_decode() -> None:
+    from sm120fp4.reference import e2m1_decode
+    codes = torch.arange(16, dtype=torch.uint8)
+    packed = (codes[0::2] | (codes[1::2] << 4)).view(torch.int8)[None, :]
+    got = decode_fp4(packed)[0]
+    ref = e2m1_decode(codes).double()
+    assert torch.equal(got, ref), (got, ref)
+
+
 def bound_for(ad: torch.Tensor, bd: torch.Tensor, exact: torch.Tensor, k: int):
     from sm120fp4 import oracle
     sabs = ad.abs() @ bd.abs().transpose(-1, -2)
@@ -66,6 +100,14 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     import deep_gemm
     import generators as G
+    selftest_decode()
+    from deep_gemm.utils.math import cast_back_from_fp4, per_token_cast_to_fp4
+    xs = torch.randn(64, 512, device="cuda", dtype=torch.bfloat16)
+    for gran in (32, 128):
+        pk, sf = per_token_cast_to_fp4(xs, use_ue8m0=True, gran_k=gran)
+        theirs = cast_back_from_fp4(pk, sf, gran_k=gran).double().cpu()
+        ours = dequant(pk, sf, True, 1, gran)
+        assert torch.equal(theirs, ours), f"FP4 decode disagrees with DeepGEMM's cast_back_from_fp4 at gran {gran}"
     report = {"generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "device": torch.cuda.get_device_name(0),
               "torch": torch.__version__, "deep_gemm": getattr(deep_gemm, "__version__", "?"), "cases": []}
 
@@ -76,10 +118,6 @@ def main(argv=None) -> int:
         rec = {"layout": "contiguous-psum" if use_psum else "contiguous-index", "groups": num_groups, "expected_m": expected_m,
                "n": n, "k": k, "major_a": str(major_a), "major_b": str(major_b), "ensure_zero_padding": bool(ensure_zero),
                "fp4_a": bool(qc.is_fp4_a), "fp4_b": bool(qc.is_fp4_b)}
-        if qc.is_fp4_a or qc.is_fp4_b:
-            rec["skipped"] = "FP4 operand (packing not decoded in this version)"
-            report["cases"].append(rec)
-            continue
         if not (major_a.is_k_major() and major_b.is_k_major()):
             rec["skipped"] = "non-K-major operand (kept to the NT form here)"
             report["cases"].append(rec)
@@ -99,8 +137,10 @@ def main(argv=None) -> int:
                                                               recipe=recipe, recipe_a=recipe_a, recipe_b=recipe_b)
                 torch.cuda.synchronize()
                 outs.append(d.double().cpu())
-            ad = aa[0].cpu().double() * expand(sf_to_float(aa[1]), m, k)
-            bd = bb[0].cpu().double() * expand(sf_to_float(bb[1]), n, k)
+            ad = dequant(aa[0], aa[1], qc.is_fp4_a, 1, qc.gran_k_a)
+            # B: FP4 is per row (recipe (1, gran)); FP8 is cast per block (gran x gran) by the generator
+            bd = dequant(bb[0], bb[1], qc.is_fp4_b, 1 if qc.is_fp4_b else qc.gran_k_b, qc.gran_k_b)
+            rec["gran_k_a"], rec["gran_k_b"] = qc.gran_k_a, qc.gran_k_b
             lay = layout.cpu().long()
             vm = valid.cpu()
             exact = torch.zeros(m, n, dtype=torch.float64)
@@ -138,8 +178,8 @@ def main(argv=None) -> int:
         kernel_type, qc, num_groups, max_m, expected_m, n, k, use_psum = cfg[:8] if len(cfg) >= 8 else (*cfg, False)
         rec = {"layout": "masked" + ("-psum" if use_psum else ""), "groups": num_groups, "max_m": max_m, "expected_m": expected_m,
                "n": n, "k": k, "fp4_a": bool(qc.is_fp4_a), "fp4_b": bool(qc.is_fp4_b)}
-        if qc.is_fp4_a or qc.is_fp4_b or use_psum:
-            rec["skipped"] = "FP4 operand" if (qc.is_fp4_a or qc.is_fp4_b) else "masked PSUM variant (not modelled here)"
+        if use_psum:
+            rec["skipped"] = "masked PSUM variant (not modelled here)"
             report["cases"].append(rec)
             continue
         try:
@@ -156,8 +196,9 @@ def main(argv=None) -> int:
                                                           recipe=recipe, recipe_a=recipe_a, recipe_b=recipe_b)
                 torch.cuda.synchronize()
                 outs.append(d.double().cpu())
-            ad = aa[0].cpu().double() * expand(sf_to_float(aa[1]), max_m, k)
-            bd = bb[0].cpu().double() * expand(sf_to_float(bb[1]), n, k)
+            ad = dequant(aa[0], aa[1], qc.is_fp4_a, 1, qc.gran_k_a)
+            bd = dequant(bb[0], bb[1], qc.is_fp4_b, 1 if qc.is_fp4_b else qc.gran_k_b, qc.gran_k_b)
+            rec["gran_k_a"], rec["gran_k_b"] = qc.gran_k_a, qc.gran_k_b
             mm = masked_m.cpu().long()
             res = {"elements": 0, "outside": 0, "max_err_over_bound": 0.0, "nan": 0}
             sel = []
