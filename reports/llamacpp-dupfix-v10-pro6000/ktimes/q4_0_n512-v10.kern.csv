@@ -1,0 +1,7 @@
+Generating SQLite file /root/out/ktimes/q4_0_n512-v10.sqlite from /root/out/ktimes/q4_0_n512-v10.nsys-rep
+Processing [/root/out/ktimes/q4_0_n512-v10.sqlite] with [/opt/nvidia/nsight-systems/2025.6.3/host-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+83.0,1892045,18,105113.6,103617.0,1376,210786,106701.7,"void mul_mat_q<(ggml_type)2, (int)128, (bool)0, (ggml_prec)30>(const char *, const int *, const int *, const int *, float *, float *, const float *, uint3, int, int, int, int, int, uint3, uint3, int, int, int, uint3, uint3, int, int, int, uint3, int *, int)"
+9.6,218273,9,24252.6,25760.0,11392,26113,4825.8,"void quantize_mmq_q8_1<(mmq_q8_1_ds_layout)1, (bool)0>(const float *, const int *, void *, long, long, long, long, long, int, int, int)"
+7.4,169473,9,18830.3,19521.0,12992,19744,2195.0,"void mm_ids_helper<(int)8>(const int *, int *, int *, int *, int, int, int, int, int, bool)"
+
