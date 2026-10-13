@@ -1,0 +1,13 @@
+== f16_n1
+  mul_mat_f                                        base   3975 x    11.71 us   fix   3975 x    11.78 us    1.006
+== f16_n4
+  mul_mat_f                                        base    995 x    22.89 us   fix    995 x    21.48 us    0.938
+== q4_0_n32
+  mul_mat_q                                        base    126 x    65.51 us   fix    252 x    33.73 us    0.515
+  mul_mat_q_stream_k_fixup                         base    126 x     2.25 us   fix    126 x     2.39 us    1.064
+  mm_ids_helper                                    base    126 x     1.64 us   fix    126 x     2.38 us    1.452
+  quantize_mmq_q8_1                                base    126 x     1.58 us   fix    126 x     1.62 us    1.025
+== q4_0_n512
+  mul_mat_q                                        base      9 x   211.28 us   fix     18 x   104.92 us    0.497
+  mm_ids_helper                                    base      9 x    17.94 us   fix      9 x    27.67 us    1.542
+  quantize_mmq_q8_1                                base      9 x    24.25 us   fix      9 x    24.50 us    1.010
