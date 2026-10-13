@@ -1,0 +1,5 @@
+Generating SQLite file /root/out/ktimes/f16_n1-base.sqlite from /root/out/ktimes/f16_n1-base.nsys-rep
+Processing [/root/out/ktimes/f16_n1-base.sqlite] with [/opt/nvidia/nsight-systems/2025.6.3/host-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+100.0,44791146,3975,11268.2,11233.0,9760,22720,466.8,"void mul_mat_f<__half2, (int)32, (int)1, (int)8, (bool)1>(const T1 *, const float *, const int *, float *, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int)"
+

@@ -1,0 +1,340 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 97251 MiB):
+  Device 0: NVIDIA RTX PRO 6000 Blackwell Server Edition, compute capability 12.0, VMM: yes, VRAM: 97251 MiB
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+Testing 2 devices
+
+Backend 1/2: CUDA0
+  Device description: NVIDIA RTX PRO 6000 Blackwell Server Edition
+  Device memory: 97251 MB (96693 MB free)
+
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 55636 runs -    18.64 us/run -  25.17 MFLOP/run - [1;34m  1.35 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 75506 runs -    13.31 us/run -  25.17 MFLOP/run - [1;34m  1.89 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):               190752 runs -     5.31 us/run -  25.17 MFLOP/run - [1;34m  4.74 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):               151012 runs -     6.71 us/run -  25.17 MFLOP/run - [1;34m  3.75 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):               162934 runs -     6.18 us/run -  25.17 MFLOP/run - [1;34m  4.07 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):               143064 runs -     7.09 us/run -  25.17 MFLOP/run - [1;34m  3.55 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):             158960 runs -     6.31 us/run -  25.17 MFLOP/run - [1;34m  3.99 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):             210622 runs -     4.77 us/run -  25.17 MFLOP/run - [1;34m  5.27 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                  8946 runs -   120.30 us/run - 100.66 MFLOP/run - [1;34m836.75 GFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 44730 runs -    22.89 us/run - 100.66 MFLOP/run - [1;34m  4.40 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):               111328 runs -     9.03 us/run - 100.66 MFLOP/run - [1;34m 11.15 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                77532 runs -    13.01 us/run - 100.66 MFLOP/run - [1;34m  7.74 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                97412 runs -    10.33 us/run - 100.66 MFLOP/run - [1;34m  9.74 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                77532 runs -    12.97 us/run - 100.66 MFLOP/run - [1;34m  7.76 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):             101388 runs -     9.91 us/run - 100.66 MFLOP/run - [1;34m 10.16 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):             109340 runs -     9.18 us/run - 100.66 MFLOP/run - [1;34m 10.97 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                  4970 runs -   216.40 us/run - 201.33 MFLOP/run - [1;34m930.33 GFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 10437 runs -    99.49 us/run - 201.33 MFLOP/run - [1;34m  2.02 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                68586 runs -    14.64 us/run - 201.33 MFLOP/run - [1;34m 13.76 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                45227 runs -    22.35 us/run - 201.33 MFLOP/run - [1;34m  9.01 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                61131 runs -    16.44 us/run - 201.33 MFLOP/run - [1;34m 12.25 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                44730 runs -    22.44 us/run - 201.33 MFLOP/run - [1;34m  8.97 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):              57652 runs -    17.36 us/run - 201.33 MFLOP/run - [1;34m 11.60 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):              66101 runs -    15.16 us/run - 201.33 MFLOP/run - [1;34m 13.28 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 2125 runs -   473.12 us/run - 805.31 MFLOP/run - [1;34m  1.70 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 4125 runs -   248.43 us/run - 805.31 MFLOP/run - [1;34m  3.24 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):               13625 runs -    73.81 us/run - 805.31 MFLOP/run - [1;34m 10.91 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):                6750 runs -   150.49 us/run - 805.31 MFLOP/run - [1;34m  5.35 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):               11750 runs -    85.46 us/run - 805.31 MFLOP/run - [1;34m  9.42 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):                8125 runs -   123.39 us/run - 805.31 MFLOP/run - [1;34m  6.53 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):              9250 runs -   109.49 us/run - 805.31 MFLOP/run - [1;34m  7.36 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):             12750 runs -    78.46 us/run - 805.31 MFLOP/run - [1;34m 10.26 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 1890 runs -   542.07 us/run -   1.61 GFLOP/run - [1;34m  2.97 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 3528 runs -   287.10 us/run -   1.61 GFLOP/run - [1;34m  5.61 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):                9765 runs -   102.82 us/run -   1.61 GFLOP/run - [1;34m 15.66 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):                5733 runs -   176.02 us/run -   1.61 GFLOP/run - [1;34m  9.15 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):                8694 runs -   115.20 us/run -   1.61 GFLOP/run - [1;34m 13.98 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):                5418 runs -   184.89 us/run -   1.61 GFLOP/run - [1;34m  8.71 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):              6489 runs -   155.10 us/run -   1.61 GFLOP/run - [1;34m 10.38 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):              9828 runs -   101.84 us/run -   1.61 GFLOP/run - [1;34m 15.82 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):                1728 runs -   587.46 us/run -   3.22 GFLOP/run - [1;34m  5.48 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):                3104 runs -   323.47 us/run -   3.22 GFLOP/run - [1;34m  9.96 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):               5344 runs -   187.20 us/run -   3.22 GFLOP/run - [1;34m 17.21 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):               4512 runs -   222.71 us/run -   3.22 GFLOP/run - [1;34m 14.46 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):               4832 runs -   207.54 us/run -   3.22 GFLOP/run - [1;34m 15.52 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):               3680 runs -   271.95 us/run -   3.22 GFLOP/run - [1;34m 11.85 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     4000 runs -   251.39 us/run -   3.22 GFLOP/run - [1;34m 12.81 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     5536 runs -   181.64 us/run -   3.22 GFLOP/run - [1;34m 17.73 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):                1136 runs -   883.49 us/run -   6.44 GFLOP/run - [1;34m  7.29 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):                1984 runs -   505.58 us/run -   6.44 GFLOP/run - [1;34m 12.74 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):               4768 runs -   210.11 us/run -   6.44 GFLOP/run - [1;34m 30.66 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):               4144 runs -   241.97 us/run -   6.44 GFLOP/run - [1;34m 26.63 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):               4272 runs -   234.96 us/run -   6.44 GFLOP/run - [1;34m 27.42 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):               3312 runs -   302.55 us/run -   6.44 GFLOP/run - [1;34m 21.29 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     3520 runs -   284.92 us/run -   6.44 GFLOP/run - [1;34m 22.61 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     4752 runs -   210.65 us/run -   6.44 GFLOP/run - [1;34m 30.58 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 640 runs -  1565.63 us/run -  12.88 GFLOP/run - [1;34m  8.23 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):                1088 runs -   922.22 us/run -  12.88 GFLOP/run - [1;34m 13.97 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):               3976 runs -   251.79 us/run -  12.88 GFLOP/run - [1;34m 51.17 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):               3712 runs -   269.74 us/run -  12.88 GFLOP/run - [1;34m 47.77 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):               3640 runs -   274.84 us/run -  12.88 GFLOP/run - [1;34m 46.88 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):               3064 runs -   327.18 us/run -  12.88 GFLOP/run - [1;34m 39.38 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     3248 runs -   308.00 us/run -  12.88 GFLOP/run - [1;34m 41.83 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     3904 runs -   256.16 us/run -  12.88 GFLOP/run - [1;34m 50.30 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 61308 runs -    16.49 us/run -  29.36 MFLOP/run - [1;34m  1.78 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 95368 runs -    10.73 us/run -  29.36 MFLOP/run - [1;34m  2.74 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):               173706 runs -     5.79 us/run -  29.36 MFLOP/run - [1;34m  5.07 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):               149864 runs -     6.80 us/run -  29.36 MFLOP/run - [1;34m  4.32 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):               153270 runs -     6.59 us/run -  29.36 MFLOP/run - [1;34m  4.46 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):               139646 runs -     7.31 us/run -  29.36 MFLOP/run - [1;34m  4.02 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):             153270 runs -     6.57 us/run -  29.36 MFLOP/run - [1;34m  4.47 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0):             200954 runs -     5.04 us/run -  29.36 MFLOP/run - [1;34m  5.83 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                  7668 runs -   134.68 us/run - 117.44 MFLOP/run - [1;34m871.99 GFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 46860 runs -    21.71 us/run - 117.44 MFLOP/run - [1;34m  5.41 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):               114168 runs -     8.77 us/run - 117.44 MFLOP/run - [1;34m 13.39 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                78384 runs -    12.84 us/run - 117.44 MFLOP/run - [1;34m  9.14 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):               103944 runs -     9.67 us/run - 117.44 MFLOP/run - [1;34m 12.15 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                75828 runs -    13.22 us/run - 117.44 MFLOP/run - [1;34m  8.88 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):              94572 runs -    10.63 us/run - 117.44 MFLOP/run - [1;34m 11.05 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):             110760 runs -     9.06 us/run - 117.44 MFLOP/run - [1;34m 12.96 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                  5112 runs -   212.02 us/run - 234.88 MFLOP/run - [1;34m  1.11 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 10650 runs -    95.38 us/run - 234.88 MFLOP/run - [1;34m  2.46 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                70290 runs -    14.30 us/run - 234.88 MFLOP/run - [1;34m 16.43 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                45156 runs -    22.32 us/run - 234.88 MFLOP/run - [1;34m 10.52 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                60918 runs -    16.53 us/run - 234.88 MFLOP/run - [1;34m 14.21 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):                41322 runs -    24.40 us/run - 234.88 MFLOP/run - [1;34m  9.63 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):              52398 runs -    19.11 us/run - 234.88 MFLOP/run - [1;34m 12.29 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0):              63900 runs -    15.68 us/run - 234.88 MFLOP/run - [1;34m 14.97 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 3210 runs -   314.49 us/run - 939.52 MFLOP/run - [1;34m  2.99 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 6099 runs -   165.10 us/run - 939.52 MFLOP/run - [1;34m  5.69 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):               22149 runs -    45.32 us/run - 939.52 MFLOP/run - [1;34m 20.73 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):               18083 runs -    55.38 us/run - 939.52 MFLOP/run - [1;34m 16.97 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):               19046 runs -    52.53 us/run - 939.52 MFLOP/run - [1;34m 17.88 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):               17013 runs -    59.12 us/run - 939.52 MFLOP/run - [1;34m 15.89 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):             14980 runs -    67.20 us/run - 939.52 MFLOP/run - [1;34m 13.98 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0):             20865 runs -    47.96 us/run - 939.52 MFLOP/run - [1;34m 19.59 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 3024 runs -   333.28 us/run -   1.88 GFLOP/run - [1;34m  5.64 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 5670 runs -   176.84 us/run -   1.88 GFLOP/run - [1;34m 10.63 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):               15552 runs -    64.37 us/run -   1.88 GFLOP/run - [1;34m 29.19 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):               12312 runs -    81.40 us/run -   1.88 GFLOP/run - [1;34m 23.08 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):               13932 runs -    71.85 us/run -   1.88 GFLOP/run - [1;34m 26.15 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):               10854 runs -    92.16 us/run -   1.88 GFLOP/run - [1;34m 20.39 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):             10422 runs -    96.43 us/run -   1.88 GFLOP/run - [1;34m 19.49 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0):             15768 runs -    63.63 us/run -   1.88 GFLOP/run - [1;34m 29.53 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):                2052 runs -   491.44 us/run -   3.76 GFLOP/run - [1;34m  7.65 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):                4158 runs -   242.01 us/run -   3.76 GFLOP/run - [1;34m 15.53 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):               9639 runs -   103.80 us/run -   3.76 GFLOP/run - [1;34m 36.21 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):               7533 runs -   133.07 us/run -   3.76 GFLOP/run - [1;34m 28.24 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):               8424 runs -   118.74 us/run -   3.76 GFLOP/run - [1;34m 31.65 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):               6858 runs -   146.06 us/run -   3.76 GFLOP/run - [1;34m 25.73 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     6426 runs -   156.06 us/run -   3.76 GFLOP/run - [1;34m 24.08 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     9369 runs -   106.95 us/run -   3.76 GFLOP/run - [1;34m 35.14 TFLOPS[0m
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):                1960 runs -   511.48 us/run -   7.52 GFLOP/run - [1;34m 14.70 TFLOPS[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):                2646 runs -   379.38 us/run -   7.52 GFLOP/run - [1;34m 19.81 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):               8260 runs -   121.19 us/run -   7.52 GFLOP/run - [1;34m 62.02 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):               6174 runs -   161.98 us/run -   7.52 GFLOP/run - [1;34m 46.40 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):               7252 runs -   138.00 us/run -   7.52 GFLOP/run - [1;34m 54.47 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):               5782 runs -   173.07 us/run -   7.52 GFLOP/run - [1;34m 43.43 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     5600 runs -   178.86 us/run -   7.52 GFLOP/run - [1;34m 42.02 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     7896 runs -   126.72 us/run -   7.52 GFLOP/run - [1;34m 59.31 TFLOPS[0m
+  MUL_MAT_ID(type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):                1631 runs -   615.74 us/run -  15.03 GFLOP/run - [1;34m 24.41 TFLOPS[0m
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):                2142 runs -   467.87 us/run -  15.03 GFLOP/run - [1;34m 32.13 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):               7651 runs -   130.74 us/run -  15.03 GFLOP/run - [1;34m114.98 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):               5992 runs -   166.92 us/run -  15.03 GFLOP/run - [1;34m 90.06 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):               6818 runs -   146.69 us/run -  15.03 GFLOP/run - [1;34m102.48 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):               5348 runs -   187.21 us/run -  15.03 GFLOP/run - [1;34m 80.30 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq2_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     5313 runs -   188.34 us/run -  15.03 GFLOP/run - [1;34m 79.82 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0):                     7413 runs -   134.99 us/run -  15.03 GFLOP/run - [1;34m111.36 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup reset
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=mxfp4,type_b=f32,n_mats=32,n_used=4,b=0,m=2880,n=1,k=2880,amax=1.000000,m_v=0,ids_offset=0):              104052 runs -     9.64 us/run -  66.36 MFLOP/run - [1;34m  6.88 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=mxfp4,type_b=f32,n_mats=32,n_used=4,b=0,m=2880,n=4,k=2880,amax=1.000000,m_v=0,ids_offset=0):               45617 runs -    21.96 us/run - 265.42 MFLOP/run - [1;34m 12.09 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=mxfp4,type_b=f32,n_mats=32,n_used=4,b=0,m=2880,n=8,k=2880,amax=1.000000,m_v=0,ids_offset=0):               23625 runs -    42.53 us/run - 530.84 MFLOP/run - [1;34m 12.48 TFLOPS[0m
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+  MUL_MAT_ID(type_a=mxfp4,type_b=f32,n_mats=32,n_used=4,b=0,m=2880,n=512,k=2880,amax=1.000000,m_v=0,ids_offset=0):              5055 runs -   197.91 us/run -  33.97 GFLOP/run - [1;34m171.66 TFLOPS[0m
+  Backend CUDA0: [1;32mOK[0m
+Backend 2/2: CPU
+  Skipping
+2/2 backends passed
+[1;32mOK[0m
