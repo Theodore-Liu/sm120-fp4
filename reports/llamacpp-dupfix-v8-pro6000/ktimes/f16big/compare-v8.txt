@@ -1,0 +1,3 @@
+== f16_n512
+  mul_mat_f_ids                                    base      9 x   901.89 us   fix      9 x   759.77 us    0.842
+  mm_ids_helper                                    base      9 x    17.85 us   fix      9 x    18.67 us    1.046

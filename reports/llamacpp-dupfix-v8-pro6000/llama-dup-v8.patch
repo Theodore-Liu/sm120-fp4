@@ -1,0 +1,489 @@
+diff --git a/ggml/src/ggml-cuda/ggml-cuda.cu b/ggml/src/ggml-cuda/ggml-cuda.cu
+index 957908f65..79fd2838c 100644
+--- a/ggml/src/ggml-cuda/ggml-cuda.cu
++++ b/ggml/src/ggml-cuda/ggml-cuda.cu
+@@ -2066,11 +2066,11 @@ static void ggml_cuda_mul_mat_id(ggml_backend_cuda_context & ctx, ggml_tensor *
+             for (int64_t iex = 0; iex < n_expert_used; ++iex) {
+                 const int32_t expert_to_use = *(const int32_t *)(ids_host.data() + i12*ids->nb[1] + iex*ids->nb[0]);
+                 assert(expert_to_use >= 0 && expert_to_use < ne02);
++                // every (token, slot) pair gets its own row, also when a token lists this expert in several slots
+                 if (expert_to_use == i02) {
+                     ids_from_sorted_host[i12*n_expert_used + iex] = ids_to_sorted_host.size();
+                     ids_to_sorted_host.push_back(i12*ne11 + iex % ne11);
+                     tokens_per_expert[i02]++;
+-                    break;
+                 }
+             }
+         }
+diff --git a/ggml/src/ggml-cuda/mmf.cuh b/ggml/src/ggml-cuda/mmf.cuh
+index 879a86527..ed1f0e427 100644
+--- a/ggml/src/ggml-cuda/mmf.cuh
++++ b/ggml/src/ggml-cuda/mmf.cuh
+@@ -136,6 +136,7 @@ static __global__ void mul_mat_f(
+ 
+     if constexpr (has_ids) {
+         int found = 0;
++        int more  = 0; // whether a column has a further matching slot
+ 
+         for (int j0 = 0; j0 < cols_per_block; j0 += nwarps) {
+             const int j = j0 + threadIdx.y;
+@@ -151,20 +152,64 @@ static __global__ void mul_mat_f(
+ 
+             const int32_t * __restrict__ id_row = ids + j*stride_row_id;
+ 
+-            for (int k = threadIdx.x; k < nchannels_dst; k += warp_size) {
+-                int match = id_row[k*stride_col_id] == expert_idx;
++            int seen = 0; // matching slots in the earlier chunks of the row
++            for (int k0 = 0; k0 < nchannels_dst; k0 += warp_size) {
++                const int k     = k0 + threadIdx.x;
++                const int match = k < nchannels_dst && id_row[k*stride_col_id] == expert_idx;
++                const int rank  = warp_prefix_inclusive_sum<int, warp_size>(match);
+ 
+-                if (match) {
++                if (match && seen + rank == 1) {
+                     slot_map[j] = k;
+                     found = 1;
+-                    break;
+                 }
++                seen += __shfl_sync(0xFFFFFFFF, rank, warp_size - 1, warp_size);
+             }
++            more |= seen > 1;
+         }
+ 
+         if (!__syncthreads_or(found)) {
+             return;
+         }
++        if (__syncthreads_or(more)) {
++            // A token lists this expert in several slots (repeated expert ids, rare): the further slots are plain dot products,
++            // one warp per column, so that this path adds nothing to the registers of the tile below.
++            for (int j = threadIdx.y; j < cols_per_block; j += nwarps) {
++                if (col_base + j >= ncols_dst_total) {
++                    continue;
++                }
++                const int32_t * __restrict__ id_row = ids + j*stride_row_id;
++                for (int k = slot_map[j] + 1; k < nchannels_dst; ++k) {
++                    if (slot_map[j] < 0 || id_row[k*stride_col_id] != expert_idx) {
++                        continue;
++                    }
++                    for (int i = 0; i < rows_per_block; ++i) {
++                        float sum = 0.0f;
++                        for (int col = threadIdx.x; col < ncols; col += warp_size) {
++                            if constexpr (std::is_same_v<T, float>) {
++                                sum += x[i*stride_row + col] * y[k*stride_channel_y + j*stride_col_y + col];
++                            } else {
++                                // y rounded to T as the tile does
++                                const float2 yf = *(const float2 *) &y[k*stride_channel_y + 2*(j*stride_col_y + col)];
++                                float2 xv;
++                                float2 yv;
++                                if constexpr (std::is_same_v<T, half2>) {
++                                    xv = __half22float2(x[i*stride_row + col]);
++                                    yv = __half22float2(ggml_cuda_cast<half2>(yf));
++                                } else {
++                                    xv = ggml_cuda_cast<float2>(x[i*stride_row + col]);
++                                    yv = ggml_cuda_cast<float2>(ggml_cuda_cast<nv_bfloat162>(yf));
++                                }
++                                sum += xv.x*yv.x + xv.y*yv.y;
++                            }
++                        }
++                        sum = warp_reduce_sum<warp_size>(sum);
++                        if (threadIdx.x == 0) {
++                            dst[k*stride_channel_dst + j*stride_col_dst + row0 + i] = sum;
++                        }
++                    }
++                }
++            }
++        }
+     }
+ 
+ 
+@@ -383,6 +428,49 @@ static __global__ void mul_mat_f_ids(
+ 
+     //const float2 * y2 = (const float2 *) y;
+ 
++    if (tiles_for_expert > int(gridDim.z)) {
++        // A token lists this expert in several slots (repeated expert ids, rare), so the expert has more tiles than the grid
++        // covers: the columns of the tiles gridDim.z further on are plain dot products, one warp per column, so that this
++        // path adds nothing to the registers of the tile below.
++        for (int tile = tile_idx + gridDim.z; tile < tiles_for_expert; tile += gridDim.z) {
++        for (int j = threadIdx.y; j < cols_per_block && tile*cols_per_block + j < ncols_expert; j += nwarps) {
++            const int global_j = tile*cols_per_block + j;
++            const uint2 qrm_src = fast_div_modulo((uint32_t) ids_src_expert[global_j], sis1_fd);
++            const uint2 qrm_dst = fast_div_modulo((uint32_t) ids_dst_expert[global_j], nch_fd);
++            const int token   = (int) qrm_src.x;
++            const int channel = (int) qrm_src.y;
++            if (token >= ncols_dst_total || (int) qrm_dst.x >= ncols_dst_total || nchannels_dst <= 0) {
++                continue;
++            }
++            for (int i = 0; i < rows_per_block; ++i) {
++                float sum = 0.0f;
++                for (int col = threadIdx.x; col < ncols; col += warp_size) {
++                    if constexpr (std::is_same_v<T, float>) {
++                        sum += x[i*stride_row + col] * y[channel*stride_channel_y + token*stride_col_y + col];
++                    } else {
++                        // y rounded to T as the tile does
++                        const float2 yf = *(const float2 *) &y[channel*stride_channel_y + 2*(token*stride_col_y + col)];
++                        float2 xv;
++                        float2 yv;
++                        if constexpr (std::is_same_v<T, half2>) {
++                            xv = __half22float2(x[i*stride_row + col]);
++                            yv = __half22float2(ggml_cuda_cast<half2>(yf));
++                        } else {
++                            xv = ggml_cuda_cast<float2>(x[i*stride_row + col]);
++                            yv = ggml_cuda_cast<float2>(ggml_cuda_cast<nv_bfloat162>(yf));
++                        }
++                        sum += xv.x*yv.x + xv.y*yv.y;
++                    }
++                }
++                sum = warp_reduce_sum<warp_size>(sum);
++                if (threadIdx.x == 0) {
++                    dst[(int) qrm_dst.y*stride_channel_dst + (int) qrm_dst.x*stride_col_dst + row0 + i] = sum;
++                }
++            }
++        }
++        }
++    }
++
+     tile_C C[ntA][ntB];
+ 
+     T * tile_xy = (T *) compute_base + threadIdx.y*(tile_A::I * tile_k_padded);
+diff --git a/ggml/src/ggml-cuda/mmid.cu b/ggml/src/ggml-cuda/mmid.cu
+index 12ae14ce9..349601c92 100644
+--- a/ggml/src/ggml-cuda/mmid.cu
++++ b/ggml/src/ggml-cuda/mmid.cu
+@@ -19,15 +19,11 @@ struct mm_ids_helper_store {
+ };
+ static_assert(sizeof(mm_ids_helper_store) == 4, "unexpected size for mm_ids_helper_store");
+ 
+-// the generic path passes 0, which needs no padding since it never groups lanes by token
+-template <int n> struct mm_ids_pow2 { static constexpr int value = 2*mm_ids_pow2<(n + 1)/2>::value; };
+-template <>      struct mm_ids_pow2<1> { static constexpr int value = 1; };
+-template <>      struct mm_ids_pow2<0> { static constexpr int value = 1; };
+-
+ // Helper function for mul_mat_id, converts ids to a more convenient format.
+ // ids_src1 describes how to permute the flattened column indices of src1 in order to get a compact src1 tensor sorted by expert.
+ // ids_dst describes the same mapping but for the dst tensor.
+ // The upper and lower bounds for the ith expert in the compact src1 tensor are stored in expert_bounds[i:i+1].
++// Every (token, slot) pair gets its own entry, also when a token lists the same expert in several slots.
+ template <int n_expert_used_template>
+ __launch_bounds__(ggml_cuda_get_physical_warp_size(), 1)
+ static __global__ void mm_ids_helper(
+@@ -40,68 +36,30 @@ static __global__ void mm_ids_helper(
+     extern __shared__ char data_mm_ids_helper[];
+     mm_ids_helper_store * store = (mm_ids_helper_store *) data_mm_ids_helper;
+ 
+-    int nex_prev   = 0; // Number of columns for experts with a lower index.
++    const int n_slots = n_tokens*n_expert_used;
++
++    int nex_prev   = 0; // Number of entries for experts with a lower index.
+     int it_compact = 0; // Running index for the compact slice of this expert.
+ 
+-    if constexpr (n_expert_used_template == 0) {
+-        // Generic implementation:
+-        for (int it = 0; it < n_tokens; ++it) {
+-            int iex_used = -1; // The index at which the expert is used, if any.
+-            for (int iex = threadIdx.x; iex < n_expert_used; iex += warp_size) {
+-                const int expert_used = ids[it*si1 + iex];
+-                nex_prev += expert_used < expert;
+-                if (expert_used == expert) {
+-                    iex_used = iex;
+-                }
+-            }
++    for (int i0 = 0; i0 < n_slots; i0 += warp_size) {
++        const int i   = i0 + threadIdx.x;
++        const int it  = i / n_expert_used;
++        const int iex = i - it*n_expert_used;
+ 
+-            if (iex_used != -1) {
+-                store[it_compact] = mm_ids_helper_store(it, iex_used);
+-            }
++        const int expert_used = i < n_slots ? ids[it*si1 + iex] : INT_MAX;
++        nex_prev += expert_used < expert;
+ 
+-            if (warp_reduce_any<warp_size>(iex_used != -1)) {
+-                it_compact++;
+-            }
+-        }
+-    } else {
+-        // Implementation optimized for specific numbers of experts used:
+-        // a warp holds a whole number of token slots, so the slot count is padded to a power of 2
+-        constexpr int neu_padded = mm_ids_pow2<n_expert_used_template>::value;
+-        static_assert(neu_padded <= warp_size && warp_size % neu_padded == 0, "bad n_expert_used");
+-        for (int it0 = 0; it0 < n_tokens; it0 += warp_size/neu_padded) {
+-            const int it = it0 + threadIdx.x / neu_padded;
+-
+-            const int iex = threadIdx.x % neu_padded; // The index at which the expert is used, if any.
+-            const int expert_used = (neu_padded == n_expert_used || iex < n_expert_used) && it < n_tokens ?
+-                ids[it*si1 + iex] : INT_MAX;
+-            const int iex_used = expert_used == expert ? iex : -1;
+-            nex_prev += expert_used < expert;
+-
+-            // Whether the threads at this token position have used the expert:
+-            const int it_compact_add_self = warp_reduce_any<neu_padded>(iex_used != -1);
+-
+-            // Do a scan over threads at lower token positions in warp to get the correct index for writing data:
+-            int it_compact_add_lower = 0;
+-#pragma unroll
+-            for (int offset = neu_padded; offset < warp_size; offset += neu_padded) {
+-                const int tmp = __shfl_up_sync(0xFFFFFFFF, it_compact_add_self, offset, warp_size);
+-                if (threadIdx.x >= static_cast<unsigned int>(offset)) {
+-                    it_compact_add_lower += tmp;
+-                }
+-            }
+-
+-            if (iex_used != -1) {
+-                store[it_compact + it_compact_add_lower] = mm_ids_helper_store(it, iex_used);
+-            }
+-
+-            // The thread with the highest index in the warp always has the sum over the whole warp, use it to increment all threads:
+-            it_compact += __shfl_sync(0xFFFFFFFF, it_compact_add_lower + it_compact_add_self, warp_size - 1, warp_size);
++        const int match      = expert_used == expert;
++        const int match_incl = warp_prefix_inclusive_sum<int, warp_size>(match);
++        if (match && it_compact + match_incl - 1 < n_tokens) {
++            store[it_compact + match_incl - 1] = mm_ids_helper_store(it, iex);
+         }
++        it_compact += __shfl_sync(0xFFFFFFFF, match_incl, warp_size - 1, warp_size);
+     }
+     nex_prev = warp_reduce_sum<warp_size>(nex_prev);
+     ggml_cuda_syncwarp();
+ 
+-    for (int itc = threadIdx.x; itc < it_compact; itc += warp_size) {
++    for (int itc = threadIdx.x; itc < min(it_compact, n_tokens); itc += warp_size) {
+         const mm_ids_helper_store store_it = store[itc];
+         const int it       = store_it.it();
+         const int iex_used = store_it.iex_used();
+@@ -114,6 +72,29 @@ static __global__ void mm_ids_helper(
+         }
+     }
+ 
++    if (it_compact > n_tokens) {
++        // Only with repeated expert ids: the entries beyond the shared buffer are found again and written directly.
++        int itc0 = 0;
++        for (int i0 = 0; i0 < n_slots; i0 += warp_size) {
++            const int i   = i0 + threadIdx.x;
++            const int it  = i / n_expert_used;
++            const int iex = i - it*n_expert_used;
++
++            const int match      = i < n_slots && ids[it*si1 + iex] == expert;
++            const int match_incl = warp_prefix_inclusive_sum<int, warp_size>(match);
++            const int itc        = itc0 + match_incl - 1;
++            if (match && itc >= n_tokens) {
++                ids_dst[nex_prev + itc] = it*n_expert_used + iex;
++                if (write_inverse) {
++                    ids_src1[it*n_expert_used + iex] = nex_prev + itc;
++                } else {
++                    ids_src1[nex_prev + itc] = it*sis1 + iex % nchannels_y;
++                }
++            }
++            itc0 += __shfl_sync(0xFFFFFFFF, match_incl, warp_size - 1, warp_size);
++        }
++    }
++
+     if (threadIdx.x != 0) {
+         return;
+     }
+@@ -133,6 +114,7 @@ static void launch_mm_ids_helper(
+         const int n_experts, const int n_tokens, const int n_expert_used_var, const int nchannels_y, const int si1, const int sis1, const bool write_inverse, cudaStream_t stream) {
+     GGML_ASSERT(n_tokens          < (1 << 22) && "too few bits in mm_ids_helper_store");
+     GGML_ASSERT(n_expert_used_var < (1 << 10) && "too few bits in mm_ids_helper_store");
++    GGML_ASSERT((int64_t) n_tokens*n_expert_used_var <= INT_MAX && "too many (token, slot) pairs for mm_ids_helper");
+ 
+     const int id = ggml_cuda_get_device();
+     const int warp_size = ggml_cuda_info().devices[id].warp_size;
+diff --git a/ggml/src/ggml-cuda/mmq.cu b/ggml/src/ggml-cuda/mmq.cu
+index 91b89999e..84b15877f 100644
+--- a/ggml/src/ggml-cuda/mmq.cu
++++ b/ggml/src/ggml-cuda/mmq.cu
+@@ -348,7 +348,7 @@ void ggml_cuda_mul_mat_q(
+         ne00, ne01, ne_get_rows, s01, ne_get_rows, s1,
+         ne02, ne02, s02, s12, s2,
+         ne03, ne13, s03, s13, s3,
+-        ne12, J_best};
++        ne12, J_best, n_expert_used};
+ 
+     ggml_cuda_mul_mat_q_switch_type(ctx, args, stream, prec_src1);
+ }
+diff --git a/ggml/src/ggml-cuda/mmq.cuh b/ggml/src/ggml-cuda/mmq.cuh
+index d3e7b75ea..135273595 100644
+--- a/ggml/src/ggml-cuda/mmq.cuh
++++ b/ggml/src/ggml-cuda/mmq.cuh
+@@ -949,6 +949,56 @@ static __device__ __forceinline__ void mul_mat_q_process_tile(
+ }
+ 
+ 
++// MUL_MAT_ID: whether an expert has more entries than the ncols_channel columns one channel covers (repeated expert ids).
++static __device__ __forceinline__ bool mmq_moe_any_overflow(
++        const int32_t * __restrict__ expert_bounds, const int n_experts, const int ncols_channel) {
++    constexpr int warp_size = ggml_cuda_get_physical_warp_size();
++    int overflow = 0;
++#pragma unroll 4
++    for (int e = threadIdx.x; e < n_experts; e += warp_size) {
++        overflow |= expert_bounds[e + 1] - expert_bounds[e] > ncols_channel;
++    }
++    return warp_reduce_any<warp_size>(overflow);
++}
++
++// MUL_MAT_ID: the columns [col_low, col_high) of channel zt. Channels from n_experts on hold the further columns of experts
++// with more entries than the ncols_channel columns one channel covers (repeated expert ids); zt becomes that expert.
++static __device__ __forceinline__ void mmq_moe_cols(
++        const int32_t * __restrict__ expert_bounds, const int n_experts, const int ncols_channel, int & zt, int & col_low, int & col_high) {
++    if (zt < n_experts) {
++        col_low  = expert_bounds[zt + 0];
++        col_high = expert_bounds[zt + 1];
++        return;
++    }
++    // Warp-parallel: lane e of each group of warp_size experts takes expert e0 + e.
++    constexpr int warp_size = ggml_cuda_get_physical_warp_size();
++    int extra = zt - n_experts;
++    col_low  = 0;
++    col_high = 0;
++    for (int e0 = 0; e0 < n_experts; e0 += warp_size) {
++        const int e     = e0 + threadIdx.x;
++        const int low   = e < n_experts ? expert_bounds[e + 0] : 0;
++        const int ncols = e < n_experts ? expert_bounds[e + 1] - low : 0;
++        const int n_extra_e = ncols > 0 ? (ncols - 1) / ncols_channel : 0;
++        const int incl      = warp_prefix_inclusive_sum<int, warp_size>(n_extra_e);
++
++        // The lane whose extra channels include this one, if any:
++        int lane = extra >= incl - n_extra_e && extra < incl ? int(threadIdx.x) : -1;
++#pragma unroll
++        for (int offset = warp_size/2; offset > 0; offset >>= 1) {
++            lane = max(lane, __shfl_xor_sync(0xFFFFFFFF, lane, offset, warp_size));
++        }
++        if (lane >= 0) {
++            const int extra_e = __shfl_sync(0xFFFFFFFF, extra - (incl - n_extra_e), lane, warp_size);
++            zt       = e0 + lane;
++            col_low  = __shfl_sync(0xFFFFFFFF, low, lane, warp_size) + (extra_e + 1)*ncols_channel;
++            col_high = min(__shfl_sync(0xFFFFFFFF, low + ncols, lane, warp_size), col_low + ncols_channel);
++            return;
++        }
++        extra -= __shfl_sync(0xFFFFFFFF, incl, warp_size - 1, warp_size);
++    }
++}
++
+ // The mul_mat_q kernel implements "stream-k" work partitioning as described in https://arxiv.org/abs/2301.03598
+ 
+ template <ggml_type type, int J, bool fallback, ggml_prec prec_src1>
+@@ -960,7 +1010,7 @@ static __global__ void mul_mat_q(
+         const uint3 blocks_per_ne00, const int nrows_x, const int ncols_dst, const int stride_row_x, const int ncols_y, const int stride_col_dst,
+         const uint3 channel_ratio, const uint3 nchannels_y, const int stride_channel_x, const int stride_channel_y, const int stride_channel_dst,
+         const uint3 sample_ratio, const uint3 nsamples_y, const int stride_sample_x, const int stride_sample_y, const int stride_sample_dst,
+-        const uint3 ntx) {
++        const uint3 ntx, const int moe_extra_base) {
+ 
+     // Skip unused template specializations for faster compilation:
+     if (ggml_cuda_mmq_get_config(type, J, fallback, prec_src1).type == GGML_TYPE_COUNT) {
+@@ -991,10 +1041,16 @@ static __global__ void mul_mat_q(
+     }
+     __syncthreads();
+ 
++    // MUL_MAT_ID overflow launch: channels from moe_extra_base on hold the columns of experts with more entries than one
++    // channel covers (repeated expert ids, see mmq_moe_cols); nothing to do unless such an expert exists.
++    if (moe_extra_base > 0 && !mmq_moe_any_overflow(expert_bounds, moe_extra_base, ntx.z*J)) {
++        return;
++    }
++
+     if constexpr (!ggml_cuda_mmq_get_stream_k(type, J, fallback, prec_src1)) {
+         const uint2 tmp2 = fast_div_modulo(blockIdx.z, nchannels_y);
+         const int wt = tmp2.x;
+-        const int zt = tmp2.y;
++        int       zt = tmp2.y + moe_extra_base;
+         const int jt = blockIdx.y;
+         const int it = blockIdx.x;
+ 
+@@ -1012,8 +1068,7 @@ static __global__ void mul_mat_q(
+         }
+ 
+         if (ids_dst) {
+-            col_low  = expert_bounds[zt + 0];
+-            col_high = expert_bounds[zt + 1];
++            mmq_moe_cols(expert_bounds, moe_extra_base > 0 ? moe_extra_base : nchannels_y.z, ntx.z*J, zt, col_low, col_high);
+             col_diff = col_high - col_low;
+ 
+             offset_y   = 0;
+@@ -1068,8 +1123,8 @@ static __global__ void mul_mat_q(
+     int kbc      = int64_t(blockIdx.x)    *(nsamples_y.z*nchannels_y.z*ntx.z*nty*blocks_per_ne00.z) / gridDim.x;
+     int kbc_stop = int64_t(blockIdx.x + 1)*(nsamples_y.z*nchannels_y.z*ntx.z*nty*blocks_per_ne00.z) / gridDim.x;
+ 
+-    kbc      -= fastmodulo(kbc,      blocks_per_ne00) % blocks_per_iter;
+-    kbc_stop -= fastmodulo(kbc_stop, blocks_per_ne00) % blocks_per_iter;
++    kbc      -= fastmodulo(kbc,      blocks_per_ne00) % (moe_extra_base > 0 ? blocks_per_ne00.z : blocks_per_iter);
++    kbc_stop -= fastmodulo(kbc_stop, blocks_per_ne00) % (moe_extra_base > 0 ? blocks_per_ne00.z : blocks_per_iter);
+ 
+     // kb0 == k index when doing the matrix multiplication for an output tile.
+     int kb0_start = fastmodulo(kbc, blocks_per_ne00);
+@@ -1080,7 +1135,7 @@ static __global__ void mul_mat_q(
+         const int jt = tmp2.y;
+         tmp = tmp2.x;
+         tmp2 = fast_div_modulo(tmp, nchannels_y);
+-        const int zt = tmp2.y;
++        int       zt = tmp2.y + moe_extra_base;
+         tmp = tmp2.x;
+         tmp2 = fast_div_modulo(tmp, nsamples_y);
+         const int wt = tmp2.y;
+@@ -1100,8 +1155,7 @@ static __global__ void mul_mat_q(
+         }
+ 
+         if (ids_dst) {
+-            col_low  = expert_bounds[zt + 0];
+-            col_high = expert_bounds[zt + 1];
++            mmq_moe_cols(expert_bounds, moe_extra_base > 0 ? moe_extra_base : nchannels_y.z, ntx.z*J, zt, col_low, col_high);
+             col_diff = col_high - col_low;
+ 
+             offset_y   = 0;
+@@ -1384,6 +1438,7 @@ struct mmq_args {
+     int64_t nsamples_x; int64_t nsamples_y; int64_t stride_sample_x; int64_t stride_sample_y; int64_t stride_sample_dst;
+     int64_t ncols_max;
+     int J_best; // Tile width in ne11(dense)/ne12(MoE) direction to use for optimal performance.
++    int64_t n_expert_used = 0; // MUL_MAT_ID only
+ };
+ 
+ static size_t mmq_get_nbytes_shared(const ggml_cuda_mmq_config & config, const int cc) {
+@@ -1427,13 +1482,26 @@ static void launch_mul_mat_q(ggml_backend_cuda_context & ctx, const mmq_args & a
+     const uint3 channel_ratio_fd   = init_fastdiv_values(channel_ratio);
+     const uint3 sample_ratio_fd    = init_fastdiv_values(sample_ratio);
+ 
++    // MUL_MAT_ID: an expert listed in several slots of a token can have more entries than one channel's ntx*J columns.
++    // n_expert_used - 1 overflow channels always cover the rest; a second launch handles them and exits at once if unused.
++    const int nchannels_extra = args.ids_dst ? args.n_expert_used - 1 : 0;
++    const uint3 nchannels_extra_fd = init_fastdiv_values(nchannels_extra > 0 ? nchannels_extra : 1);
++
+     if (!config.stream_k) {
+         mul_mat_q<type, J, fallback, prec_src1><<<block_nums_xy_tiling, block_dims, nbytes_shared, stream>>>
+             (args.x, args.y, args.ids_dst, args.expert_bounds, args.dst, nullptr, args.y_scale,
+              blocks_per_ne00_fd, args.nrows_x, args.ncols_dst, args.stride_row_x, args.ncols_y, args.nrows_dst,
+              channel_ratio_fd, nchannels_y_fd, args.stride_channel_x, args.stride_channel_y, args.stride_channel_dst,
+              sample_ratio_fd, nsamples_y_fd, args.stride_sample_x, args.stride_sample_y, args.stride_sample_dst,
+-             ntx_fd);
++             ntx_fd, 0);
++        if (nchannels_extra > 0) {
++            mul_mat_q<type, J, fallback, prec_src1><<<dim3(nty, ntx, nchannels_extra), block_dims, nbytes_shared, stream>>>
++                (args.x, args.y, args.ids_dst, args.expert_bounds, args.dst, nullptr, args.y_scale,
++                 blocks_per_ne00_fd, args.nrows_x, args.ncols_dst, args.stride_row_x, args.ncols_y, args.nrows_dst,
++                 channel_ratio_fd, nchannels_extra_fd, args.stride_channel_x, args.stride_channel_y, args.stride_channel_dst,
++                 sample_ratio_fd, nsamples_y_fd, args.stride_sample_x, args.stride_sample_y, args.stride_sample_dst,
++                 ntx_fd, args.nchannels_y);
++        }
+         return;
+     }
+ 
+@@ -1462,7 +1530,19 @@ static void launch_mul_mat_q(ggml_backend_cuda_context & ctx, const mmq_args & a
+          blocks_per_ne00_fd, args.nrows_x, args.ncols_dst, args.stride_row_x, args.ncols_y, args.nrows_dst,
+          channel_ratio_fd, nchannels_y_fd, args.stride_channel_x, args.stride_channel_y, args.stride_channel_dst,
+          sample_ratio_fd, nsamples_y_fd, args.stride_sample_x, args.stride_sample_y, args.stride_sample_dst,
+-         ntx_fd);
++         ntx_fd, 0);
++
++    if (nchannels_extra > 0) {
++        // whole tiles, so no fixup: at most one block per SM, each a whole number of tiles
++        const int ntiles_extra = ntx * nty * nchannels_extra;
++        const int nblocks_extra = ntiles_extra < nsm ? ntiles_extra : nsm;
++        mul_mat_q<type, J, fallback, prec_src1><<<nblocks_extra, block_dims, nbytes_shared, stream>>>
++            (args.x, args.y, args.ids_dst, args.expert_bounds, args.dst, nullptr, args.y_scale,
++             blocks_per_ne00_fd, args.nrows_x, args.ncols_dst, args.stride_row_x, args.ncols_y, args.nrows_dst,
++             channel_ratio_fd, nchannels_extra_fd, args.stride_channel_x, args.stride_channel_y, args.stride_channel_dst,
++             sample_ratio_fd, nsamples_y_fd, args.stride_sample_x, args.stride_sample_y, args.stride_sample_dst,
++             ntx_fd, args.nchannels_y);
++    }
+ 
+     if (!fixup_needed) {
+         return;

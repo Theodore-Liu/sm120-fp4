@@ -1,0 +1,25 @@
+START 2026-10-13T01:33:46Z v8
+v8 built; resource lines 15924
+v8 MUL_MAT_ID rc=0 ok=948 fail=0 dup_ok=16 last=2/2 backends passed
+v8 MUL_MAT rc=0 ok=2445 fail=0 dup_ok=0 last=2/2 backends passed
+nsys: /usr/local/cuda-13.2/bin/nsys
+q4_0_n32 base perf: 70.36 us/run; kernels 7
+q4_0_n32 v8 perf: 74.04 us/run; kernels 7
+q4_0_n512 base perf: 259.41 us/run; kernels 6
+q4_0_n512 v8 perf: 257.44 us/run; kernels 6
+f16_n1 base perf: 12.36 us/run; kernels 4
+f16_n1 v8 perf: 12.96 us/run; kernels 4
+f16_n4 base perf: 21.50 us/run; kernels 4
+f16_n4 v8 perf: 21.45 us/run; kernels 4
+r1 base perf MUL_MAT_ID rc=0 runs=132
+r1 base perf MUL_MAT f16 rc=0 runs=9
+r1 v8 perf MUL_MAT_ID rc=0 runs=132
+r1 v8 perf MUL_MAT f16 rc=0 runs=9
+r2 base perf MUL_MAT_ID rc=0 runs=132
+r2 base perf MUL_MAT f16 rc=0 runs=9
+r2 v8 perf MUL_MAT_ID rc=0 runs=132
+r2 v8 perf MUL_MAT f16 rc=0 runs=9
+r3 base perf MUL_MAT_ID rc=0 runs=132
+r3 v8 perf MUL_MAT_ID rc=0 runs=132
+END 2026-10-13T02:24:12Z
+WRAPPER_RC=0
