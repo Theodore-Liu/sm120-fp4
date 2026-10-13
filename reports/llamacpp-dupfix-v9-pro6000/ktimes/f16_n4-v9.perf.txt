@@ -1,0 +1,20 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 97251 MiB):
+  Device 0: NVIDIA RTX PRO 6000 Blackwell Server Edition, compute capability 12.0, VMM: yes, VRAM: 97251 MiB
+ggml_backend_cuda_graph_compute: CUDA graph warmup complete
+Testing 2 devices
+
+Backend 1/2: CUDA0
+  Device description: NVIDIA RTX PRO 6000 Blackwell Server Edition
+  Device memory: 97251 MB (96681 MB free)
+
+  MUL_MAT_ID(type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0):                 45724 runs -    22.06 us/run - 100.66 MFLOP/run - [1;34m  4.56 TFLOPS[0m
+  Backend CUDA0: [1;32mOK[0m
+Backend 2/2: CPU
+  Skipping
+2/2 backends passed
+[1;32mOK[0m
+Collecting data...
+Generating '/tmp/nsys-report-5d2e.qdstrm'
+[1/1] [0%                          ] f16_n4-v9.nsys-rep[1/1] [0%                          ] f16_n4-v9.nsys-rep[1/1] [===========50%              ] f16_n4-v9.nsys-rep[1/1] [========================100%] f16_n4-v9.nsys-rep[1/1] [========================100%] f16_n4-v9.nsys-rep
+Generated:
+	/root/out/ktimes/f16_n4-v9.nsys-rep

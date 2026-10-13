@@ -1,0 +1,19 @@
+runs: {'base': 3, 'fix': 3}
+cases 132
+effect, median(fix)/median(base): median 1.003, min 0.839, max 1.057
+baseline run-to-run spread (max/min of a pair): median 1.002, 90th pct 1.011, max 1.088
+largest effects:
+  1.040  base [94.1, 94.0, 94.1]  fix [97.8, 105.6, 97.8]  type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.040  base [52.7, 52.4, 52.3]  fix [54.1, 54.7, 54.5]  type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.042  base [57.4, 57.4, 56.9]  fix [59.8, 59.7, 59.8]  type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.043  base [19.0, 19.6, 19.2]  fix [20.0, 19.9, 20.0]  type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.044  base [11.6, 11.8, 11.9]  fix [12.2, 12.3, 12.3]  type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.047  base [74.2, 74.2, 74.5]  fix [77.7, 77.7, 78.5]  type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.048  base [68.6, 68.6, 68.6]  fix [71.9, 71.9, 71.9]  type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.051  base [97.6, 91.0, 91.5]  fix [92.2, 96.3, 96.1]  type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=8,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.052  base [118.5, 119.3, 117.6]  fix [124.7, 122.5, 125.0]  type_a=q6_K,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.057  base [77.8, 77.0, 77.1]  fix [81.5, 78.6, 83.0]  type_a=q8_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=64,k=2048,amax=1.000000,m_v=0,ids_offset=0
+smallest effects:
+  0.839  base [921.4, 921.9, 923.1]  fix [773.2, 773.1, 772.6]  type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  0.858  base [243.1, 243.5, 243.5]  fix [208.9, 208.3, 209.2]  type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=128,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  0.871  base [503.8, 504.9, 502.8]  fix [439.0, 437.7, 438.8]  type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0
