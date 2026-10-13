@@ -1,0 +1,4 @@
+functions: base 7098, other 7098, only in base 0, only in other 0
+^_Z9mul_mat_qI: 768 common instances, 325 differ; REG change median +0 (over differing +3) min -14 max +30; STACK grew in 54 (max +56 bytes), base instances with STACK>0 451, other 460
+^_Z9mul_mat_fI: 1536 common instances, 382 differ; REG change median +0 (over differing +24) min +0 max +39; STACK grew in 0 (max +0 bytes), base instances with STACK>0 768, other 768
+^_Z13mul_mat_f_idsI: 768 common instances, 384 differ; REG change median +13 (over differing +48) min +0 max +68; STACK grew in 0 (max +0 bytes), base instances with STACK>0 384, other 384

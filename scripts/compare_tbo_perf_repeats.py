@@ -42,8 +42,11 @@ eff.sort()
 rs = [e[0] for e in eff]
 print(f"cases {len(keys)}")
 print(f"effect, median(fix)/median(base): median {statistics.median(rs):.3f}, min {rs[0]:.3f}, max {rs[-1]:.3f}")
-print(f"baseline run-to-run spread (max/min of a pair): median {statistics.median(noise):.3f}, 90th pct "
-      f"{sorted(noise)[int(0.9 * len(noise))]:.3f}, max {max(noise):.3f}")
+if noise:
+    print(f"baseline run-to-run spread (max/min of a pair): median {statistics.median(noise):.3f}, 90th pct "
+          f"{sorted(noise)[int(0.9 * len(noise))]:.3f}, max {max(noise):.3f}")
+else:
+    print("baseline run-to-run spread: needs at least two baseline runs")
 print("largest effects:")
 for r, k, b, f in eff[-10:]:
     print(f"  {r:.3f}  base {[round(x, 1) for x in b]}  fix {[round(x, 1) for x in f]}  {k[:100]}")

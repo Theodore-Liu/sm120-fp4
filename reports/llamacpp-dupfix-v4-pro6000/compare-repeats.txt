@@ -1,0 +1,19 @@
+runs: {'base': 3, 'fix': 3}
+cases 132
+effect, median(fix)/median(base): median 1.005, min 0.859, max 1.109
+baseline run-to-run spread (max/min of a pair): median 1.002, 90th pct 1.012, max 1.114
+largest effects:
+  1.046  base [148.8, 149.2, 148.8]  fix [156.2, 155.7, 155.3]  type_a=q4_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.048  base [208.4, 208.6, 208.3]  fix [218.3, 217.6, 218.5]  type_a=iq4_xs,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=256,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.050  base [21.7, 21.4, 21.9]  fix [22.7, 22.9, 22.8]  type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=4,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.050  base [68.5, 68.5, 68.6]  fix [71.9, 72.0, 72.0]  type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.051  base [44.1, 44.1, 44.1]  fix [46.3, 46.4, 46.4]  type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.053  base [251.6, 253.7, 251.0]  fix [265.4, 264.1, 265.0]  type_a=q4_0,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.054  base [138.2, 138.4, 138.3]  fix [145.8, 145.8, 145.8]  type_a=iq4_xs,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.063  base [134.3, 134.5, 134.1]  fix [143.6, 142.8, 142.3]  type_a=q4_0,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=512,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.066  base [56.9, 56.9, 57.4]  fix [60.6, 60.6, 60.6]  type_a=q6_K,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=32,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  1.109  base [11.7, 11.8, 12.0]  fix [13.0, 13.1, 13.3]  type_a=f16,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0
+smallest effects:
+  0.859  base [19.0, 19.4, 19.1]  fix [16.4, 16.4, 16.5]  type_a=f32,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  0.951  base [19.7, 19.5, 20.3]  fix [18.8, 18.4, 18.9]  type_a=f32,type_b=f32,n_mats=128,n_used=8,b=0,m=768,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0
+  0.967  base [11.4, 11.3, 11.3]  fix [11.0, 10.6, 10.9]  type_a=f16,type_b=f32,n_mats=32,n_used=4,b=0,m=1792,n=1,k=2048,amax=1.000000,m_v=0,ids_offset=0

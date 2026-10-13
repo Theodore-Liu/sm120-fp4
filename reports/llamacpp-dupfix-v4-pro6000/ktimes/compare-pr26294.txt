@@ -1,0 +1,11 @@
+== q4_0_n32
+  mul_mat_q                                        base    126 x    65.26 us   fix    126 x    66.31 us    1.016
+  mm_ids_fused                                     base      0 x      nan us   fix    126 x     5.02 us      nan
+  mul_mat_q_stream_k_fixup                         base    126 x     2.12 us   fix    126 x     2.26 us    1.070
+  mm_ids_helper                                    base    126 x     1.61 us   fix      0 x      nan us      nan
+  quantize_mmq_q8_1                                base    126 x     1.58 us   fix    126 x     1.59 us    1.008
+== q4_0_n512
+  mul_mat_q                                        base      9 x   210.76 us   fix      9 x   211.09 us    1.002
+  quantize_mmq_q8_1                                base      9 x    24.41 us   fix      9 x    24.34 us    0.997
+  mm_ids_fused                                     base      0 x      nan us   fix      9 x    18.20 us      nan
+  mm_ids_helper                                    base      9 x    17.85 us   fix      0 x      nan us      nan
