@@ -1,0 +1,697 @@
+{
+ "generated_utc": "2026-10-15T07:18:38Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "deep_gemm": "2.8.1",
+ "rows": [
+  {
+   "label": "8x256",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00014401332700908487,
+   "calc_diff_exact_vs_ref_d": 0.00014401332541758016,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x128",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    128,
+    128,
+    128,
+    128,
+    128,
+    128,
+    128,
+    128
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 7.960407509899348e-05,
+   "calc_diff_exact_vs_ref_d": 7.96040742623294e-05,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "1x256",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    256
+   ],
+   "groups": 1,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00013945301802775756,
+   "calc_diff_exact_vs_ref_d": 0.0001394530184765097,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "256,128",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    256,
+    128
+   ],
+   "groups": 2,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.0001096807764366936,
+   "calc_diff_exact_vs_ref_d": 0.00010968077661455133,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "128,256",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    128,
+    256
+   ],
+   "groups": 2,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00011262521959243266,
+   "calc_diff_exact_vs_ref_d": 0.00011262521956412197,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "4x384",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    384,
+    384,
+    384,
+    384
+   ],
+   "groups": 4,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    1492,
+    1492,
+    1492
+   ],
+   "calc_diff_vs_ref_d": 0.006943853737447991,
+   "calc_diff_exact_vs_ref_d": 0.00018935331591141136,
+   "wrong_rows": [
+    [
+     0,
+     4
+    ],
+    [
+     0,
+     11
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     1,
+     7
+    ],
+    [
+     1,
+     11
+    ],
+    [
+     2,
+     4
+    ],
+    [
+     2,
+     11
+    ],
+    [
+     3,
+     0
+    ],
+    [
+     3,
+     2
+    ],
+    [
+     3,
+     4
+    ],
+    [
+     3,
+     6
+    ]
+   ],
+   "row_matches": [
+    {
+     "group": 0,
+     "row": 4,
+     "nearest_correct_row": [
+      0,
+      4
+     ],
+     "max_abs_diff": 14.2212,
+     "vs_c_row": 54.7047,
+     "abs_max_of_out_row": 112.18
+    },
+    {
+     "group": 0,
+     "row": 11,
+     "nearest_correct_row": [
+      0,
+      11
+     ],
+     "max_abs_diff": 24.2151,
+     "vs_c_row": 52.2521,
+     "abs_max_of_out_row": 111.329
+    },
+    {
+     "group": 1,
+     "row": 2,
+     "nearest_correct_row": [
+      1,
+      2
+     ],
+     "max_abs_diff": 24.6736,
+     "vs_c_row": 66.8465,
+     "abs_max_of_out_row": 137.146
+    },
+    {
+     "group": 1,
+     "row": 7,
+     "nearest_correct_row": [
+      1,
+      7
+     ],
+     "max_abs_diff": 29.4117,
+     "vs_c_row": 67.8998,
+     "abs_max_of_out_row": 110.964
+    },
+    {
+     "group": 1,
+     "row": 11,
+     "nearest_correct_row": [
+      1,
+      11
+     ],
+     "max_abs_diff": 35.9673,
+     "vs_c_row": 64.2193,
+     "abs_max_of_out_row": 126.929
+    },
+    {
+     "group": 2,
+     "row": 4,
+     "nearest_correct_row": [
+      2,
+      4
+     ],
+     "max_abs_diff": 18.7184,
+     "vs_c_row": 57.2996,
+     "abs_max_of_out_row": 88.56
+    }
+   ]
+  },
+  {
+   "label": "4x512",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    512,
+    512,
+    512,
+    512
+   ],
+   "groups": 4,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00023031869690059992,
+   "calc_diff_exact_vs_ref_d": 0.00023031870173439994,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "4x1024",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    1024,
+    1024,
+    1024,
+    1024
+   ],
+   "groups": 4,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.000345139530512073,
+   "calc_diff_exact_vs_ref_d": 0.00034513950312653474,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "64x256",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 64,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00014261899596945682,
+   "calc_diff_exact_vs_ref_d": 0.00014261899560785718,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-n64",
+   "m": 12,
+   "n": 64,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00013622710638627744,
+   "calc_diff_exact_vs_ref_d": 0.00013622710635707858,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-n2048",
+   "m": 12,
+   "n": 2048,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00014301686892248533,
+   "calc_diff_exact_vs_ref_d": 0.00014301686872086883,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-m12",
+   "m": 12,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00014401332700908487,
+   "calc_diff_exact_vs_ref_d": 0.00014401332541758016,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-m44",
+   "m": 44,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00014141797355882169,
+   "calc_diff_exact_vs_ref_d": 0.00014141797113775834,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-m76",
+   "m": 76,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.000140565395888137,
+   "calc_diff_exact_vs_ref_d": 0.0001405653961012998,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-m108",
+   "m": 108,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00014117924886958289,
+   "calc_diff_exact_vs_ref_d": 0.0001411792477192808,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-m140",
+   "m": 140,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00014182849906463346,
+   "calc_diff_exact_vs_ref_d": 0.00014182849840782552,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-m204",
+   "m": 204,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.00014211332612390493,
+   "calc_diff_exact_vs_ref_d": 0.00014211332535085663,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-m268",
+   "m": 268,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "distinct_outputs_in_process": 1,
+   "outside_per_run": [
+    0,
+    0,
+    0
+   ],
+   "calc_diff_vs_ref_d": 0.0001418094581645546,
+   "calc_diff_exact_vs_ref_d": 0.00014180945774255882,
+   "wrong_rows": [],
+   "row_matches": []
+  },
+  {
+   "label": "8x256-m10-mn-not-4",
+   "m": 10,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "label": "8x256-m11-mn-not-4",
+   "m": 11,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "label": "8x256-m13-mn-not-4",
+   "m": 13,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "label": "8x256-m14-mn-not-4",
+   "m": 14,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "label": "8x256-m15-mn-not-4",
+   "m": 15,
+   "n": 136,
+   "ks": [
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256,
+    256
+   ],
+   "groups": 8,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  }
+ ]
+}

@@ -1,0 +1,243 @@
+{
+ "generated_utc": "2026-10-15T07:10:22Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.13.0+cu130",
+ "deep_gemm": "2.8.1",
+ "deep_gemm_path": "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/deep_gemm/__init__.py",
+ "cases": [
+  {
+   "entry": "tn",
+   "m": 1,
+   "n": 8,
+   "pattern": "3-uneven",
+   "groups": 3,
+   "logical_ks": [
+    8192,
+    128,
+    256
+   ],
+   "gran_k": 128,
+   "k_alignment": 128,
+   "out_dtype": "bfloat16",
+   "c": "none",
+   "host_ks": [
+    8192,
+    128,
+    256
+   ],
+   "calc_diff_vs_generator_ref": 0.0012564253631031086,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "entry": "tn",
+   "m": 1,
+   "n": 8,
+   "pattern": "3-uneven",
+   "groups": 3,
+   "logical_ks": [
+    8192,
+    128,
+    256
+   ],
+   "gran_k": 128,
+   "k_alignment": 128,
+   "out_dtype": "float32",
+   "c": "alias",
+   "host_ks": [
+    8192,
+    128,
+    256
+   ],
+   "calc_diff_vs_generator_ref": 0.0003784256423366994,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "entry": "tn",
+   "m": 1,
+   "n": 8,
+   "pattern": "3-uneven",
+   "groups": 3,
+   "logical_ks": [
+    8192,
+    128,
+    256
+   ],
+   "gran_k": 128,
+   "k_alignment": 128,
+   "out_dtype": "float32",
+   "c": "separate",
+   "host_ks": [
+    8192,
+    128,
+    256
+   ],
+   "calc_diff_vs_generator_ref": 0.00045423998062243953,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "entry": "tn",
+   "m": 1,
+   "n": 8,
+   "pattern": "3-uneven",
+   "groups": 3,
+   "logical_ks": [
+    8192,
+    128,
+    256
+   ],
+   "gran_k": 32,
+   "k_alignment": 128,
+   "out_dtype": "bfloat16",
+   "c": "none",
+   "host_ks": [
+    8192,
+    128,
+    256
+   ],
+   "calc_diff_vs_generator_ref": 0.0003902793896075618,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "entry": "tn",
+   "m": 1,
+   "n": 8,
+   "pattern": "3-uneven",
+   "groups": 3,
+   "logical_ks": [
+    8192,
+    128,
+    256
+   ],
+   "gran_k": 32,
+   "k_alignment": 256,
+   "out_dtype": "bfloat16",
+   "c": "none",
+   "host_ks": [
+    8192,
+    256,
+    256
+   ],
+   "calc_diff_vs_generator_ref": 0.0007535083025138611,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "entry": "tn",
+   "m": 1,
+   "n": 8,
+   "pattern": "3-uneven",
+   "groups": 3,
+   "logical_ks": [
+    8192,
+    128,
+    256
+   ],
+   "gran_k": 32,
+   "k_alignment": 384,
+   "out_dtype": "bfloat16",
+   "c": "none",
+   "host_ks": [
+    8448,
+    384,
+    384
+   ],
+   "calc_diff_vs_generator_ref": 0.000767783032203484,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "entry": "nt",
+   "m": 1,
+   "n": 8,
+   "pattern": "3-uneven",
+   "groups": 3,
+   "logical_ks": [
+    8192,
+    128,
+    256
+   ],
+   "gran_k": 128,
+   "k_alignment": 128,
+   "out_dtype": "float32",
+   "c": "alias",
+   "host_ks": [
+    8192,
+    128,
+    256
+   ],
+   "calc_diff_vs_generator_ref": 0.0010233839985945847,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  },
+  {
+   "entry": "tn",
+   "m": 1,
+   "n": 24,
+   "pattern": "3-uneven",
+   "groups": 3,
+   "logical_ks": [
+    8192,
+    128,
+    256
+   ],
+   "gran_k": 128,
+   "k_alignment": 128,
+   "out_dtype": "bfloat16",
+   "c": "none",
+   "host_ks": [
+    8192,
+    128,
+    256
+   ],
+   "calc_diff_vs_generator_ref": 0.0006691525447283242,
+   "error": "RuntimeError: Assertion error (csrc/apis/../jit_kernels/impls/smxx_layout.hpp:231): num_groups <= 128 and mn % 4 == 0"
+  }
+ ],
+ "decode_check_tn": {
+  "entry": "tn",
+  "m": 128,
+  "n": 256,
+  "pattern": "check",
+  "groups": 2,
+  "logical_ks": [
+   128,
+   256
+  ],
+  "gran_k": 128,
+  "k_alignment": 128,
+  "out_dtype": "float32",
+  "c": "alias",
+  "host_ks": [
+   128,
+   256
+  ],
+  "calc_diff_vs_generator_ref": 0.00011258443101891391,
+  "elements": 65536,
+  "outside": 0,
+  "nan": 0,
+  "max_err_over_bound": 0.006068414923026124,
+  "distinct_outputs": 1
+ },
+ "decode_check_nt": {
+  "entry": "nt",
+  "m": 128,
+  "n": 256,
+  "pattern": "check",
+  "groups": 2,
+  "logical_ks": [
+   128,
+   256
+  ],
+  "gran_k": 128,
+  "k_alignment": 128,
+  "out_dtype": "float32",
+  "c": "alias",
+  "host_ks": [
+   128,
+   256
+  ],
+  "calc_diff_vs_generator_ref": 0.00011169933920807118,
+  "elements": 65536,
+  "outside": 0,
+  "nan": 0,
+  "max_err_over_bound": 0.005635949551178979,
+  "distinct_outputs": 1
+ }
+}
