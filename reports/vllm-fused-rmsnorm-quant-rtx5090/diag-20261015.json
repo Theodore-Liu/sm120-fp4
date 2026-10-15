@@ -1,0 +1,75 @@
+{
+ "generated_utc": "2026-10-15T23:15:39Z",
+ "rows": [
+  {
+   "dtype": "float32",
+   "tokens": 200,
+   "hidden": 16384,
+   "quant": "fp8",
+   "residual": false,
+   "group": null,
+   "rows_off_at_exact_rms": 1,
+   "rows_unresolved_within_256_ulps": 0,
+   "needed_offset_ulps_max_abs": 1,
+   "needed_offset_ulps_mean_abs": 0.0,
+   "thread_partial_rms_ulps_from_exact_mean_abs": 0.01,
+   "rows_where_thread_partial_rms_matches_needed": 197
+  },
+  {
+   "dtype": "float32",
+   "tokens": 200,
+   "hidden": 16384,
+   "quant": "int8",
+   "residual": false,
+   "group": null,
+   "rows_off_at_exact_rms": 0,
+   "rows_unresolved_within_256_ulps": 0,
+   "needed_offset_ulps_max_abs": 0,
+   "needed_offset_ulps_mean_abs": 0.0,
+   "thread_partial_rms_ulps_from_exact_mean_abs": 0.0,
+   "rows_where_thread_partial_rms_matches_needed": 199
+  },
+  {
+   "dtype": "bfloat16",
+   "tokens": 200,
+   "hidden": 8192,
+   "quant": "fp8",
+   "residual": true,
+   "group": 64,
+   "rows_off_at_exact_rms": 188,
+   "rows_unresolved_within_256_ulps": 188,
+   "needed_offset_ulps_max_abs": 0,
+   "needed_offset_ulps_mean_abs": 0.0,
+   "thread_partial_rms_ulps_from_exact_mean_abs": 0.1,
+   "rows_where_thread_partial_rms_matches_needed": 11
+  },
+  {
+   "dtype": "float16",
+   "tokens": 200,
+   "hidden": 16384,
+   "quant": "fp8",
+   "residual": true,
+   "group": 128,
+   "rows_off_at_exact_rms": 120,
+   "rows_unresolved_within_256_ulps": 119,
+   "needed_offset_ulps_max_abs": 12,
+   "needed_offset_ulps_mean_abs": 0.15,
+   "thread_partial_rms_ulps_from_exact_mean_abs": 0.13,
+   "rows_where_thread_partial_rms_matches_needed": 64
+  },
+  {
+   "dtype": "bfloat16",
+   "tokens": 200,
+   "hidden": 1023,
+   "quant": "fp8",
+   "residual": false,
+   "group": null,
+   "rows_off_at_exact_rms": 0,
+   "rows_unresolved_within_256_ulps": 0,
+   "needed_offset_ulps_max_abs": 0,
+   "needed_offset_ulps_mean_abs": 0.0,
+   "thread_partial_rms_ulps_from_exact_mean_abs": 0.0,
+   "rows_where_thread_partial_rms_matches_needed": 200
+  }
+ ]
+}
