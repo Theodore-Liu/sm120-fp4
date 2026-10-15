@@ -1,0 +1,749 @@
+{
+ "generated_utc": "2026-10-15T09:13:49Z",
+ "rows": [
+  {
+   "label": "generator-masked",
+   "pairing": "fp8xfp8",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": null,
+   "generator_masked_m": [
+    73,
+    70,
+    70
+   ],
+   "masked_m": [
+    73,
+    70,
+    70
+   ],
+   "elements": 28968,
+   "outside": 0,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 0,
+   "examples": [],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "override-below",
+   "pairing": "fp8xfp8",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": [
+    32,
+    0,
+    16
+   ],
+   "generator_masked_m": [
+    47,
+    59,
+    57
+   ],
+   "masked_m": [
+    32,
+    0,
+    16
+   ],
+   "elements": 6528,
+   "outside": 0,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 0,
+   "examples": [],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "override-above",
+   "pairing": "fp8xfp8",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": [
+    128,
+    0,
+    128
+   ],
+   "generator_masked_m": [
+    82,
+    74,
+    74
+   ],
+   "masked_m": [
+    128,
+    0,
+    128
+   ],
+   "elements": 34816,
+   "outside": 13600,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 100,
+   "examples": [
+    {
+     "group": 0,
+     "row": 82,
+     "gen_masked": 82,
+     "out_first4": [
+      -0.0,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    },
+    {
+     "group": 2,
+     "row": 74,
+     "gen_masked": 74,
+     "out_first4": [
+      -0.0,
+      0.0,
+      -0.0,
+      0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    }
+   ],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "edge-B-like",
+   "pairing": "fp8xfp8",
+   "groups": 3,
+   "max_m": 68,
+   "n": 136,
+   "k": 128,
+   "override": [
+    68,
+    0,
+    68
+   ],
+   "generator_masked_m": [
+    38,
+    34,
+    42
+   ],
+   "masked_m": [
+    68,
+    0,
+    68
+   ],
+   "elements": 18496,
+   "outside": 7616,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 56,
+   "examples": [
+    {
+     "group": 0,
+     "row": 38,
+     "gen_masked": 38,
+     "out_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    },
+    {
+     "group": 2,
+     "row": 42,
+     "gen_masked": 42,
+     "out_first4": [
+      -0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    }
+   ],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "generator-masked",
+   "pairing": "fp4xfp4",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": null,
+   "generator_masked_m": [
+    52,
+    57,
+    55
+   ],
+   "masked_m": [
+    52,
+    57,
+    55
+   ],
+   "elements": 22304,
+   "outside": 0,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 0,
+   "examples": [],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "override-below",
+   "pairing": "fp4xfp4",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": [
+    32,
+    0,
+    16
+   ],
+   "generator_masked_m": [
+    56,
+    46,
+    70
+   ],
+   "masked_m": [
+    32,
+    0,
+    16
+   ],
+   "elements": 6528,
+   "outside": 0,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 0,
+   "examples": [],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "override-above",
+   "pairing": "fp4xfp4",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": [
+    128,
+    0,
+    128
+   ],
+   "generator_masked_m": [
+    71,
+    46,
+    80
+   ],
+   "masked_m": [
+    128,
+    0,
+    128
+   ],
+   "elements": 34816,
+   "outside": 14262,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 105,
+   "examples": [
+    {
+     "group": 0,
+     "row": 71,
+     "gen_masked": 71,
+     "out_first4": [
+      0.0,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    },
+    {
+     "group": 2,
+     "row": 80,
+     "gen_masked": 80,
+     "out_first4": [
+      0.0,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    }
+   ],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "edge-B-like",
+   "pairing": "fp4xfp4",
+   "groups": 3,
+   "max_m": 68,
+   "n": 136,
+   "k": 128,
+   "override": [
+    68,
+    0,
+    68
+   ],
+   "generator_masked_m": [
+    36,
+    44,
+    32
+   ],
+   "masked_m": [
+    68,
+    0,
+    68
+   ],
+   "elements": 18496,
+   "outside": 9217,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 68,
+   "examples": [
+    {
+     "group": 0,
+     "row": 36,
+     "gen_masked": 36,
+     "out_first4": [
+      -0.0,
+      0.0,
+      -0.0,
+      0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    },
+    {
+     "group": 2,
+     "row": 32,
+     "gen_masked": 32,
+     "out_first4": [
+      -0.0,
+      -0.0,
+      -0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    }
+   ],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "generator-masked",
+   "pairing": "fp8xfp4",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": null,
+   "generator_masked_m": [
+    72,
+    54,
+    68
+   ],
+   "masked_m": [
+    72,
+    54,
+    68
+   ],
+   "elements": 26384,
+   "outside": 0,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 0,
+   "examples": [],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "override-below",
+   "pairing": "fp8xfp4",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": [
+    32,
+    0,
+    16
+   ],
+   "generator_masked_m": [
+    54,
+    49,
+    66
+   ],
+   "masked_m": [
+    32,
+    0,
+    16
+   ],
+   "elements": 6528,
+   "outside": 0,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 0,
+   "examples": [],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "override-above",
+   "pairing": "fp8xfp4",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": [
+    128,
+    0,
+    128
+   ],
+   "generator_masked_m": [
+    78,
+    79,
+    49
+   ],
+   "masked_m": [
+    128,
+    0,
+    128
+   ],
+   "elements": 34816,
+   "outside": 17544,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 129,
+   "examples": [
+    {
+     "group": 0,
+     "row": 78,
+     "gen_masked": 78,
+     "out_first4": [
+      -0.0,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    },
+    {
+     "group": 2,
+     "row": 49,
+     "gen_masked": 49,
+     "out_first4": [
+      0.0,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    }
+   ],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "edge-B-like",
+   "pairing": "fp8xfp4",
+   "groups": 3,
+   "max_m": 68,
+   "n": 136,
+   "k": 128,
+   "override": [
+    68,
+    0,
+    68
+   ],
+   "generator_masked_m": [
+    27,
+    33,
+    42
+   ],
+   "masked_m": [
+    68,
+    0,
+    68
+   ],
+   "elements": 18496,
+   "outside": 9112,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 67,
+   "examples": [
+    {
+     "group": 0,
+     "row": 27,
+     "gen_masked": 27,
+     "out_first4": [
+      0.0,
+      0.0,
+      -0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    },
+    {
+     "group": 2,
+     "row": 42,
+     "gen_masked": 42,
+     "out_first4": [
+      -0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    }
+   ],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "generator-masked",
+   "pairing": "fp4xfp8",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": null,
+   "generator_masked_m": [
+    61,
+    59,
+    63
+   ],
+   "masked_m": [
+    61,
+    59,
+    63
+   ],
+   "elements": 24888,
+   "outside": 0,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 0,
+   "examples": [],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "override-below",
+   "pairing": "fp4xfp8",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": [
+    32,
+    0,
+    16
+   ],
+   "generator_masked_m": [
+    58,
+    45,
+    81
+   ],
+   "masked_m": [
+    32,
+    0,
+    16
+   ],
+   "elements": 6528,
+   "outside": 0,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 0,
+   "examples": [],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "override-above",
+   "pairing": "fp4xfp8",
+   "groups": 3,
+   "max_m": 128,
+   "n": 136,
+   "k": 384,
+   "override": [
+    128,
+    0,
+    128
+   ],
+   "generator_masked_m": [
+    82,
+    55,
+    76
+   ],
+   "masked_m": [
+    128,
+    0,
+    128
+   ],
+   "elements": 34816,
+   "outside": 13326,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 98,
+   "examples": [
+    {
+     "group": 0,
+     "row": 82,
+     "gen_masked": 82,
+     "out_first4": [
+      -0.0,
+      0.0,
+      0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    },
+    {
+     "group": 2,
+     "row": 76,
+     "gen_masked": 76,
+     "out_first4": [
+      0.0,
+      0.0,
+      -0.0,
+      0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    }
+   ],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  },
+  {
+   "label": "edge-B-like",
+   "pairing": "fp4xfp8",
+   "groups": 3,
+   "max_m": 68,
+   "n": 136,
+   "k": 128,
+   "override": [
+    68,
+    0,
+    68
+   ],
+   "generator_masked_m": [
+    35,
+    29,
+    26
+   ],
+   "masked_m": [
+    68,
+    0,
+    68
+   ],
+   "elements": 18496,
+   "outside": 10199,
+   "rows_outside_below_gen": 0,
+   "rows_outside_at_or_above_gen": 75,
+   "examples": [
+    {
+     "group": 0,
+     "row": 35,
+     "gen_masked": 35,
+     "out_first4": [
+      -0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    },
+    {
+     "group": 2,
+     "row": 26,
+     "gen_masked": 26,
+     "out_first4": [
+      -0.0,
+      -0.0,
+      -0.0,
+      -0.0
+     ],
+     "exact_first4": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "sfa_row_absmax": 0.0
+    }
+   ],
+   "error": "AttributeError: module 'generators' has no attribute 'calc_diff'"
+  }
+ ]
+}
