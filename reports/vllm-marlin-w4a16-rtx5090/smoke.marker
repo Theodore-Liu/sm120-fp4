@@ -1,0 +1,14 @@
+09:12:01 marlin test-shape gptq bfloat16 g=128 26x2368x1664
+09:12:01 marlin test-shape gptq bfloat16 g=128 26x2368x1664
+09:12:01 marlin edge gptq bfloat16 g=-1 1x64x128
+09:12:01 marlin edge gptq bfloat16 g=-1 1x64x128
+09:12:01 marlin edge gptq bfloat16 g=-1 1x64x1152
+09:12:01 marlin edge gptq bfloat16 g=-1 1x64x1152
+09:12:01 marlin edge gptq bfloat16 g=-1 1x64x4224
+09:12:01 marlin edge gptq bfloat16 g=-1 1x64x4224
+09:12:01 marlin edge gptq bfloat16 g=-1 1x320x128
+09:12:01 marlin edge gptq bfloat16 g=-1 1x320x128
+09:12:01 marlin edge gptq bfloat16 g=-1 1x320x1152
+09:12:01 marlin edge gptq bfloat16 g=-1 1x320x1152
+09:12:01 marlin edge gptq bfloat16 g=-1 1x320x4224
+09:12:01 marlin edge gptq bfloat16 g=-1 1x320x4224
