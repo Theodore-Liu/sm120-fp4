@@ -1,0 +1,2 @@
+{"label": "test-geometry", "head_dim": 128, "heads": 16, "page_kv": 64, "next_n": 2, "batch": 12, "num_pages": 72, "table_cols": 6, "max_context_len": 384, "max_length": 257, "pages_reused": 0, "dyadic": true, "elements": 1849, "outside": 0, "nan": 0, "max_err_over_bound": 0.0, "max_abs_err": 0.0, "distinct_outputs": 1}
+cases 3, judged 3, outside in 0, nan in 0, nondeterministic 0, refused/errors 0, elements 23528; wrote /mnt/c/Users/jingz/oss/sm120-fp4/reports/deepgemm-paged-mqa-logits-rtx5090/smoke-20261015.json

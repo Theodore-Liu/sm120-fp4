@@ -1,0 +1,8 @@
+06:10:39 paged-mqa test-geometry hd=128 heads=16 page=64 next_n=2 batch=12 pages=72 max=384
+06:10:43 paged-mqa test-geometry hd=128 heads=16 page=64 next_n=2 batch=12 pages=72 max=384
+06:10:43 paged-mqa A-test-geometry-random hd=128 heads=16 page=64 next_n=2 batch=12 pages=72 max=384
+06:10:43 paged-mqa A-test-geometry-random hd=128 heads=16 page=64 next_n=2 batch=12 pages=72 max=384
+06:10:43 paged-mqa B-long hd=128 heads=16 page=64 next_n=1 batch=4 pages=512 max=8191
+06:10:44 paged-mqa B-long hd=128 heads=16 page=64 next_n=1 batch=4 pages=512 max=8191
+06:10:44 paged-mqa C-page-reuse hd=128 heads=16 page=64 next_n=1 batch=4 pages=24 max=384
+06:10:44 paged-mqa C-page-reuse hd=128 heads=16 page=64 next_n=1 batch=4 pages=24 max=384
