@@ -52,9 +52,20 @@ admitted); the probe's decode is checked against the generator's reference; a se
 entry point) and the library's own metric disagree with the output; the cause is a line of host code. **Defect class 2
 of the four-week test.** A local fix and a regression test come before any upstream text (`feedback-confirm-defect-and-fix-locally-before-posting`).
 
-## The fix to try
+## The fix (verified 2026-10-15)
 
 Decide the orientation from what the caller already states, not from the shape: the NT entry point asserts
 `major_a == K`, so its SF is `(mn, sf_k)` and must be transposed unconditionally; the TN entry point's is `(sf_k, mn)`
 and must not. Pass the major into `transform_k_grouped_sf_into_required_layout` (or transpose at the two call sites in
 `gemm.hpp`) and drop the shape comparison. Regression test: the square case, m = sum_k / gran_k, for both entry points.
+
+Done on branch `fix/sm120-kgrouped-sf-orientation` of the WSL checkout of vllm-project/DeepGEMM (commit 815a5f5, three files,
++48 -15): `transform_k_grouped_sf_into_required_layout` takes `sf_is_k_major` (default false), the two K-major entry points
+pass true, the shape comparison is removed. Built with `develop.sh` (77 s). `test_sm120_kgroup_square_sf_orientation` (m = 12
+with [128] x 12 and [384] x 4, m = 16 with [512] x 4, m = 64 with [256] x 32; random operands; each entry point against
+`ref_d` under the tests' 1e-3 bar and NT against TN under 1e-5) fails on the installed unpatched build at the first case
+(calc_diff 3.5e-3) and passes on the patched one; `tests/test_sm120_fp8_fp4.py` passes in full (68 s); the square diagnostic
+reads 0 of 29 cases outside the bound (max calc_diff 2.2e-4, `reports/deepgemm-kgrouped-rtx5090/diag4-patched-20261015.json`).
+The generic `tests/test_fp8_fp4.py::test_k_grouped_gemm_contiguous` stops at `c.has_value()` on SM120 with and without the
+patch (its enumeration includes bf16 output without an accumulator, which the SM120 kernel refuses); a separate, pre-existing
+gap between that test and the SM120 kernel, not touched here.
