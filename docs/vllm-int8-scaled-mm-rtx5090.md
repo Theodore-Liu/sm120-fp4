@@ -49,6 +49,20 @@ and 24 with per-channel scales, the `N >= 8192` tile branch, the transposed-view
 0 outside. One registered expectation was not exercised: |acc| never exceeded 2^24 (max 2,215,712 at K = 4224 with
 full-range operands), so the predicted `fp32(acc)` rounding did not occur in this sweep.
 
+## 3. End to end: a W8A8 checkpoint on the 5090 (`scripts/vllm_int8_e2e_repro.py`, `reports/.../e2e/`)
+
+`RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8` (compressed-tensors W8A8 int8), vLLM 0.28.0 under WSL2 with
+`VLLM_USE_V2_MODEL_RUNNER=0` (the WSL2 UVA wall, see the mlsys notes) and `enforce_eager`:
+
+| run | selection logged | outcome |
+|---|---|---|
+| A, default | `Selected CutlassInt8ScaledMMLinearKernel for CompressedTensorsW8A8Int8` | engine core dies at the first forward: `scaled_mm_helper.hpp:34, Int8 not supported on SM120. Use FP8 quantization instead, or run on older arch (SM < 100).` |
+| B, `VLLM_DISABLED_KERNELS=CutlassInt8ScaledMMLinearKernel` | `Selected TritonInt8ScaledMMLinearKernel for CompressedTensorsW8A8Int8` | generates: "The capital of France is" -> " Paris. The Eiffel Tower is located in Paris. The Louvre Museum is also located in Paris. ..."; "List three prime numbers:" -> " 2, 5, and 7. ..." |
+
+Run B is the selection the local fix makes the default. The first attempt of both runs failed before any kernel ran
+(`UVA is not available`, the V2 model runner under WSL2), which is the host, not the quantisation path; the environment
+variable above is the known workaround.
+
 ## For a user of INT8 W8A8 checkpoints on this part
 
 vLLM 0.28.0 fails at the first forward with "Int8 not supported on SM120"; the Triton kernel that vLLM already ships

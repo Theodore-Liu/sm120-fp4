@@ -1,0 +1,235 @@
+INFO 10-15 12:53:17 [api_utils.py:272] non-default args: {'max_model_len': 512, 'gpu_memory_utilization': 0.45, 'disable_log_stats': True, 'enforce_eager': True, 'model': 'RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8'}
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+INFO 10-15 12:53:18 [model.py:672] Resolved architecture: LlamaForCausalLM
+INFO 10-15 12:53:18 [model.py:1965] Using max model len 512
+INFO 10-15 12:53:19 [scheduler.py:242] Chunked prefill is enabled with max_num_batched_tokens=8192.
+WARNING 10-15 12:53:19 [vllm.py:1285] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none
+WARNING 10-15 12:53:19 [vllm.py:1354] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.
+INFO 10-15 12:53:19 [kernel.py:308] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])
+INFO 10-15 12:53:19 [vllm.py:1533] Cudagraph is disabled under eager mode
+INFO 10-15 12:53:19 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant
+WARNING 10-15 12:53:20 [system_utils.py:157] We must use the `spawn` multiprocessing start method. Overriding VLLM_WORKER_MULTIPROC_METHOD to 'spawn'. See https://docs.vllm.ai/en/latest/usage/troubleshooting.html#python-multiprocessing for more information. Reasons: CUDA is initialized; WSL is detected and NVML is not compatible with fork
+(EngineCore pid=168551) INFO 10-15 12:53:25 [core.py:122] Initializing a V1 LLM engine (v0.28.0) with config: model='RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8', speculative_config=None, tokenizer='RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8', skip_tokenizer_init=False, tokenizer_mode=auto, revision=main, tokenizer_revision=main, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=512, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=compressed-tensors, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [8192], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')
+(EngineCore pid=168551) INFO 10-15 12:53:25 [parallel_state.py:1638] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_a3b733c3af6d4ff6b68c33481b006243 backend=nccl
+(EngineCore pid=168551) INFO 10-15 12:53:25 [parallel_state.py:1982] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A
+(EngineCore pid=168551) INFO 10-15 12:53:27 [topk_topp_sampler.py:62] Using FlashInfer for top-p & top-k sampling.
+(EngineCore pid=168551) INFO 10-15 12:53:27 [gpu_model_runner.py:5419] Starting to load model RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8...
+(EngineCore pid=168551) INFO 10-15 12:53:27 [__init__.py:755] Selected CutlassInt8ScaledMMLinearKernel for CompressedTensorsW8A8Int8
+(EngineCore pid=168551) INFO 10-15 12:53:27 [cuda.py:486] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].
+(EngineCore pid=168551) INFO 10-15 12:53:27 [flash_attn.py:866] Using FlashAttention version 2
+(EngineCore pid=168551) INFO 10-15 12:55:47 [weight_utils.py:521] Time spent downloading weights for RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8: 138.903996 seconds
+(EngineCore pid=168551) INFO 10-15 12:55:47 [weight_utils.py:858] Filesystem type for checkpoints: EXT4. Checkpoint size: 1.89 GiB. Available RAM: 34.73 GiB.
+(EngineCore pid=168551) INFO 10-15 12:55:47 [weight_utils.py:881] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.
+(EngineCore pid=168551) Loading safetensors checkpoint shards:   0% Completed | 0/1 [00:00<?, ?it/s]
+(EngineCore pid=168551) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  6.85it/s]
+(EngineCore pid=168551) Loading safetensors checkpoint shards: 100% Completed | 1/1 [00:00<00:00,  6.80it/s]
+(EngineCore pid=168551) 
+(EngineCore pid=168551) INFO 10-15 12:55:47 [default_loader.py:430] Loading weights took 0.15 seconds
+(EngineCore pid=168551) INFO 10-15 12:55:48 [gpu_model_runner.py:5515] Model loading took 1.41 GiB memory and 139.855204 seconds
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346] EngineCore failed to start.
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346] Traceback (most recent call last):
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1315, in run_engine_core
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return func(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1073, in __init__
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     super().__init__(
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 144, in __init__
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     kv_cache_config = self._initialize_kv_caches(vllm_config)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return func(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 296, in _initialize_kv_caches
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     available_gpu_memory = self.model_executor.determine_available_memory()
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 149, in determine_available_memory
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return self.collective_rpc("determine_available_memory")
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 103, in collective_rpc
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     result = run_method(self.driver_worker, method, args, kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/serial_utils.py", line 510, in run_method
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return func(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return func(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 519, in determine_available_memory
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     self.model_runner.profile_run()
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 6618, in profile_run
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     hidden_states, last_hidden_states = self._dummy_run(
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]                                         ^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return func(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 6266, in _dummy_run
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     outputs = self.model(
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]               ^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return self._call_impl(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return forward_call(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/models/llama.py", line 524, in forward
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     model_output = self.model(
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]                    ^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/compilation/decorators.py", line 507, in __call__
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return self.forward(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/models/llama.py", line 424, in forward
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     hidden_states, residual = layer(
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]                               ^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return self._call_impl(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return forward_call(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/models/llama.py", line 323, in forward
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     hidden_states = self.self_attn(positions=positions, hidden_states=hidden_states)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return self._call_impl(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return forward_call(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/models/llama.py", line 227, in forward
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     qkv, _ = self.qkv_proj(hidden_states)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return self._call_impl(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return forward_call(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/linear.py", line 576, in forward
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     output_parallel = self.quant_method.apply(self, input_, bias)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/compressed_tensors/compressed_tensors.py", line 1028, in apply
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return scheme.apply_weights(layer, x, bias=bias)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/compressed_tensors/schemes/compressed_tensors_w8a8_int8.py", line 112, in apply_weights
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return self.kernel.apply_weights(layer, x, bias)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/kernels/linear/scaled_mm/cutlass.py", line 151, in apply_weights
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return ops.cutlass_scaled_mm(
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/_custom_ops.py", line 802, in cutlass_scaled_mm
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     torch.ops._C.cutlass_scaled_mm(out, a, b, scale_a, scale_b, bias)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1279, in __call__
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]     return self._op(*args, **kwargs)
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346]            ^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) ERROR 10-15 12:55:48 [core.py:1346] RuntimeError: dispatch_scaled_mm, /workspace/csrc/libtorch_stable/quantization/w8a8/cutlass/c3x/scaled_mm_helper.hpp:34, Int8 not supported on SM120. Use FP8 quantization instead, or run on older arch (SM < 100).
+(EngineCore pid=168551) Process EngineCore:
+(EngineCore pid=168551) Traceback (most recent call last):
+(EngineCore pid=168551)   File "/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+(EngineCore pid=168551)     self.run()
+(EngineCore pid=168551)   File "/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/lib/python3.12/multiprocessing/process.py", line 108, in run
+(EngineCore pid=168551)     self._target(*self._args, **self._kwargs)
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1350, in run_engine_core
+(EngineCore pid=168551)     raise e
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1315, in run_engine_core
+(EngineCore pid=168551)     engine_core = EngineCoreProc(*args, engine_index=dp_rank, **kwargs)
+(EngineCore pid=168551)                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=168551)     return func(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 1073, in __init__
+(EngineCore pid=168551)     super().__init__(
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 144, in __init__
+(EngineCore pid=168551)     kv_cache_config = self._initialize_kv_caches(vllm_config)
+(EngineCore pid=168551)                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(EngineCore pid=168551)     return func(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 296, in _initialize_kv_caches
+(EngineCore pid=168551)     available_gpu_memory = self.model_executor.determine_available_memory()
+(EngineCore pid=168551)                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/executor/abstract.py", line 149, in determine_available_memory
+(EngineCore pid=168551)     return self.collective_rpc("determine_available_memory")
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/executor/uniproc_executor.py", line 103, in collective_rpc
+(EngineCore pid=168551)     result = run_method(self.driver_worker, method, args, kwargs)
+(EngineCore pid=168551)              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/serial_utils.py", line 510, in run_method
+(EngineCore pid=168551)     return func(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=168551)     return func(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 519, in determine_available_memory
+(EngineCore pid=168551)     self.model_runner.profile_run()
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 6618, in profile_run
+(EngineCore pid=168551)     hidden_states, last_hidden_states = self._dummy_run(
+(EngineCore pid=168551)                                         ^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+(EngineCore pid=168551)     return func(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 6266, in _dummy_run
+(EngineCore pid=168551)     outputs = self.model(
+(EngineCore pid=168551)               ^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=168551)     return self._call_impl(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=168551)     return forward_call(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/models/llama.py", line 524, in forward
+(EngineCore pid=168551)     model_output = self.model(
+(EngineCore pid=168551)                    ^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/compilation/decorators.py", line 507, in __call__
+(EngineCore pid=168551)     return self.forward(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/models/llama.py", line 424, in forward
+(EngineCore pid=168551)     hidden_states, residual = layer(
+(EngineCore pid=168551)                               ^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=168551)     return self._call_impl(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=168551)     return forward_call(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/models/llama.py", line 323, in forward
+(EngineCore pid=168551)     hidden_states = self.self_attn(positions=positions, hidden_states=hidden_states)
+(EngineCore pid=168551)                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=168551)     return self._call_impl(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=168551)     return forward_call(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/models/llama.py", line 227, in forward
+(EngineCore pid=168551)     qkv, _ = self.qkv_proj(hidden_states)
+(EngineCore pid=168551)              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+(EngineCore pid=168551)     return self._call_impl(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+(EngineCore pid=168551)     return forward_call(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/linear.py", line 576, in forward
+(EngineCore pid=168551)     output_parallel = self.quant_method.apply(self, input_, bias)
+(EngineCore pid=168551)                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/compressed_tensors/compressed_tensors.py", line 1028, in apply
+(EngineCore pid=168551)     return scheme.apply_weights(layer, x, bias=bias)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/compressed_tensors/schemes/compressed_tensors_w8a8_int8.py", line 112, in apply_weights
+(EngineCore pid=168551)     return self.kernel.apply_weights(layer, x, bias)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/model_executor/kernels/linear/scaled_mm/cutlass.py", line 151, in apply_weights
+(EngineCore pid=168551)     return ops.cutlass_scaled_mm(
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/_custom_ops.py", line 802, in cutlass_scaled_mm
+(EngineCore pid=168551)     torch.ops._C.cutlass_scaled_mm(out, a, b, scale_a, scale_b, bias)
+(EngineCore pid=168551)   File "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/torch/_ops.py", line 1279, in __call__
+(EngineCore pid=168551)     return self._op(*args, **kwargs)
+(EngineCore pid=168551)            ^^^^^^^^^^^^^^^^^^^^^^^^^
+(EngineCore pid=168551) RuntimeError: dispatch_scaled_mm, /workspace/csrc/libtorch_stable/quantization/w8a8/cutlass/c3x/scaled_mm_helper.hpp:34, Int8 not supported on SM120. Use FP8 quantization instead, or run on older arch (SM < 100).
+[rank0]:[W1015 12:55:49.289633276 ProcessGroupNCCL.cpp:1624] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+INFO 10-15 12:55:49 [utils.py:615] [shutdown] Process manager: send sigterm to process EngineCore
+{"model": "RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8", "VLLM_DISABLED_KERNELS": "", "started_utc": "2026-10-15T19:53:13Z", "vllm": "0.28.0", "device": "NVIDIA GeForce RTX 5090", "capability": [12, 0], "result": "error", "error_type": "RuntimeError", "error": "Engine core initialization failed. See root cause above. Failed core proc(s): {}"}

@@ -1,0 +1,15 @@
+{
+ "model": "RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8",
+ "VLLM_DISABLED_KERNELS": "",
+ "started_utc": "2026-10-15T19:53:13Z",
+ "vllm": "0.28.0",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "result": "error",
+ "error_type": "RuntimeError",
+ "error": "Engine core initialization failed. See root cause above. Failed core proc(s): {}",
+ "traceback_tail": "Traceback (most recent call last):\n  File \"/mnt/c/Users/jingz/oss/sm120-fp4/scripts/vllm_int8_e2e_repro.py\", line 32, in main\n    llm = LLM(model=a.model, max_model_len=512, gpu_memory_utilization=0.45, enforce_eager=True, seed=0)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/entrypoints/llm.py\", line 343, in __init__\n    self.llm_engine = LLMEngine.from_engine_args(\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py\", line 179, in from_engine_args\n    return cls(\n           ^^^^\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/llm_engine.py\", line 105, in __init__\n    self.engine_core = EngineCoreClient.make_client(\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 110, in make_client\n    return SyncMPClient(vllm_config, executor_class, log_stats)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/tracing/otel.py\", line 178, in sync_wrapper\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 812, in __init__\n    super().__init__(\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py\", line 609, in __init__\n    with launch_core_engines(\n         ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jingze/.local/share/uv/python/cpython-3.12.14-linux-x86_64-gnu/lib/python3.12/contextlib.py\", line 144, in __exit__\n    next(self.gen)\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1206, in launch_core_engines\n    wait_for_engine_startup(\n  File \"/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/vllm/v1/engine/utils.py\", line 1286, in wait_for_engine_startup\n    raise RuntimeError(\nRuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}\n"
+}

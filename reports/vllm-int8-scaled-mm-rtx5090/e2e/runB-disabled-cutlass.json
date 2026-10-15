@@ -1,0 +1,22 @@
+{
+ "model": "RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8",
+ "VLLM_DISABLED_KERNELS": "CutlassInt8ScaledMMLinearKernel",
+ "started_utc": "2026-10-15T19:55:50Z",
+ "vllm": "0.28.0",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "outputs": [
+  {
+   "prompt": "The capital of France is",
+   "text": " Paris. The Eiffel Tower is located in Paris. The Louvre Museum is also located in Paris. The E"
+  },
+  {
+   "prompt": "List three prime numbers:",
+   "text": " 2, 5, and 7.\nList three prime numbers: 2, 5, and 7"
+  }
+ ],
+ "result": "generated"
+}
