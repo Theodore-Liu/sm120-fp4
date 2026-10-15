@@ -1,0 +1,225 @@
+{
+ "generated_utc": "2026-10-15T18:15:01Z",
+ "rows": [
+  {
+   "variant": "gptq",
+   "group_size": 32,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "gate-up",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0009765625
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0009765625
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0009765625
+   }
+  },
+  {
+   "variant": "gptq",
+   "group_size": 32,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.6612,
+    "max_abs_diff": 0.03125
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.7625,
+    "max_abs_diff": 0.015625
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7412,
+    "max_abs_diff": 0.03125
+   }
+  },
+  {
+   "variant": "gptq",
+   "group_size": 128,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "gate-up",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0078125
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0078125
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0078125
+   }
+  },
+  {
+   "variant": "gptq",
+   "group_size": 128,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.6508,
+    "max_abs_diff": 0.03125
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.7501,
+    "max_abs_diff": 0.015625
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7403,
+    "max_abs_diff": 0.015625
+   }
+  },
+  {
+   "variant": "awq",
+   "group_size": 32,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "gate-up",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0078125
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0078125
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.0078125
+   }
+  },
+  {
+   "variant": "awq",
+   "group_size": 32,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.6478,
+    "max_abs_diff": 0.015625
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.7326,
+    "max_abs_diff": 0.015625
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7424,
+    "max_abs_diff": 0.015625
+   }
+  },
+  {
+   "variant": "awq",
+   "group_size": 128,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "gate-up",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 1.0,
+    "max_abs_diff": 0.015625
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 1.0,
+    "max_abs_diff": 0.015625
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 1.0,
+    "max_abs_diff": 0.015625
+   }
+  },
+  {
+   "variant": "awq",
+   "group_size": 128,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.656,
+    "max_abs_diff": 0.015625
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.7522,
+    "max_abs_diff": 0.015625
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7387,
+    "max_abs_diff": 0.03125
+   }
+  },
+  {
+   "variant": "gptq",
+   "group_size": 128,
+   "m": 7,
+   "n": 320,
+   "k": 1152,
+   "experts": 64,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.6788,
+    "max_abs_diff": 0.0078125
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.8063,
+    "max_abs_diff": 0.0078125
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7417,
+    "max_abs_diff": 0.0078125
+   }
+  },
+  {
+   "variant": "gptq",
+   "group_size": 128,
+   "m": 300,
+   "n": 4160,
+   "k": 4224,
+   "experts": 8,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.6523,
+    "max_abs_diff": 0.0625
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.7432,
+    "max_abs_diff": 0.0625
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7409,
+    "max_abs_diff": 0.0625
+   }
+  }
+ ]
+}

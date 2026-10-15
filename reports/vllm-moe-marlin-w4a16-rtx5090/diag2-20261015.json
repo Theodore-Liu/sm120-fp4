@@ -1,0 +1,119 @@
+{
+ "generated_utc": "2026-10-15T18:15:54Z",
+ "rows": [
+  {
+   "variant": "gptq",
+   "group_size": 128,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.6536,
+    "max_abs_diff": 0.015625
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.757,
+    "max_abs_diff": 0.015625
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7413,
+    "max_abs_diff": 0.015625
+   },
+   "M3_both_rounded": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 3.0517578125e-05
+   },
+   "M7_a_times_w_rounded": {
+    "bit_exact_fraction": 0.4672,
+    "max_abs_diff": 0.015625
+   },
+   "M8_a_times_bf16w_rounded": {
+    "bit_exact_fraction": 0.5103,
+    "max_abs_diff": 0.015625
+   },
+   "M9_fp32_product": {
+    "bit_exact_fraction": 0.6536,
+    "max_abs_diff": 0.015625
+   }
+  },
+  {
+   "variant": "awq",
+   "group_size": 32,
+   "m": 129,
+   "n": 320,
+   "k": 1152,
+   "experts": 8,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.6455,
+    "max_abs_diff": 0.03125
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.7363,
+    "max_abs_diff": 0.03125
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7371,
+    "max_abs_diff": 0.015625
+   },
+   "M3_both_rounded": {
+    "bit_exact_fraction": 0.9999,
+    "max_abs_diff": 0.00048828125
+   },
+   "M7_a_times_w_rounded": {
+    "bit_exact_fraction": 0.4569,
+    "max_abs_diff": 0.015625
+   },
+   "M8_a_times_bf16w_rounded": {
+    "bit_exact_fraction": 0.5047,
+    "max_abs_diff": 0.015625
+   },
+   "M9_fp32_product": {
+    "bit_exact_fraction": 0.6455,
+    "max_abs_diff": 0.03125
+   }
+  },
+  {
+   "variant": "gptq",
+   "group_size": 128,
+   "m": 7,
+   "n": 320,
+   "k": 1152,
+   "experts": 64,
+   "top_k": 2,
+   "form": "down",
+   "M0_one_rounding": {
+    "bit_exact_fraction": 0.6163,
+    "max_abs_diff": 0.00390625
+   },
+   "M1_round_then_weight": {
+    "bit_exact_fraction": 0.6967,
+    "max_abs_diff": 0.001953125
+   },
+   "M2_weight_rounded_first": {
+    "bit_exact_fraction": 0.7471,
+    "max_abs_diff": 0.00390625
+   },
+   "M3_both_rounded": {
+    "bit_exact_fraction": 0.9998,
+    "max_abs_diff": 7.62939453125e-06
+   },
+   "M7_a_times_w_rounded": {
+    "bit_exact_fraction": 0.4516,
+    "max_abs_diff": 0.00390625
+   },
+   "M8_a_times_bf16w_rounded": {
+    "bit_exact_fraction": 0.515,
+    "max_abs_diff": 0.00390625
+   },
+   "M9_fp32_product": {
+    "bit_exact_fraction": 0.6163,
+    "max_abs_diff": 0.00390625
+   }
+  }
+ ]
+}
