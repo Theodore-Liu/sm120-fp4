@@ -19,7 +19,7 @@ model within one code of vLLM's own test reference.
 | dynamic asymmetric, rows with two distinct values | 118 of 132 | **0** (scales and zero points 0 off) | `s = (max - min) / 255`; `zp = rne(-128 - min / s)`; codes `sat8(rne32(fp32(x) * fp32(1 / s)) + zp)` |
 | dynamic asymmetric, a constant **nonzero** row (only reachable at hidden 1 and 2 here) | 14 | every such row | `s = 0`, `1 / s = inf`, `zp = (int) inf`; the row's codes come out `-1` whatever its value, so the row dequantises to 0 and its value is lost. An all-zero row (the realistic constant row: padding) gives codes 0 and is harmless. No contract is stated for this input; recorded as a contract gap, not a defect class (no realistic hidden size produces a nonzero constant row) |
 | static symmetric | 396 | **0** | `rne(fp32(x) / scale)`: a true division (the diag fits the division model with 0 off and the reciprocal model with 24,821 off on 2.4e9 codes) |
-| static asymmetric | 396 | 63 cases, 602,325 of 1,102,297,121 codes, always one code | `sat8(rne32(fp32(x) * fp32(1 / scale)) + azp)`: the **reciprocal product**, not the division the source writes (the diag fits the reciprocal model with 0 off and the division model with 24,821 off); the two differ only where `x / scale` sits within an fp32 rounding of a tie |
+| static asymmetric | 396 | 63 cases, 602,325 of 1,102,297,121 codes, always one code | `sat8(rne32(fp32(x) * fp32(1 / scale)) + azp)`: the **reciprocal product**, which is what the asymmetric kernel's source writes (`inv_s = 1.0f / scale; v = src * inv_s`, `scaled_quant.cu:128-137` at v0.28.0, the same on main) while the symmetric kernel divides (`src / scale`, line 115). The registration had modelled both as the division because the first reading of the asymmetric kernel stopped at its last line; the diag fits the reciprocal model with 0 off and the division model with 24,821 off. The two differ only where `x / scale` sits within an fp32 rounding of a tie |
 
 Beside the kernel's own arithmetic, the ideal quantiser `round(x / scale_returned)` in float64 differs from the kernel by
 one code on 13,145,065 of 7.16e9 codes (0.18 percent; dynamic symmetric 164,318, static symmetric 4,759,550, static
@@ -33,10 +33,12 @@ lands on the other side of a tie. vLLM's own test allows one code and so sees no
   thread), fp16 inputs, the all-zero row, saturation under the 1e-3 static scale, and the asymmetric zero point for
   all-positive and all-negative rows.
 - One precision design, fitted bit for bit: the static asymmetric kernel multiplies by the fp32 reciprocal of the scale
-  while the static symmetric kernel divides, although the two lambdas in `scaled_quant.cu` are written the same way
-  (`static_cast<float>(src) / scale`). The compiler made different choices for the two kernels; the effect is one code
-  at exact ties, inside the test's tolerance, and the dynamic kernels use the reciprocal openly in source. Not a defect
-  under the census rule; the inconsistency between the two static kernels is the thing a maintainer might want to know.
+  (`inv_s = 1.0f / scale`, hoisted out of the element loop) while the static symmetric kernel divides per element; both
+  are in the source at v0.28.0 and on main. The effect is one code at exact ties, inside the test's tolerance; the
+  dynamic kernels use the reciprocal as well. Not a defect under the census rule; the inconsistency between the two static
+  kernels is the thing a maintainer might want to know. (An earlier version of this note said the two kernels were
+  written the same way and the compiler had chosen differently; that was a misreading of the asymmetric kernel, which
+  had been read only at its last line.)
 - One contract gap: a constant nonzero row in the dynamic asymmetric mode. Degenerate input (hidden size 1 or 2, or an
   artificial row); recorded, not counted.
 
@@ -47,8 +49,8 @@ INT8 W8A8 forward on this part (quantiser, GEMM, selection) has been read.
 
 - The step model is torch fp32 arithmetic one operation at a time (each a single correctly rounded IEEE operation on
   both CPU and GPU) with `torch.round` for `cvt.rni` and `nearbyintf` (both round half to even). It was built from the
-  source once and fitted two kernels at once; the static asymmetric mismatch was found because the model followed the
-  source text and the compiled kernel did not. Lesson: **fit a model per compiled kernel, not per source expression**;
-  the same line of CUDA can compile to a division in one kernel and a reciprocal multiply in another.
+  source once and fitted two kernels at once; the static asymmetric mismatch was found because the model followed one
+  kernel's text for both. Lesson: **read every line of every kernel you model, in the source of the version you
+  measure**; the asymmetric kernel's `v = src * inv_s` sits two lines above the line that was read.
 - Hypothesis fitting on the 218 stored example elements before the whole-array diag: the reciprocal model explained
   218 of 218, every alternative (float64 division, round half away) 191 of 218.
