@@ -1,0 +1,6 @@
+05:11:02 mqa test-case hd=128 heads=16 rows=4 tokens=256 max=256
+05:11:04 mqa test-case hd=128 heads=16 rows=4 tokens=256 max=256
+05:11:04 mqa A-starts0 hd=32 heads=1 rows=5 tokens=256 max=129
+05:11:04 mqa B-starts hd=32 heads=1 rows=4 tokens=1300 max=255
+05:11:05 mqa C-long hd=32 heads=1 rows=3 tokens=4200 max=4097
+05:11:05 mqa D-129rows hd=32 heads=1 rows=129 tokens=600 max=296
