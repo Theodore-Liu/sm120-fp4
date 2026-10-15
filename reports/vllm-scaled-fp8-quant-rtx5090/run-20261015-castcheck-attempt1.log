@@ -1,0 +1,3 @@
+{"values": 1048585, "mismatches": 1801, "examples": [{"x": -8.218719482421875, "torch": 208, "ref": 200}, {"x": -8.424385070800781, "torch": 208, "ref": 200}, {"x": 8.027420043945312, "torch": 80, "ref": 72}, {"x": -8.366386413574219, "torch": 208, "ref": 200}, {"x": 8.489112854003906, "torch": 80, "ref": 72}]}
+{"label": "test-case", "dtype": "bfloat16", "tokens": 7, "hidden": 1025, "mode": "dyn-token", "scale": null, "scale_ub": null, "group": null, "strided": false, "num_token_padding": null, "special_rows": false, "elements": 7175, "codes_off_model": 0, "nan_codes": 0, "scales_off_model": 0, "scale_floor_rows": 0, "distinct_outputs": 1}
+instrument check failed (cast or the test's own case); no verdict

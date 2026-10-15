@@ -1,0 +1,3 @@
+{"values": 1048585, "mismatches": 1, "examples": [{"x": -0.0, "torch": 128, "ref": 0}]}
+{"label": "test-case", "dtype": "bfloat16", "tokens": 7, "hidden": 1025, "mode": "dyn-token", "scale": null, "scale_ub": null, "group": null, "strided": false, "num_token_padding": null, "special_rows": false, "elements": 7175, "codes_off_model": 0, "nan_codes": 0, "scales_off_model": 0, "scale_floor_rows": 0, "distinct_outputs": 1}
+instrument check failed (cast or the test's own case); no verdict
