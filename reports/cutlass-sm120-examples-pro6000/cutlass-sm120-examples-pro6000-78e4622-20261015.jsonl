@@ -1,0 +1,583 @@
+{"example":"79a","args":"--m=1 --n=8 --k=32","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79b","args":"--m=1 --n=8 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=8 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017376 ms   GFLOPS: 0.0883978 "}
+{"example":"79b","args":"--m=1 --n=8 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=8 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017024 ms   GFLOPS: 0.150376 "}
+{"example":"79b","args":"--m=1 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=8 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016512 ms   GFLOPS: 0.341085 "}
+{"example":"79b","args":"--m=1 --n=8 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=8 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019776 ms   GFLOPS: 0.854369 "}
+{"example":"79b","args":"--m=1 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=8 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.0312 ms   GFLOPS: 2.11692 "}
+{"example":"79b","args":"--m=1 --n=8 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=24 --k=32","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79b","args":"--m=1 --n=24 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=24 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015968 ms   GFLOPS: 0.288577 "}
+{"example":"79b","args":"--m=1 --n=24 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=24 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.014848 ms   GFLOPS: 0.517241 "}
+{"example":"79b","args":"--m=1 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=24 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016896 ms   GFLOPS: 1 "}
+{"example":"79b","args":"--m=1 --n=24 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=24 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018464 ms   GFLOPS: 2.74523 "}
+{"example":"79b","args":"--m=1 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=24 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.037376 ms   GFLOPS: 5.30137 "}
+{"example":"79b","args":"--m=1 --n=24 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=136 --k=32","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79b","args":"--m=1 --n=136 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=136 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.014912 ms   GFLOPS: 1.75107 "}
+{"example":"79b","args":"--m=1 --n=136 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=136 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019072 ms   GFLOPS: 2.28188 "}
+{"example":"79b","args":"--m=1 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=136 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019424 ms   GFLOPS: 4.92916 "}
+{"example":"79b","args":"--m=1 --n=136 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=136 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020192 ms   GFLOPS: 14.225 "}
+{"example":"79b","args":"--m=1 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=136 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.031328 ms   GFLOPS: 35.8407 "}
+{"example":"79b","args":"--m=1 --n=136 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=1000 --k=32","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79b","args":"--m=1 --n=1000 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=1000 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016704 ms   GFLOPS: 11.4943 "}
+{"example":"79b","args":"--m=1 --n=1000 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=1000 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016288 ms   GFLOPS: 19.6464 "}
+{"example":"79b","args":"--m=1 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=1000 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019968 ms   GFLOPS: 35.2564 "}
+{"example":"79b","args":"--m=1 --n=1000 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=1000 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018912 ms   GFLOPS: 111.675 "}
+{"example":"79b","args":"--m=1 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=1 --n=1000 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.033152 ms   GFLOPS: 249.035 "}
+{"example":"79b","args":"--m=1 --n=1000 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=8 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017504 ms   GFLOPS: 0.234004 "}
+{"example":"79b","args":"--m=8 --n=8 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=8 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015008 ms   GFLOPS: 0.818763 "}
+{"example":"79b","args":"--m=8 --n=8 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=8 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018688 ms   GFLOPS: 1.09589 "}
+{"example":"79b","args":"--m=8 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=8 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016192 ms   GFLOPS: 2.78261 "}
+{"example":"79b","args":"--m=8 --n=8 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=8 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019104 ms   GFLOPS: 7.07538 "}
+{"example":"79b","args":"--m=8 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=8 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.029568 ms   GFLOPS: 17.8701 "}
+{"example":"79b","args":"--m=8 --n=8 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=24 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015744 ms   GFLOPS: 0.780488 "}
+{"example":"79b","args":"--m=8 --n=24 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=24 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01568 ms   GFLOPS: 2.35102 "}
+{"example":"79b","args":"--m=8 --n=24 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=24 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019328 ms   GFLOPS: 3.17881 "}
+{"example":"79b","args":"--m=8 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=24 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018144 ms   GFLOPS: 7.44974 "}
+{"example":"79b","args":"--m=8 --n=24 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=24 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020032 ms   GFLOPS: 20.2428 "}
+{"example":"79b","args":"--m=8 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=24 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.030976 ms   GFLOPS: 51.1736 "}
+{"example":"79b","args":"--m=8 --n=24 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=136 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01552 ms   GFLOPS: 4.4866 "}
+{"example":"79b","args":"--m=8 --n=136 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=136 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016928 ms   GFLOPS: 12.3403 "}
+{"example":"79b","args":"--m=8 --n=136 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=136 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018592 ms   GFLOPS: 18.7263 "}
+{"example":"79b","args":"--m=8 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=136 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015968 ms   GFLOPS: 47.9679 "}
+{"example":"79b","args":"--m=8 --n=136 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=136 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020576 ms   GFLOPS: 111.677 "}
+{"example":"79b","args":"--m=8 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=136 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.035936 ms   GFLOPS: 249.959 "}
+{"example":"79b","args":"--m=8 --n=136 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=1000 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017184 ms   GFLOPS: 29.7952 "}
+{"example":"79b","args":"--m=8 --n=1000 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=1000 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01488 ms   GFLOPS: 103.226 "}
+{"example":"79b","args":"--m=8 --n=1000 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=1000 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.021216 ms   GFLOPS: 120.664 "}
+{"example":"79b","args":"--m=8 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=1000 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018784 ms   GFLOPS: 299.83 "}
+{"example":"79b","args":"--m=8 --n=1000 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=1000 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.02176 ms   GFLOPS: 776.471 "}
+{"example":"79b","args":"--m=8 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=8 --n=1000 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.039264 ms   GFLOPS: 1682.15 "}
+{"example":"79b","args":"--m=8 --n=1000 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=8 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016288 ms   GFLOPS: 0.37721 "}
+{"example":"79b","args":"--m=12 --n=8 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=8 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016544 ms   GFLOPS: 1.11412 "}
+{"example":"79b","args":"--m=12 --n=8 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=8 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018336 ms   GFLOPS: 1.67539 "}
+{"example":"79b","args":"--m=12 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=8 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.030528 ms   GFLOPS: 2.21384 "}
+{"example":"79b","args":"--m=12 --n=8 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=8 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.021696 ms   GFLOPS: 9.34513 "}
+{"example":"79b","args":"--m=12 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=8 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.031264 ms   GFLOPS: 25.3511 "}
+{"example":"79b","args":"--m=12 --n=8 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=24 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016608 ms   GFLOPS: 1.10983 "}
+{"example":"79b","args":"--m=12 --n=24 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=24 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.014976 ms   GFLOPS: 3.69231 "}
+{"example":"79b","args":"--m=12 --n=24 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=24 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016544 ms   GFLOPS: 5.5706 "}
+{"example":"79b","args":"--m=12 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=24 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016128 ms   GFLOPS: 12.5714 "}
+{"example":"79b","args":"--m=12 --n=24 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=24 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019104 ms   GFLOPS: 31.8392 "}
+{"example":"79b","args":"--m=12 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=24 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.03248 ms   GFLOPS: 73.2059 "}
+{"example":"79b","args":"--m=12 --n=24 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=136 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01776 ms   GFLOPS: 5.88108 "}
+{"example":"79b","args":"--m=12 --n=136 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=136 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016416 ms   GFLOPS: 19.0877 "}
+{"example":"79b","args":"--m=12 --n=136 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=136 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018272 ms   GFLOPS: 28.5814 "}
+{"example":"79b","args":"--m=12 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=136 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016288 ms   GFLOPS: 70.5383 "}
+{"example":"79b","args":"--m=12 --n=136 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=136 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.023104 ms   GFLOPS: 149.186 "}
+{"example":"79b","args":"--m=12 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=136 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.039872 ms   GFLOPS: 337.926 "}
+{"example":"79b","args":"--m=12 --n=136 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=1000 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016384 ms   GFLOPS: 46.875 "}
+{"example":"79b","args":"--m=12 --n=1000 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=1000 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018048 ms   GFLOPS: 127.66 "}
+{"example":"79b","args":"--m=12 --n=1000 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=1000 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016256 ms   GFLOPS: 236.22 "}
+{"example":"79b","args":"--m=12 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=1000 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018752 ms   GFLOPS: 450.512 "}
+{"example":"79b","args":"--m=12 --n=1000 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=1000 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020032 ms   GFLOPS: 1265.18 "}
+{"example":"79b","args":"--m=12 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=12 --n=1000 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.04496 ms   GFLOPS: 2203.56 "}
+{"example":"79b","args":"--m=12 --n=1000 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=8 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017216 ms   GFLOPS: 0.505576 "}
+{"example":"79b","args":"--m=17 --n=8 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=8 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.014656 ms   GFLOPS: 1.78166 "}
+{"example":"79b","args":"--m=17 --n=8 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=8 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.0168 ms   GFLOPS: 2.59048 "}
+{"example":"79b","args":"--m=17 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=8 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016288 ms   GFLOPS: 5.87819 "}
+{"example":"79b","args":"--m=17 --n=8 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=8 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01984 ms   GFLOPS: 14.4774 "}
+{"example":"79b","args":"--m=17 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=8 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.030816 ms   GFLOPS: 36.4361 "}
+{"example":"79b","args":"--m=17 --n=8 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=24 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016512 ms   GFLOPS: 1.5814 "}
+{"example":"79b","args":"--m=17 --n=24 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=24 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016704 ms   GFLOPS: 4.68966 "}
+{"example":"79b","args":"--m=17 --n=24 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=24 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015744 ms   GFLOPS: 8.29268 "}
+{"example":"79b","args":"--m=17 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=24 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015776 ms   GFLOPS: 18.2069 "}
+{"example":"79b","args":"--m=17 --n=24 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=24 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020352 ms   GFLOPS: 42.3396 "}
+{"example":"79b","args":"--m=17 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=24 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.030848 ms   GFLOPS: 109.195 "}
+{"example":"79b","args":"--m=17 --n=24 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=136 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01792 ms   GFLOPS: 8.25714 "}
+{"example":"79b","args":"--m=17 --n=136 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=136 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016736 ms   GFLOPS: 26.5239 "}
+{"example":"79b","args":"--m=17 --n=136 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=136 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018272 ms   GFLOPS: 40.4904 "}
+{"example":"79b","args":"--m=17 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=136 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016416 ms   GFLOPS: 99.1501 "}
+{"example":"79b","args":"--m=17 --n=136 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=136 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01952 ms   GFLOPS: 250.151 "}
+{"example":"79b","args":"--m=17 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=136 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.033088 ms   GFLOPS: 576.882 "}
+{"example":"79b","args":"--m=17 --n=136 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=1000 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015616 ms   GFLOPS: 69.6721 "}
+{"example":"79b","args":"--m=17 --n=1000 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=1000 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016928 ms   GFLOPS: 192.817 "}
+{"example":"79b","args":"--m=17 --n=1000 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=1000 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016672 ms   GFLOPS: 326.296 "}
+{"example":"79b","args":"--m=17 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=1000 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017344 ms   GFLOPS: 690.037 "}
+{"example":"79b","args":"--m=17 --n=1000 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=1000 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.02064 ms   GFLOPS: 1739.53 "}
+{"example":"79b","args":"--m=17 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=17 --n=1000 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.043936 ms   GFLOPS: 3194.46 "}
+{"example":"79b","args":"--m=17 --n=1000 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=8 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016672 ms   GFLOPS: 1.99616 "}
+{"example":"79b","args":"--m=65 --n=8 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=8 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01632 ms   GFLOPS: 6.11765 "}
+{"example":"79b","args":"--m=65 --n=8 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=8 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016224 ms   GFLOPS: 10.2564 "}
+{"example":"79b","args":"--m=65 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=8 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016608 ms   GFLOPS: 22.0424 "}
+{"example":"79b","args":"--m=65 --n=8 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=8 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019776 ms   GFLOPS: 55.534 "}
+{"example":"79b","args":"--m=65 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=8 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.035552 ms   GFLOPS: 120.756 "}
+{"example":"79b","args":"--m=65 --n=8 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=24 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015008 ms   GFLOPS: 6.65245 "}
+{"example":"79b","args":"--m=65 --n=24 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=24 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015616 ms   GFLOPS: 19.1803 "}
+{"example":"79b","args":"--m=65 --n=24 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=24 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015008 ms   GFLOPS: 33.2623 "}
+{"example":"79b","args":"--m=65 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=24 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01712 ms   GFLOPS: 64.1495 "}
+{"example":"79b","args":"--m=65 --n=24 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=24 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019456 ms   GFLOPS: 169.342 "}
+{"example":"79b","args":"--m=65 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=24 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.032704 ms   GFLOPS: 393.816 "}
+{"example":"79b","args":"--m=65 --n=24 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=136 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016768 ms   GFLOPS: 33.7405 "}
+{"example":"79b","args":"--m=65 --n=136 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=136 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016704 ms   GFLOPS: 101.609 "}
+{"example":"79b","args":"--m=65 --n=136 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=136 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.02048 ms   GFLOPS: 138.125 "}
+{"example":"79b","args":"--m=65 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=136 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01744 ms   GFLOPS: 356.844 "}
+{"example":"79b","args":"--m=65 --n=136 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=136 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01952 ms   GFLOPS: 956.459 "}
+{"example":"79b","args":"--m=65 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=136 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.032896 ms   GFLOPS: 2218.6 "}
+{"example":"79b","args":"--m=65 --n=136 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=1000 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019072 ms   GFLOPS: 218.121 "}
+{"example":"79b","args":"--m=65 --n=1000 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=1000 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020608 ms   GFLOPS: 605.59 "}
+{"example":"79b","args":"--m=65 --n=1000 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=1000 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016672 ms   GFLOPS: 1247.6 "}
+{"example":"79b","args":"--m=65 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=1000 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.025824 ms   GFLOPS: 1772 "}
+{"example":"79b","args":"--m=65 --n=1000 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=1000 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020256 ms   GFLOPS: 6777.25 "}
+{"example":"79b","args":"--m=65 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=65 --n=1000 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.05104 ms   GFLOPS: 10514.1 "}
+{"example":"79b","args":"--m=65 --n=1000 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=8 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01632 ms   GFLOPS: 4.04706 "}
+{"example":"79b","args":"--m=129 --n=8 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=8 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01584 ms   GFLOPS: 12.5091 "}
+{"example":"79b","args":"--m=129 --n=8 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=8 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.02208 ms   GFLOPS: 14.9565 "}
+{"example":"79b","args":"--m=129 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=8 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018912 ms   GFLOPS: 38.4162 "}
+{"example":"79b","args":"--m=129 --n=8 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=8 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.022848 ms   GFLOPS: 95.395 "}
+{"example":"79b","args":"--m=129 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=8 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.03264 ms   GFLOPS: 261.035 "}
+{"example":"79b","args":"--m=129 --n=8 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=24 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.01648 ms   GFLOPS: 12.0233 "}
+{"example":"79b","args":"--m=129 --n=24 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=24 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017856 ms   GFLOPS: 33.2903 "}
+{"example":"79b","args":"--m=129 --n=24 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=24 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018368 ms   GFLOPS: 53.9373 "}
+{"example":"79b","args":"--m=129 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=24 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017536 ms   GFLOPS: 124.292 "}
+{"example":"79b","args":"--m=129 --n=24 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=24 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018528 ms   GFLOPS: 352.912 "}
+{"example":"79b","args":"--m=129 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=24 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.031616 ms   GFLOPS: 808.47 "}
+{"example":"79b","args":"--m=129 --n=24 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=136 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016768 ms   GFLOPS: 66.9618 "}
+{"example":"79b","args":"--m=129 --n=136 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=136 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.027392 ms   GFLOPS: 122.972 "}
+{"example":"79b","args":"--m=129 --n=136 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=136 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016576 ms   GFLOPS: 338.687 "}
+{"example":"79b","args":"--m=129 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=136 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020256 ms   GFLOPS: 609.744 "}
+{"example":"79b","args":"--m=129 --n=136 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=136 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019744 ms   GFLOPS: 1876.67 "}
+{"example":"79b","args":"--m=129 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=136 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.03328 ms   GFLOPS: 4352.26 "}
+{"example":"79b","args":"--m=129 --n=136 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=1000 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016928 ms   GFLOPS: 487.713 "}
+{"example":"79b","args":"--m=129 --n=1000 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=1000 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020992 ms   GFLOPS: 1179.88 "}
+{"example":"79b","args":"--m=129 --n=1000 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=1000 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.022976 ms   GFLOPS: 1796.66 "}
+{"example":"79b","args":"--m=129 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=1000 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020288 ms   GFLOPS: 4476.34 "}
+{"example":"79b","args":"--m=129 --n=1000 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=1000 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.02992 ms   GFLOPS: 9105.88 "}
+{"example":"79b","args":"--m=129 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=129 --n=1000 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.034944 ms   GFLOPS: 30478 "}
+{"example":"79b","args":"--m=129 --n=1000 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=8 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016896 ms   GFLOPS: 9.09091 "}
+{"example":"79b","args":"--m=300 --n=8 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=8 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.015072 ms   GFLOPS: 30.5732 "}
+{"example":"79b","args":"--m=300 --n=8 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=8 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016736 ms   GFLOPS: 45.8891 "}
+{"example":"79b","args":"--m=300 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=8 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016736 ms   GFLOPS: 100.956 "}
+{"example":"79b","args":"--m=300 --n=8 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=8 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.020576 ms   GFLOPS: 246.345 "}
+{"example":"79b","args":"--m=300 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=8 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.03744 ms   GFLOPS: 529.231 "}
+{"example":"79b","args":"--m=300 --n=8 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=24 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.02048 ms   GFLOPS: 22.5 "}
+{"example":"79b","args":"--m=300 --n=24 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=24 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016384 ms   GFLOPS: 84.375 "}
+{"example":"79b","args":"--m=300 --n=24 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=24 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016992 ms   GFLOPS: 135.593 "}
+{"example":"79b","args":"--m=300 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=24 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017152 ms   GFLOPS: 295.522 "}
+{"example":"79b","args":"--m=300 --n=24 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=24 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018976 ms   GFLOPS: 801.349 "}
+{"example":"79b","args":"--m=300 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=24 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.051712 ms   GFLOPS: 1149.5 "}
+{"example":"79b","args":"--m=300 --n=24 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=136 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018784 ms   GFLOPS: 139.012 "}
+{"example":"79b","args":"--m=300 --n=136 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=136 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.016384 ms   GFLOPS: 478.125 "}
+{"example":"79b","args":"--m=300 --n=136 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=136 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.018848 ms   GFLOPS: 692.699 "}
+{"example":"79b","args":"--m=300 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=136 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.017248 ms   GFLOPS: 1665.31 "}
+{"example":"79b","args":"--m=300 --n=136 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=136 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.022624 ms   GFLOPS: 3808.77 "}
+{"example":"79b","args":"--m=300 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=136 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.049792 ms   GFLOPS: 6765.04 "}
+{"example":"79b","args":"--m=300 --n=136 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=1000 --k=32","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.02384 ms   GFLOPS: 805.369 "}
+{"example":"79b","args":"--m=300 --n=1000 --k=32","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=1000 --k=96","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.021984 ms   GFLOPS: 2620.09 "}
+{"example":"79b","args":"--m=300 --n=1000 --k=96","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=1000 --k=160","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019488 ms   GFLOPS: 4926.11 "}
+{"example":"79b","args":"--m=300 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=1000 --k=352","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.019616 ms   GFLOPS: 10766.7 "}
+{"example":"79b","args":"--m=300 --n=1000 --k=352","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=1000 --k=1056","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.031136 ms   GFLOPS: 20349.4 "}
+{"example":"79b","args":"--m=300 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"79a","args":"--m=300 --n=1000 --k=4128","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.072544 ms   GFLOPS: 34142 "}
+{"example":"79b","args":"--m=300 --n=1000 --k=4128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=8 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=8 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=8 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=8 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=24 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=24 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=24 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=24 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=136 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=136 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=136 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=136 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=1000 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=1000 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=1000 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=1000 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=1 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=8 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=8 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=8 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=8 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=24 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=24 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=24 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=24 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=136 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=136 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=136 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=136 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=1000 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=1000 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=1000 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=1000 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=8 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=8 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=8 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=8 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=8 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=24 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=24 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=24 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=24 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=136 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=136 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=136 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=136 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=1000 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=1000 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=1000 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=1000 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=12 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=8 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=8 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=8 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=8 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=24 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=24 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=24 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=24 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=136 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=136 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=136 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=136 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=1000 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=1000 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=1000 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=1000 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=17 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=8 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=8 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=8 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=8 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=24 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=24 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=24 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=24 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=136 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=136 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=136 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=136 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=1000 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=1000 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=1000 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=1000 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=65 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=8 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=8 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=8 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=8 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=24 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=24 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=24 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=24 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=136 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=136 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=136 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=136 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=1000 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=1000 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=1000 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=1000 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=129 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=8 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=8 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=8 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=8 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=8 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=8 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=24 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=24 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=24 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=24 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=24 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=24 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=136 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=136 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=136 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=136 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=136 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=136 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=1000 --k=128","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=1000 --k=384","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=1000 --k=1152","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=1000 --k=4224","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=1000 --k=160","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"87a","args":"--m=300 --n=1000 --k=1056","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Invalid status","timing":""}
+{"example":"79d","args":"--m=8 --n=24 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=8 --n=24 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=8 --n=24 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=8 --n=24 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=8 --n=24 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=8 --n=24 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=8 --n=136 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=8 --n=136 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=8 --n=136 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=8 --n=136 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=8 --n=136 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=8 --n=136 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=8 --n=1000 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=8 --n=1000 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=8 --n=1000 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=8 --n=1000 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=8 --n=1000 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=8 --n=1000 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=12 --n=24 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=12 --n=24 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=12 --n=24 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=12 --n=24 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=12 --n=24 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=12 --n=24 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=12 --n=136 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=12 --n=136 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=12 --n=136 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=12 --n=136 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=12 --n=136 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=12 --n=136 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=12 --n=1000 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=12 --n=1000 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=12 --n=1000 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=12 --n=1000 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=12 --n=1000 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=12 --n=1000 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=65 --n=24 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=65 --n=24 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=65 --n=24 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=65 --n=24 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=65 --n=24 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=65 --n=24 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=65 --n=136 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=65 --n=136 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=65 --n=136 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=65 --n=136 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=65 --n=136 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=65 --n=136 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=65 --n=1000 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=65 --n=1000 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=65 --n=1000 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=65 --n=1000 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=65 --n=1000 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=65 --n=1000 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=300 --n=24 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=300 --n=24 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=300 --n=24 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=300 --n=24 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=300 --n=24 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=300 --n=24 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=300 --n=136 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=300 --n=136 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=300 --n=136 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=300 --n=136 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=300 --n=136 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=300 --n=136 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--m=300 --n=1000 --k=96 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=300 --n=1000 --k=352 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"79d","args":"--m=300 --n=1000 --k=1056 --groups=10","rc":255,"disposition":"Failed","refusal":"","timing":""}
+{"example":"87c","args":"--m=300 --n=1000 --k=128 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=300 --n=1000 --k=384 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"87c","args":"--m=300 --n=1000 --k=1152 --groups=10","rc":1,"disposition":"none","refusal":"Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Invalid status","timing":""}
+{"example":"79d","args":"--groups=10","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime : 0.113376 ms   Avg runtime : 0.100672 ms "}
+{"example":"79d","args":"--groups=64","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime : 0.340384 ms   Avg runtime : 0.298176 ms "}
+{"example":"87c","args":"--groups=10","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.057248 ms   GFLOPS: 187560 "}
+{"example":"87c","args":"--groups=64","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.181312 ms   GFLOPS: 379012 "}
+{"example":"79a","args":"--m=1024 --n=2048 --k=512","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.039328 ms   GFLOPS: 54604.4 "}
+{"example":"79b","args":"--m=1024 --n=2048 --k=512","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.039136 ms   GFLOPS: 54872.3 "}
+{"example":"87a","args":"","rc":0,"disposition":"Passed","refusal":"","timing":"  Avg runtime: 0.029312 ms   GFLOPS: 36631.5 "}

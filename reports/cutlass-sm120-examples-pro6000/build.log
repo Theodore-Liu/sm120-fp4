@@ -1,0 +1,14 @@
+[1/10] Building CUDA object examples/87_blackwell_geforce_gemm_blockwise/CMakeFiles/87a_blackwell_geforce_fp8_bf16_gemm_blockwise.dir/87a_blackwell_geforce_fp8_bf16_gemm_blockwise.cu.o
+[2/10] Linking CUDA executable examples/87_blackwell_geforce_gemm_blockwise/87a_blackwell_geforce_fp8_bf16_gemm_blockwise
+[3/10] Building CUDA object examples/87_blackwell_geforce_gemm_blockwise/CMakeFiles/87c_blackwell_geforce_fp8_bf16_grouped_gemm_groupwise.dir/87c_blackwell_geforce_fp8_bf16_grouped_gemm_groupwise.cu.o
+[4/10] Linking CUDA executable examples/87_blackwell_geforce_gemm_blockwise/87c_blackwell_geforce_fp8_bf16_grouped_gemm_groupwise
+[5/10] Building CUDA object examples/79_blackwell_geforce_gemm/CMakeFiles/79b_blackwell_geforce_nvfp4_nvfp4_gemm.dir/79b_blackwell_geforce_nvfp4_nvfp4_gemm.cu.o
+[6/10] Linking CUDA executable examples/79_blackwell_geforce_gemm/79b_blackwell_geforce_nvfp4_nvfp4_gemm
+[7/10] Building CUDA object examples/79_blackwell_geforce_gemm/CMakeFiles/79a_blackwell_geforce_nvfp4_bf16_gemm.dir/79a_blackwell_geforce_nvfp4_bf16_gemm.cu.o
+[8/10] Linking CUDA executable examples/79_blackwell_geforce_gemm/79a_blackwell_geforce_nvfp4_bf16_gemm
+[9/10] Building CUDA object examples/79_blackwell_geforce_gemm/CMakeFiles/79d_blackwell_geforce_nvfp4_grouped_gemm.dir/79d_blackwell_geforce_nvfp4_grouped_gemm.cu.o
+[10/10] Linking CUDA executable examples/79_blackwell_geforce_gemm/79d_blackwell_geforce_nvfp4_grouped_gemm
+
+real	0m44.971s
+user	2m37.720s
+sys	0m12.249s

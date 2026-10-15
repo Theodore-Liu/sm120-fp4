@@ -1,0 +1,600 @@
+START 2026-10-15T10:14:27Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07
+Build cuda_13.2.r13.2/compiler.37953736_0
+78e4622 Enable CUDA_CTA_RECONFIG_ACTIVATED for SM110a (#3637)
+real	0m44.971s
+265056 /root/cutlass/build/examples/79_blackwell_geforce_gemm/79a_blackwell_geforce_nvfp4_bf16_gemm
+327952 /root/cutlass/build/examples/79_blackwell_geforce_gemm/79b_blackwell_geforce_nvfp4_nvfp4_gemm
+667736 /root/cutlass/build/examples/79_blackwell_geforce_gemm/79d_blackwell_geforce_nvfp4_grouped_gemm
+254184 /root/cutlass/build/examples/87_blackwell_geforce_gemm_blockwise/87a_blackwell_geforce_fp8_bf16_gemm_blockwise
+335416 /root/cutlass/build/examples/87_blackwell_geforce_gemm_blockwise/87c_blackwell_geforce_fp8_bf16_grouped_gemm_groupwise
+== dense NVFP4 (79a, 79b)
+79a --m=1 --n=8 --k=32 -> rc=255 Failed 
+79b --m=1 --n=8 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=8 --k=96 -> rc=0 Passed 
+79b --m=1 --n=8 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=8 --k=160 -> rc=0 Passed 
+79b --m=1 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=8 --k=352 -> rc=0 Passed 
+79b --m=1 --n=8 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=8 --k=1056 -> rc=0 Passed 
+79b --m=1 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=8 --k=4128 -> rc=0 Passed 
+79b --m=1 --n=8 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=24 --k=32 -> rc=255 Failed 
+79b --m=1 --n=24 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=24 --k=96 -> rc=0 Passed 
+79b --m=1 --n=24 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=24 --k=160 -> rc=0 Passed 
+79b --m=1 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=24 --k=352 -> rc=0 Passed 
+79b --m=1 --n=24 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=24 --k=1056 -> rc=0 Passed 
+79b --m=1 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=24 --k=4128 -> rc=0 Passed 
+79b --m=1 --n=24 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=136 --k=32 -> rc=255 Failed 
+79b --m=1 --n=136 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=136 --k=96 -> rc=0 Passed 
+79b --m=1 --n=136 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=136 --k=160 -> rc=0 Passed 
+79b --m=1 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=136 --k=352 -> rc=0 Passed 
+79b --m=1 --n=136 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=136 --k=1056 -> rc=0 Passed 
+79b --m=1 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=136 --k=4128 -> rc=0 Passed 
+79b --m=1 --n=136 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=1000 --k=32 -> rc=255 Failed 
+79b --m=1 --n=1000 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=1000 --k=96 -> rc=0 Passed 
+79b --m=1 --n=1000 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=1000 --k=160 -> rc=0 Passed 
+79b --m=1 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=1000 --k=352 -> rc=0 Passed 
+79b --m=1 --n=1000 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=1000 --k=1056 -> rc=0 Passed 
+79b --m=1 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=1 --n=1000 --k=4128 -> rc=0 Passed 
+79b --m=1 --n=1000 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=8 --k=32 -> rc=0 Passed 
+79b --m=8 --n=8 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=8 --k=96 -> rc=0 Passed 
+79b --m=8 --n=8 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=8 --k=160 -> rc=0 Passed 
+79b --m=8 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=8 --k=352 -> rc=0 Passed 
+79b --m=8 --n=8 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=8 --k=1056 -> rc=0 Passed 
+79b --m=8 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=8 --k=4128 -> rc=0 Passed 
+79b --m=8 --n=8 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=24 --k=32 -> rc=0 Passed 
+79b --m=8 --n=24 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=24 --k=96 -> rc=0 Passed 
+79b --m=8 --n=24 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=24 --k=160 -> rc=0 Passed 
+79b --m=8 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=24 --k=352 -> rc=0 Passed 
+79b --m=8 --n=24 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=24 --k=1056 -> rc=0 Passed 
+79b --m=8 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=24 --k=4128 -> rc=0 Passed 
+79b --m=8 --n=24 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=136 --k=32 -> rc=0 Passed 
+79b --m=8 --n=136 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=136 --k=96 -> rc=0 Passed 
+79b --m=8 --n=136 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=136 --k=160 -> rc=0 Passed 
+79b --m=8 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=136 --k=352 -> rc=0 Passed 
+79b --m=8 --n=136 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=136 --k=1056 -> rc=0 Passed 
+79b --m=8 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=136 --k=4128 -> rc=0 Passed 
+79b --m=8 --n=136 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=1000 --k=32 -> rc=0 Passed 
+79b --m=8 --n=1000 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=1000 --k=96 -> rc=0 Passed 
+79b --m=8 --n=1000 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=1000 --k=160 -> rc=0 Passed 
+79b --m=8 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=1000 --k=352 -> rc=0 Passed 
+79b --m=8 --n=1000 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=1000 --k=1056 -> rc=0 Passed 
+79b --m=8 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=8 --n=1000 --k=4128 -> rc=0 Passed 
+79b --m=8 --n=1000 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=8 --k=32 -> rc=0 Passed 
+79b --m=12 --n=8 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=8 --k=96 -> rc=0 Passed 
+79b --m=12 --n=8 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=8 --k=160 -> rc=0 Passed 
+79b --m=12 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=8 --k=352 -> rc=0 Passed 
+79b --m=12 --n=8 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=8 --k=1056 -> rc=0 Passed 
+79b --m=12 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=8 --k=4128 -> rc=0 Passed 
+79b --m=12 --n=8 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=24 --k=32 -> rc=0 Passed 
+79b --m=12 --n=24 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=24 --k=96 -> rc=0 Passed 
+79b --m=12 --n=24 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=24 --k=160 -> rc=0 Passed 
+79b --m=12 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=24 --k=352 -> rc=0 Passed 
+79b --m=12 --n=24 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=24 --k=1056 -> rc=0 Passed 
+79b --m=12 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=24 --k=4128 -> rc=0 Passed 
+79b --m=12 --n=24 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=136 --k=32 -> rc=0 Passed 
+79b --m=12 --n=136 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=136 --k=96 -> rc=0 Passed 
+79b --m=12 --n=136 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=136 --k=160 -> rc=0 Passed 
+79b --m=12 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=136 --k=352 -> rc=0 Passed 
+79b --m=12 --n=136 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=136 --k=1056 -> rc=0 Passed 
+79b --m=12 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=136 --k=4128 -> rc=0 Passed 
+79b --m=12 --n=136 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=1000 --k=32 -> rc=0 Passed 
+79b --m=12 --n=1000 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=1000 --k=96 -> rc=0 Passed 
+79b --m=12 --n=1000 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=1000 --k=160 -> rc=0 Passed 
+79b --m=12 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=1000 --k=352 -> rc=0 Passed 
+79b --m=12 --n=1000 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=1000 --k=1056 -> rc=0 Passed 
+79b --m=12 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=12 --n=1000 --k=4128 -> rc=0 Passed 
+79b --m=12 --n=1000 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=8 --k=32 -> rc=0 Passed 
+79b --m=17 --n=8 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=8 --k=96 -> rc=0 Passed 
+79b --m=17 --n=8 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=8 --k=160 -> rc=0 Passed 
+79b --m=17 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=8 --k=352 -> rc=0 Passed 
+79b --m=17 --n=8 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=8 --k=1056 -> rc=0 Passed 
+79b --m=17 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=8 --k=4128 -> rc=0 Passed 
+79b --m=17 --n=8 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=24 --k=32 -> rc=0 Passed 
+79b --m=17 --n=24 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=24 --k=96 -> rc=0 Passed 
+79b --m=17 --n=24 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=24 --k=160 -> rc=0 Passed 
+79b --m=17 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=24 --k=352 -> rc=0 Passed 
+79b --m=17 --n=24 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=24 --k=1056 -> rc=0 Passed 
+79b --m=17 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=24 --k=4128 -> rc=0 Passed 
+79b --m=17 --n=24 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=136 --k=32 -> rc=0 Passed 
+79b --m=17 --n=136 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=136 --k=96 -> rc=0 Passed 
+79b --m=17 --n=136 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=136 --k=160 -> rc=0 Passed 
+79b --m=17 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=136 --k=352 -> rc=0 Passed 
+79b --m=17 --n=136 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=136 --k=1056 -> rc=0 Passed 
+79b --m=17 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=136 --k=4128 -> rc=0 Passed 
+79b --m=17 --n=136 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=1000 --k=32 -> rc=0 Passed 
+79b --m=17 --n=1000 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=1000 --k=96 -> rc=0 Passed 
+79b --m=17 --n=1000 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=1000 --k=160 -> rc=0 Passed 
+79b --m=17 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=1000 --k=352 -> rc=0 Passed 
+79b --m=17 --n=1000 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=1000 --k=1056 -> rc=0 Passed 
+79b --m=17 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=17 --n=1000 --k=4128 -> rc=0 Passed 
+79b --m=17 --n=1000 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=8 --k=32 -> rc=0 Passed 
+79b --m=65 --n=8 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=8 --k=96 -> rc=0 Passed 
+79b --m=65 --n=8 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=8 --k=160 -> rc=0 Passed 
+79b --m=65 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=8 --k=352 -> rc=0 Passed 
+79b --m=65 --n=8 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=8 --k=1056 -> rc=0 Passed 
+79b --m=65 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=8 --k=4128 -> rc=0 Passed 
+79b --m=65 --n=8 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=24 --k=32 -> rc=0 Passed 
+79b --m=65 --n=24 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=24 --k=96 -> rc=0 Passed 
+79b --m=65 --n=24 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=24 --k=160 -> rc=0 Passed 
+79b --m=65 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=24 --k=352 -> rc=0 Passed 
+79b --m=65 --n=24 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=24 --k=1056 -> rc=0 Passed 
+79b --m=65 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=24 --k=4128 -> rc=0 Passed 
+79b --m=65 --n=24 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=136 --k=32 -> rc=0 Passed 
+79b --m=65 --n=136 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=136 --k=96 -> rc=0 Passed 
+79b --m=65 --n=136 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=136 --k=160 -> rc=0 Passed 
+79b --m=65 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=136 --k=352 -> rc=0 Passed 
+79b --m=65 --n=136 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=136 --k=1056 -> rc=0 Passed 
+79b --m=65 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=136 --k=4128 -> rc=0 Passed 
+79b --m=65 --n=136 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=1000 --k=32 -> rc=0 Passed 
+79b --m=65 --n=1000 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=1000 --k=96 -> rc=0 Passed 
+79b --m=65 --n=1000 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=1000 --k=160 -> rc=0 Passed 
+79b --m=65 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=1000 --k=352 -> rc=0 Passed 
+79b --m=65 --n=1000 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=1000 --k=1056 -> rc=0 Passed 
+79b --m=65 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=65 --n=1000 --k=4128 -> rc=0 Passed 
+79b --m=65 --n=1000 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=8 --k=32 -> rc=0 Passed 
+79b --m=129 --n=8 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=8 --k=96 -> rc=0 Passed 
+79b --m=129 --n=8 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=8 --k=160 -> rc=0 Passed 
+79b --m=129 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=8 --k=352 -> rc=0 Passed 
+79b --m=129 --n=8 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=8 --k=1056 -> rc=0 Passed 
+79b --m=129 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=8 --k=4128 -> rc=0 Passed 
+79b --m=129 --n=8 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=24 --k=32 -> rc=0 Passed 
+79b --m=129 --n=24 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=24 --k=96 -> rc=0 Passed 
+79b --m=129 --n=24 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=24 --k=160 -> rc=0 Passed 
+79b --m=129 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=24 --k=352 -> rc=0 Passed 
+79b --m=129 --n=24 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=24 --k=1056 -> rc=0 Passed 
+79b --m=129 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=24 --k=4128 -> rc=0 Passed 
+79b --m=129 --n=24 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=136 --k=32 -> rc=0 Passed 
+79b --m=129 --n=136 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=136 --k=96 -> rc=0 Passed 
+79b --m=129 --n=136 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=136 --k=160 -> rc=0 Passed 
+79b --m=129 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=136 --k=352 -> rc=0 Passed 
+79b --m=129 --n=136 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=136 --k=1056 -> rc=0 Passed 
+79b --m=129 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=136 --k=4128 -> rc=0 Passed 
+79b --m=129 --n=136 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=1000 --k=32 -> rc=0 Passed 
+79b --m=129 --n=1000 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=1000 --k=96 -> rc=0 Passed 
+79b --m=129 --n=1000 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=1000 --k=160 -> rc=0 Passed 
+79b --m=129 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=1000 --k=352 -> rc=0 Passed 
+79b --m=129 --n=1000 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=1000 --k=1056 -> rc=0 Passed 
+79b --m=129 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=129 --n=1000 --k=4128 -> rc=0 Passed 
+79b --m=129 --n=1000 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=8 --k=32 -> rc=0 Passed 
+79b --m=300 --n=8 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=8 --k=96 -> rc=0 Passed 
+79b --m=300 --n=8 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=8 --k=160 -> rc=0 Passed 
+79b --m=300 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=8 --k=352 -> rc=0 Passed 
+79b --m=300 --n=8 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=8 --k=1056 -> rc=0 Passed 
+79b --m=300 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=8 --k=4128 -> rc=0 Passed 
+79b --m=300 --n=8 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=24 --k=32 -> rc=0 Passed 
+79b --m=300 --n=24 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=24 --k=96 -> rc=0 Passed 
+79b --m=300 --n=24 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=24 --k=160 -> rc=0 Passed 
+79b --m=300 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=24 --k=352 -> rc=0 Passed 
+79b --m=300 --n=24 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=24 --k=1056 -> rc=0 Passed 
+79b --m=300 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=24 --k=4128 -> rc=0 Passed 
+79b --m=300 --n=24 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=136 --k=32 -> rc=0 Passed 
+79b --m=300 --n=136 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=136 --k=96 -> rc=0 Passed 
+79b --m=300 --n=136 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=136 --k=160 -> rc=0 Passed 
+79b --m=300 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=136 --k=352 -> rc=0 Passed 
+79b --m=300 --n=136 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=136 --k=1056 -> rc=0 Passed 
+79b --m=300 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=136 --k=4128 -> rc=0 Passed 
+79b --m=300 --n=136 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=1000 --k=32 -> rc=0 Passed 
+79b --m=300 --n=1000 --k=32 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=1000 --k=96 -> rc=0 Passed 
+79b --m=300 --n=1000 --k=96 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=1000 --k=160 -> rc=0 Passed 
+79b --m=300 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=1000 --k=352 -> rc=0 Passed 
+79b --m=300 --n=1000 --k=352 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=1000 --k=1056 -> rc=0 Passed 
+79b --m=300 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+79a --m=300 --n=1000 --k=4128 -> rc=0 Passed 
+79b --m=300 --n=1000 --k=4128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 494: Inval
+== dense FP8 blockwise (87a)
+87a --m=1 --n=8 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=8 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=8 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=8 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=24 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=24 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=24 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=24 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=136 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=136 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=136 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=136 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=1000 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=1000 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=1000 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=1000 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=1 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=8 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=8 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=8 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=8 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=24 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=24 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=24 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=24 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=136 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=136 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=136 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=136 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=1000 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=1000 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=1000 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=1000 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=8 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=8 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=8 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=8 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=8 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=24 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=24 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=24 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=24 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=136 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=136 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=136 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=136 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=1000 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=1000 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=1000 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=1000 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=12 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=8 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=8 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=8 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=8 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=24 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=24 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=24 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=24 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=136 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=136 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=136 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=136 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=1000 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=1000 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=1000 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=1000 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=17 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=8 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=8 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=8 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=8 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=24 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=24 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=24 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=24 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=136 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=136 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=136 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=136 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=1000 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=1000 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=1000 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=1000 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=65 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=8 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=8 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=8 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=8 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=24 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=24 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=24 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=24 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=136 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=136 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=136 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=136 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=1000 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=1000 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=1000 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=1000 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=129 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=8 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=8 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=8 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=8 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=8 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=8 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=24 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=24 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=24 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=24 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=24 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=24 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=136 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=136 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=136 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=136 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=136 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=136 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=1000 --k=128 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=1000 --k=384 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=1000 --k=1152 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=1000 --k=4224 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=1000 --k=160 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+87a --m=300 --n=1000 --k=1056 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 416: Inval
+== grouped (79d, 87c), 10 groups, and the random-size mode
+79d --m=8 --n=24 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=8 --n=24 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=8 --n=24 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=8 --n=24 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=8 --n=24 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=8 --n=24 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=8 --n=136 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=8 --n=136 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=8 --n=136 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=8 --n=136 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=8 --n=136 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=8 --n=136 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=8 --n=1000 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=8 --n=1000 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=8 --n=1000 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=8 --n=1000 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=8 --n=1000 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=8 --n=1000 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=12 --n=24 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=12 --n=24 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=12 --n=24 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=12 --n=24 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=12 --n=24 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=12 --n=24 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=12 --n=136 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=12 --n=136 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=12 --n=136 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=12 --n=136 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=12 --n=136 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=12 --n=136 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=12 --n=1000 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=12 --n=1000 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=12 --n=1000 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=12 --n=1000 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=12 --n=1000 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=12 --n=1000 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=65 --n=24 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=65 --n=24 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=65 --n=24 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=65 --n=24 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=65 --n=24 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=65 --n=24 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=65 --n=136 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=65 --n=136 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=65 --n=136 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=65 --n=136 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=65 --n=136 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=65 --n=136 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=65 --n=1000 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=65 --n=1000 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=65 --n=1000 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=65 --n=1000 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=65 --n=1000 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=65 --n=1000 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=300 --n=24 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=300 --n=24 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=300 --n=24 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=300 --n=24 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=300 --n=24 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=300 --n=24 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=300 --n=136 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=300 --n=136 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=300 --n=136 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=300 --n=136 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=300 --n=136 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=300 --n=136 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --m=300 --n=1000 --k=96 --groups=10 -> rc=255 Failed 
+79d --m=300 --n=1000 --k=352 --groups=10 -> rc=255 Failed 
+79d --m=300 --n=1000 --k=1056 --groups=10 -> rc=255 Failed 
+87c --m=300 --n=1000 --k=128 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=300 --n=1000 --k=384 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+87c --m=300 --n=1000 --k=1152 --groups=10 -> rc=1 none Got CUTLASS error while calling gemm.can_implement(arguments) at line 575: Inval
+79d --groups=10 -> rc=0 Passed 
+79d --groups=64 -> rc=0 Passed 
+87c --groups=10 -> rc=0 Passed 
+87c --groups=64 -> rc=0 Passed 
+== defaults
+79a --m=1024 --n=2048 --k=512 -> rc=0 Passed 
+79b --m=1024 --n=2048 --k=512 -> rc=0 Passed 
+87a  -> rc=0 Passed 
+runs: 583; passed: 171; failed: 40; none: 372
+END 2026-10-15T10:20:24Z
+WRAPPER_RC=0
