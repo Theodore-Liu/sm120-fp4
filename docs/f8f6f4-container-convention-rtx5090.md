@@ -38,11 +38,26 @@ Both sides agree, format by format. The four sub-byte pairs (e3m2 x e3m2 with 0x
   of this is visible; it is visible only for e2m1, which is why the 2026-10-02 probe saw a 4-bit code "in bits 5:2".
 - No e3m2 or e2m1 code decodes to NaN or infinity on this part, consistent with the formats having no such encodings.
 
-## What it settles
+## What the ISA says, and what this adds (corrected 2026-10-16, same day)
 
-The open queue question of 2026-10-02 (`f8f6f4-container-convention-across-formats`): yes, the same convention holds for
-e3m2, for e2m1 on the A side, and for the mixed and the both-FP4 pairs; `kind::f8f6f4` takes e2m1 on both operands at
-k32 (the one-value-per-byte form; the two-per-byte k64 form is `kind::mxf4` with block scales, measured 2026-10-04 by
-`probe_f4f4.py`). The PTX ISA's container text is read by this hardware as: the value occupies the low 6 bits, left-aligned
-within them for e2m1. This is the measured table the IEEE CAL letter (R4 in the mlsys repository's result-first
-directions) is built around.
+The first version of this note called the PTX ISA text ambiguous. It is not. PTX ISA 9.4 (September 2026), section
+9.7.16.5.14 "Multiply-and-Accumulate Instruction: mma", says: "When .kind is either of .kind::mxf8f6f4 or
+.kind::f8f6f4, the individual 4-bit and the 6-bit floating point type elements must be packed in an 8-bit container.
+The matrix element of type .e2m1 resides in central 4 bits of the 8-bit container with padding in the upper 2 bits and
+lower 2 bits of the container. When the matrix element is of type .e3m2 or .e2m3, the matrix element resides in the
+lower 6 bits of the 8-bit container with padding in the upper 2 bits of the container." So the placement (e2m1 in bits
+5:2, e3m2 in bits 5:0) is specified, and the table above confirms the specification on both operand sides and on all
+four sub-byte pairs of the RTX 5090.
+
+What the ISA does not say is what the hardware does with the padding bits, and that is the measured addition:
+
+- the upper two bits are ignored (0xFF decodes to a finite value in both sub-byte formats);
+- the lower two bits of an e2m1 container are not ignored: they are decoded as two further mantissa bits (0x02 reads
+  0.25, 0x04 reads 0.5), so the datapath treats the low six bits as one e2m3 field and e2m1 as its subset with zero low
+  mantissa bits. "Padding" here means "must be zero for the value to be the e2m1 value", not "don't care".
+
+This closes the open queue question of 2026-10-02 (`f8f6f4-container-convention-across-formats`): the same convention
+holds for e3m2, for e2m1 on the A side, and for the mixed and both-FP4 pairs; `kind::f8f6f4` takes e2m1 on both operands
+at k32 (the two-per-byte k64 form is `kind::mxf4` with block scales, measured 2026-10-04 by `probe_f4f4.py`). As a
+standalone result it is a confirmation of the ISA plus one padding-bit observation, which is a subsection of the R1
+characterisation (the kernel reference-semantics table), not a letter of its own.
