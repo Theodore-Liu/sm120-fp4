@@ -74,7 +74,7 @@ fi
 # ---- venv B: TensorRT-LLM
 if [ "$WITH_TRTLLM" = "1" ]; then
   # tensorrt_llm dlopens libmpi.so.40 at import; the runpod image does not ship it
-  (apt-get install -y -qq libopenmpi-dev openmpi-bin > "$OUT/apt-openmpi.log" 2>&1); echo "APT_OPENMPI_RC=$?"
+  (apt-get update -qq > "$OUT/apt-openmpi.log" 2>&1 && apt-get install -y -qq libopenmpi-dev openmpi-bin >> "$OUT/apt-openmpi.log" 2>&1); echo "APT_OPENMPI_RC=$?"
   [ -x "$VB/bin/python" ] || python3 -m venv "$VB"
   PB="$VB/bin/python"
   "$PB" -m pip install -q --upgrade pip >/dev/null 2>&1
