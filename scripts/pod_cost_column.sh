@@ -26,30 +26,43 @@ nproc; free -g | sed -n 2p
 # ninja shim first on PATH for every venv
 printf '%s\n' '#!/bin/sh' 'exec "$(dirname "$0")/../real-ninja/ninja" -j4 "$@"' > /workspace/bin/ninja; chmod +x /workspace/bin/ninja
 
-# ---- venv A: torch 2.13 cu130, vLLM 0.28.0, FlashInfer 0.7.1
+# ---- venv A: vLLM 0.28.0 (brings its own torch 2.13 and FlashInfer pins; the first attempt put flashinfer 0.7.1 in the same
+#      venv and pip refused the resolution), plus the DeepGEMM fork later
 [ -x "$VA/bin/python" ] || python3 -m venv "$VA"
 PA="$VA/bin/python"
 "$PA" -m pip install -q --upgrade pip >/dev/null 2>&1
-"$PA" -m pip install -q "torch==2.13.0" --index-url https://download.pytorch.org/whl/cu130 2>&1 | tail -1
-"$PA" -m pip install -q "vllm==0.28.0" "flashinfer-python==0.7.1" "nvidia-cutlass-dsl[cu13]" ninja pytest 2>&1 | tail -1
-mkdir -p /workspace/real-ninja && ln -sf "$VA/bin/ninja" /workspace/real-ninja/ninja
+"$PA" -m pip install -q "vllm==0.28.0" --extra-index-url https://download.pytorch.org/whl/cu130 2>&1 | tail -1; echo "PIP_A_RC=$?"
+"$PA" -m pip install -q ninja pytest 2>&1 | tail -1
 "$PA" - <<'EOF' | tee "$OUT/versions-a.txt"
-import torch, vllm, flashinfer
-print("torch", torch.__version__, "cuda", torch.version.cuda); print("vllm", vllm.__version__); print("flashinfer", flashinfer.__version__)
+import torch, vllm
+print("torch", torch.__version__, "cuda", torch.version.cuda); print("vllm", vllm.__version__)
+try:
+    import flashinfer; print("flashinfer (vllm's pin)", flashinfer.__version__)
+except Exception as e: print("flashinfer absent in venv A:", e)
 print("device", torch.cuda.get_device_name(0), torch.cuda.get_device_capability())
 EOF
 echo "SETUP_A_RC=$?"
+# ---- venv C: torch 2.13 cu130 + FlashInfer 0.7.1 (the version of the 5090 FlashInfer table)
+VC=${VC:-/workspace/venv-c}
+[ -x "$VC/bin/python" ] || python3 -m venv "$VC"
+PC="$VC/bin/python"
+"$PC" -m pip install -q --upgrade pip >/dev/null 2>&1
+"$PC" -m pip install -q "torch==2.13.0" --index-url https://download.pytorch.org/whl/cu130 2>&1 | tail -1
+"$PC" -m pip install -q "flashinfer-python==0.7.1" "nvidia-cutlass-dsl[cu13]" ninja 2>&1 | tail -1; echo "PIP_C_RC=$?"
+mkdir -p /workspace/real-ninja && ln -sf "$VC/bin/ninja" /workspace/real-ninja/ninja
+"$PC" -c "import torch, flashinfer; print('venv C torch', torch.__version__, 'flashinfer', flashinfer.__version__)" 2>&1 | tail -1 | tee "$OUT/versions-c.txt"
+echo "SETUP_C_RC=$?"
 export PYTHONPATH="$REPO:$REPO/scripts"
-export PATH="/workspace/bin:$VA/bin:$PATH" FLASHINFER_NVCC_THREADS=1 VLLM_USE_V2_MODEL_RUNNER=0
+export PATH="/workspace/bin:$PATH" FLASHINFER_NVCC_THREADS=1 VLLM_USE_V2_MODEL_RUNNER=0
 cd "$REPO"
 "$PA" scripts/vllm_kernel_throughput.py --out "$OUT/vllm-kernel-throughput.json" > "$OUT/vllm-kernel-throughput.log" 2>&1; echo "VLLM_THROUGHPUT_RC=$?"
-"$PA" scripts/flashinfer_kernel_throughput.py --out "$OUT/flashinfer-kernel-throughput.json" > "$OUT/flashinfer-kernel-throughput.log" 2>&1; echo "FLASHINFER_THROUGHPUT_RC=$?"
-"$PA" scripts/flashinfer_auto_dispatch_cost.py --m 16 --n 4096 --k 4096 > "$OUT/auto-dispatch-m16.log" 2>&1; echo "AUTO_DISPATCH_RC=$?"
+"$PC" scripts/flashinfer_kernel_throughput.py --out "$OUT/flashinfer-kernel-throughput.json" > "$OUT/flashinfer-kernel-throughput.log" 2>&1; echo "FLASHINFER_THROUGHPUT_RC=$?"
+"$PC" scripts/flashinfer_auto_dispatch_cost.py --m 16 --n 4096 --k 4096 > "$OUT/auto-dispatch-m16.log" 2>&1; echo "AUTO_DISPATCH_RC=$?"
 mkdir -p "$OUT/xlib" "$OUT/xquant"
-"$PA" scripts/nvfp4_gemm_cross_library.py --phase dump --lib flashinfer --outdir "$OUT/xlib" > "$OUT/xlib/dump-flashinfer.log" 2>&1; echo "XLIB_FI_RC=$?"
-"$PA" scripts/nvfp4_quantize_cross_library.py --phase dump --lib reference --outdir "$OUT/xquant" > "$OUT/xquant/dump-reference.log" 2>&1
+"$PC" scripts/nvfp4_gemm_cross_library.py --phase dump --lib flashinfer --outdir "$OUT/xlib" > "$OUT/xlib/dump-flashinfer.log" 2>&1; echo "XLIB_FI_RC=$?"
+"$PC" scripts/nvfp4_quantize_cross_library.py --phase dump --lib reference --outdir "$OUT/xquant" > "$OUT/xquant/dump-reference.log" 2>&1
 "$PA" scripts/nvfp4_quantize_cross_library.py --phase dump --lib vllm --outdir "$OUT/xquant" > "$OUT/xquant/dump-vllm.log" 2>&1; echo "XQUANT_VLLM_RC=$?"
-"$PA" scripts/nvfp4_quantize_cross_library.py --phase dump --lib flashinfer --outdir "$OUT/xquant" > "$OUT/xquant/dump-flashinfer.log" 2>&1; echo "XQUANT_FI_RC=$?"
+"$PC" scripts/nvfp4_quantize_cross_library.py --phase dump --lib flashinfer --outdir "$OUT/xquant" > "$OUT/xquant/dump-flashinfer.log" 2>&1; echo "XQUANT_FI_RC=$?"
 
 # ---- DeepGEMM fork (vllm-project/DeepGEMM dev) built into venv A
 if [ "$WITH_DEEPGEMM" = "1" ]; then
@@ -60,6 +73,8 @@ fi
 
 # ---- venv B: TensorRT-LLM
 if [ "$WITH_TRTLLM" = "1" ]; then
+  # tensorrt_llm dlopens libmpi.so.40 at import; the runpod image does not ship it
+  (apt-get install -y -qq libopenmpi-dev openmpi-bin > "$OUT/apt-openmpi.log" 2>&1); echo "APT_OPENMPI_RC=$?"
   [ -x "$VB/bin/python" ] || python3 -m venv "$VB"
   PB="$VB/bin/python"
   "$PB" -m pip install -q --upgrade pip >/dev/null 2>&1
