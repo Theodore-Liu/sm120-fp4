@@ -1,0 +1,300 @@
+{
+ "generated_utc": "2026-10-16T06:50:29Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.9.1+cu128",
+ "flashinfer": "0.7.1",
+ "cudnn": 92700,
+ "clock_note": "WSL2 host; clocks not pinned; median and IQR of 50 timings after 10 warm-ups",
+ "rows": [
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "error": "detail::finalize(block_scale_dequantize_operation->get_backend_descriptor()) failed with message: Block scale dequantize: for CUDNN_TENSOR_REORDERING_F8_128x4 t"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.43,
+   "median_us": 78.19,
+   "q1_us": 63.22,
+   "q3_us": 102.29,
+   "min_us": 58.14,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.5,
+   "median_us": 67.23,
+   "q1_us": 61.69,
+   "q3_us": 104.8,
+   "min_us": 9.57,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.36,
+   "median_us": 93.76,
+   "q1_us": 85.89,
+   "q3_us": 110.14,
+   "min_us": 80.54,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 0.35,
+   "median_us": 97.14,
+   "q1_us": 89.83,
+   "q3_us": 151.03,
+   "min_us": 37.12,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 0.59,
+   "median_us": 56.91,
+   "q1_us": 52.37,
+   "q3_us": 70.65,
+   "min_us": 49.66,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "error": "detail::finalize(block_scale_dequantize_operation->get_backend_descriptor()) failed with message: Block scale dequantize: for CUDNN_TENSOR_REORDERING_F8_128x4 t"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 7.92,
+   "median_us": 67.82,
+   "q1_us": 62.9,
+   "q3_us": 88.66,
+   "min_us": 60.13,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 7.45,
+   "median_us": 72.08,
+   "q1_us": 62.46,
+   "q3_us": 108.87,
+   "min_us": 11.1,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 5.26,
+   "median_us": 102.08,
+   "q1_us": 87.67,
+   "q3_us": 162.46,
+   "min_us": 14.14,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 5.48,
+   "median_us": 97.89,
+   "q1_us": 85.97,
+   "q3_us": 142.34,
+   "min_us": 21.6,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 8.18,
+   "median_us": 65.66,
+   "q1_us": 61.66,
+   "q3_us": 92.11,
+   "min_us": 53.6,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "error": "detail::finalize(block_scale_dequantize_operation->get_backend_descriptor()) failed with message: Block scale dequantize: for CUDNN_TENSOR_REORDERING_F8_128x4 t"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 84.83,
+   "median_us": 101.26,
+   "q1_us": 90.41,
+   "q3_us": 156.66,
+   "min_us": 55.42,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 109.43,
+   "median_us": 78.5,
+   "q1_us": 66.41,
+   "q3_us": 122.66,
+   "min_us": 13.47,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 57.35,
+   "median_us": 149.78,
+   "q1_us": 110.19,
+   "q3_us": 244.54,
+   "min_us": 79.68,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 54.43,
+   "median_us": 157.82,
+   "q1_us": 150.3,
+   "q3_us": 222.54,
+   "min_us": 80.86,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 77.9,
+   "median_us": 110.27,
+   "q1_us": 101.13,
+   "q3_us": 154.74,
+   "min_us": 63.46,
+   "iters": 50
+  },
+  {
+   "kernel": "grouped_mm_fp4 cudnn",
+   "shape": [
+    8,
+    128,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 364.99,
+   "note": "experts x tokens/expert x n x k; segments 128-aligned",
+   "median_us": 94.14,
+   "q1_us": 80.48,
+   "q3_us": 141.39,
+   "min_us": 36.35,
+   "iters": 50
+  },
+  {
+   "kernel": "grouped_mm_fp4 cudnn",
+   "shape": [
+    8,
+    1024,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 719.58,
+   "note": "experts x tokens/expert x n x k; segments 128-aligned",
+   "median_us": 382.0,
+   "q1_us": 377.16,
+   "q3_us": 398.35,
+   "min_us": 278.37,
+   "iters": 50
+  }
+ ]
+}
