@@ -1,0 +1,22 @@
+/home/jingze/trtllm/.venv/lib/python3.12/site-packages/modelopt/torch/__init__.py:36: UserWarning: transformers version 4.57.3 is incompatible with nvidia-modelopt and may cause issues. Please install recommended version with `pip install nvidia-modelopt[hf]` if working with HF models.
+  _warnings.warn(
+🚨 Config not found for parakeet. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+🚨 Config not found for parakeet. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+🚨 Config not found for parakeet. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+[TensorRT-LLM] TensorRT LLM version: 1.3.0rc9
+[10/16/2026-04:13:00] [TRT-LLM] [E] Error querying confidential compute state: Not Supported
+{"lib": "trtllm", "backend": "cutlass", "shape": [16, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "cutlass", "shape": [256, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "cutlass", "shape": [2048, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "cutlass", "shape": [256, 8192, 8192], "deterministic": true}
+{"lib": "trtllm", "backend": "cutlass", "shape": [1000, 4104, 4128], "error": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
+{"lib": "trtllm", "backend": "cublaslt", "shape": [16, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "cublaslt", "shape": [256, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "cublaslt", "shape": [2048, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "cublaslt", "shape": [256, 8192, 8192], "deterministic": true}
+{"lib": "trtllm", "backend": "cublaslt", "shape": [1000, 4104, 4128], "deterministic": true}
+{"lib": "trtllm", "backend": "default", "shape": [16, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "default", "shape": [256, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "default", "shape": [2048, 4096, 4096], "deterministic": true}
+{"lib": "trtllm", "backend": "default", "shape": [256, 8192, 8192], "deterministic": true}
+{"lib": "trtllm", "backend": "default", "shape": [1000, 4104, 4128], "error": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
