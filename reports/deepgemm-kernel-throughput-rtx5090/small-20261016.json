@@ -1,0 +1,129 @@
+{
+ "generated_utc": "2026-10-16T08:15:15Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.13.0+cu130",
+ "deep_gemm_path": "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/deep_gemm/__init__.py",
+ "clock_note": "WSL2 host; clocks not pinned; median and IQR of 50 timings after 10 warm-ups",
+ "rows": [
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 0.5,
+   "median_us": 66.86,
+   "q1_us": 55.78,
+   "q3_us": 83.21,
+   "min_us": 32.93,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 0.74,
+   "median_us": 45.28,
+   "q1_us": 36.7,
+   "q3_us": 58.36,
+   "min_us": 22.82,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 8.48,
+   "median_us": 63.3,
+   "q1_us": 54.66,
+   "q3_us": 84.34,
+   "min_us": 28.67,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 12.16,
+   "median_us": 44.14,
+   "q1_us": 37.5,
+   "q3_us": 76.04,
+   "min_us": 16.61,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 102.33,
+   "median_us": 83.94,
+   "q1_us": 72.46,
+   "q3_us": 130.93,
+   "min_us": 43.3,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 143.12,
+   "median_us": 60.02,
+   "q1_us": 48.34,
+   "q3_us": 81.34,
+   "min_us": 30.88,
+   "iters": 50
+  },
+  {
+   "kernel": "k_grouped_fp8_gemm_nt_contiguous",
+   "shape": [
+    8,
+    128,
+    4096,
+    4096
+   ],
+   "error": "Assertion error (csrc/apis/gemm.hpp:443): c.has_value() and c.value().is_contiguous()"
+  },
+  {
+   "kernel": "k_grouped_fp8_gemm_nt_contiguous",
+   "shape": [
+    8,
+    1024,
+    4096,
+    4096
+   ],
+   "error": "Assertion error (csrc/apis/gemm.hpp:443): c.has_value() and c.value().is_contiguous()"
+  }
+ ]
+}

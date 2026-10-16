@@ -1,0 +1,322 @@
+{
+ "generated_utc": "2026-10-16T08:15:56Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.13.0+cu130",
+ "deep_gemm_path": "/home/jingze/mlsys-5090-runtime/vllm028/.venv/lib/python3.12/site-packages/deep_gemm/__init__.py",
+ "clock_note": "WSL2 host; clocks not pinned; median and IQR of 50 timings after 10 warm-ups",
+ "rows": [
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 0.52,
+   "median_us": 64.96,
+   "q1_us": 55.98,
+   "q3_us": 112.55,
+   "min_us": 24.7,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 0.98,
+   "median_us": 34.16,
+   "q1_us": 25.05,
+   "q3_us": 80.65,
+   "min_us": 20.54,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 4.73,
+   "median_us": 113.55,
+   "q1_us": 87.73,
+   "q3_us": 185.79,
+   "min_us": 55.84,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 10.08,
+   "median_us": 53.26,
+   "q1_us": 41.78,
+   "q3_us": 85.56,
+   "min_us": 18.18,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 103.31,
+   "median_us": 83.15,
+   "q1_us": 71.78,
+   "q3_us": 120.08,
+   "min_us": 43.04,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 153.04,
+   "median_us": 56.13,
+   "q1_us": 42.83,
+   "q3_us": 74.77,
+   "min_us": 30.53,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 292.87,
+   "median_us": 234.64,
+   "q1_us": 228.42,
+   "q3_us": 249.78,
+   "min_us": 147.39,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 371.92,
+   "median_us": 184.77,
+   "q1_us": 175.92,
+   "q3_us": 191.26,
+   "min_us": 128.67,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 25.51,
+   "median_us": 73.66,
+   "q1_us": 59.94,
+   "q3_us": 95.46,
+   "min_us": 42.56,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 36.23,
+   "median_us": 51.86,
+   "q1_us": 49.66,
+   "q3_us": 86.55,
+   "min_us": 35.46,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 465.6,
+   "median_us": 516.58,
+   "q1_us": 507.87,
+   "q3_us": 547.77,
+   "min_us": 431.68,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 567.09,
+   "median_us": 424.13,
+   "q1_us": 412.42,
+   "q3_us": 429.9,
+   "min_us": 372.61,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_gemm (fp8 x fp8, (1,128) scales)",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 310.55,
+   "median_us": 110.64,
+   "q1_us": 90.49,
+   "q3_us": 140.46,
+   "min_us": 83.55,
+   "iters": 50
+  },
+  {
+   "kernel": "fp8_fp4_gemm (fp8 x fp4, (1,128) scales)",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "-> bf16",
+   "ue8m0": true,
+   "tflops": 387.06,
+   "median_us": 88.77,
+   "q1_us": 78.25,
+   "q3_us": 103.66,
+   "min_us": 65.86,
+   "iters": 50
+  },
+  {
+   "kernel": "k_grouped_fp8_gemm_nt_contiguous",
+   "shape": [
+    8,
+    128,
+    4096,
+    4096
+   ],
+   "dtype": "fp8 x fp8 -> fp32 (accumulate)",
+   "tflops": 135.73,
+   "note": "experts x m x n x k_per_expert; the output accumulates over the group",
+   "median_us": 253.15,
+   "q1_us": 244.74,
+   "q3_us": 275.42,
+   "min_us": 195.52,
+   "iters": 50
+  },
+  {
+   "kernel": "k_grouped_fp8_gemm_nt_contiguous",
+   "shape": [
+    8,
+    1024,
+    4096,
+    4096
+   ],
+   "dtype": "fp8 x fp8 -> fp32 (accumulate)",
+   "tflops": 325.95,
+   "note": "experts x m x n x k_per_expert; the output accumulates over the group",
+   "median_us": 843.31,
+   "q1_us": 791.76,
+   "q3_us": 863.54,
+   "min_us": 783.2,
+   "iters": 50
+  },
+  {
+   "kernel": "k_grouped_fp8_gemm_nt_contiguous",
+   "shape": [
+    64,
+    128,
+    2048,
+    7168
+   ],
+   "dtype": "fp8 x fp8 -> fp32 (accumulate)",
+   "tflops": 218.68,
+   "note": "experts x m x n x k_per_expert; the output accumulates over the group",
+   "median_us": 1099.87,
+   "q1_us": 1061.76,
+   "q3_us": 1133.08,
+   "min_us": 1050.56,
+   "iters": 50
+  },
+  {
+   "kernel": "k_grouped_fp8_gemm_nt_contiguous",
+   "shape": [
+    128,
+    64,
+    2048,
+    7168
+   ],
+   "dtype": "fp8 x fp8 -> fp32 (accumulate)",
+   "tflops": 141.15,
+   "note": "experts x m x n x k_per_expert; the output accumulates over the group",
+   "median_us": 1703.97,
+   "q1_us": 1680.19,
+   "q3_us": 1964.83,
+   "min_us": 1667.9,
+   "iters": 50
+  },
+  {
+   "kernel": "k_grouped_fp8_gemm_nt_contiguous",
+   "shape": [
+    128,
+    512,
+    1536,
+    4096
+   ],
+   "dtype": "fp8 x fp8 -> fp32 (accumulate)",
+   "tflops": 274.03,
+   "note": "experts x m x n x k_per_expert; the output accumulates over the group",
+   "median_us": 3009.31,
+   "q1_us": 2537.36,
+   "q3_us": 3167.76,
+   "min_us": 2332.96,
+   "iters": 50
+  }
+ ]
+}
