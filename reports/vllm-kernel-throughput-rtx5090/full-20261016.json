@@ -1,0 +1,832 @@
+{
+ "generated_utc": "2026-10-16T03:41:11Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.13.0+cu130",
+ "vllm": "0.28.0",
+ "clock_note": "WSL2 host; clocks not pinned; median and IQR of 50 timings after 10 warm-ups",
+ "rows": [
+  {
+   "kernel": "cutlass_scaled_mm fp8",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "fp8->bf16",
+   "tflops": 1.89,
+   "median_us": 17.79,
+   "q1_us": 16.38,
+   "q3_us": 31.5,
+   "min_us": 14.56,
+   "iters": 50
+  },
+  {
+   "kernel": "triton_scaled_mm int8 (the SM120 fallback)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "int8->bf16",
+   "tflops": 1.05,
+   "median_us": 31.97,
+   "q1_us": 26.81,
+   "q3_us": 45.46,
+   "min_us": 10.98,
+   "iters": 50
+  },
+  {
+   "kernel": "marlin_gemm W4A16 gptq g128",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "bf16",
+   "tflops": 1.5,
+   "median_us": 22.34,
+   "q1_us": 16.7,
+   "q3_us": 37.35,
+   "min_us": 8.13,
+   "iters": 50
+  },
+  {
+   "kernel": "cutlass_scaled_mm fp8",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "fp8->bf16",
+   "tflops": 29.74,
+   "median_us": 18.05,
+   "q1_us": 16.58,
+   "q3_us": 28.93,
+   "min_us": 11.07,
+   "iters": 50
+  },
+  {
+   "kernel": "triton_scaled_mm int8 (the SM120 fallback)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "int8->bf16",
+   "tflops": 15.89,
+   "median_us": 33.79,
+   "q1_us": 30.58,
+   "q3_us": 42.8,
+   "min_us": 12.51,
+   "iters": 50
+  },
+  {
+   "kernel": "marlin_gemm W4A16 gptq g128",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "bf16",
+   "tflops": 14.42,
+   "median_us": 37.22,
+   "q1_us": 24.89,
+   "q3_us": 66.8,
+   "min_us": 14.53,
+   "iters": 50
+  },
+  {
+   "kernel": "cutlass_scaled_mm fp8",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "fp8->bf16",
+   "tflops": 227.97,
+   "median_us": 37.68,
+   "q1_us": 34.42,
+   "q3_us": 48.21,
+   "min_us": 31.81,
+   "iters": 50
+  },
+  {
+   "kernel": "triton_scaled_mm int8 (the SM120 fallback)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "int8->bf16",
+   "tflops": 148.77,
+   "median_us": 57.74,
+   "q1_us": 55.35,
+   "q3_us": 60.95,
+   "min_us": 37.6,
+   "iters": 50
+  },
+  {
+   "kernel": "marlin_gemm W4A16 gptq g128",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "bf16",
+   "tflops": 85.86,
+   "median_us": 100.05,
+   "q1_us": 94.34,
+   "q3_us": 105.43,
+   "min_us": 56.77,
+   "iters": 50
+  },
+  {
+   "kernel": "cutlass_scaled_mm fp8",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "fp8->bf16",
+   "tflops": 277.67,
+   "median_us": 247.49,
+   "q1_us": 243.25,
+   "q3_us": 254.86,
+   "min_us": 235.97,
+   "iters": 50
+  },
+  {
+   "kernel": "triton_scaled_mm int8 (the SM120 fallback)",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "int8->bf16",
+   "tflops": 333.9,
+   "median_us": 205.81,
+   "q1_us": 198.16,
+   "q3_us": 215.27,
+   "min_us": 185.02,
+   "iters": 50
+  },
+  {
+   "kernel": "marlin_gemm W4A16 gptq g128",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "bf16",
+   "tflops": 191.74,
+   "median_us": 358.4,
+   "q1_us": 355.02,
+   "q3_us": 371.83,
+   "min_us": 318.11,
+   "iters": 50
+  },
+  {
+   "kernel": "cutlass_scaled_mm fp8",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "fp8->bf16",
+   "tflops": 70.19,
+   "median_us": 26.77,
+   "q1_us": 25.36,
+   "q3_us": 38.71,
+   "min_us": 22.88,
+   "iters": 50
+  },
+  {
+   "kernel": "triton_scaled_mm int8 (the SM120 fallback)",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "int8->bf16",
+   "tflops": 42.52,
+   "median_us": 44.19,
+   "q1_us": 38.94,
+   "q3_us": 104.2,
+   "min_us": 24.03,
+   "iters": 50
+  },
+  {
+   "kernel": "marlin_gemm W4A16 gptq g128",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "bf16",
+   "tflops": 25.97,
+   "median_us": 72.35,
+   "q1_us": 65.46,
+   "q3_us": 84.2,
+   "min_us": 53.5,
+   "iters": 50
+  },
+  {
+   "kernel": "cutlass_scaled_mm fp8",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "fp8->bf16",
+   "tflops": 402.35,
+   "median_us": 597.79,
+   "q1_us": 589.38,
+   "q3_us": 611.56,
+   "min_us": 551.33,
+   "iters": 50
+  },
+  {
+   "kernel": "triton_scaled_mm int8 (the SM120 fallback)",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "int8->bf16",
+   "tflops": 507.49,
+   "median_us": 473.94,
+   "q1_us": 467.08,
+   "q3_us": 494.37,
+   "min_us": 407.3,
+   "iters": 50
+  },
+  {
+   "kernel": "marlin_gemm W4A16 gptq g128",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "bf16",
+   "tflops": 213.21,
+   "median_us": 1128.06,
+   "q1_us": 1118.22,
+   "q3_us": 1141.66,
+   "min_us": 1084.1,
+   "iters": 50
+  },
+  {
+   "kernel": "cutlass_scaled_mm fp8",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "fp8->bf16",
+   "tflops": 256.53,
+   "median_us": 133.94,
+   "q1_us": 110.29,
+   "q3_us": 151.69,
+   "min_us": 104.38,
+   "iters": 50
+  },
+  {
+   "kernel": "triton_scaled_mm int8 (the SM120 fallback)",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "int8->bf16",
+   "tflops": 372.18,
+   "median_us": 92.32,
+   "q1_us": 87.98,
+   "q3_us": 116.4,
+   "min_us": 72.32,
+   "iters": 50
+  },
+  {
+   "kernel": "marlin_gemm W4A16 gptq g128",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "bf16",
+   "tflops": 152.3,
+   "median_us": 225.6,
+   "q1_us": 208.56,
+   "q3_us": 269.24,
+   "min_us": 163.9,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-token",
+   "shape": [
+    1,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 0.7,
+   "median_us": 11.28,
+   "q1_us": 9.07,
+   "q3_us": 24.47,
+   "min_us": 5.31,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-tensor",
+   "shape": [
+    1,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 0.3,
+   "median_us": 26.08,
+   "q1_us": 21.0,
+   "q3_us": 49.69,
+   "min_us": 14.94,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_int8_quant dynamic sym",
+   "shape": [
+    1,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 0.8,
+   "median_us": 10.72,
+   "q1_us": 8.15,
+   "q3_us": 17.04,
+   "min_us": 4.42,
+   "iters": 50
+  },
+  {
+   "kernel": "per_token_group_quant_fp8 (1,128)",
+   "shape": [
+    1,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 0.5,
+   "median_us": 16.8,
+   "q1_us": 9.26,
+   "q3_us": 25.81,
+   "min_us": 4.96,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm_dynamic_per_token_quant fp8 (fused)",
+   "shape": [
+    1,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 0.5,
+   "median_us": 15.25,
+   "q1_us": 9.55,
+   "q3_us": 29.98,
+   "min_us": 6.27,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm + scaled_fp8_quant per-token (unfused)",
+   "shape": [
+    1,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 0.4,
+   "median_us": 18.93,
+   "q1_us": 13.35,
+   "q3_us": 30.39,
+   "min_us": 8.22,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-token",
+   "shape": [
+    16,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 5.7,
+   "median_us": 23.12,
+   "q1_us": 17.23,
+   "q3_us": 44.1,
+   "min_us": 7.74,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-tensor",
+   "shape": [
+    16,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 3.0,
+   "median_us": 44.13,
+   "q1_us": 28.89,
+   "q3_us": 68.44,
+   "min_us": 14.56,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_int8_quant dynamic sym",
+   "shape": [
+    16,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 9.7,
+   "median_us": 13.5,
+   "q1_us": 8.85,
+   "q3_us": 30.35,
+   "min_us": 4.67,
+   "iters": 50
+  },
+  {
+   "kernel": "per_token_group_quant_fp8 (1,128)",
+   "shape": [
+    16,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 8.0,
+   "median_us": 16.34,
+   "q1_us": 15.18,
+   "q3_us": 22.71,
+   "min_us": 5.41,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm_dynamic_per_token_quant fp8 (fused)",
+   "shape": [
+    16,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 7.0,
+   "median_us": 18.69,
+   "q1_us": 8.78,
+   "q3_us": 32.9,
+   "min_us": 5.41,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm + scaled_fp8_quant per-token (unfused)",
+   "shape": [
+    16,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 5.0,
+   "median_us": 26.32,
+   "q1_us": 18.34,
+   "q3_us": 37.17,
+   "min_us": 9.54,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-token",
+   "shape": [
+    256,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 32.0,
+   "median_us": 65.49,
+   "q1_us": 50.31,
+   "q3_us": 74.27,
+   "min_us": 7.62,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-tensor",
+   "shape": [
+    256,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 35.6,
+   "median_us": 58.94,
+   "q1_us": 22.86,
+   "q3_us": 82.04,
+   "min_us": 14.56,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_int8_quant dynamic sym",
+   "shape": [
+    256,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 146.4,
+   "median_us": 14.32,
+   "q1_us": 12.1,
+   "q3_us": 30.0,
+   "min_us": 6.69,
+   "iters": 50
+  },
+  {
+   "kernel": "per_token_group_quant_fp8 (1,128)",
+   "shape": [
+    256,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 131.2,
+   "median_us": 15.98,
+   "q1_us": 14.17,
+   "q3_us": 23.26,
+   "min_us": 4.26,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm_dynamic_per_token_quant fp8 (fused)",
+   "shape": [
+    256,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 135.6,
+   "median_us": 15.47,
+   "q1_us": 12.2,
+   "q3_us": 34.87,
+   "min_us": 8.58,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm + scaled_fp8_quant per-token (unfused)",
+   "shape": [
+    256,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 96.6,
+   "median_us": 21.7,
+   "q1_us": 18.08,
+   "q3_us": 38.95,
+   "min_us": 11.26,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-token",
+   "shape": [
+    2048,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 942.0,
+   "median_us": 17.81,
+   "q1_us": 14.29,
+   "q3_us": 41.86,
+   "min_us": 9.34,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-tensor",
+   "shape": [
+    2048,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 611.9,
+   "median_us": 27.42,
+   "q1_us": 25.46,
+   "q3_us": 46.84,
+   "min_us": 17.63,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_int8_quant dynamic sym",
+   "shape": [
+    2048,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 1198.4,
+   "median_us": 14.0,
+   "q1_us": 11.89,
+   "q3_us": 25.33,
+   "min_us": 7.87,
+   "iters": 50
+  },
+  {
+   "kernel": "per_token_group_quant_fp8 (1,128)",
+   "shape": [
+    2048,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 884.9,
+   "median_us": 18.96,
+   "q1_us": 17.29,
+   "q3_us": 33.47,
+   "min_us": 12.03,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm_dynamic_per_token_quant fp8 (fused)",
+   "shape": [
+    2048,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 503.2,
+   "median_us": 33.34,
+   "q1_us": 32.52,
+   "q3_us": 34.94,
+   "min_us": 28.9,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm + scaled_fp8_quant per-token (unfused)",
+   "shape": [
+    2048,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 708.5,
+   "median_us": 23.68,
+   "q1_us": 22.23,
+   "q3_us": 27.46,
+   "min_us": 17.95,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-token",
+   "shape": [
+    2048,
+    8192
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 1810.8,
+   "median_us": 18.53,
+   "q1_us": 17.3,
+   "q3_us": 24.76,
+   "min_us": 13.89,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-tensor",
+   "shape": [
+    2048,
+    8192
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 894.8,
+   "median_us": 37.5,
+   "q1_us": 34.38,
+   "q3_us": 55.06,
+   "min_us": 31.23,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_int8_quant dynamic sym",
+   "shape": [
+    2048,
+    8192
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 1948.6,
+   "median_us": 17.22,
+   "q1_us": 15.71,
+   "q3_us": 25.84,
+   "min_us": 13.98,
+   "iters": 50
+  },
+  {
+   "kernel": "per_token_group_quant_fp8 (1,128)",
+   "shape": [
+    2048,
+    8192
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 1285.6,
+   "median_us": 26.1,
+   "q1_us": 24.44,
+   "q3_us": 43.56,
+   "min_us": 21.76,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm_dynamic_per_token_quant fp8 (fused)",
+   "shape": [
+    2048,
+    8192
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 710.4,
+   "median_us": 47.23,
+   "q1_us": 44.26,
+   "q3_us": 56.98,
+   "min_us": 39.3,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm + scaled_fp8_quant per-token (unfused)",
+   "shape": [
+    2048,
+    8192
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 854.9,
+   "median_us": 39.25,
+   "q1_us": 35.9,
+   "q3_us": 53.13,
+   "min_us": 33.09,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-token",
+   "shape": [
+    16384,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 877.8,
+   "median_us": 152.91,
+   "q1_us": 145.5,
+   "q3_us": 159.86,
+   "min_us": 117.02,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_fp8_quant per-tensor",
+   "shape": [
+    16384,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 539.7,
+   "median_us": 248.69,
+   "q1_us": 244.72,
+   "q3_us": 261.59,
+   "min_us": 214.24,
+   "iters": 50
+  },
+  {
+   "kernel": "scaled_int8_quant dynamic sym",
+   "shape": [
+    16384,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 871.1,
+   "median_us": 154.08,
+   "q1_us": 144.66,
+   "q3_us": 159.82,
+   "min_us": 116.38,
+   "iters": 50
+  },
+  {
+   "kernel": "per_token_group_quant_fp8 (1,128)",
+   "shape": [
+    16384,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 822.7,
+   "median_us": 163.15,
+   "q1_us": 159.43,
+   "q3_us": 167.18,
+   "min_us": 116.7,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm_dynamic_per_token_quant fp8 (fused)",
+   "shape": [
+    16384,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 494.2,
+   "median_us": 271.57,
+   "q1_us": 266.44,
+   "q3_us": 279.32,
+   "min_us": 229.57,
+   "iters": 50
+  },
+  {
+   "kernel": "rms_norm + scaled_fp8_quant per-token (unfused)",
+   "shape": [
+    16384,
+    4096
+   ],
+   "dtype": "bf16 in",
+   "input_gbps": 429.9,
+   "median_us": 312.24,
+   "q1_us": 303.44,
+   "q3_us": 323.27,
+   "min_us": 289.25,
+   "iters": 50
+  }
+ ]
+}
