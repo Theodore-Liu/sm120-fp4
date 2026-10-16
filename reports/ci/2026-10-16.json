@@ -1,0 +1,16 @@
+{
+ "date": "2026-10-16",
+ "commit": "0485fd17fb2f602e52000bc049645ae495f1b504",
+ "gpu": {
+  "device": "NVIDIA GeForce RTX 5090",
+  "driver": "610.88",
+  "utilization_pct": 0,
+  "memory_used_mb": 5875
+ },
+ "torch": "2.13.0+cu130",
+ "cuda": "13.0",
+ "python": "3.12.14",
+ "checkout": "/home/jingze/ci/sm120-fp4",
+ "outcome": "skipped",
+ "why": "GPU busy: utilisation 0 percent, 5875 MB in use"
+}
