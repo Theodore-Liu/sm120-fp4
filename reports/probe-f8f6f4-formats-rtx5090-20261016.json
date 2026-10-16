@@ -1,0 +1,330 @@
+{
+ "generated_utc": "2026-10-16T04:12:29Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.13.0+cu130",
+ "cuda": "13.0",
+ "instruction": "mma.sync.aligned.m16n8k32.row.col.kind::f8f6f4.f32.<A>.<B>.f32",
+ "known_reference": "e4m3 1.0 = 0x38 in bits 7:0 (the e4m3 byte is the format's own byte)",
+ "sides": [
+  {
+   "side": "B",
+   "format": "e4m3",
+   "code_for_one": "0x38",
+   "shift_that_reads_one": 0,
+   "code_bits_in_byte": "7:0",
+   "trials": [
+    {
+     "candidate": "0x38",
+     "nonzero_positions": 8,
+     "values": [
+      1.0
+     ],
+     "shift": 0
+    }
+   ],
+   "all_ones_control": {
+    "candidate": "0xff",
+    "nonzero_positions": 128,
+    "values": [
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN
+    ]
+   }
+  },
+  {
+   "side": "A",
+   "format": "e4m3",
+   "code_for_one": "0x38",
+   "shift_that_reads_one": 0,
+   "code_bits_in_byte": "7:0",
+   "trials": [
+    {
+     "candidate": "0x38",
+     "nonzero_positions": 16,
+     "values": [
+      1.0
+     ],
+     "shift": 0
+    }
+   ],
+   "all_ones_control": {
+    "candidate": "0xff",
+    "nonzero_positions": 128,
+    "values": [
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN
+    ]
+   }
+  },
+  {
+   "side": "B",
+   "format": "e3m2",
+   "code_for_one": "0x0c",
+   "shift_that_reads_one": 0,
+   "code_bits_in_byte": "5:0",
+   "trials": [
+    {
+     "candidate": "0x0c",
+     "nonzero_positions": 8,
+     "values": [
+      1.0
+     ],
+     "shift": 0
+    },
+    {
+     "candidate": "0x18",
+     "nonzero_positions": 8,
+     "values": [
+      8.0
+     ],
+     "shift": 1
+    },
+    {
+     "candidate": "0x30",
+     "nonzero_positions": 8,
+     "values": [
+      -2.0
+     ],
+     "shift": 2
+    }
+   ],
+   "all_ones_control": {
+    "candidate": "0xff",
+    "nonzero_positions": 8,
+    "values": [
+     -28.0
+    ]
+   }
+  },
+  {
+   "side": "B",
+   "format": "e2m1",
+   "code_for_one": "0x02",
+   "shift_that_reads_one": 2,
+   "code_bits_in_byte": "5:2",
+   "trials": [
+    {
+     "candidate": "0x02",
+     "nonzero_positions": 8,
+     "values": [
+      0.25
+     ],
+     "shift": 0
+    },
+    {
+     "candidate": "0x04",
+     "nonzero_positions": 8,
+     "values": [
+      0.5
+     ],
+     "shift": 1
+    },
+    {
+     "candidate": "0x08",
+     "nonzero_positions": 8,
+     "values": [
+      1.0
+     ],
+     "shift": 2
+    },
+    {
+     "candidate": "0x10",
+     "nonzero_positions": 8,
+     "values": [
+      2.0
+     ],
+     "shift": 3
+    },
+    {
+     "candidate": "0x20",
+     "nonzero_positions": 0,
+     "values": [],
+     "shift": 4
+    }
+   ],
+   "all_ones_control": {
+    "candidate": "0xff",
+    "nonzero_positions": 8,
+    "values": [
+     -7.5
+    ]
+   }
+  },
+  {
+   "side": "A",
+   "format": "e3m2",
+   "code_for_one": "0x0c",
+   "shift_that_reads_one": 0,
+   "code_bits_in_byte": "5:0",
+   "trials": [
+    {
+     "candidate": "0x0c",
+     "nonzero_positions": 16,
+     "values": [
+      1.0
+     ],
+     "shift": 0
+    },
+    {
+     "candidate": "0x18",
+     "nonzero_positions": 16,
+     "values": [
+      8.0
+     ],
+     "shift": 1
+    },
+    {
+     "candidate": "0x30",
+     "nonzero_positions": 16,
+     "values": [
+      -2.0
+     ],
+     "shift": 2
+    }
+   ],
+   "all_ones_control": {
+    "candidate": "0xff",
+    "nonzero_positions": 16,
+    "values": [
+     -28.0
+    ]
+   }
+  },
+  {
+   "side": "A",
+   "format": "e2m1",
+   "code_for_one": "0x02",
+   "shift_that_reads_one": 2,
+   "code_bits_in_byte": "5:2",
+   "trials": [
+    {
+     "candidate": "0x02",
+     "nonzero_positions": 16,
+     "values": [
+      0.25
+     ],
+     "shift": 0
+    },
+    {
+     "candidate": "0x04",
+     "nonzero_positions": 16,
+     "values": [
+      0.5
+     ],
+     "shift": 1
+    },
+    {
+     "candidate": "0x08",
+     "nonzero_positions": 16,
+     "values": [
+      1.0
+     ],
+     "shift": 2
+    },
+    {
+     "candidate": "0x10",
+     "nonzero_positions": 16,
+     "values": [
+      2.0
+     ],
+     "shift": 3
+    },
+    {
+     "candidate": "0x20",
+     "nonzero_positions": 0,
+     "values": [],
+     "shift": 4
+    }
+   ],
+   "all_ones_control": {
+    "candidate": "0xff",
+    "nonzero_positions": 16,
+    "values": [
+     -7.5
+    ]
+   }
+  }
+ ],
+ "pairs": [
+  {
+   "A": "e3m2",
+   "B": "e3m2",
+   "a_byte": "0x0c",
+   "b_byte": "0x0c",
+   "nonzero_positions": [
+    [
+     0,
+     0
+    ]
+   ],
+   "values": [
+    1.0
+   ],
+   "exact_one": true
+  },
+  {
+   "A": "e2m1",
+   "B": "e2m1",
+   "a_byte": "0x08",
+   "b_byte": "0x08",
+   "nonzero_positions": [
+    [
+     0,
+     0
+    ]
+   ],
+   "values": [
+    1.0
+   ],
+   "exact_one": true
+  },
+  {
+   "A": "e3m2",
+   "B": "e2m1",
+   "a_byte": "0x0c",
+   "b_byte": "0x08",
+   "nonzero_positions": [
+    [
+     0,
+     0
+    ]
+   ],
+   "values": [
+    1.0
+   ],
+   "exact_one": true
+  },
+  {
+   "A": "e2m1",
+   "B": "e3m2",
+   "a_byte": "0x08",
+   "b_byte": "0x0c",
+   "nonzero_positions": [
+    [
+     0,
+     0
+    ]
+   ],
+   "values": [
+    1.0
+   ],
+   "exact_one": true
+  }
+ ]
+}
