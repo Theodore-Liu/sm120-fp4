@@ -1,0 +1,122 @@
+[
+ {
+  "shape": [
+   16,
+   4096
+  ],
+  "elements": 65536,
+  "codes_differing": 23,
+  "one_step_apart": 23,
+  "within_1e-3_step_of_midpoint": 23,
+  "within_1e-2_step_of_midpoint": 23,
+  "max_rel_distance_from_midpoint": 0.0,
+  "example": {
+   "x_scaled": [
+    3.5,
+    3.5,
+    -3.5,
+    -1.75
+   ],
+   "reference_code_value": [
+    4.0,
+    4.0,
+    -4.0,
+    -2.0
+   ],
+   "gpu_code_value": [
+    3.0,
+    3.0,
+    -3.0,
+    -1.5
+   ]
+  }
+ },
+ {
+  "shape": [
+   256,
+   4096
+  ],
+  "elements": 1048576,
+  "codes_differing": 0
+ },
+ {
+  "shape": [
+   2048,
+   4096
+  ],
+  "elements": 8388608,
+  "codes_differing": 9630,
+  "one_step_apart": 9630,
+  "within_1e-3_step_of_midpoint": 9630,
+  "within_1e-2_step_of_midpoint": 9630,
+  "max_rel_distance_from_midpoint": 2.384185791015625e-07,
+  "example": {
+   "x_scaled": [
+    -3.5,
+    -3.5,
+    -1.75,
+    -1.75
+   ],
+   "reference_code_value": [
+    -4.0,
+    -4.0,
+    -2.0,
+    -2.0
+   ],
+   "gpu_code_value": [
+    -3.0,
+    -3.0,
+    -1.5,
+    -1.5
+   ]
+  }
+ },
+ {
+  "shape": [
+   1000,
+   4128
+  ],
+  "elements": 4128000,
+  "codes_differing": 0
+ },
+ {
+  "shape": [
+   4097,
+   8192
+  ],
+  "elements": 33562624,
+  "codes_differing": 3013,
+  "one_step_apart": 3013,
+  "within_1e-3_step_of_midpoint": 3013,
+  "within_1e-2_step_of_midpoint": 3013,
+  "max_rel_distance_from_midpoint": 0.0,
+  "example": {
+   "x_scaled": [
+    -0.75,
+    -0.75,
+    0.75,
+    0.75
+   ],
+   "reference_code_value": [
+    -0.5,
+    -0.5,
+    0.5,
+    0.5
+   ],
+   "gpu_code_value": [
+    -1.0,
+    -1.0,
+    1.0,
+    1.0
+   ]
+  }
+ },
+ {
+  "shape": [
+   1,
+   128
+  ],
+  "elements": 128,
+  "codes_differing": 0
+ }
+]

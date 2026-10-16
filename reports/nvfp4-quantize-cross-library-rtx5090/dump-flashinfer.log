@@ -1,0 +1,6 @@
+{"lib": "flashinfer", "shape": [16, 4096], "codes_bytes": [16, 2048], "sf_bytes": [16, 256]}
+{"lib": "flashinfer", "shape": [256, 4096], "codes_bytes": [256, 2048], "sf_bytes": [256, 256]}
+{"lib": "flashinfer", "shape": [2048, 4096], "codes_bytes": [2048, 2048], "sf_bytes": [2048, 256]}
+{"lib": "flashinfer", "shape": [1000, 4128], "codes_bytes": [1000, 2064], "sf_bytes": [1000, 258]}
+{"lib": "flashinfer", "shape": [4097, 8192], "codes_bytes": [4097, 4096], "sf_bytes": [4097, 512]}
+{"lib": "flashinfer", "shape": [1, 128], "codes_bytes": [1, 64], "sf_bytes": [1, 8]}
