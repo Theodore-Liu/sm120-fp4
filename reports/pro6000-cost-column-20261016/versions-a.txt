@@ -1,0 +1,4 @@
+torch 2.13.0+cu130 cuda 13.0
+vllm 0.28.0
+flashinfer (vllm's pin) 0.6.16.post3
+device NVIDIA RTX PRO 6000 Blackwell Server Edition (12, 0)

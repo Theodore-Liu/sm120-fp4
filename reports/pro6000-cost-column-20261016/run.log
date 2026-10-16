@@ -1,0 +1,105 @@
+START 2026-10-16T14:15:33Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07, 97887 MiB, 12.0
+384
+Mem:            1511          95         329           9        1104        1416
+ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts
+/workspace/venv-a/lib/python3.12/site-packages/torch/_subclasses/functional_tensor.py:368: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:84.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ModuleNotFoundError: No module named 'vllm'
+SETUP_A_RC=0
+VLLM_THROUGHPUT_RC=1
+FLASHINFER_THROUGHPUT_RC=1
+AUTO_DISPATCH_RC=1
+XLIB_FI_RC=1
+XQUANT_VLLM_RC=1
+XQUANT_FI_RC=1
+a7a9277
+× Failed to build installable wheels for some pyproject.toml based projects
+╰─> deep_gemm
+DEEPGEMM_BUILD_RC=0
+DEEPGEMM_THROUGHPUT_RC=1
+WARNING: nvidia-modelopt 0.37.0 does not provide the extra 'torch'
+SETUP_B_RC=0
+TRTLLM_THROUGHPUT_RC=1
+XLIB_TRT_RC=1
+XQUANT_TRT_RC=1
+XLIB_COMPARE_RC=0
+XQUANT_COMPARE_RC=0
+WRAPPER_RC=0
+END 2026-10-16T14:24:14Z
+START 2026-10-16T14:30:44Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07, 97887 MiB, 12.0
+384
+Mem:            1511          96         304          10        1127        1414
+PIP_A_RC=0
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+Failed to get device capability: SM 12.x requires CUDA >= 12.9.
+torch 2.13.0+cu130 cuda 13.0
+vllm 0.28.0
+flashinfer (vllm's pin) 0.6.16.post3
+device NVIDIA RTX PRO 6000 Blackwell Server Edition (12, 0)
+SETUP_A_RC=0
+PIP_C_RC=0
+venv C torch 2.13.0+cu130 flashinfer 0.7.1
+SETUP_C_RC=0
+VLLM_THROUGHPUT_RC=0
+FLASHINFER_THROUGHPUT_RC=0
+AUTO_DISPATCH_RC=0
+XLIB_FI_RC=0
+XQUANT_VLLM_RC=0
+XQUANT_FI_RC=0
+a7a9277
+× Failed to build installable wheels for some pyproject.toml based projects
+╰─> deep_gemm
+DEEPGEMM_BUILD_RC=0
+DEEPGEMM_THROUGHPUT_RC=1
+APT_OPENMPI_RC=0
+WARNING: nvidia-modelopt 0.37.0 does not provide the extra 'torch'
+SETUP_B_RC=0
+TRTLLM_THROUGHPUT_RC=1
+XLIB_TRT_RC=1
+XQUANT_TRT_RC=1
+XLIB_COMPARE_RC=0
+XQUANT_COMPARE_RC=0
+WRAPPER_RC=0
+END 2026-10-16T14:39:48Z
+START 2026-10-16T14:46:11Z
+NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.91.07, 97887 MiB, 12.0
+384
+Mem:            1511          95         294           8        1137        1415
+APT_RC=0
+CUDA_HOME=/usr/local/cuda-13.2 nvcc=/usr/local/cuda-13.2/bin/nvcc Build cuda_13.2.r13.2/compiler.37953736_0
+/usr/local/cuda-13.2/lib64/libcublasLt.so.13
+PIP_A_RC=0
+torch 2.13.0+cu130 cuda 13.0
+vllm 0.28.0
+flashinfer (vllm's pin) 0.6.16.post3
+device NVIDIA RTX PRO 6000 Blackwell Server Edition (12, 0)
+SETUP_A_RC=0
+PIP_C_RC=0
+venv C torch 2.14.1+cu130 flashinfer 0.7.1 cudnn 92400
+SETUP_C_RC=0
+VLLM_THROUGHPUT_RC=0
+FLASHINFER_THROUGHPUT_RC=0
+AUTO_DISPATCH_RC=0
+XLIB_FI_RC=0
+XQUANT_VLLM_RC=0
+XQUANT_FI_RC=0
+a7a9277
+DEEPGEMM_BUILD_RC=1
+
+× Failed to build installable wheels for some pyproject.toml based projects
+╰─> deep_gemm
+DEEPGEMM_THROUGHPUT_RC=1
+WARNING: nvidia-modelopt 0.37.0 does not provide the extra 'torch'
+SETUP_B_RC=0
+trtllm 1.3.0rc9 torch 2.9.1+cu128
+TRTLLM_THROUGHPUT_RC=0
+XLIB_TRT_RC=0
+XQUANT_TRT_RC=0
+XLIB_COMPARE_RC=0
+XQUANT_COMPARE_RC=0
+WRAPPER_RC=0
+END 2026-10-16T14:57:23Z

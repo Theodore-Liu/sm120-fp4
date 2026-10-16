@@ -1,0 +1,293 @@
+[
+ {
+  "run": "flashinfer b12x",
+  "shape": [
+   16,
+   4096,
+   4096
+  ],
+  "absmax": 576.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 2484,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "flashinfer b12x",
+  "shape": [
+   256,
+   4096,
+   4096
+  ],
+  "absmax": 644.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3591,
+  "dtype": "torch.bfloat16",
+  "oracle_outside_bound": 0,
+  "oracle_elements": 1048576,
+  "oracle_max_abs_err": 1.99465
+ },
+ {
+  "run": "flashinfer b12x",
+  "shape": [
+   2048,
+   4096,
+   4096
+  ],
+  "absmax": 704.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 4078,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "flashinfer b12x",
+  "shape": [
+   256,
+   8192,
+   8192
+  ],
+  "absmax": 948.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3850,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "flashinfer b12x",
+  "shape": [
+   1000,
+   4104,
+   4128
+  ],
+  "absmax": 644.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3957,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "flashinfer cutlass",
+  "shape": [
+   16,
+   4096,
+   4096
+  ],
+  "absmax": 576.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 2484,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "flashinfer cutlass",
+  "shape": [
+   256,
+   4096,
+   4096
+  ],
+  "absmax": 644.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3591,
+  "dtype": "torch.bfloat16",
+  "oracle_outside_bound": 0,
+  "oracle_elements": 1048576,
+  "oracle_max_abs_err": 1.99465
+ },
+ {
+  "run": "flashinfer cutlass",
+  "shape": [
+   2048,
+   4096,
+   4096
+  ],
+  "absmax": 704.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 4078,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "flashinfer cutlass",
+  "shape": [
+   256,
+   8192,
+   8192
+  ],
+  "absmax": 948.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3850,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "flashinfer cutlass",
+  "shape": [
+   1000,
+   4104,
+   4128
+  ],
+  "absmax": 644.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3957,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm cublaslt",
+  "shape": [
+   16,
+   4096,
+   4096
+  ],
+  "absmax": 576.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 2484,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm cublaslt",
+  "shape": [
+   256,
+   4096,
+   4096
+  ],
+  "absmax": 644.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3591,
+  "dtype": "torch.bfloat16",
+  "oracle_outside_bound": 0,
+  "oracle_elements": 1048576,
+  "oracle_max_abs_err": 1.99465
+ },
+ {
+  "run": "trtllm cublaslt",
+  "shape": [
+   2048,
+   4096,
+   4096
+  ],
+  "absmax": 704.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 4078,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm cublaslt",
+  "shape": [
+   256,
+   8192,
+   8192
+  ],
+  "absmax": 948.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3850,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm cublaslt",
+  "shape": [
+   1000,
+   4104,
+   4128
+  ],
+  "absmax": 644.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3957,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm cutlass",
+  "shape": [
+   16,
+   4096,
+   4096
+  ],
+  "absmax": 576.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 2484,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm cutlass",
+  "shape": [
+   256,
+   4096,
+   4096
+  ],
+  "absmax": 644.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3591,
+  "dtype": "torch.bfloat16",
+  "oracle_outside_bound": 0,
+  "oracle_elements": 1048576,
+  "oracle_max_abs_err": 1.99465
+ },
+ {
+  "run": "trtllm cutlass",
+  "shape": [
+   2048,
+   4096,
+   4096
+  ],
+  "absmax": 704.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 4078,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm cutlass",
+  "shape": [
+   256,
+   8192,
+   8192
+  ],
+  "absmax": 948.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3850,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm default",
+  "shape": [
+   16,
+   4096,
+   4096
+  ],
+  "absmax": 576.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 2484,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm default",
+  "shape": [
+   256,
+   4096,
+   4096
+  ],
+  "absmax": 644.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3591,
+  "dtype": "torch.bfloat16",
+  "oracle_outside_bound": 0,
+  "oracle_elements": 1048576,
+  "oracle_max_abs_err": 1.99465
+ },
+ {
+  "run": "trtllm default",
+  "shape": [
+   2048,
+   4096,
+   4096
+  ],
+  "absmax": 704.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 4078,
+  "dtype": "torch.bfloat16"
+ },
+ {
+  "run": "trtllm default",
+  "shape": [
+   256,
+   8192,
+   8192
+  ],
+  "absmax": 948.0,
+  "nonzero_fraction": 1.0,
+  "distinct_values": 3850,
+  "dtype": "torch.bfloat16"
+ }
+]

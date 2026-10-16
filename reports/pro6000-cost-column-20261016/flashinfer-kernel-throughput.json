@@ -1,0 +1,687 @@
+{
+ "generated_utc": "2026-10-16T14:48:26Z",
+ "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.14.1+cu130",
+ "flashinfer": "0.7.1",
+ "cudnn": 92400,
+ "clock_note": "WSL2 host; clocks not pinned; median and IQR of 50 timings after 10 warm-ups",
+ "rows": [
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "error": "no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.3,
+   "median_us": 112.75,
+   "q1_us": 110.14,
+   "q3_us": 121.06,
+   "min_us": 100.35,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.34,
+   "median_us": 99.17,
+   "q1_us": 98.04,
+   "q3_us": 104.11,
+   "min_us": 95.17,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.23,
+   "median_us": 144.24,
+   "q1_us": 139.92,
+   "q3_us": 149.27,
+   "min_us": 136.03,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 0.22,
+   "median_us": 150.19,
+   "q1_us": 148.42,
+   "q3_us": 157.8,
+   "min_us": 146.18,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 0.36,
+   "median_us": 92.67,
+   "q1_us": 91.16,
+   "q3_us": 95.34,
+   "min_us": 88.38,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "error": "no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 5.16,
+   "median_us": 104.05,
+   "q1_us": 102.66,
+   "q3_us": 107.71,
+   "min_us": 100.22,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 5.31,
+   "median_us": 101.06,
+   "q1_us": 99.53,
+   "q3_us": 103.98,
+   "min_us": 96.29,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 3.6,
+   "median_us": 149.26,
+   "q1_us": 145.63,
+   "q3_us": 154.21,
+   "min_us": 141.47,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 3.57,
+   "median_us": 150.32,
+   "q1_us": 146.78,
+   "q3_us": 154.77,
+   "min_us": 140.03,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 5.92,
+   "median_us": 90.7,
+   "q1_us": 89.34,
+   "q3_us": 92.39,
+   "min_us": 87.04,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "error": "no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 82.61,
+   "median_us": 103.98,
+   "q1_us": 102.67,
+   "q3_us": 105.28,
+   "min_us": 100.58,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 86.52,
+   "median_us": 99.28,
+   "q1_us": 98.12,
+   "q3_us": 103.39,
+   "min_us": 96.03,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 57.97,
+   "median_us": 148.18,
+   "q1_us": 144.66,
+   "q3_us": 156.83,
+   "min_us": 135.94,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 42.27,
+   "median_us": 203.23,
+   "q1_us": 201.3,
+   "q3_us": 205.59,
+   "min_us": 199.2,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 69.8,
+   "median_us": 123.07,
+   "q1_us": 121.85,
+   "q3_us": 123.94,
+   "min_us": 119.58,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "error": "no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 471.13,
+   "median_us": 145.86,
+   "q1_us": 144.22,
+   "q3_us": 147.17,
+   "min_us": 140.96,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 488.17,
+   "median_us": 140.77,
+   "q1_us": 139.14,
+   "q3_us": 142.78,
+   "min_us": 137.22,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 369.18,
+   "median_us": 186.14,
+   "q1_us": 183.31,
+   "q3_us": 194.15,
+   "min_us": 177.95,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 156.1,
+   "median_us": 440.22,
+   "q1_us": 437.3,
+   "q3_us": 445.93,
+   "min_us": 430.88,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 207.81,
+   "median_us": 330.69,
+   "q1_us": 329.08,
+   "q3_us": 333.75,
+   "min_us": 324.99,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "error": "no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 15.87,
+   "median_us": 118.43,
+   "q1_us": 116.75,
+   "q3_us": 120.54,
+   "min_us": 113.95,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 17.6,
+   "median_us": 106.74,
+   "q1_us": 105.21,
+   "q3_us": 110.46,
+   "min_us": 101.54,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 12.42,
+   "median_us": 151.31,
+   "q1_us": 149.01,
+   "q3_us": 157.7,
+   "min_us": 144.13,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 10.27,
+   "median_us": 182.88,
+   "q1_us": 173.82,
+   "q3_us": 195.25,
+   "min_us": 162.88,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 17.18,
+   "median_us": 109.39,
+   "q1_us": 104.23,
+   "q3_us": 115.78,
+   "min_us": 96.67,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "error": "no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 865.86,
+   "median_us": 277.78,
+   "q1_us": 274.74,
+   "q3_us": 285.8,
+   "min_us": 271.36,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 912.44,
+   "median_us": 263.6,
+   "q1_us": 260.08,
+   "q3_us": 269.44,
+   "min_us": 256.03,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 781.18,
+   "median_us": 307.89,
+   "q1_us": 305.78,
+   "q3_us": 314.76,
+   "min_us": 299.58,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 211.27,
+   "median_us": 1138.46,
+   "q1_us": 1133.98,
+   "q3_us": 1146.44,
+   "min_us": 1125.95,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 253.47,
+   "median_us": 948.9,
+   "q1_us": 947.23,
+   "q3_us": 951.45,
+   "min_us": 942.53,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 cudnn",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "error": "no engine \u2014 python or backend \u2014 proposed a plan for this graph (the backend declined: No valid engine configs for __\n{\"engineId\":0,\"smVersion\":1200,\"knobChoices"
+  },
+  {
+   "kernel": "mm_fp4 cutlass",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 285.24,
+   "median_us": 120.46,
+   "q1_us": 118.97,
+   "q3_us": 124.0,
+   "min_us": 117.41,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 b12x",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 290.84,
+   "median_us": 118.14,
+   "q1_us": 116.24,
+   "q3_us": 120.87,
+   "min_us": 115.2,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_fp4 auto",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 211.76,
+   "median_us": 162.26,
+   "q1_us": 159.74,
+   "q3_us": 167.29,
+   "min_us": 156.19,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cudnn (W4A16)",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 18.61,
+   "median_us": 1845.95,
+   "q1_us": 1840.2,
+   "q3_us": 1853.46,
+   "min_us": 1833.28,
+   "iters": 50
+  },
+  {
+   "kernel": "mm_bf16_fp4 cute-dsl (W4A16)",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "bf16 x nvfp4 -> bf16",
+   "tflops": 160.06,
+   "median_us": 214.67,
+   "q1_us": 213.59,
+   "q3_us": 216.84,
+   "min_us": 209.66,
+   "iters": 50
+  },
+  {
+   "kernel": "grouped_mm_fp4 cudnn",
+   "shape": [
+    8,
+    128,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 293.02,
+   "note": "experts x tokens/expert x n x k; segments 128-aligned",
+   "median_us": 117.26,
+   "q1_us": 114.76,
+   "q3_us": 118.93,
+   "min_us": 111.97,
+   "iters": 50
+  },
+  {
+   "kernel": "grouped_mm_fp4 cudnn",
+   "shape": [
+    8,
+    1024,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 932.58,
+   "note": "experts x tokens/expert x n x k; segments 128-aligned",
+   "median_us": 294.75,
+   "q1_us": 293.27,
+   "q3_us": 296.95,
+   "min_us": 289.92,
+   "iters": 50
+  },
+  {
+   "kernel": "grouped_mm_fp4 cudnn",
+   "shape": [
+    64,
+    128,
+    2048,
+    7168
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 490.32,
+   "note": "experts x tokens/expert x n x k; segments 128-aligned",
+   "median_us": 490.53,
+   "q1_us": 489.7,
+   "q3_us": 491.68,
+   "min_us": 486.66,
+   "iters": 50
+  },
+  {
+   "kernel": "grouped_mm_fp4 cudnn",
+   "shape": [
+    128,
+    64,
+    2048,
+    7168
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 277.68,
+   "note": "experts x tokens/expert x n x k; segments 128-aligned",
+   "median_us": 866.16,
+   "q1_us": 858.85,
+   "q3_us": 870.62,
+   "min_us": 850.24,
+   "iters": 50
+  },
+  {
+   "kernel": "grouped_mm_fp4 cudnn",
+   "shape": [
+    128,
+    512,
+    1536,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 1061.82,
+   "note": "experts x tokens/expert x n x k; segments 128-aligned",
+   "median_us": 776.62,
+   "q1_us": 771.93,
+   "q3_us": 782.8,
+   "min_us": 767.2,
+   "iters": 50
+  }
+ ]
+}

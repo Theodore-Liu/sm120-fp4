@@ -1,0 +1,51 @@
+{"shape": [16, 4096, 4096], "a": "flashinfer b12x", "b": "flashinfer cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "trtllm cublaslt", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "trtllm cublaslt", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [16, 4096, 4096], "a": "trtllm cutlass", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "flashinfer b12x", "b": "flashinfer cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "trtllm cublaslt", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "trtllm cublaslt", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 4096, 4096], "a": "trtllm cutlass", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "flashinfer b12x", "b": "flashinfer cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "flashinfer b12x", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "flashinfer cutlass", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "trtllm cublaslt", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "trtllm cublaslt", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [2048, 4096, 4096], "a": "trtllm cutlass", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "flashinfer b12x", "b": "flashinfer cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "flashinfer b12x", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "flashinfer b12x", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "flashinfer b12x", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "flashinfer cutlass", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "flashinfer cutlass", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "flashinfer cutlass", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "trtllm cublaslt", "b": "trtllm cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "trtllm cublaslt", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [256, 8192, 8192], "a": "trtllm cutlass", "b": "trtllm default", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [1000, 4104, 4128], "a": "flashinfer b12x", "b": "flashinfer cutlass", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [1000, 4104, 4128], "a": "flashinfer b12x", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [1000, 4104, 4128], "a": "flashinfer b12x", "b": "trtllm cutlass", "skipped": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
+{"shape": [1000, 4104, 4128], "a": "flashinfer b12x", "b": "trtllm default", "skipped": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
+{"shape": [1000, 4104, 4128], "a": "flashinfer cutlass", "b": "trtllm cublaslt", "identical": true, "elements_differing": 0, "fraction": 0.0, "max_abs_diff": 0.0, "max_diff_ulps": 0.0}
+{"shape": [1000, 4104, 4128], "a": "flashinfer cutlass", "b": "trtllm cutlass", "skipped": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
+{"shape": [1000, 4104, 4128], "a": "flashinfer cutlass", "b": "trtllm default", "skipped": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
+{"shape": [1000, 4104, 4128], "a": "trtllm cublaslt", "b": "trtllm cutlass", "skipped": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
+{"shape": [1000, 4104, 4128], "a": "trtllm cublaslt", "b": "trtllm default", "skipped": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
+{"shape": [1000, 4104, 4128], "a": "trtllm cutlass", "b": "trtllm default", "skipped": "RuntimeError: Expected n to be divisible by 32, but got mat2 shape: (4104x2064)."}
+wrote /workspace/out/xlib/cross-library.json

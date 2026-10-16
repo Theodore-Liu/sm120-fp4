@@ -1,0 +1,10 @@
+{"lib": "flashinfer", "backend": "cutlass", "shape": [16, 4096, 4096], "deterministic": true}
+{"lib": "flashinfer", "backend": "cutlass", "shape": [256, 4096, 4096], "deterministic": true}
+{"lib": "flashinfer", "backend": "cutlass", "shape": [2048, 4096, 4096], "deterministic": true}
+{"lib": "flashinfer", "backend": "cutlass", "shape": [256, 8192, 8192], "deterministic": true}
+{"lib": "flashinfer", "backend": "cutlass", "shape": [1000, 4104, 4128], "deterministic": true}
+{"lib": "flashinfer", "backend": "b12x", "shape": [16, 4096, 4096], "deterministic": true}
+{"lib": "flashinfer", "backend": "b12x", "shape": [256, 4096, 4096], "deterministic": true}
+{"lib": "flashinfer", "backend": "b12x", "shape": [2048, 4096, 4096], "deterministic": true}
+{"lib": "flashinfer", "backend": "b12x", "shape": [256, 8192, 8192], "deterministic": true}
+{"lib": "flashinfer", "backend": "b12x", "shape": [1000, 4104, 4128], "deterministic": true}

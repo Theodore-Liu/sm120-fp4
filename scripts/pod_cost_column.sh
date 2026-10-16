@@ -29,7 +29,8 @@ nproc; free -g | sed -n 2p
 # ---- system CUDA 13.2 toolkit (compiler and headers from one release) and OpenMPI
 if [ ! -x "/usr/local/cuda-${CUDA_APT_VER/-/.}/bin/nvcc" ]; then
   apt-get update -qq > "$OUT/apt.log" 2>&1
-  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "cuda-toolkit-$CUDA_APT_VER" libopenmpi-dev openmpi-bin >> "$OUT/apt.log" 2>&1; echo "APT_RC=$?"
+  # libdw-dev: DeepGEMM's deep_jit includes elfutils/libdwfl.h
+  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq "cuda-toolkit-$CUDA_APT_VER" libopenmpi-dev openmpi-bin libdw-dev >> "$OUT/apt.log" 2>&1; echo "APT_RC=$?"
 fi
 export CUDA_HOME="/usr/local/cuda-${CUDA_APT_VER/-/.}"
 export PATH="/workspace/bin:$CUDA_HOME/bin:$PATH"
@@ -80,6 +81,9 @@ mkdir -p "$OUT/xlib" "$OUT/xquant"
 # ---- DeepGEMM fork (vllm-project/DeepGEMM dev) built into venv A with the CUDA 13.2 toolkit
 if [ "$WITH_DEEPGEMM" = "1" ]; then
   if [ ! -d /workspace/DeepGEMM ]; then git clone -q --recursive -b dev https://github.com/vllm-project/DeepGEMM /workspace/DeepGEMM; fi
+  # pip's editable install skips develop.sh's step that links the CUTLASS headers into deep_gemm/include; without them every
+  # JIT compile fails ("command failed with exit code 1" from deep_jit)
+  (cd /workspace/DeepGEMM && ln -sf /workspace/DeepGEMM/third-party/cutlass/include/cutlass deep_gemm/include/cutlass && ln -sf /workspace/DeepGEMM/third-party/cutlass/include/cute deep_gemm/include/cute)
   (cd /workspace/DeepGEMM && git rev-parse --short HEAD | tee "$OUT/deepgemm-commit.txt" && "$PA" -m pip install -e . --no-build-isolation > "$OUT/deepgemm-build.log" 2>&1); rc=${PIPESTATUS[0]}; echo "DEEPGEMM_BUILD_RC=$rc"; tail -3 "$OUT/deepgemm-build.log"
   PYTHONPATH="$PYTHONPATH:/workspace/DeepGEMM/tests" "$PA" scripts/deepgemm_kernel_throughput.py --out "$OUT/deepgemm-kernel-throughput.json" > "$OUT/deepgemm-kernel-throughput.log" 2>&1; echo "DEEPGEMM_THROUGHPUT_RC=$?"
 fi

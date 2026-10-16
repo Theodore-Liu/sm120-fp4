@@ -1,0 +1,21 @@
+{"flashinfer": "0.7.1", "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition", "shape": [16, 4096, 4096], "auto_resolves_to": ["b12x", "cutlass", "cudnn"]}
+{"backend": "auto", "wall": {"median_us": 137.1, "q1_us": 134.4, "q3_us": 143.0, "min_us": 128.2}, "device_median_us": 140.6}
+{"backend": "b12x", "wall": {"median_us": 94.1, "q1_us": 92.8, "q3_us": 96.0, "min_us": 90.2}, "device_median_us": 96.8}
+{"backend": "cutlass", "wall": {"median_us": 99.8, "q1_us": 98.2, "q3_us": 101.1, "min_us": 95.8}, "device_median_us": 98.1}
+{"auto_minus_resolved_wall_us": 43.0, "note": "constant across shapes if the cost is host-side dispatch"}
+--- cProfile of 100 auto calls (cumulative):
+         38543 function calls (37843 primitive calls) in 0.024 seconds
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      100    0.000    0.000    0.024    0.000 /workspace/sm120-fp4/scripts/flashinfer_auto_dispatch_cost.py:50(call)
+      100    0.001    0.000    0.024    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/utils.py:1510(wrapper)
+      100    0.000    0.000    0.018    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/api_logging.py:2343(_auto_dump_wrapper)
+      100    0.001    0.000    0.017    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:8965(mm_fp4)
+      100    0.001    0.000    0.008    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/autotuner/autotuner.py:2165(choose_one)
+      100    0.001    0.000    0.004    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/autotuner/autotuner.py:1917(search_cache)
+      100    0.000    0.000    0.003    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/autotuner/autotuner.py:788(__call__)
+      100    0.001    0.000    0.003    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/utils.py:1447(suitable_auto_backends)
+      100    0.001    0.000    0.003    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:8644(forward)
+      400    0.000    0.000    0.003    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/autotuner/autotuner.py:3382(_get_cache_key)
+      100    0.000    0.000    0.002    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:9142(<lambda>)
+      100    0.000    0.000    0.002    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:9129(<lambda>)
+      100    0.000    0.000    0.002    0.000 /workspace/venv-c/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:7051(_cudnn_gemm_fp4_runner)

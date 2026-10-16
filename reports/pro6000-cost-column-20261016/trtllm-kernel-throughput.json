@@ -1,0 +1,391 @@
+{
+ "generated_utc": "2026-10-16T14:55:39Z",
+ "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+ "capability": [
+  12,
+  0
+ ],
+ "torch": "2.9.1+cu128",
+ "tensorrt_llm": "1.3.0rc9",
+ "clock_note": "WSL2 host; clocks not pinned; median and IQR of 50 timings after 10 warm-ups",
+ "rows": [
+  {
+   "kernel": "trtllm nvfp4_gemm cutlass",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.6,
+   "median_us": 55.65,
+   "q1_us": 54.69,
+   "q3_us": 56.74,
+   "min_us": 53.63,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cublaslt",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.61,
+   "median_us": 54.88,
+   "q1_us": 54.33,
+   "q3_us": 56.86,
+   "min_us": 52.48,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm default",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 0.57,
+   "median_us": 58.72,
+   "q1_us": 58.17,
+   "q3_us": 59.46,
+   "min_us": 56.45,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cute_dsl",
+   "shape": [
+    1,
+    4096,
+    4096
+   ],
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection."
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cutlass",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 8.63,
+   "median_us": 62.19,
+   "q1_us": 59.54,
+   "q3_us": 69.28,
+   "min_us": 53.54,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cublaslt",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 10.33,
+   "median_us": 51.97,
+   "q1_us": 51.74,
+   "q3_us": 53.26,
+   "min_us": 50.62,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm default",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 9.15,
+   "median_us": 58.66,
+   "q1_us": 58.16,
+   "q3_us": 59.2,
+   "min_us": 56.86,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cute_dsl",
+   "shape": [
+    16,
+    4096,
+    4096
+   ],
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection."
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cutlass",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 141.17,
+   "median_us": 60.85,
+   "q1_us": 59.38,
+   "q3_us": 63.46,
+   "min_us": 56.9,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cublaslt",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 164.62,
+   "median_us": 52.18,
+   "q1_us": 51.51,
+   "q3_us": 52.82,
+   "min_us": 50.56,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm default",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 145.05,
+   "median_us": 59.22,
+   "q1_us": 58.21,
+   "q3_us": 59.59,
+   "min_us": 56.83,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cute_dsl",
+   "shape": [
+    256,
+    4096,
+    4096
+   ],
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection."
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cutlass",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 707.43,
+   "median_us": 97.14,
+   "q1_us": 96.02,
+   "q3_us": 98.74,
+   "min_us": 95.17,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cublaslt",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 634.29,
+   "median_us": 108.34,
+   "q1_us": 97.5,
+   "q3_us": 161.97,
+   "min_us": 94.3,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm default",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 635.0,
+   "median_us": 108.22,
+   "q1_us": 107.63,
+   "q3_us": 109.83,
+   "min_us": 106.78,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cute_dsl",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection."
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cutlass",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 15.38,
+   "median_us": 122.19,
+   "q1_us": 120.78,
+   "q3_us": 125.69,
+   "min_us": 72.35,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cublaslt",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 28.69,
+   "median_us": 65.49,
+   "q1_us": 64.7,
+   "q3_us": 66.92,
+   "min_us": 63.2,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm default",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 25.44,
+   "median_us": 73.87,
+   "q1_us": 73.3,
+   "q3_us": 74.48,
+   "min_us": 72.38,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cute_dsl",
+   "shape": [
+    16,
+    14336,
+    4096
+   ],
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection."
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cutlass",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 1080.06,
+   "median_us": 222.69,
+   "q1_us": 221.92,
+   "q3_us": 225.5,
+   "min_us": 220.45,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cublaslt",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 1074.8,
+   "median_us": 223.78,
+   "q1_us": 222.9,
+   "q3_us": 225.55,
+   "min_us": 219.1,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm default",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 1065.09,
+   "median_us": 225.82,
+   "q1_us": 225.15,
+   "q3_us": 226.62,
+   "min_us": 223.17,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cute_dsl",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection."
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cutlass",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 468.37,
+   "median_us": 73.36,
+   "q1_us": 71.34,
+   "q3_us": 76.91,
+   "min_us": 69.5,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cublaslt",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 484.35,
+   "median_us": 70.94,
+   "q1_us": 70.3,
+   "q3_us": 71.93,
+   "min_us": 68.58,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm default",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "dtype": "nvfp4 x nvfp4 -> bf16",
+   "tflops": 450.8,
+   "median_us": 76.22,
+   "q1_us": 75.36,
+   "q3_us": 76.72,
+   "min_us": 74.3,
+   "iters": 50
+  },
+  {
+   "kernel": "trtllm nvfp4_gemm cute_dsl",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "error": "ValueError: CuteDSL NVFP4 backend requires SM 100 (B200) or SM 103 (B300), but got SM 120. Please use nvfp4_gemm with backend='auto' for automatic backend selection."
+  }
+ ]
+}
