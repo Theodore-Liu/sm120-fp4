@@ -1,0 +1,20 @@
+{"flashinfer": "0.7.1", "device": "NVIDIA GeForce RTX 5090", "shape": [16, 4096, 4096], "auto_resolves_to": ["b12x", "cutlass", "cudnn"]}
+{"backend": "auto", "wall": {"median_us": 108.8, "q1_us": 93.0, "q3_us": 178.6, "min_us": 84.9}, "device_median_us": 93.2}
+{"backend": "b12x", "wall": {"median_us": 69.8, "q1_us": 65.5, "q3_us": 93.2, "min_us": 61.3}, "device_median_us": 64.1}
+{"backend": "cutlass", "wall": {"median_us": 72.5, "q1_us": 69.4, "q3_us": 91.9, "min_us": 65.5}, "device_median_us": 65.0}
+{"auto_minus_resolved_wall_us": 39.0, "note": "constant across shapes if the cost is host-side dispatch"}
+--- cProfile of 100 auto calls (cumulative):
+         38443 function calls (37743 primitive calls) in 0.019 seconds
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      100    0.000    0.000    0.019    0.000 /mnt/c/Users/jingz/oss/sm120-fp4/scripts/flashinfer_auto_dispatch_cost.py:50(call)
+      100    0.000    0.000    0.019    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/utils.py:1510(wrapper)
+      100    0.000    0.000    0.014    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/api_logging.py:2343(_auto_dump_wrapper)
+      100    0.001    0.000    0.013    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:8965(mm_fp4)
+      100    0.001    0.000    0.006    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/autotuner/autotuner.py:2165(choose_one)
+      100    0.000    0.000    0.003    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/autotuner/autotuner.py:788(__call__)
+      100    0.001    0.000    0.003    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:8644(forward)
+      100    0.000    0.000    0.003    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/autotuner/autotuner.py:1917(search_cache)
+      100    0.001    0.000    0.002    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/utils.py:1447(suitable_auto_backends)
+      400    0.000    0.000    0.002    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/autotuner/autotuner.py:3382(_get_cache_key)
+      100    0.000    0.000    0.001    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:9142(<lambda>)
+      100    0.000    0.000    0.001    0.000 /home/jingze/fi071/.venv/lib/python3.12/site-packages/flashinfer/gemm/gemm_base.py:8552(_b12x_gemm_fp4_runner)
