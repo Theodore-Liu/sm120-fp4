@@ -89,15 +89,22 @@ def main() -> int:
     ap.add_argument("--tile", type=int, default=64)
     ap.add_argument("--M", type=int, default=16)
     ap.add_argument("--N", type=int, default=16)
+    ap.add_argument("--boundary-sweep", action="store_true",
+                    help="P0 and P2 in adjacent tiles (t, t+1) for every t, P1 in tile t+2: a split-K chunk boundary between t and t+1 "
+                         "reads 2^-7 (the -2^16 chunk truncates the small term before the chunks combine); the same chunk reads exact. "
+                         "The set of t that read 2^-7 is the set of chunk boundaries.")
     a = ap.parse_args()
     dev = torch.device("cuda")
     ver, fns = kernels(a.lib)
     T = a.K // a.tile
     anchors = [(0, T - 1), (0, T // 2), (T // 4, 3 * T // 4), (T // 2 - 1, T // 2), (T - 2, T - 1)]
+    cases = [(t0, t1, t2) for (t0, t2) in anchors
+             for t1 in sorted({0, t0 - 1, t0, t0 + 1, (t0 + t2) // 2, t2 - 1, t2, t2 + 1, T - 1} & set(range(T)))]
+    if a.boundary_sweep:
+        cases = [(t, t + 2, t + 1) for t in range(T - 2)]
     rows = []
-    for (t0, t2) in anchors:
-        t1s = sorted({0, t0 - 1, t0, t0 + 1, (t0 + t2) // 2, t2 - 1, t2, t2 + 1, T - 1} & set(range(T)))
-        for t1 in t1s:
+    for (t0, t1, t2) in cases:
+        if True:
             p0, p2 = t0 * a.tile + 3, t2 * a.tile + 5           # blocks 0 of their tiles (t0 < t2, so distinct)
             p1 = t1 * a.tile + (9 if t1 not in (t0, t2) else 17)   # block 0, or block 1 when it shares a tile
             ap_, bp_, asf, bsf = operands(a.K, p0, p1, p2, a.M, a.N)

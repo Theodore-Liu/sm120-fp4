@@ -51,12 +51,12 @@ The same three products built from e2m1 codes and E4M3 block scales (P0: codes 4
 | FlashInfer 0.7.1 `mm_fp4` cutlass | S = 1, the same |
 | FlashInfer 0.7.1 `mm_fp4` b12x | S = 1, the same |
 | TensorRT-LLM 1.3.0rc9 `nvfp4_gemm_cutlass` | S = 1, the same |
-| TensorRT-LLM 1.3.0rc9 `nvfp4_gemm_cublaslt` | **contiguous split-K**: the K range cut into at least two contiguous chunks, each a truncating pass, combined by truncating adds (2, 4, 8 and 16 chunks with a truncating tree all fit; with round-to-nearest only 2 chunks fit). The anchors sit at halves and quarters of K, so the chunk count is not resolved beyond "at least two". |
+| TensorRT-LLM 1.3.0rc9 `nvfp4_gemm_cublaslt` | **split-K into two contiguous halves of K**: a boundary sweep (`--boundary-sweep`: P0 and P2 in adjacent tiles t, t+1 and P1 in t+2, for every t; a chunk boundary between t and t+1 reads 2^-7, the same chunk reads exact) finds exactly one boundary, after tile 31 of 64, on 62 adjacent pairs; the CUTLASS kernel reads exact on all 62. Each half is a truncating pass; the combine is one add whose rounding this pattern does not distinguish. `reports/nvfp4-reduction-order-rtx5090/trtllm-k4096-m16-n32-boundaries.json`. |
 
 So at this shape every CUTLASS-derived NVFP4 kernel, including FlashInfer's b12x, is one truncating pass over the tiles, and the two libraries whose NVFP4 GEMMs the census found bit-identical (FlashInfer and TensorRT-LLM cutlass) also share the order, which is what bit identity on random operands requires. cuBLASLt's NVFP4 path splits K; its outputs can therefore differ from the CUTLASS kernels' in the last bit on operands where the order matters, which the census's random-operand identity rows did not contain (TensorRT-LLM's default list resolved to cutlass on those shapes).
 
 ## What this does and does not say
 
 - The order is read at six shapes, one of which (cuBLASLt at M = 1) differs; other shapes, other K, and other output dtypes may pick other schedules. The rounding reading (truncation per accumulator add, exact within a tile) is a property of the instruction and held at every shape and schedule seen.
-- It says nothing about the INT8 kernel (integer accumulation, exact). The NVFP4 kernels are read above at one shape; the cuBLASLt chunk count needs anchors at finer K fractions.
+- It says nothing about the INT8 kernel (integer accumulation, exact). The NVFP4 kernels are read above at one shape (M = 16, N = 32, K = 4096); cuBLASLt's chunking may change with the shape.
 - For R1's bound: the measured rounding is what the bound assumes (gamma_K at u = 2^-23). The measured order is tighter than the bound's "any order" and is not used to narrow it; the bound stays order-free so that a kernel upgrade that changes the schedule does not invalidate the verdicts.
