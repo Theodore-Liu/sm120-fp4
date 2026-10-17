@@ -330,7 +330,7 @@ einsum site, being FP8, stays last; the adoption items below come before its nex
 
 ## Status
 
-<!-- ci-status -->CI 2026-10-16: skipped (GPU busy) on 0485fd1.
+<!-- ci-status -->CI 2026-10-17: skipped (GPU busy) on f19d3f5.
 
 Stage 1 complete. Stage 2: the W4A16 decode layer is ahead of Marlin on seven of the eight measured rows of a real NVFP4
 checkpoint on both the RTX 5090 and the RTX PRO 6000, behind on the same eighth row on both (16 tokens on the same 8
