@@ -38,13 +38,27 @@ So the sheet itself halves FP8 when the accumulator is fp32 (the GeForce segment
 - The NVFP4 kernels keep the tensor pipe busy 81 to 86 percent of active cycles and issue tensor instructions at 81 to 86 percent of what Nsight counts as the sustained peak, with DRAM at a quarter of peak. **The kernels are not the gap**: a kernel at 86 percent issue cannot double its throughput. The remaining 14 percent is the ordinary prologue, epilogue and tail of a 112-CTA grid on 170 SMs.
 - The FP8 kernel with fp32 accumulation issues tensor instructions at 48 percent of peak while its pipe is active 96 percent of cycles: the fp32-accumulate half-rate of the sheet's FP8 row, seen as an instruction issue rate. Its 403 TFLOPS is 96 percent of the sheet's 419 for FP8 with fp32 accumulate (at the measured 2.5 GHz, 92 percent).
 
+## The bare instruction (`sm120fp4/kernels/mma_issue_rate.cu`, same day)
+
+A register-only microbenchmark issues each `mma.sync` form in eight independent accumulator chains per warp, 4,096 iterations, with no memory traffic, and reads `clock64()` around the loop. With one block of eight warps per SM the per-SM accounting is exact; the wall-clock TFLOPS are at whatever clock the part ran (about 2.8 GHz for these sub-millisecond kernels, judged from the FP8-fp16 row against its sheet rate; nvidia-smi's 100 ms samples read 2,535 MHz). Report `reports/mma-issue-rate-rtx5090/mma_issue_rate.jsonl`.
+
+| instruction | clocks per instruction per SM | FLOP per clock per SM | sheet row at boost | bare wall TFLOPS (about 2.8 GHz) |
+|---|---|---|---|---|
+| `m16n8k32.kind::f8f6f4` e4m3 x e4m3, **f32** accumulate | 8.0 | 1,024 | 419 (FP8, fp32 accumulate) | 492 |
+| `m16n8k32.kind::f8f6f4` e4m3 x e4m3, **f16** accumulate | 4.0 | 2,048 | 838 (FP8, fp16 accumulate) | 924 |
+| `m16n8k32.kind::f8f6f4` e2m1 x e2m1 in 8-bit containers, f32 accumulate | 8.0 | 1,024 | (no row; equals FP8 fp32) | 498 |
+| `m16n8k64.kind::mxf4nvf4.block_scale.scale_vec::4X` e2m1 x e2m1, ue4m3 scales, f32 accumulate | 4.0 (first run) / 2x the FP8-fp16 rate by wall clock (second run) | 4,096 | 1,676 (FP4 with fp32 accumulate) | 1,943 to 1,986 |
+
+The sheet's four rows are the instruction set's four rates, exactly: fp32 accumulation halves FP8; e2m1 in containers buys nothing over FP8; the block-scaled k64 instruction, the one the SM120 CUTLASS kernels use (`s16864` in their names), issues 4,096 FLOP per clock per SM, the sheet's FP4 figure. The second run's one-block row read 6.2 clocks (2,635 FLOP/clock) while its wall TFLOPS stayed at 1,960; with 170 blocks on 170 SMs the block placement is not guaranteed one per SM, so the two-block rows and the wall clock are the reading there.
+
 ## Reading
 
-The best NVFP4 kernel on this part runs the `mma.sync` e2m1 path at 97 percent of 2,048 FLOP per clock per SM, which is the sheet's FP8-with-fp16-accumulate rate and twice its FP8-with-fp32-accumulate rate, with the pipe 86 percent busy. The sheet's FP4 figure, 4,096 per clock per SM, is twice what this instruction path delivers at near-full issue. Either the specified FP4 rate needs an instruction form these kernels do not use, or the figure does not apply to fp32 accumulation on this part the way the FP8 rows do. Which of the two is not decided here; what is decided is that the gap between 837 and 1,676 TFLOPS is not the WSL2 host's clock, not warm L2 at this shape, not memory bandwidth, and not an under-utilised kernel.
+The instruction reaches the sheet's FP4 rate; the kernels reach 48 percent of it. The best NVFP4 GEMM issues the block-scaled `mma.sync` at half the rate the bare instruction sustains, while Nsight Compute reports its tensor pipe 86 percent active and 86 percent of "peak sustained" instruction issue: Nsight's peak model for the tensor pipe does not match the bare k64 instruction's rate (it is consistent with the k32 rate), so its percentages are not a throughput reading for this instruction. The gap between 837 and 1,676 TFLOPS is therefore inside the kernels: the operand delivery to the tensor cores (shared-memory and register-file bandwidth for A and B fragments and their block scales), the tile schedule, and the epilogue, not the host's clock, not warm L2 at this shape, not DRAM bandwidth, and not the instruction. The FP8 side reads the opposite way: vLLM's FP8 kernel with fp32 accumulation runs at 96 percent of its instruction's rate (403 of 419 TFLOPS at boost), so FP8 on this part is at its ceiling and the ceiling is the fp32-accumulate half rate.
 
 ## What this does and does not say
 
 - One shape profiled per kernel; the smaller shapes' gap has a second component (the L2 flush effect) that the profile does not separate from the pipe rate.
 - Nsight's "percent of peak sustained" for the tensor pipe is relative to its own model of the pipe's peak; the FLOP-per-clock arithmetic above uses the sheet's figures and the measured clock, independently of that model, and the two agree on the conclusion.
 - FlashInfer's and vLLM's NVFP4 kernels were not profiled; their throughput in the cost column (588 to 728 TFLOPS) sits below TensorRT-LLM's, so their gap has a kernel component as well.
-- A microbenchmark of a bare `mma.sync.kind::f8f6f4` loop (no memory traffic) would settle the instruction's issue rate directly; it is the next step and is cheap.
+- The microbenchmark's one-block-per-SM accounting assumes one block per SM; with exactly 170 blocks the scheduler does not guarantee it (the second run's 6.2-clock row). The wall-clock TFLOPS and the two-block rows do not depend on that assumption.
+- Which part of the kernels' operand delivery costs the other half (shared-memory bandwidth for the fragments, the scale loads, the warp-specialised schedule) is the next question; a kernel-side ncu read of `smsp__inst_executed_pipe_lsu`, shared-memory bandwidth and warp stall reasons would separate them.
