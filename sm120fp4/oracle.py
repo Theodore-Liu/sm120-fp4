@@ -12,22 +12,29 @@ per-tensor fp32 scale. Pull the per-tensor scales out: for row i of A and row j 
 
     C[i, j] = (1 / (gs_a * gs_b)) * sum_k (qa[i, k] * sfa[i, k // 16]) * (qb[j, k] * sfb[j, k // 16]).
 
-Each product (2qa * 2qb) * (sfa * sfb) is an integer times a power of two with at most 4 + 4 + 8 = 16 significant bits;
-a sum of K <= 2^20 of them has at most 36 significant bits, below float64's 53, so the sum is computed exactly in
-float64 when the powers of two are aligned (they are: every E4M3 value is a multiple of 2^-9, so every product is an
-integer multiple of 2^-20 after the factor 1/4 from the two half-integers). The division by gs_a * gs_b is one float64
-rounding (relative 2^-53), and the cast to the output dtype is the final rounding: those two are the only inexact
-steps, and both are accounted for in the bound.
+Each product (2qa * 2qb) * (sfa * sfb) is an integer times a power of two with at most 4 + 4 + 8 = 16 significant bits,
+and every E4M3 value is a multiple of 2^-9, so every product is an integer multiple of 2^-18 (2^-20 after the factor 1/4
+from the two half-integers). On that lattice a product is at most 12 * 12 * 448 * 448 ~ 2^24.8, i.e. 2^44.8 lattice
+units, so a sum of K products is exact in float64 only while 44.8 + log2(K) <= 53, K <= 256 in the worst case of scales
+spanning the whole E4M3 range; when the scales of one tensor span fewer octaves (the usual case) the exact range is
+larger. Where it is not exact, the float64 dot product is a correctly rounded sum whose error is at most
+K * 2^-53 * sum_k |a_k b_k| (the same term the W4A16 oracle carries), and the bound includes it. The division by
+gs_a * gs_b is one float64 rounding (relative 2^-53), and the cast to the output dtype is the final rounding. Review
+round 1 of the ISPASS draft (2026-10-16) caught the earlier docstring's "36 significant bits", which assumed all
+products share one exponent.
 
 The bound for a kernel that accumulates in fp32 (every shipped SM120 path does) and writes bf16 or fp16:
 
-    |kernel - exact| <= K * u32 * sum_k |a_k * b_k|   (fp32 accumulation, any order; u32 = 2^-24)
-                      + 0.5 ulp_out(|exact|)          (the output rounding)
+    |kernel - exact| <= gamma_K * sum_k |a_k * b_k|    (fp32 accumulation, any order; gamma_K = K u / (1 - K u), u = 2^-23)
+                      + 0.5 ulp_out(|exact|)          (the output rounding; ulp evaluated at |exact|, floored at the
+                                                       output type's subnormal spacing)
                       + 2^-52 * |exact|               (the oracle's own division)
+                      + K * 2^-53 * sum_k |a_k * b_k| (the oracle's float64 sum where it is not exact)
 
-K * u32 is the classical worst case for K additions in any order (Higham, gamma_K to first order), so it over-covers a
-tree reduction; a kernel outside it is wrong, not unlucky. The bound is per element, from the operands, so it is a
-function of the test, not of the device.
+a_k and b_k are the scaled operands (code times block scale times per-tensor scale). gamma_K is Higham's worst case for
+K additions in any order, so it over-covers a tree reduction; a kernel outside it is wrong, not unlucky. The bound is
+per element, from the operands, so it is a function of the test, not of the device. A non-finite kernel output is
+counted separately and makes the reading non-conformant.
 
 The detectability floor that follows. A fault of size d at one output element is visible only where d exceeds the
 bound, and the bound's fp32 term grows with K: a single wrong operand code changes one of K products, so at K = 4096 it
@@ -58,6 +65,15 @@ from .reference import BLOCK, E2M1_MAX, E4M3_MAX, e2m1_decode, unpack_e2m1
 # 65,536; with the truncation unit every row is inside. 2026-10-11.
 U32 = 2.0 ** -23
 U64 = 2.0 ** -53
+
+
+def _gamma(k: int) -> float:
+    """Higham's gamma_K for K additions at unit U32: K u / (1 - K u). Its first-order form K u was used until 2026-10-16;
+    the difference is a factor 1 / (1 - K u), 1.0005 at K = 4096 and 1.14 at K = 2^20, and only widens the bound."""
+    ku = k * U32
+    if ku >= 1.0:
+        raise ValueError(f"K = {k} is too large for a meaningful fp32 accumulation bound (K u >= 1)")
+    return ku / (1.0 - ku)
 
 
 def _ulp(x: torch.Tensor, dtype: torch.dtype) -> torch.Tensor:
@@ -99,7 +115,7 @@ def exact_gemm_nvfp4(a_packed, a_sf, a_gs, b_packed, b_sf, b_gs, out_dtype=torch
     inv = 1.0 / (4.0 * a_gs.double().reshape(()) * b_gs.double().reshape(()))   # the 4 undoes the two factors of 2
     exact = s * inv
     sum_abs = sabs * inv
-    bound = k * U32 * sum_abs + 0.5 * _ulp(exact, out_dtype) + U64 * exact.abs() * 2
+    bound = _gamma(k) * sum_abs + 0.5 * _ulp(exact, out_dtype) + U64 * exact.abs() * 2 + k * U64 * sum_abs
     return exact, bound
 
 
@@ -119,7 +135,7 @@ def exact_gemm_bf16_nvfp4(a_bf16, b_packed, b_sf, b_gs, out_dtype=torch.bfloat16
     sabs = a.abs() @ sb.abs().t()
     exact = s * inv
     sum_abs = sabs * inv
-    bound = k * U32 * sum_abs + 0.5 * _ulp(exact, out_dtype) + U64 * exact.abs() * 2 + k * U64 * sum_abs
+    bound = _gamma(k) * sum_abs + 0.5 * _ulp(exact, out_dtype) + U64 * exact.abs() * 2 + k * U64 * sum_abs
     return exact, bound
 
 
