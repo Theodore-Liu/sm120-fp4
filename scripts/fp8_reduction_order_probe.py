@@ -77,6 +77,8 @@ def main() -> int:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--K", type=int, default=4096)
     ap.add_argument("--tile", type=int, default=32)
+    ap.add_argument("--M", type=int, default=16, help="rows; the schedule (tile config, split-K) can change with the problem shape")
+    ap.add_argument("--N", type=int, default=16)
     a = ap.parse_args()
     T = a.K // a.tile
     kernels = {"cutlass_scaled_mm": run_cutlass, "torch._scaled_mm": run_cublaslt}
@@ -88,7 +90,7 @@ def main() -> int:
         for t1 in t1s:
             p0, p2 = t0 * a.tile + 3, t2 * a.tile + 5
             p1 = t1 * a.tile + (9 if t1 not in (t0, t2) else 17)
-            a8, b8 = operands(a.K, p0, p1, p2)
+            a8, b8 = operands(a.K, p0, p1, p2, a.M, a.N)
             for name, fn in kernels.items():
                 try:
                     v = fn(a8, b8)
@@ -96,11 +98,10 @@ def main() -> int:
                 except Exception as e:  # noqa: BLE001
                     rows.append({"kernel": name, "t0": t0, "t1": t1, "t2": t2, "error": repr(e)[:200]})
     # the exact sum is 3 * 2^-9; the all-zero control must read 0
-    z = torch.zeros(16, a.K)
-    za, zb = fp8_exact(z).cuda(), fp8_exact(z).cuda()
+    za, zb = fp8_exact(torch.zeros(a.M, a.K)).cuda(), fp8_exact(torch.zeros(a.N, a.K)).cuda()
     controls = {name: fn(za, zb) for name, fn in kernels.items()}
     rep = {"generated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "device": torch.cuda.get_device_name(0),
-           "torch": torch.__version__, "K": a.K, "tile": a.tile, "pattern": {"P0": BIG * BIG, "P1": SMALL_A * SMALL_B, "P2": -BIG * BIG},
+           "torch": torch.__version__, "K": a.K, "tile": a.tile, "M": a.M, "N": a.N, "pattern": {"P0": BIG * BIG, "P1": SMALL_A * SMALL_B, "P2": -BIG * BIG},
            "zero_controls": controls, "rows": rows}
     try:
         import vllm
