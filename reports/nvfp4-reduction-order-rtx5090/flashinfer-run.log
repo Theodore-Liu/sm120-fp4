@@ -1,0 +1,4 @@
+mm_fp4 cutlass {'truncation, P1 added to +-2^16': 20, 'exact (P1 added after the cancellation)': 11}
+mm_fp4 b12x {'truncation, P1 added to +-2^16': 20, 'exact (P1 added after the cancellation)': 11}
+controls: {'mm_fp4 cutlass': {'single_P0': 65536.0}, 'mm_fp4 b12x': {'single_P0': 65536.0}}
+wrote reports/nvfp4-reduction-order-rtx5090/flashinfer-k4096-m16-n32.json

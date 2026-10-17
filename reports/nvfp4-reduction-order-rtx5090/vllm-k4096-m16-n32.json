@@ -1,0 +1,364 @@
+{
+ "generated_utc": "2026-10-17T06:28:51Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.13.0+cu130",
+ "lib": "vllm",
+ "version": "0.28.0",
+ "K": 4096,
+ "tile": 64,
+ "M": 16,
+ "N": 32,
+ "pattern": {
+  "P0": 65536.0,
+  "P1": 0.005859375,
+  "P2": -65536.0
+ },
+ "controls": {
+  "cutlass_scaled_fp4_mm": {
+   "single_P0": 65536.0
+  }
+ },
+ "rows": [
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 0,
+   "t2": 63,
+   "p0": 3,
+   "p1": 17,
+   "p2": 4037,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 1,
+   "t2": 63,
+   "p0": 3,
+   "p1": 73,
+   "p2": 4037,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 31,
+   "t2": 63,
+   "p0": 3,
+   "p1": 1993,
+   "p2": 4037,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 62,
+   "t2": 63,
+   "p0": 3,
+   "p1": 3977,
+   "p2": 4037,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 63,
+   "t2": 63,
+   "p0": 3,
+   "p1": 4049,
+   "p2": 4037,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 0,
+   "t2": 32,
+   "p0": 3,
+   "p1": 17,
+   "p2": 2053,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 1,
+   "t2": 32,
+   "p0": 3,
+   "p1": 73,
+   "p2": 2053,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 16,
+   "t2": 32,
+   "p0": 3,
+   "p1": 1033,
+   "p2": 2053,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 31,
+   "t2": 32,
+   "p0": 3,
+   "p1": 1993,
+   "p2": 2053,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 32,
+   "t2": 32,
+   "p0": 3,
+   "p1": 2065,
+   "p2": 2053,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 33,
+   "t2": 32,
+   "p0": 3,
+   "p1": 2121,
+   "p2": 2053,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 0,
+   "t1": 63,
+   "t2": 32,
+   "p0": 3,
+   "p1": 4041,
+   "p2": 2053,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 0,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 9,
+   "p2": 3077,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 15,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 969,
+   "p2": 3077,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 16,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 1041,
+   "p2": 3077,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 17,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 1097,
+   "p2": 3077,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 32,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 2057,
+   "p2": 3077,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 47,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 3017,
+   "p2": 3077,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 48,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 3089,
+   "p2": 3077,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 49,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 3145,
+   "p2": 3077,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 16,
+   "t1": 63,
+   "t2": 48,
+   "p0": 1027,
+   "p1": 4041,
+   "p2": 3077,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 31,
+   "t1": 0,
+   "t2": 32,
+   "p0": 1987,
+   "p1": 9,
+   "p2": 2053,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 31,
+   "t1": 30,
+   "t2": 32,
+   "p0": 1987,
+   "p1": 1929,
+   "p2": 2053,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 31,
+   "t1": 31,
+   "t2": 32,
+   "p0": 1987,
+   "p1": 2001,
+   "p2": 2053,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 31,
+   "t1": 32,
+   "t2": 32,
+   "p0": 1987,
+   "p1": 2065,
+   "p2": 2053,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 31,
+   "t1": 33,
+   "t2": 32,
+   "p0": 1987,
+   "p1": 2121,
+   "p2": 2053,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 31,
+   "t1": 63,
+   "t2": 32,
+   "p0": 1987,
+   "p1": 4041,
+   "p2": 2053,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 62,
+   "t1": 0,
+   "t2": 63,
+   "p0": 3971,
+   "p1": 9,
+   "p2": 4037,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 62,
+   "t1": 61,
+   "t2": 63,
+   "p0": 3971,
+   "p1": 3913,
+   "p2": 4037,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 62,
+   "t1": 62,
+   "t2": 63,
+   "p0": 3971,
+   "p1": 3985,
+   "p2": 4037,
+   "value": 0.0,
+   "read": "truncation, P1 added to +-2^16"
+  },
+  {
+   "kernel": "cutlass_scaled_fp4_mm",
+   "t0": 62,
+   "t1": 63,
+   "t2": 63,
+   "p0": 3971,
+   "p1": 4049,
+   "p2": 4037,
+   "value": 0.005859375,
+   "read": "exact (P1 added after the cancellation)"
+  }
+ ]
+}

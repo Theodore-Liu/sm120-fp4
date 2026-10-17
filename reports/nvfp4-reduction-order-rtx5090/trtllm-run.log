@@ -1,0 +1,11 @@
+/home/jingze/trtllm/.venv/lib/python3.12/site-packages/modelopt/torch/__init__.py:36: UserWarning: transformers version 4.57.3 is incompatible with nvidia-modelopt and may cause issues. Please install recommended version with `pip install nvidia-modelopt[hf]` if working with HF models.
+  _warnings.warn(
+🚨 Config not found for parakeet. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+🚨 Config not found for parakeet. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+🚨 Config not found for parakeet. You can manually add it to HARDCODED_CONFIG_FOR_MODELS in utils/auto_docstring.py
+[TensorRT-LLM] TensorRT LLM version: 1.3.0rc9
+[10/16/2026-23:38:22] [TRT-LLM] [E] Error querying confidential compute state: Not Supported
+nvfp4_gemm cutlass {'truncation, P1 added to +-2^16': 20, 'exact (P1 added after the cancellation)': 11}
+nvfp4_gemm cublaslt {'truncation, P1 added to +-2^16': 16, '2^-7 (one of several orders)': 13, 'exact (P1 added after the cancellation)': 2}
+controls: {'nvfp4_gemm cutlass': {'single_P0': 65536.0}, 'nvfp4_gemm cublaslt': {'single_P0': 65536.0}}
+wrote reports/nvfp4-reduction-order-rtx5090/trtllm-k4096-m16-n32.json
