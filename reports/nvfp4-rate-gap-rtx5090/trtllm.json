@@ -1,0 +1,407 @@
+{
+ "generated_utc": "2026-10-17T10:11:32Z",
+ "device": "NVIDIA GeForce RTX 5090",
+ "torch": "2.9.1+cu128",
+ "spec_tflops_dense_fp4": 1676.0,
+ "sms": 170,
+ "boost_mhz": 2407.0,
+ "spec_flop_per_clock_per_sm": 4095.896771670862,
+ "rows": [
+  {
+   "backend": "cutlass",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "condition": "warm",
+   "median_us": 280.1920026540756,
+   "iqr_us": [
+    271.94398641586304,
+    289.0000119805336
+   ],
+   "clock_mhz": 2542.0,
+   "power_w": 100.05,
+   "temp_c": 43.0,
+   "clock_samples": 1,
+   "tflops": 858.4,
+   "flop_per_clock_per_sm": 1986.0,
+   "fraction_of_spec_rate_per_clock": 0.485,
+   "fraction_of_spec_tflops": 0.512
+  },
+  {
+   "backend": "cutlass",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "condition": "flushed",
+   "median_us": 290.3199940919876,
+   "iqr_us": [
+    285.568006336689,
+    299.75198954343796
+   ],
+   "clock_mhz": 2542.0,
+   "power_w": 107.78,
+   "temp_c": 43.0,
+   "clock_samples": 1,
+   "tflops": 828.5,
+   "flop_per_clock_per_sm": 1917.0,
+   "fraction_of_spec_rate_per_clock": 0.468,
+   "fraction_of_spec_tflops": 0.494
+  },
+  {
+   "backend": "cublaslt",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "condition": "warm",
+   "median_us": 285.19999980926514,
+   "iqr_us": [
+    279.01600301265717,
+    299.71200227737427
+   ],
+   "clock_mhz": 2557.0,
+   "power_w": 124.99,
+   "temp_c": 46.0,
+   "clock_samples": 1,
+   "tflops": 843.3,
+   "flop_per_clock_per_sm": 1940.0,
+   "fraction_of_spec_rate_per_clock": 0.474,
+   "fraction_of_spec_tflops": 0.503
+  },
+  {
+   "backend": "cublaslt",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "condition": "flushed",
+   "median_us": 294.0160036087036,
+   "iqr_us": [
+    288.65600377321243,
+    304.48800325393677
+   ],
+   "clock_mhz": 2557.0,
+   "power_w": 124.99,
+   "temp_c": 46.0,
+   "clock_samples": 1,
+   "tflops": 818.0,
+   "flop_per_clock_per_sm": 1882.0,
+   "fraction_of_spec_rate_per_clock": 0.459,
+   "fraction_of_spec_tflops": 0.488
+  },
+  {
+   "backend": "default",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "condition": "warm",
+   "median_us": 298.17600548267365,
+   "iqr_us": [
+    258.7440013885498,
+    312.01600283384323
+   ],
+   "clock_mhz": 2557.0,
+   "power_w": 134.4,
+   "temp_c": 46.0,
+   "clock_samples": 1,
+   "tflops": 806.6,
+   "flop_per_clock_per_sm": 1856.0,
+   "fraction_of_spec_rate_per_clock": 0.453,
+   "fraction_of_spec_tflops": 0.481
+  },
+  {
+   "backend": "default",
+   "shape": [
+    2048,
+    14336,
+    4096
+   ],
+   "condition": "flushed",
+   "median_us": 310.3199899196625,
+   "iqr_us": [
+    294.98400539159775,
+    326.02398842573166
+   ],
+   "clock_mhz": 2557.0,
+   "power_w": 141.11,
+   "temp_c": 46.0,
+   "clock_samples": 1,
+   "tflops": 775.1,
+   "flop_per_clock_per_sm": 1783.0,
+   "fraction_of_spec_rate_per_clock": 0.435,
+   "fraction_of_spec_tflops": 0.462
+  },
+  {
+   "backend": "cutlass",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "condition": "warm",
+   "median_us": 99.71199929714203,
+   "iqr_us": [
+    89.24800157546997,
+    136.3920010626316
+   ],
+   "clock_mhz": 2482.0,
+   "power_w": 143.88,
+   "temp_c": 45.0,
+   "clock_samples": 1,
+   "tflops": 689.2,
+   "flop_per_clock_per_sm": 1633.0,
+   "fraction_of_spec_rate_per_clock": 0.399,
+   "fraction_of_spec_tflops": 0.411
+  },
+  {
+   "backend": "cutlass",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "condition": "flushed",
+   "median_us": 144.96000111103058,
+   "iqr_us": [
+    140.25599509477615,
+    157.6079986989498
+   ],
+   "clock_mhz": 2482.0,
+   "power_w": 145.46,
+   "temp_c": 45.0,
+   "clock_samples": 1,
+   "tflops": 474.1,
+   "flop_per_clock_per_sm": 1124.0,
+   "fraction_of_spec_rate_per_clock": 0.274,
+   "fraction_of_spec_tflops": 0.283
+  },
+  {
+   "backend": "cublaslt",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "condition": "warm",
+   "median_us": 91.90399944782257,
+   "iqr_us": [
+    81.19999803602695,
+    135.80799847841263
+   ],
+   "clock_mhz": 2482.0,
+   "power_w": 143.01,
+   "temp_c": 45.0,
+   "clock_samples": 1,
+   "tflops": 747.7,
+   "flop_per_clock_per_sm": 1772.0,
+   "fraction_of_spec_rate_per_clock": 0.433,
+   "fraction_of_spec_tflops": 0.446
+  },
+  {
+   "backend": "cublaslt",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "condition": "flushed",
+   "median_us": 154.28800135850906,
+   "iqr_us": [
+    145.85599675774574,
+    180.2000068128109
+   ],
+   "clock_mhz": 2452.0,
+   "power_w": 137.09,
+   "temp_c": 45.0,
+   "clock_samples": 1,
+   "tflops": 445.4,
+   "flop_per_clock_per_sm": 1069.0,
+   "fraction_of_spec_rate_per_clock": 0.261,
+   "fraction_of_spec_tflops": 0.266
+  },
+  {
+   "backend": "default",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "condition": "warm",
+   "median_us": 102.9600016772747,
+   "iqr_us": [
+    81.8559993058443,
+    170.75199633836746
+   ],
+   "clock_mhz": 2452.0,
+   "power_w": 130.99,
+   "temp_c": 45.0,
+   "clock_samples": 1,
+   "tflops": 667.4,
+   "flop_per_clock_per_sm": 1601.0,
+   "fraction_of_spec_rate_per_clock": 0.391,
+   "fraction_of_spec_tflops": 0.398
+  },
+  {
+   "backend": "default",
+   "shape": [
+    2048,
+    4096,
+    4096
+   ],
+   "condition": "flushed",
+   "median_us": 142.12799817323685,
+   "iqr_us": [
+    136.84000447392464,
+    152.0719937980175
+   ],
+   "clock_mhz": 2452.0,
+   "power_w": 129.4,
+   "temp_c": 45.0,
+   "clock_samples": 1,
+   "tflops": 483.5,
+   "flop_per_clock_per_sm": 1160.0,
+   "fraction_of_spec_rate_per_clock": 0.283,
+   "fraction_of_spec_tflops": 0.288
+  },
+  {
+   "backend": "cutlass",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "condition": "warm",
+   "median_us": 69.61600109934807,
+   "iqr_us": [
+    58.47199913114309,
+    119.71200071275234
+   ],
+   "clock_mhz": 2542.0,
+   "power_w": 101.55,
+   "temp_c": 44.0,
+   "clock_samples": 1,
+   "tflops": 493.6,
+   "flop_per_clock_per_sm": 1142.0,
+   "fraction_of_spec_rate_per_clock": 0.279,
+   "fraction_of_spec_tflops": 0.294
+  },
+  {
+   "backend": "cutlass",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "condition": "flushed",
+   "median_us": 117.08800122141838,
+   "iqr_us": [
+    108.71200077235699,
+    129.223994910717
+   ],
+   "clock_mhz": 2542.0,
+   "power_w": 105.85,
+   "temp_c": 44.0,
+   "clock_samples": 1,
+   "tflops": 293.5,
+   "flop_per_clock_per_sm": 679.0,
+   "fraction_of_spec_rate_per_clock": 0.166,
+   "fraction_of_spec_tflops": 0.175
+  },
+  {
+   "backend": "cublaslt",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "condition": "warm",
+   "median_us": 65.99999964237213,
+   "iqr_us": [
+    58.176000602543354,
+    91.36800281703472
+   ],
+   "clock_mhz": 2542.0,
+   "power_w": 105.85,
+   "temp_c": 44.0,
+   "clock_samples": 1,
+   "tflops": 520.6,
+   "flop_per_clock_per_sm": 1205.0,
+   "fraction_of_spec_rate_per_clock": 0.294,
+   "fraction_of_spec_tflops": 0.311
+  },
+  {
+   "backend": "cublaslt",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "condition": "flushed",
+   "median_us": 140.51200449466705,
+   "iqr_us": [
+    123.56799840927124,
+    159.96799618005753
+   ],
+   "clock_mhz": 2542.0,
+   "power_w": 106.76,
+   "temp_c": 44.0,
+   "clock_samples": 1,
+   "tflops": 244.5,
+   "flop_per_clock_per_sm": 566.0,
+   "fraction_of_spec_rate_per_clock": 0.138,
+   "fraction_of_spec_tflops": 0.146
+  },
+  {
+   "backend": "default",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "condition": "warm",
+   "median_us": 53.4719992429018,
+   "iqr_us": [
+    45.4480005428195,
+    66.71199761331081
+   ],
+   "clock_mhz": 2542.0,
+   "power_w": 111.56,
+   "temp_c": 44.0,
+   "clock_samples": 1,
+   "tflops": 642.6,
+   "flop_per_clock_per_sm": 1487.0,
+   "fraction_of_spec_rate_per_clock": 0.363,
+   "fraction_of_spec_tflops": 0.383
+  },
+  {
+   "backend": "default",
+   "shape": [
+    256,
+    8192,
+    8192
+   ],
+   "condition": "flushed",
+   "median_us": 118.60800161957741,
+   "iqr_us": [
+    114.6400012075901,
+    127.97600030899048
+   ],
+   "clock_mhz": 2610.0,
+   "power_w": 113.21,
+   "temp_c": 44.0,
+   "clock_samples": 1,
+   "tflops": 289.7,
+   "flop_per_clock_per_sm": 653.0,
+   "fraction_of_spec_rate_per_clock": 0.159,
+   "fraction_of_spec_tflops": 0.173
+  }
+ ]
+}
